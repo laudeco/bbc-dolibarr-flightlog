@@ -805,6 +805,13 @@ class Bbcvols extends CommonObject
         return "".$this;
     }
 
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->statut;
+    }
 
 }
 

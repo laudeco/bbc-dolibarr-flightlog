@@ -120,7 +120,7 @@ print '</div>';
 
 
 //START QUERY
-print '<table summary="" width="100%" border="0" class="notopnoleftnoright" style="margin-bottom: 2px;"><tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Vols a facturer</div></td></tr></tbody></table>';
+print '<table summary="" width="100%" border="0" class="notopnoleftnoright" style="margin-bottom: 2px;"><tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Vols</div></td></tr></tbody></table>';
 
 //tableau des facturations
 $sql = "SELECT BAL.immat as ballon,"; //ballon
@@ -153,10 +153,6 @@ if ($resql) {
     $num = $db->num_rows($resql);
     $i = 0;
     if ($num) {
-        print '<tr class="liste_titre">';
-        print '<td colspan="7"> Les 10 premiers Vols a facturer.';
-
-        print '</td>';
         print '</tr>';
         print '<tr class="liste_titre">';
 

@@ -1,57 +1,26 @@
 <?php
-/* Copyright (C) 2007-2010 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) ---Put here your own copyright and developer email---
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 /**
- *   	\file       dev/skeletons/skeleton_page.php
- *		\ingroup    mymodule othermodule1 othermodule2
- *		\brief      This file is an example of a php page
- *		\version    $Id: skeleton_page.php,v 1.19 2011/07/31 22:21:57 eldy Exp $
- *		\author		Put author name here
- *		\remarks	Put here some comments
+ * \file    mypage.php
+ * \ingroup mymodule
+ * \brief   Example PHP page.
+ *
+ * read flights
  */
 
-//if (! defined('NOREQUIREUSER'))  define('NOREQUIREUSER','1');
-//if (! defined('NOREQUIREDB'))    define('NOREQUIREDB','1');
-//if (! defined('NOREQUIRESOC'))   define('NOREQUIRESOC','1');
-//if (! defined('NOREQUIRETRAN'))  define('NOREQUIRETRAN','1');
-//if (! defined('NOCSRFCHECK'))    define('NOCSRFCHECK','1');
-//if (! defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL','1');
-//if (! defined('NOREQUIREMENU'))  define('NOREQUIREMENU','1');	// If there is no menu to show
-//if (! defined('NOREQUIREHTML'))  define('NOREQUIREHTML','1');	// If we don't need to load the html.form.class.php
-//if (! defined('NOREQUIREAJAX'))  define('NOREQUIREAJAX','1');
-//if (! defined("NOLOGIN"))        define("NOLOGIN",'1');		// If this page is public (can be called outside logged session)
+// Load Dolibarr environment
+if (false === (@include '../main.inc.php')) {  // From htdocs directory
+    require '../../documents/custom/main.inc.php'; // From "custom" directory
+}
 
-// Change this following line to use the correct relative path (../, ../../, etc)
-$res=0;
-if (! $res && file_exists("../main.inc.php")) $res=@include("../main.inc.php");
-if (! $res && file_exists("../../main.inc.php")) $res=@include("../../main.inc.php");
-if (! $res && file_exists("../../../main.inc.php")) $res=@include("../../../main.inc.php");
-if (! $res && file_exists("../../../dolibarr/htdocs/main.inc.php")) $res=@include("../../../dolibarr/htdocs/main.inc.php");     // Used on dev env only
-if (! $res && file_exists("../../../../dolibarr/htdocs/main.inc.php")) $res=@include("../../../../dolibarr/htdocs/main.inc.php");   // Used on dev env only
-if (! $res && file_exists("../../../../../dolibarr/htdocs/main.inc.php")) $res=@include("../../../../../dolibarr/htdocs/main.inc.php");   // Used on dev env only
-if (! $res) die("Include of main fails");
-// Change this following line to use the correct relative path from htdocs (do not remove DOL_DOCUMENT_ROOT)
-require_once(DOL_DOCUMENT_ROOT."/../htdocs/flightBalloon/bbc_ballons.class.php");
-require_once(DOL_DOCUMENT_ROOT."/../htdocs/user/class/user.class.php");
-require_once(DOL_DOCUMENT_ROOT."/flightLog/bbc_vols.class.php");
-// Load traductions files requiredby by page
-$langs->load("companies");
-$langs->load("other");
+global $db, $langs, $user;
+
+dol_include_once('/flightLog/class/bbcvols.class.php');
+dol_include_once("/flightBalloon/bbc_ballons.class.php");
+dol_include_once('/flightLog/class/bbctypes.class.php');
+dol_include_once("/flightLog/inc/other.php");
+
+// Load translation files required by the page
+$langs->load("mymodule@mymodule");
 
 // Get parameters
 $myparam = isset($_GET["myparam"])?$_GET["myparam"]:'';
@@ -148,7 +117,7 @@ if($msg && $idBallon != -1){
 	print '<table width="100%" class="border">';
 	print '<tr><td>Ballon</td><td colspan="3">';
 	if($user->rights->flightLog->vol->detail){
-		$form->select_balloons($idBallon);
+		select_balloons($idBallon);
 	}else{
 		print $ballon->immat;
 	}
@@ -156,13 +125,13 @@ if($msg && $idBallon != -1){
 	print'</td></tr>';
         //titulaire
         print '<tr>';
-        print '<td>Titulaire</.td>';
-        print '<td>'.$titulaire->getLoginUrl(1).'</.td>';
+        print '<td>Titulaire</td>';
+        print '<td>'.$titulaire->getLoginUrl(1).'</td>';
         print '</tr>';
         //Vol initial
         print '<tr>';
         print '<td>Bapteme</.td>';
-        print '<td>'.dol_date('d-m-Y', $ballon->date).'</.td>';
+        print '<td>'.dol_print_date($ballon->date, 'dayrfc').'</td>';
         print '</tr>';
         $num = 0;
 	if($resql){
@@ -208,7 +177,7 @@ if($msg && $idBallon != -1){
 					print '<td><a href="fiche.php?vol='.$obj->idBBC_vols.'">'.$obj->idBBC_vols.'</a></td>';
 					print '<td>'.$obj->date.'</td>';
 					print '<td>'.$ballon->immat.'</td>';
-					print '<td> <a href="'.DOL_URL_ROOT.'/user/fiche.php?id='.$obj->fk_pilot.'">'.img_object($langs->trans("ShowUser"),"user").' '.$pilot->getFullName($langs).'</a></td>';
+					print '<td>'.$pilot->getNomUrl().'</a></td>';
 					print '<td>'.$obj->lieuD.'</td>';
 					print '<td>'.$obj->lieuA.'</td>';
 					print '<td>'.$obj->heureD.'</td>';
@@ -218,15 +187,9 @@ if($msg && $idBallon != -1){
 					print '<td>'.$obj->remarque.'</td>';
 					print '<td>'.$obj->incidents.'</td>';
 					if($user->rights->flightLog->vol->status){
-						$vol = new Bbc_vols($db);
+						$vol = new Bbcvols($db);
 						$vol->fetch($obj->idBBC_vols);
-						print '<td>'.$vol->getStatus();
-	//					print '<form action="readFlightsBalloon.php" method="post>';
-	//					print '<input type="hidden" name="vol" value="'.$obj->idBBC_vols.'"/>';
-	//					print '<input type="hidden" name="action" value="valider"/>';
-	//					print '<input class="butAction" type="submit" value="Valider"/>';
-	//					print '</form>';
-						print '</td>';
+                        print '<td>' . $vol->getStatus().'</td>';
 					}
 				}
 				print'</tr>';
