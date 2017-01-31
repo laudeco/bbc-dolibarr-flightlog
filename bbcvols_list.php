@@ -333,7 +333,6 @@ $parameters=array();
 $reshook=$hookmanager->executeHooks('printFieldListWhere',$parameters);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
 $sql.=$db->order($sortfield,$sortorder);
-//$sql.= $db->plimit($conf->liste_limit+1, $offset);
 
 // Count total nb of records
 $nbtotalofrecords = 0;
