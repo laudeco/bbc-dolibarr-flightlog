@@ -242,4 +242,3 @@ if ($msg && $idBallon != -1) {
 }
 
 llxFooter();
-?>
