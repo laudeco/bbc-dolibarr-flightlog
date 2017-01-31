@@ -1,73 +1,26 @@
 <?php
-/* Copyright (C) 2007-2010 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) ---Put here your own copyright and developer email---
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 /**
- *    \file       dev/skeletons/skeleton_page.php
- *    \ingroup    mymodule othermodule1 othermodule2
- *    \brief      This file is an example of a php page
- *    \version    $Id: skeleton_page.php,v 1.19 2011/07/31 22:21:57 eldy Exp $
- *    \author    Put author name here
- *    \remarks  Put here some comments
+ * \file    mypage.php
+ * \ingroup mymodule
+ * \brief   Example PHP page.
+ *
+ * read flights
  */
 
-//if (! defined('NOREQUIREUSER'))  define('NOREQUIREUSER','1');
-//if (! defined('NOREQUIREDB'))    define('NOREQUIREDB','1');
-//if (! defined('NOREQUIRESOC'))   define('NOREQUIRESOC','1');
-//if (! defined('NOREQUIRETRAN'))  define('NOREQUIRETRAN','1');
-//if (! defined('NOCSRFCHECK'))    define('NOCSRFCHECK','1');
-//if (! defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL','1');
-//if (! defined('NOREQUIREMENU'))  define('NOREQUIREMENU','1');	// If there is no menu to show
-//if (! defined('NOREQUIREHTML'))  define('NOREQUIREHTML','1');	// If we don't need to load the html.form.class.php
-//if (! defined('NOREQUIREAJAX'))  define('NOREQUIREAJAX','1');
-//if (! defined("NOLOGIN"))        define("NOLOGIN",'1');		// If this page is public (can be called outside logged session)
+// Load Dolibarr environment
+if (false === (@include '../main.inc.php')) {  // From htdocs directory
+    require '../../documents/custom/main.inc.php'; // From "custom" directory
+}
 
-// Change this following line to use the correct relative path (../, ../../, etc)
-$res = 0;
-if (!$res && file_exists("../main.inc.php")) {
-    $res = @include("../main.inc.php");
-}
-if (!$res && file_exists("../../main.inc.php")) {
-    $res = @include("../../main.inc.php");
-}
-if (!$res && file_exists("../../../main.inc.php")) {
-    $res = @include("../../../main.inc.php");
-}
-if (!$res && file_exists("../../../dolibarr/htdocs/main.inc.php")) {
-    $res = @include("../../../dolibarr/htdocs/main.inc.php");
-}     // Used on dev env only
-if (!$res && file_exists("../../../../dolibarr/htdocs/main.inc.php")) {
-    $res = @include("../../../../dolibarr/htdocs/main.inc.php");
-}   // Used on dev env only
-if (!$res && file_exists("../../../../../dolibarr/htdocs/main.inc.php")) {
-    $res = @include("../../../../../dolibarr/htdocs/main.inc.php");
-}   // Used on dev env only
-if (!$res) {
-    die("Include of main fails");
-}
-// Change this following line to use the correct relative path from htdocs (do not remove DOL_DOCUMENT_ROOT)
-require_once(DOL_DOCUMENT_ROOT . "/../htdocs/flightBalloon/bbc_ballons.class.php");
-require_once(DOL_DOCUMENT_ROOT . "/../htdocs/user/class/user.class.php");
-require_once(DOL_DOCUMENT_ROOT . "/flightLog/lib/flightLog.lib.php");
-require_once(DOL_DOCUMENT_ROOT . "/flightLog/bbc_vols.class.php");
+global $db, $langs, $user;
 
-// Load traductions files requiredby by page
-$langs->load("companies");
-$langs->load("other");
+dol_include_once('/flightLog/class/bbcvols.class.php');
+dol_include_once("/flightBalloon/bbc_ballons.class.php");
+dol_include_once('/flightLog/class/bbctypes.class.php');
+dol_include_once("/flightLog/lib/flightLog.lib.php");
+
+// Load translation files required by the page
+$langs->load("mymodule@mymodule");
 
 // Get parameters
 $myparam = isset($_GET["myparam"]) ? $_GET["myparam"] : '';
@@ -107,10 +60,10 @@ $datef = dol_mktime(-1, -1, -1, $_POST["p2month"], $_POST["p2day"], $_POST["p2ye
 $query = 'SELECT *,TIMEDIFF(heureA,heureD) AS time  FROM llx_bbc_vols WHERE 1=1';
 
 if ($datep) {
-    $query .= ' AND date >= \'' . dol_date('Y-m-d', $datep) . '\'';
+    $query .= ' AND date >= \'' . dol_print_date($datep, 'dayrfc') . '\'';
 }
 if ($datef) {
-    $query .= ' AND date <= \'' . dol_date('Y-m-d', $datef) . '\'';
+    $query .= ' AND date <= \'' . dol_print_date($datef, 'dayrfc') . '\'';
 }
 
 $query .= ' AND `fk_organisateur` = ' . $bbcUser->id;
@@ -123,10 +76,10 @@ $sqlByType = "SELECT USR.name AS nom , USR.firstname AS prenom ,COUNT(`idBBC_vol
 $sqlByType .= " FROM llx_bbc_vols, llx_user AS USR,llx_bbc_types AS TT WHERE `fk_organisateur`= USR.rowid AND fk_type = TT.idType AND USR.rowid = " . $bbcUser->id;
 
 if ($datep) {
-    $sqlByType .= ' AND date >= \'' . dol_date('Y-m-d', $datep) . '\'';
+    $sqlByType .= ' AND date >= \'' . dol_print_date($datep, 'dayrfc') . '\'';
 }
 if ($datef) {
-    $sqlByType .= ' AND date <= \'' . dol_date('Y-m-d', $datef) . '\'';
+    $sqlByType .= ' AND date <= \'' . dol_print_date($datef, 'dayrfc') . '\'';
 }
 
 $sqlByType .= " GROUP BY fk_organisateur,`fk_type`";
@@ -155,7 +108,7 @@ print '<table width="100%" class="border">';
 //Pilote
 print '<tr><td>Organisateur</td><td>';
 if ($user->rights->flightLog->vol->detail) {
-    $form->select_users($userid);
+    print $form->select_dolusers($userid);
 } else {
     print $user->nom . ' ' . $user->prenom;
 }
@@ -278,7 +231,7 @@ if ($resql) {
                 print '<td>' . $obj->kilometers . '</td>';
                 print '<td>' . $obj->justif_kilometers . '</td>';
                 if ($user->rights->flightLog->vol->status) {
-                    $vol = new Bbc_vols($db);
+                    $vol = new Bbcvols($db);
                     $vol->fetch($obj->idBBC_vols);
                     print '<td>' . $vol->getStatus() . '</td>';
                 }
@@ -290,14 +243,4 @@ if ($resql) {
     print'</table>';
 }
 
-/***************************************************
- * LINKED OBJECT BLOCK
- *
- * Put here code to view linked object
- ****************************************************/
-//$somethingshown=$myobject->showLinkedObjectBlock();
-
-// End of page
-$db->close();
-llxFooter('$Date: 2011/07/31 22:21:57 $ - $Revision: 1.19 $');
-?>
+llxFooter();
