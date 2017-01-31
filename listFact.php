@@ -8,7 +8,7 @@ global $db, $langs, $user;
 
 dol_include_once('/flightLog/class/bbcvols.class.php');
 dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once("/flightLog/inc/other.php");
+dol_include_once("/flightLog/lib/flightLog.lib.php");
 dol_include_once("/flightBalloon/bbc_ballons.class.php");
 
 // Load translation files required by the page

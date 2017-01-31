@@ -62,7 +62,7 @@ if (!$res) {
 // Change this following line to use the correct relative path from htdocs (do not remove DOL_DOCUMENT_ROOT)
 require_once(DOL_DOCUMENT_ROOT . "/../htdocs/flightBalloon/bbc_ballons.class.php");
 require_once(DOL_DOCUMENT_ROOT . "/../htdocs/user/class/user.class.php");
-require_once(DOL_DOCUMENT_ROOT . "/flightLog/inc/other.php");
+require_once(DOL_DOCUMENT_ROOT . "/flightLog/lib/flightLog.lib.php");
 require_once(DOL_DOCUMENT_ROOT . "/flightLog/bbc_vols.class.php");
 
 // Load traductions files requiredby by page
