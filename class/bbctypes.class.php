@@ -19,6 +19,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//TODO refactor to match the table
+
 /**
  * \file    flightLog/bbctypes.class.php
  * \ingroup flightLog
@@ -59,7 +61,7 @@ class Bbctypes extends CommonObject
 	public $idType;
 	public $numero;
 	public $nom;
-	public $selectable;
+	public $active;
 
 	/**
 	 * Constructor
@@ -96,11 +98,11 @@ class Bbctypes extends CommonObject
 		if (isset($this->nom)) {
 			 $this->nom = trim($this->nom);
 		}
-		if (isset($this->selectable)) {
-			 $this->selectable = trim($this->selectable);
+		if (isset($this->active)) {
+			 $this->active = trim($this->active);
 		}
 
-		
+
 
 		// Check parameters
 		// Put here code to add control on parameters values
@@ -110,14 +112,14 @@ class Bbctypes extends CommonObject
 		
 		$sql.= 'numero,';
 		$sql.= 'nom';
-		$sql.= 'selectable';
+		$sql.= 'active';
 
 		
 		$sql .= ') VALUES (';
 		
 		$sql .= ' '.(! isset($this->numero)?'NULL':$this->numero).',';
 		$sql .= ' '.(! isset($this->nom)?'NULL':"'".$this->db->escape($this->nom)."'").',';
-		$sql .= ' '.(! isset($this->selectable)?'NULL':$this->selectable);
+		$sql .= ' '.(! isset($this->active)?'NULL':$this->active);
 
 		
 		$sql .= ')';
@@ -175,7 +177,8 @@ class Bbctypes extends CommonObject
 		$sql .= " t.idType,";
 		$sql .= " t.numero,";
 		$sql .= " t.nom,";
-		$sql .= " t.selectable";
+		$sql .= " t.active";
+		$sql .= " t.active";
 
 		
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -196,7 +199,7 @@ class Bbctypes extends CommonObject
 				$this->idType = $obj->idType;
 				$this->numero = $obj->numero;
 				$this->nom = $obj->nom;
-				$this->selectable = $obj->selectable;
+				$this->active = $obj->active;
 
 				
 			}
@@ -237,7 +240,7 @@ class Bbctypes extends CommonObject
 		$sql .= " t.idType,";
 		$sql .= " t.numero,";
 		$sql .= " t.nom,";
-		$sql .= " t.selectable";
+		$sql .= " t.active";
 
 		
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element. ' as t';
@@ -273,7 +276,7 @@ class Bbctypes extends CommonObject
 				$line->idType = $obj->idType;
 				$line->numero = $obj->numero;
 				$line->nom = $obj->nom;
-				$line->selectable = $obj->selectable;
+				$line->active = $obj->active;
 
 				
 
@@ -315,8 +318,8 @@ class Bbctypes extends CommonObject
 		if (isset($this->nom)) {
 			 $this->nom = trim($this->nom);
 		}
-		if (isset($this->selectable)) {
-			 $this->selectable = trim($this->selectable);
+		if (isset($this->active)) {
+			 $this->active = trim($this->active);
 		}
 
 		
@@ -329,7 +332,7 @@ class Bbctypes extends CommonObject
 		
 		$sql .= ' numero = '.(isset($this->numero)?$this->numero:"null").',';
 		$sql .= ' nom = '.(isset($this->nom)?"'".$this->db->escape($this->nom)."'":"null").',';
-		$sql .= ' selectable = '.(isset($this->selectable)?$this->selectable:"null");
+		$sql .= ' active = '.(isset($this->active)?$this->active:"null");
 
         
 		$sql .= ' WHERE rowid=' . $this->id;
@@ -572,7 +575,7 @@ class Bbctypes extends CommonObject
 		$this->idType = '';
 		$this->numero = '';
 		$this->nom = '';
-		$this->selectable = '';
+		$this->active = '';
 
 		
 	}
@@ -595,7 +598,7 @@ class BbctypesLine
 	public $idType;
 	public $numero;
 	public $nom;
-	public $selectable;
+	public $active;
 
 	/**
 	 * @var mixed Sample line property 2

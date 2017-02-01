@@ -58,7 +58,7 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = 0)
 
     print '<select class="flat" name="' . $htmlname . '">';
 
-    $resql = $db->query("SELECT B.idType,B.numero,B.nom FROM llx_bbc_types as B WHERE selectable=1");
+    $resql = $db->query("SELECT B.idType,B.numero,B.nom FROM llx_bbc_types as B WHERE active=1");
     if ($resql) {
         $num = $db->num_rows($resql);
         $i = 0;
@@ -191,7 +191,7 @@ function bbcKilometersByQuartil($year)
  * @param $kmByQuartil
  * @param $tauxRemb
  */
-function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb)
+function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
 {
     print '<table class="border" width="100%">';
 
@@ -261,30 +261,30 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb)
         print '<td>' . $firstname . '</td>';
 
         print '<td>' . ($flightsQ1) . '</td>';
-        print '<td>' . ($flightsQ1 * 35) . '€</td>';
+        print '<td>' . ($flightsQ1 * $unitPriceMission) . '€</td>';
         print '<td>' . $sumQ1 . '</td>';
         print '<td>' . ($sumQ1 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ1 * $tauxRemb) + ($flightsQ1 * 35)) . '€</b></td>';
+        print '<td><b>' . (($sumQ1 * $tauxRemb) + ($flightsQ1 * $unitPriceMission)) . '€</b></td>';
 
         print '<td>' . ($flightsQ2) . '</td>';
-        print '<td>' . ($flightsQ2 * 35) . '€</td>';
+        print '<td>' . ($flightsQ2 * $unitPriceMission) . '€</td>';
         print '<td>' . $sumQ2 . '</td>';
         print '<td>' . ($sumQ2 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ2 * $tauxRemb) + ($flightsQ2 * 35)) . '€</b></td>';
+        print '<td><b>' . (($sumQ2 * $tauxRemb) + ($flightsQ2 * $unitPriceMission)) . '€</b></td>';
 
         print '<td>' . ($flightsQ3) . '</td>';
-        print '<td>' . ($flightsQ3 * 35) . '€</td>';
+        print '<td>' . ($flightsQ3 * $unitPriceMission) . '€</td>';
         print '<td>' . $sumQ3 . '</td>';
         print '<td>' . ($sumQ3 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ3 * $tauxRemb) + ($flightsQ3 * 35)) . '€</b></td>';
+        print '<td><b>' . (($sumQ3 * $tauxRemb) + ($flightsQ3 * $unitPriceMission)) . '€</b></td>';
 
         print '<td>' . ($flightsQ4) . '</td>';
-        print '<td>' . ($flightsQ4 * 35) . '€</td>';
+        print '<td>' . ($flightsQ4 * $unitPriceMission) . '€</td>';
         print '<td>' . $sumQ4 . '</td>';
         print '<td>' . ($sumQ4 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ4 * $tauxRemb) + ($flightsQ4 * 35)) . '€</b></td>';
+        print '<td><b>' . (($sumQ4 * $tauxRemb) + ($flightsQ4 * $unitPriceMission)) . '€</b></td>';
 
-        print '<td>' . (($sumFlights * 35) + ($sumKm * $tauxRemb)) . '€</td>';
+        print '<td>' . (($sumFlights * $unitPriceMission) + ($sumKm * $tauxRemb)) . '€</td>';
 
         print '</tr>';
     }

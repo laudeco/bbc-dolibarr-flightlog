@@ -49,6 +49,8 @@ $currentYear = date('Y');
 $currentQuarter = floor((date('n') - 1) / 3) + 1;
 
 $tauxRemb = isset($conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
+$unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
+
 $flightYears = getFlightYears();
 
 $object = new ExpenseReport($db);
@@ -81,6 +83,10 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
         foreach($missions as $currentMissionUserId => $currentMission){
 
+            if($currentMission["quartil"][$quarter]["km"] == 0 && $currentMission["quartil"][$quarter]["flight"] == 0){
+                continue;
+            }
+
             $expenseNoteUser = new User($db);
             $expenseNoteUser->id = $currentMissionUserId;
 
@@ -95,6 +101,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
             $expenseNoteId = $object->create($expenseNoteUser);
 
+            // Kilometers
             $object_ligne = new ExpenseReportLine($db);
             $object_ligne->comments = "Kilometres réalisé pour le club";
             $object_ligne->qty = $currentMission["quartil"][$quarter]["km"];
@@ -115,10 +122,11 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
             $resultLine = $object_ligne->insert();
 
+            // Missions
             $object_ligne = new ExpenseReportLine($db);
             $object_ligne->comments = "Mission réalisé pour le club";
             $object_ligne->qty = $currentMission["quartil"][$quarter]["flight"];
-            $object_ligne->value_unit = 35;
+            $object_ligne->value_unit = $unitPriceMission;
 
             $object_ligne->date = $endDate->format("Y-m-d");
 
@@ -184,7 +192,7 @@ dol_fiche_head($tabLinks, "tab_".$year);
         <!-- action -->
         <input type="hidden" name="action" value="<?= EXPENSE_REPORT_GENERATOR_ACTION_GENERATE ?>">
 
-        <?php printBbcKilometersByQuartil(bbcKilometersByQuartil($year), $tauxRemb); ?>
+        <?php printBbcKilometersByQuartil(bbcKilometersByQuartil($year), $tauxRemb, $unitPriceMission); ?>
 
         <!-- Quarter -->
         <label for="field_quarter">Q : </label>
@@ -213,15 +221,6 @@ dol_fiche_head($tabLinks, "tab_".$year);
         <!-- Private note -->
         <label><?= $langs->trans("Note privée (commune à toutes les notes de frais)"); ?></label><br/>
         <textarea name="private_note" wrap="soft" class="quatrevingtpercent" rows="2"></textarea>
-        <br/>
-
-        <!-- Validate expense note -->
-        <label><?= $langs->trans("Valider les notes de frais : "); ?></label>
-        <input type="checkbox" value="2" name="validate" checked/>
-        <br/>
-
-        <label><?= $langs->trans("Ligne note de frais"); ?></label>
-        <input type="text"  name="line_description"/>
         <br/>
 
         <button class="butAction" type="submit">Générer</button>

@@ -26,6 +26,8 @@ $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
 $myparam = GETPOST('myparam', 'alpha');
 
+$unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
+
 // Default action
 if (empty($action) && empty($id) && empty($ref)) {
 	$action='create';
@@ -208,7 +210,7 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
 
     $kmByQuartil = bbcKilometersByQuartil($year);
 
-    printBbcKilometersByQuartil($kmByQuartil, $tauxRemb);
+    printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission);
 
     print '</div>';
 
