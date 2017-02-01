@@ -193,48 +193,52 @@ class modFlightLog extends DolibarrModules
         $this->rights = array();		// Permission array used by this module
         $r=0;
 
-        // Add here list of permission defined by an id, a label, a boolean and two constant strings.
-        // Example:
-        $this->rights[$r][0] = 9993; 				// Permission id (must not be already used)
-        $this->rights[$r][1] = 'Permet d\'acceder au module des vols.';	// Permission label
-        $this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-        $this->rights[$r][4] = 'vol';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-        $this->rights[$r][5] = 'access';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $this->rights[$r][0] = 9993;
+        $this->rights[$r][1] = 'Permet d\'acceder au module des vols.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'access';
         $r++;
 
-        $this->rights[$r][0] = 9998; 				// Permission id (must not be already used)
-        $this->rights[$r][1] = 'Enregistrer un nouveau vol.';	// Permission label
-        $this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-        $this->rights[$r][4] = 'vol';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-        $this->rights[$r][5] = 'add';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $this->rights[$r][0] = 9998;
+        $this->rights[$r][1] = 'Enregistrer un nouveau vol.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'add';
         $r++;
 
-        $this->rights[$r][0] = 9997; 				// Permission id (must not be already used)
-        $this->rights[$r][1] = 'Permet de facturer un vol.';	// Permission label
-        $this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-        $this->rights[$r][4] = 'vol';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-        $this->rights[$r][5] = 'status';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $this->rights[$r][0] = 9997;
+        $this->rights[$r][1] = 'Permet de facturer un vol.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'status';
         $r++;
 
-        $this->rights[$r][0] = 9996; 				// Permission id (must not be already used)
-        $this->rights[$r][1] = 'Permet de supprimer un vol.';	// Permission label
-        $this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-        $this->rights[$r][4] = 'vol';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-        $this->rights[$r][5] = 'delete';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $this->rights[$r][0] = 9996;
+        $this->rights[$r][1] = 'Permet de supprimer un vol.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'delete';
         $r++;
 
-        $this->rights[$r][0] = 9995; 				// Permission id (must not be already used)
-        $this->rights[$r][1] = 'Permet de modifier un vol.';	// Permission label
-        $this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-        $this->rights[$r][4] = 'vol';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-        $this->rights[$r][5] = 'edit';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $this->rights[$r][0] = 9995;
+        $this->rights[$r][1] = 'Permet de modifier un vol.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'edit';
         $r++;
 
-        $this->rights[$r][0] = 9994; 				// Permission id (must not be already used)
-        $this->rights[$r][1] = 'affiche les details de tous les ballons et de tous les pilotes.';	// Permission label
-        $this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-        $this->rights[$r][4] = 'vol';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-        $this->rights[$r][5] = 'detail';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $this->rights[$r][0] = 9994;
+        $this->rights[$r][1] = 'affiche les details de tous les ballons et de tous les pilotes.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'detail';
+
+        $this->rights[$r][0] = 9999;
+        $this->rights[$r][1] = 'Bill flights';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'flight';
+        $this->rights[$r][5] = 'billable';
 
 		// Main menu entries
         $this->menus = array();			// List of menus to add

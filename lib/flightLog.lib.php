@@ -136,4 +136,187 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showempty = 0, $
     print '</select>';
 }
 
-?>
+/**
+ * @param int $year
+ *
+ * @return array
+ */
+function bbcKilometersByQuartil($year)
+{
+    global $db;
+
+    $sql = "SELECT USR.rowid, USR.lastname, USR.firstname , SUM(VOL.kilometers) as SUM, QUARTER(VOL.date) as quartil, COUNT(VOL.idBBC_vols) as nbrFlight";
+    $sql .= " FROM llx_bbc_vols as VOL";
+    $sql .= " LEFT OUTER JOIN llx_user AS USR ON VOL.fk_pilot = USR.rowid";
+    $sql .= " WHERE ";
+    $sql .= " YEAR(VOL.date) = " . ($year ?: 'YEAR(NOW())');
+    $sql .= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
+    $sql .= " GROUP BY QUARTER(VOL.date), VOL.fk_pilot";
+    $sql .= " ORDER BY QUARTER(VOL.date), VOL.fk_pilot";
+
+    $resql = $db->query($sql);
+
+    $kmByQuartil = array();
+    if ($resql) {
+        $num = $db->num_rows($resql);
+        $i = 0;
+        if ($num) {
+            while ($i < $num) {
+                $obj = $db->fetch_object($resql); //vol
+                if ($obj) {
+
+                    $rowId = $obj->rowid;
+                    $name = $obj->lastname;
+                    $firstname = $obj->firstname;
+                    $sum = $obj->SUM;
+                    $quartil = $obj->quartil;
+
+                    $kmByQuartil[$rowId]["name"] = $name;
+                    $kmByQuartil[$rowId]["firstname"] = $firstname;
+
+                    $kmByQuartil[$rowId]["quartil"][$quartil]["km"] = $sum;
+                    $kmByQuartil[$rowId]["quartil"][$quartil]["flight"] = $obj->nbrFlight;
+
+
+                }
+                $i++;
+            }
+        }
+    }
+
+    return $kmByQuartil;
+}
+
+/**
+ * @param $kmByQuartil
+ * @param $tauxRemb
+ */
+function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb)
+{
+    print '<table class="border" width="100%">';
+
+    print '<tr>';
+    print '<td></td>';
+    print '<td></td>';
+
+    print '<td class="liste_titre" colspan="5">Trimestre 1 (Jan - Mars)</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 2</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 3</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 4</td>';
+    print '<td class="liste_titre" >Total</td>';
+
+    print '</tr>';
+
+    print '<tr class="liste_titre">';
+    print '<td class="liste_titre" > Nom </td>';
+    print '<td class="liste_titre" > Prenom </td>';
+
+
+    print '<td class="liste_titre" > # T1 & T2</td>';
+    print '<td class="liste_titre" > Forfaits pil </td>';
+    print '<td class="liste_titre" > Total des KM </td>';
+    print '<td class="liste_titre" > Remb km €</td>';
+    print '<td class="liste_titre" > Total € </td>';
+
+    print '<td class="liste_titre" > # T1 & T2</td>';
+    print '<td class="liste_titre" > Forfaits pil </td>';
+    print '<td class="liste_titre" > Total des KM </td>';
+    print '<td class="liste_titre" > Remb km €</td>';
+    print '<td class="liste_titre" > Total € </td>';
+
+    print '<td class="liste_titre" > # T1 & T2</td>';
+    print '<td class="liste_titre" > Forfaits pil </td>';
+    print '<td class="liste_titre" > Total des KM </td>';
+    print '<td class="liste_titre" > Remb km €</td>';
+    print '<td class="liste_titre" > Total € </td>';
+
+    print '<td class="liste_titre" > # T1 & T2</td>';
+    print '<td class="liste_titre" > Forfaits pil </td>';
+    print '<td class="liste_titre" > Total des KM </td>';
+    print '<td class="liste_titre" > Remb km €</td>';
+    print '<td class="liste_titre" > Total € </td>';
+
+    print '<td class="liste_titre" > Total € </td>';
+    print '</tr>';
+
+    foreach ($kmByQuartil as $id => $rembKm) {
+        $name = $rembKm["name"];
+        $firstname = $rembKm["firstname"];
+        $sumQ1 = isset($rembKm["quartil"]["1"]["km"]) ? $rembKm["quartil"]["1"]["km"] : 0;
+        $sumQ2 = isset($rembKm["quartil"]["2"]["km"]) ? $rembKm["quartil"]["2"]["km"] : 0;
+        $sumQ3 = isset($rembKm["quartil"]["3"]["km"]) ? $rembKm["quartil"]["3"]["km"] : 0;
+        $sumQ4 = isset($rembKm["quartil"]["4"]["km"]) ? $rembKm["quartil"]["4"]["km"] : 0;
+
+        $flightsQ1 = isset($rembKm["quartil"]["1"]["flight"]) ? $rembKm["quartil"]["1"]["flight"] : 0;
+        $flightsQ2 = isset($rembKm["quartil"]["2"]["flight"]) ? $rembKm["quartil"]["2"]["flight"] : 0;
+        $flightsQ3 = isset($rembKm["quartil"]["3"]["flight"]) ? $rembKm["quartil"]["3"]["flight"] : 0;
+        $flightsQ4 = isset($rembKm["quartil"]["4"]["flight"]) ? $rembKm["quartil"]["4"]["flight"] : 0;
+
+        $sumKm = ($sumQ1 + $sumQ2 + $sumQ3 + $sumQ4);
+        $sumFlights = ($flightsQ1 + $flightsQ2 + $flightsQ3 + $flightsQ4);
+
+        print '<tr>';
+
+        print '<td>' . $name . '</td>';
+        print '<td>' . $firstname . '</td>';
+
+        print '<td>' . ($flightsQ1) . '</td>';
+        print '<td>' . ($flightsQ1 * 35) . '€</td>';
+        print '<td>' . $sumQ1 . '</td>';
+        print '<td>' . ($sumQ1 * $tauxRemb) . '</td>';
+        print '<td><b>' . (($sumQ1 * $tauxRemb) + ($flightsQ1 * 35)) . '€</b></td>';
+
+        print '<td>' . ($flightsQ2) . '</td>';
+        print '<td>' . ($flightsQ2 * 35) . '€</td>';
+        print '<td>' . $sumQ2 . '</td>';
+        print '<td>' . ($sumQ2 * $tauxRemb) . '</td>';
+        print '<td><b>' . (($sumQ2 * $tauxRemb) + ($flightsQ2 * 35)) . '€</b></td>';
+
+        print '<td>' . ($flightsQ3) . '</td>';
+        print '<td>' . ($flightsQ3 * 35) . '€</td>';
+        print '<td>' . $sumQ3 . '</td>';
+        print '<td>' . ($sumQ3 * $tauxRemb) . '</td>';
+        print '<td><b>' . (($sumQ3 * $tauxRemb) + ($flightsQ3 * 35)) . '€</b></td>';
+
+        print '<td>' . ($flightsQ4) . '</td>';
+        print '<td>' . ($flightsQ4 * 35) . '€</td>';
+        print '<td>' . $sumQ4 . '</td>';
+        print '<td>' . ($sumQ4 * $tauxRemb) . '</td>';
+        print '<td><b>' . (($sumQ4 * $tauxRemb) + ($flightsQ4 * 35)) . '€</b></td>';
+
+        print '<td>' . (($sumFlights * 35) + ($sumKm * $tauxRemb)) . '€</td>';
+
+        print '</tr>';
+    }
+
+    print '</table>';
+}
+
+/**
+ * @return int[]
+ */
+function getFlightYears()
+{
+    global $db;
+
+    $results = [];
+
+    $sqlYear = "SELECT DISTINCT(YEAR(llx_bbc_vols.date)) as annee FROM llx_bbc_vols ";
+    $resql_years = $db->query($sqlYear);
+
+    $num = $db->num_rows($resql_years);
+    $i = 0;
+    if ($num) {
+        while ($i < $num) {
+            $obj = $db->fetch_object($resql_years);
+
+            if($obj->annee){
+                $results[] = $obj->annee;
+            }
+
+            $i++;
+        }
+    }
+
+    return $results;
+}

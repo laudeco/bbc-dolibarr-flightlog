@@ -12,7 +12,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 	require '../../documents/custom/main.inc.php'; // From "custom" directory
 }
 
-global $db, $langs, $user;
+global $db, $langs, $user, $conf;
 
 dol_include_once('/flightLog/class/bbcvols.class.php');
 dol_include_once("/flightLog/lib/flightLog.lib.php");
@@ -25,12 +25,6 @@ $langs->load("mymodule@mymodule");
 $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
 $myparam = GETPOST('myparam', 'alpha');
-
-// Access control
-if ($user->socid > 0) {
-	// External user
-	accessforbidden();
-}
 
 // Default action
 if (empty($action) && empty($id) && empty($ref)) {
@@ -51,19 +45,6 @@ if (($id > 0 || ! empty($ref)) && $action != 'add') {
  *
  * Put here all code to do according to value of "action" parameter
  */
-
-if ($action == 'add') {
-	$myobject = new Bbcvols($db);
-	$myobject->prop1 = $_POST["field1"];
-	$myobject->prop2 = $_POST["field2"];
-	$result = $myobject->create($user);
-	if ($result > 0) {
-		// Creation OK
-	} {
-		// Creation KO
-		$mesg = $myobject->error;
-	}
-}
 
 /*
  * VIEW
@@ -222,144 +203,12 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
     print '<h3>Remboursement aux pilotes</h3>';
 
     //table km
-    $sql = "SELECT USR.rowid, USR.lastname, USR.firstname , SUM(VOL.kilometers) as SUM, QUARTER(VOL.date) as quartil, COUNT(VOL.idBBC_vols) as nbrFlight";
-    $sql .= " FROM llx_bbc_vols as VOL";
-    $sql .= " LEFT OUTER JOIN llx_user AS USR ON VOL.fk_pilot = USR.rowid";
-    $sql.= " WHERE ";
-    $sql.= " YEAR(VOL.date) = ". (GETPOST("year") ? "'".GETPOST("year")."'" : 'YEAR(NOW())');
-    $sql.= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
-    $sql .= " GROUP BY QUARTER(VOL.date), VOL.fk_pilot";
-    $sql .= " ORDER BY QUARTER(VOL.date), VOL.fk_pilot";
-
-    $resql = $db->query($sql);
-
-    $kmByQuartil = array();
     $tauxRemb = isset($conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
-    if ($resql) {
-        $num = $db->num_rows($resql);
-        $i = 0;
-        if ($num) {
-            while ($i < $num) {
-                $obj = $db->fetch_object($resql); //vol
-                if ($obj) {
+    $year = GETPOST("year", 'int');
 
-                    $rowId = $obj->rowid;
-                    $name = $obj->lastname;
-                    $firstname = $obj->firstname;
-                    $sum = $obj->SUM;
-                    $quartil = $obj->quartil;
+    $kmByQuartil = bbcKilometersByQuartil($year);
 
-                    $kmByQuartil[$rowId]["name"] = $name;
-                    $kmByQuartil[$rowId]["firstname"] = $firstname;
-
-                    $kmByQuartil[$rowId]["quartil"][$quartil]["km"] = $sum;
-                    $kmByQuartil[$rowId]["quartil"][$quartil]["flight"] = $obj->nbrFlight;
-
-
-                }
-                $i++;
-            }
-        }
-    }
-
-    print '<table class="border" width="100%">';
-
-    print '<tr>';
-    print '<td></td>';
-    print '<td></td>';
-
-    print '<td class="liste_titre" colspan="5">Trimestre 1 (Jan - Mars)</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 2</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 3</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 4</td>';
-    print '<td class="liste_titre" >Total</td>';
-
-    print '</tr>';
-
-    print '<tr class="liste_titre">';
-    print '<td class="liste_titre" > Nom </td>';
-    print '<td class="liste_titre" > Prenom </td>';
-
-
-    print '<td class="liste_titre" > # T1 & T2</td>';
-    print '<td class="liste_titre" > Forfaits pil </td>';
-    print '<td class="liste_titre" > Total des KM </td>';
-    print '<td class="liste_titre" > Remb km €</td>';
-    print '<td class="liste_titre" > Total € </td>';
-
-    print '<td class="liste_titre" > # T1 & T2</td>';
-    print '<td class="liste_titre" > Forfaits pil </td>';
-    print '<td class="liste_titre" > Total des KM </td>';
-    print '<td class="liste_titre" > Remb km €</td>';
-    print '<td class="liste_titre" > Total € </td>';
-
-    print '<td class="liste_titre" > # T1 & T2</td>';
-    print '<td class="liste_titre" > Forfaits pil </td>';
-    print '<td class="liste_titre" > Total des KM </td>';
-    print '<td class="liste_titre" > Remb km €</td>';
-    print '<td class="liste_titre" > Total € </td>';
-
-    print '<td class="liste_titre" > # T1 & T2</td>';
-    print '<td class="liste_titre" > Forfaits pil </td>';
-    print '<td class="liste_titre" > Total des KM </td>';
-    print '<td class="liste_titre" > Remb km €</td>';
-    print '<td class="liste_titre" > Total € </td>';
-
-    print '<td class="liste_titre" > Total € </td>';
-    print '</tr>';
-
-    foreach ($kmByQuartil as $id => $rembKm){
-        $name = $rembKm["name"];
-        $firstname = $rembKm["firstname"];
-        $sumQ1 = isset($rembKm["quartil"]["1"]["km"]) ? $rembKm["quartil"]["1"]["km"]: 0;
-        $sumQ2 = isset($rembKm["quartil"]["2"]["km"]) ? $rembKm["quartil"]["2"]["km"]: 0;
-        $sumQ3 = isset($rembKm["quartil"]["3"]["km"]) ? $rembKm["quartil"]["3"]["km"]: 0;
-        $sumQ4 = isset($rembKm["quartil"]["4"]["km"]) ? $rembKm["quartil"]["4"]["km"]: 0;
-
-        $flightsQ1 = isset($rembKm["quartil"]["1"]["flight"]) ? $rembKm["quartil"]["1"]["flight"]: 0;
-        $flightsQ2 = isset($rembKm["quartil"]["2"]["flight"]) ? $rembKm["quartil"]["2"]["flight"]: 0;
-        $flightsQ3 = isset($rembKm["quartil"]["3"]["flight"]) ? $rembKm["quartil"]["3"]["flight"]: 0;
-        $flightsQ4 = isset($rembKm["quartil"]["4"]["flight"]) ? $rembKm["quartil"]["4"]["flight"]: 0;
-
-        $sumKm = ($sumQ1 + $sumQ2 + $sumQ3 + $sumQ4);
-        $sumFlights = ($flightsQ1 + $flightsQ2 + $flightsQ3 + $flightsQ4);
-
-        print '<tr>';
-
-        print '<td>' . $name . '</td>';
-        print '<td>' . $firstname . '</td>';
-
-        print '<td>' . ($flightsQ1) . '</td>';
-        print '<td>' . ($flightsQ1 * 35) . '€</td>';
-        print '<td>' . $sumQ1 . '</td>';
-        print '<td>' . ($sumQ1 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ1 * $tauxRemb) + ($flightsQ1 * 35)) . '€</b></td>';
-
-        print '<td>' . ($flightsQ2) . '</td>';
-        print '<td>' . ($flightsQ2 * 35) . '€</td>';
-        print '<td>' . $sumQ2 . '</td>';
-        print '<td>' . ($sumQ2 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ2 * $tauxRemb) + ($flightsQ2 * 35)) . '€</b></td>';
-
-        print '<td>' . ($flightsQ3) . '</td>';
-        print '<td>' . ($flightsQ3 * 35) . '€</td>';
-        print '<td>' . $sumQ3 . '</td>';
-        print '<td>' . ($sumQ3 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ3 * $tauxRemb) + ($flightsQ3 * 35)) . '€</b></td>';
-
-        print '<td>' . ($flightsQ4) . '</td>';
-        print '<td>' . ($flightsQ4 * 35) . '€</td>';
-        print '<td>' . $sumQ4 . '</td>';
-        print '<td>' . ($sumQ4 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ4 * $tauxRemb) + ($flightsQ4 * 35)) . '€</b></td>';
-
-        print '<td>' . (($sumFlights * 35) + ($sumKm * $tauxRemb)) . '€</td>';
-
-        print '</tr>';
-    }
-
-    print '</table>';
-
+    printBbcKilometersByQuartil($kmByQuartil, $tauxRemb);
 
     print '</div>';
 
@@ -437,6 +286,10 @@ if ($user->rights->flightLog->vol->status) {
 
 if ($user->rights->flightLog->vol->detail) {
     print '<a class="butAction" href="listFact.php?view=2">List Aviabel</a>';
+}
+
+if ($conf->expensereport->enabled && $user->rights->flightLog->flight->billable) {
+    print '<a class="butAction" href="generateExpenseNote.php?year='.(GETPOST("year", 'int')?:date("Y")).'">Générer notes de frais</a>';
 }
 
 print '</div>';
