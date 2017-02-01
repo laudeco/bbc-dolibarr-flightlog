@@ -28,6 +28,9 @@ global $db, $langs, $user, $conf;
 
 // Load translation files required by the page
 $langs->load("mymodule@mymodule");
+$langs->load("trips");
+$langs->load("bills");
+$langs->load("mails");
 
 // Get parameters
 $id = GETPOST('id', 'int');
@@ -132,9 +135,13 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
             $resultLine = $object_ligne->insert();
 
+            $object->fetch($expenseNoteId);
             $object->setValidate($user);
+            $object->setApproved($user);
+
+            $object->fetch($expenseNoteId);
             $object->setDocModel($user, "standard");
-            $object->generateDocument($object->modelpdf, $langs);
+            $result = $object->generateDocument($object->modelpdf, $langs);
 
         }
 
