@@ -43,7 +43,7 @@ $myparam = GETPOST('myparam', 'alpha');
 $unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
 
 //variables
-$WIDTH=DolGraph::getDefaultGraphSizeForStats('width');
+$WIDTH=DolGraph::getDefaultGraphSizeForStats('width', 768);
 $HEIGHT=DolGraph::getDefaultGraphSizeForStats('height');
 
 $year=strftime("%Y", dol_now());
@@ -271,10 +271,21 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
 }
 print '<br/>';
 
+print '<div class="tabsAction">';
+
+
+if ($conf->expensereport->enabled && $user->rights->flightLog->vol->status) {
+    print '<a class="butAction" href="generateExpenseNote.php?year='.(GETPOST("year", 'int')?:date("Y")).'">Générer notes de frais</a>';
+}
+
+print '</div>';
+
+
 ?>
 
+
+
 <div class="fichecenter">
-    <div class="fichethirdleft">
 
         <?php print $graphByTypeAndYear->show(); ?>
 
@@ -283,87 +294,6 @@ print '<br/>';
 
 
 <?php
-
-
-print '<div class="fichetwothirdright"><div class="ficheaddleft">';
-
-//tableau des facturations
-if ($user->rights->flightLog->vol->status || $user->admin) {
-
-    $sql = "SELECT BAL.immat as ballon,"; //ballon
-    $sql.= " USR.lastname as nom, USR.firstname as prenom, "; //pilote
-    $sql.= " idBBC_vols as volid, fk_pilot,  llx_bbc_vols.date , heureD, is_facture as status"; // vol
-    $sql .= " FROM llx_bbc_ballons AS BAL, llx_user AS USR, llx_bbc_vols";
-    $sql.=" WHERE BBC_ballons_idBBC_ballons = BAL.rowid";
-    $sql.=" AND fk_organisateur = USR.rowid";
-    $sql.=" AND is_facture = 0";
-    $sql.=" ORDER BY date ASC";
-    $sql.=" LIMIT 10";
-    $resql = $db->query($sql);
-    if ($resql) {
-        print '<table class="noborder" width="100%">';
-
-        $num = $db->num_rows($resql);
-        $i = 0;
-        if ($num) {
-            print '<tr class="liste_titre">';
-            print '<td colspan="7"> Les 10 premiers Vols a facturer.';
-
-            print '</td>';
-            print '</tr>';
-            print '<tr class="liste_titre">';
-
-            print '<td class="liste_titre" > id vol </td>';
-            print '<td class="liste_titre" > Date </td>';
-//            print '<td class="liste_titre" > heure </td>';
-            print '<td class="liste_titre" > Ballon </td>';
-            print '<td class="liste_titre"> Organisateur </td>';
-//            print '<td class="liste_titre"> Statut </td>';
-            print '<td class="liste_titre"> Actions </td>';
-            print'</tr>';
-            while ($i < $num) {
-                $obj = $db->fetch_object($resql); //vol
-                if ($obj) {
-                    $vol = new Bbcvols($db);
-                    $vol->fetch($obj->volid);
-
-                    print '<tr class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">';
-
-                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '"><a href="fiche.php?vol=' . $obj->volid . '">' . $obj->volid . '</a></td>';
-                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $obj->date . '</td>';
-//                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $obj->heureD . '</td>';
-                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $obj->ballon . '</td>';
-                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $obj->nom . ' ' . $obj->prenom . '</td>';
-//                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $vol->getStatus() . '</td>';
-                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . '<a href="fiche.php?action=fact&vol=' . $obj->volid . '">' . img_action("default", 1) . '</a>' . '</td>';
-                    print'</tr class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">';
-                }
-
-                $i++;
-            }
-            print'</table>';
-        }
-    }
-}
-print '<div class="tabsAction">';
-
-if ($user->rights->flightLog->vol->status) {
-    print '<a class="butAction" href="listFact.php?view=1">List facturation</a>';
-}
-
-if ($user->rights->flightLog->vol->detail) {
-    print '<a class="butAction" href="listFact.php?view=2">List Aviabel</a>';
-}
-
-if ($conf->expensereport->enabled && $user->rights->flightLog->flight->billable) {
-    print '<a class="butAction" href="generateExpenseNote.php?year='.(GETPOST("year", 'int')?:date("Y")).'">Générer notes de frais</a>';
-}
-
-print '</div>';
-
-print '</div>';
-print '</div>';
-print '</div>';
 
 
 llxFooter();

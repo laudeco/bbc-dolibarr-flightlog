@@ -55,10 +55,6 @@ class YearGraphicalData
     public function addGraphicalValue(GraphicalValue $graphicalValue)
     {
         if (!isset($this->graphData[$graphicalValue->getType()])) {
-            $type = new GraphicalType($graphicalValue->getType(), "");
-            $valueType = new GraphicalValueType($type, $graphicalValue);
-
-            $this->graphData[$graphicalValue->getType()] = $valueType;
             return;
         }
 

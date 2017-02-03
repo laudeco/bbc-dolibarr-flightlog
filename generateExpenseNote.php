@@ -57,7 +57,7 @@ $object = new ExpenseReport($db);
 $vatrate = "0.000";
 
 // Access control
-if (!$conf->expensereport->enabled || !$user->rights->flightLog->flight->billable) {
+if (!$conf->expensereport->enabled || !$user->rights->flightLog->vol->status) {
     accessforbidden();
 }
 

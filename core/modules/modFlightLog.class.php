@@ -248,12 +248,6 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][4] = 'vol';
         $this->rights[$r][5] = 'detail';
 
-        $this->rights[$r][0] = 9999;
-        $this->rights[$r][1] = 'Bill flights';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'flight';
-        $this->rights[$r][5] = 'billable';
-
 		// Main menu entries
         $this->menus = array();			// List of menus to add
         $r=0;
@@ -287,18 +281,18 @@ class modFlightLog extends DolibarrModules
                                   'target'=>'',
                                   'user'=>2);
         $r++;
-        $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=flightLog',		// Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
-                                  'type'=> self::MENU_TYPE_LEFT,			// This is a Left menu entry
+        $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=flightLog',
+                                  'type'=> self::MENU_TYPE_LEFT,
                                   'titre'=>'Visualisation',
                                   'mainmenu'=>'flightLog',
                                   'leftmenu' => 'showFlight',
                                   'url'=>'/flightLog/readFlights.php',
-                                  'langs'=>'mylangfile',	// Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+                                  'langs'=>'mylangfile',
                                   'position'=>102,
-                                  'enabled'=>'1',			// Define condition to show or hide menu entry. Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
-                                  'perms'=>'1',			// Use 'perms'=>'$user->rights->mymodule->level1->level2' if you want your menu with a permission rules
+                                  'enabled'=>'1',
+                                  'perms'=>'1',
                                   'target'=>'',
-                                  'user'=>2);				// 0=Menu for internal users, 1=external users, 2=both
+                                  'user'=>2);
         $r++;
         $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=flightLog,fk_leftmenu=showFlight',		// Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
                                   'type'=> self::MENU_TYPE_LEFT,			// This is a Left menu entry
@@ -337,7 +331,46 @@ class modFlightLog extends DolibarrModules
                                   'enabled'=>'1',			// Define condition to show or hide menu entry. Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
                                   'perms'=>'1',			// Use 'perms'=>'$user->rights->mymodule->level1->level2' if you want your menu with a permission rules
                                   'target'=>'',
-                                  'user'=>2);				// 0=Menu for internal users, 1=external users, 2=both
+                                  'user'=>2);
+        $r++;
+        $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=flightLog',
+                                  'type'=> self::MENU_TYPE_LEFT,
+                                  'titre'=>'Gestion',
+                                  'mainmenu'=>'flightLog',
+                                  'leftmenu' => 'management',
+                                  'url'=>'',
+                                  'langs'=>'mylangfile',
+                                  'position'=>106,
+                                  'enabled'=>'1',
+                                  'perms'=>'$user->rights->flightLog->vol->status||$user->rights->flightLog->vol->detail',
+                                  'target'=>'',
+                                  'user'=>2);
+        $r++;
+        $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=flightLog,fk_leftmenu=management',
+                                  'type'=> self::MENU_TYPE_LEFT,
+                                  'titre'=>'Payement',
+                                  'mainmenu'=>'flightLog',
+                                  'leftmenu' => 'flightBilling',
+                                  'url'=>'/flightLog/listFact.php?view=1',
+                                  'langs'=>'mylangfile',
+                                  'position'=>107,
+                                  'enabled'=>'1',
+                                  'perms'=>'$user->rights->flightLog->vol->status',
+                                  'target'=>'',
+                                  'user'=>2);
+        $r++;
+        $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=flightLog,fk_leftmenu=management',
+                                  'type'=> self::MENU_TYPE_LEFT,
+                                  'titre'=>'Aviabel',
+                                  'mainmenu'=>'flightLog',
+                                  'leftmenu' => 'flightAviabel',
+                                  'url'=>'/flightLog/listFact.php?view=2',
+                                  'langs'=>'mylangfile',
+                                  'position'=>108,
+                                  'enabled'=>'1',
+                                  'perms'=>'$user->rights->flightLog->vol->detail',
+                                  'target'=>'',
+                                  'user'=>2);
 
 		// Exports
 		$r=1;
