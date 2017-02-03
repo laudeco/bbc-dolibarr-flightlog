@@ -44,6 +44,21 @@ function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
 }
 
 /**
+ * @return BbctypesLine[]
+ */
+function fetchBbcFlightTypes($active = 1)
+{
+    global $db;
+
+    $bbcTypes = new Bbctypes($db);
+    $bbcTypes->fetchAll('','',0,0, [
+        "active" => 1
+    ]);
+
+    return $bbcTypes->lines;
+}
+
+/**
  * Return list of flight type
  *
  * @param   mixed $selected  Preselected type
@@ -56,27 +71,18 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = 0)
     global $db, $langs, $user;
     $langs->load("trips");
 
+    $types = fetchBbcFlightTypes();
+
     print '<select class="flat" name="' . $htmlname . '">';
 
-    $resql = $db->query("SELECT B.idType,B.numero,B.nom FROM llx_bbc_types as B WHERE active=1");
-    if ($resql) {
-        $num = $db->num_rows($resql);
-        $i = 0;
-        if ($num) {
-            while ($i < $num) {
-                $obj = $db->fetch_object($resql);
-                if ($obj) {
-                    print '<option value="' . $obj->idType . '"';
-                    if ($obj->numero == $selected) {
-                        print ' selected="selected"';
-                    }
-                    print '>';
-                    echo $obj->numero . '-' . $obj->nom;
-                    print "</option>";
-                }
-                $i++;
-            }
+    foreach ($types as $flightType) {
+        print '<option value="' . $flightType->id . '"';
+        if ($flightType->numero == $selected) {
+            print ' selected="selected"';
         }
+        print '>';
+        echo "T".$flightType->numero . '-' . $flightType->nom;
+        print "</option>";
     }
 
     print '</select>';
@@ -310,7 +316,7 @@ function getFlightYears()
         while ($i < $num) {
             $obj = $db->fetch_object($resql_years);
 
-            if($obj->annee){
+            if ($obj->annee) {
                 $results[] = $obj->annee;
             }
 
@@ -319,4 +325,84 @@ function getFlightYears()
     }
 
     return $results;
+}
+
+function addValueForYear($results, $year, $type, $val)
+{
+    if (!is_array($results)) {
+        return $results;
+    }
+
+    for ($i = 0; $i < count($results); $i++) {
+        $resultLine = $results[$i];
+        if (!is_array($resultLine)) {
+            throw new \Exception("not an array ");
+        }
+
+        if (in_array($year, $resultLine)) {
+            $results[$i][$type] = $val;
+            return $results;
+        }
+    }
+
+    //not found add a new entry
+    $results[] = [
+        $year,
+        $type => $val
+    ];
+
+    return $results;
+
+}
+
+/**
+ * @param GraphicalData $graphData
+ *
+ * @return GraphicalData
+ */
+function fetchGraphByTypeAndYearData(GraphicalData $graphData)
+{
+    global $db;
+
+    $sql = "SELECT YEAR(date) as year, fk_type as type,COUNT(idBBC_vols) as val FROM llx_bbc_vols GROUP BY YEAR(date), fk_type ORDER BY year,fk_type";
+    $resql = $db->query($sql);
+
+    $num = $db->num_rows($resql);
+    $i = 0;
+    if ($num) {
+        while ($i < $num) {
+            $obj = $db->fetch_object($resql);
+
+            if ($obj->year) {
+                $graphData->addValue($obj->year, new GraphicalValue($obj->val, $obj->year, $obj->type));
+            }
+
+            $i++;
+        }
+    }
+
+    return $graphData;
+}
+
+/**
+ * @return GraphicalData
+ */
+function getGraphByTypeAndYearData()
+{
+
+    $flightTypes = fetchBbcFlightTypes();
+
+    $graphData = new GraphicalData();
+
+    foreach(getFlightYears() as $flightYear){
+        $pieceData = new YearGraphicalData($flightYear);
+
+        foreach($flightTypes as $flightType){
+            $pieceData->addType(new GraphicalType($flightType->id, $flightType->nom));
+        }
+
+        $graphData->addData($pieceData);
+    }
+
+    return fetchGraphByTypeAndYearData($graphData);
 }

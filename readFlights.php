@@ -14,7 +14,21 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 global $db, $langs, $user, $conf;
 
+dol_include_once('/core/class/dolgraph.class.php');
 dol_include_once('/flightLog/class/bbcvols.class.php');
+dol_include_once('/flightLog/class/bbctypes.class.php');
+dol_include_once('/flightLog/class/GraphicalData.php');
+dol_include_once('/flightLog/class/GraphicalType.php');
+dol_include_once('/flightLog/class/GraphicalValue.php');
+dol_include_once('/flightLog/class/GraphicalValueType.php');
+dol_include_once('/flightLog/class/YearGraphicalData.php');
+
+use GraphicalType;
+use GraphicalData;
+use GraphicalValue;
+use GraphicalValueType;
+use YearGraphicalData;
+
 dol_include_once("/flightLog/lib/flightLog.lib.php");
 
 // Load translation files required by the page
@@ -27,6 +41,45 @@ $action = GETPOST('action', 'alpha');
 $myparam = GETPOST('myparam', 'alpha');
 
 $unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
+
+//variables
+$WIDTH=DolGraph::getDefaultGraphSizeForStats('width');
+$HEIGHT=DolGraph::getDefaultGraphSizeForStats('height');
+
+$year=strftime("%Y", dol_now());
+$dir=$conf->expensereport->dir_temp;
+
+$filenamenb = $dir."/test2-".$year.".png";
+$fileurlnb = DOL_URL_ROOT.'/viewimage.php?modulepart=flightLog&amp;file='.$fileurlnb;
+
+$graphByTypeAndYear = new DolGraph();
+$mesg = $graphByTypeAndYear->isGraphKo();
+if (! $mesg)
+{
+    $data = getGraphByTypeAndYearData();
+
+    $graphByTypeAndYear->SetData($data->export());
+    $graphByTypeAndYear->SetPrecisionY(0);
+
+    $legend=[];
+    $graphByTypeAndYear->type = [];
+    foreach(fetchBbcFlightTypes() as $flightType){
+        $legend[]= $flightType->numero;
+        $graphByTypeAndYear->type[] = "lines";
+    }
+    $graphByTypeAndYear->SetLegend($legend);
+    $graphByTypeAndYear->SetMaxValue($graphByTypeAndYear->GetCeilMaxValue());
+    $graphByTypeAndYear->SetWidth($WIDTH+100);
+    $graphByTypeAndYear->SetHeight($HEIGHT);
+    $graphByTypeAndYear->SetYLabel($langs->trans("YEAR"));
+    $graphByTypeAndYear->SetShading(3);
+    $graphByTypeAndYear->SetHorizTickIncrement(1);
+    $graphByTypeAndYear->SetPrecisionY(0);
+
+    $graphByTypeAndYear->SetTitle($langs->trans("Par type et par année"));
+
+    $graphByTypeAndYear->draw($filenamenb,$fileurlnb);
+}
 
 // Default action
 if (empty($action) && empty($id) && empty($ref)) {
@@ -218,11 +271,23 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
 }
 print '<br/>';
 
+?>
+
+<div class="fichecenter">
+    <div class="fichethirdleft">
+
+        <?php print $graphByTypeAndYear->show(); ?>
+
+    </div>
+
+
+
+<?php
+
 
 print '<div class="fichetwothirdright"><div class="ficheaddleft">';
 
 //tableau des facturations
-//TODO BBC : ajout bouton facturation to the fiche action
 if ($user->rights->flightLog->vol->status || $user->admin) {
 
     $sql = "SELECT BAL.immat as ballon,"; //ballon
@@ -298,5 +363,7 @@ print '</div>';
 
 print '</div>';
 print '</div>';
+print '</div>';
+
 
 llxFooter();

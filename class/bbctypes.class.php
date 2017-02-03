@@ -235,8 +235,6 @@ class Bbctypes extends CommonObject
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$sql = 'SELECT';
-		$sql .= ' t.rowid,';
-		
 		$sql .= " t.idType,";
 		$sql .= " t.numero,";
 		$sql .= " t.nom,";
@@ -247,11 +245,19 @@ class Bbctypes extends CommonObject
 
 		// Manage filter
 		$sqlwhere = array();
-		if (count($filter) > 0) {
-			foreach ($filter as $key => $value) {
-				$sqlwhere [] = $key . ' LIKE \'%' . $this->db->escape($value) . '%\'';
-			}
-		}
+
+		foreach ($filter as $key => $value) {
+		    if(is_string($value)){
+                $sqlwhere [] = $key . ' LIKE \'%' . $this->db->escape($value) . '%\'';
+                continue;
+            }
+
+            if(is_int($value)){
+                $sqlwhere [] = $key . ' = ' .(int)$value;
+                continue;
+            }
+        }
+
 		if (count($sqlwhere) > 0) {
 			$sql .= ' WHERE ' . implode(' '.$filtermode.' ', $sqlwhere);
 		}
@@ -271,14 +277,11 @@ class Bbctypes extends CommonObject
 			while ($obj = $this->db->fetch_object($resql)) {
 				$line = new BbctypesLine();
 
-				$line->id = $obj->rowid;
-				
+				$line->id = $obj->idType;
 				$line->idType = $obj->idType;
 				$line->numero = $obj->numero;
 				$line->nom = $obj->nom;
 				$line->active = $obj->active;
-
-				
 
 				$this->lines[$line->id] = $line;
 			}
