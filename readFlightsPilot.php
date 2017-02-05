@@ -60,10 +60,10 @@ $datef = dol_mktime(-1, -1, -1, $_POST["p2month"], $_POST["p2day"], $_POST["p2ye
 $query = 'SELECT *,TIMEDIFF(heureA,heureD) AS time  FROM llx_bbc_vols WHERE 1=1';
 
 if ($datep) {
-    $query .= ' AND date >= \'' . dol_date('Y-m-d', $datep) . '\'';
+    $query .= ' AND date >= \'' . dol_print_date($datep, 'dayrfc'). '\'';
 }
 if ($datef) {
-    $query .= ' AND date <= \'' . dol_date('Y-m-d', $datef) . '\'';
+    $query .= ' AND date <= \'' . dol_print_date($datef, 'dayrfc'). '\'';
 }
 
 $query .= ' AND `fk_pilot` = ' . $bbcUser->id;

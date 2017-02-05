@@ -130,7 +130,7 @@ if($msg && $idBallon != -1){
         print '</tr>';
         //Vol initial
         print '<tr>';
-        print '<td>Bapteme</.td>';
+        print '<td>Bapteme</td>';
         print '<td>'.dol_print_date($ballon->date, 'dayrfc').'</td>';
         print '</tr>';
         $num = 0;
