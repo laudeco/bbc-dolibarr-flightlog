@@ -22,7 +22,7 @@ function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
     }
 
     //total time for pilot
-    $sql = 'SELECT llx_user.lastname, llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $year . '\' AND fk_type IN (1,2) GROUP BY fk_organisateur';
+    $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $year . '\' AND fk_type IN (1,2) GROUP BY fk_organisateur';
     $resql = $db->query($sql);
     if ($resql && $total) {
         $num = $db->num_rows($resql);
