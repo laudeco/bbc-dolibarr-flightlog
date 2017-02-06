@@ -44,6 +44,8 @@ function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
 }
 
 /**
+ * @param int $active
+ *
  * @return BbctypesLine[]
  */
 function fetchBbcFlightTypes($active = 1)
@@ -51,8 +53,10 @@ function fetchBbcFlightTypes($active = 1)
     global $db;
 
     $bbcTypes = new Bbctypes($db);
+
+    $test = $db;
     $bbcTypes->fetchAll('','',0,0, [
-        "active" => 1
+        "active" => $active
     ]);
 
     return $bbcTypes->lines;
