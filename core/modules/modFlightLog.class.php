@@ -48,7 +48,6 @@ class modFlightLog extends DolibarrModules
         $this->db = $db;
 
 		// Id for module (must be unique).
-		// Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
 		$this->numero = 500000;
 		// Key text used to identify module (for permissions, menus, etc...)
 		$this->rights_class = 'flightLog';
@@ -100,55 +99,27 @@ class modFlightLog extends DolibarrModules
 		$this->module_parts = array();
 
 		// Data directories to create when module is enabled.
-		// Example: this->dirs = array("/mymodule/temp");
 		$this->dirs = array();
 
 		// Config pages. Put here list of php page, stored into mymodule/admin directory, to use to setup module.
-		$this->config_page_url = array("mysetuppage.php@mymodule");
+		$this->config_page_url = array();
 
 		// Dependencies
-		$this->hidden = false;			// A condition to hide module
-		$this->depends = array('modFlightBalloon');		// List of modules id that must be enabled if this module is enabled
-		$this->requiredby = array();	// List of modules id to disable if this one is disabled
-		$this->conflictwith = array();	// List of modules id this module is in conflict with
-		$this->phpmin = array(5,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(4,0);	// Minimum version of Dolibarr required by module
+		$this->hidden = false;
+		$this->depends = array('modFlightBalloon');
+		$this->requiredby = array();
+		$this->conflictwith = array();
+		$this->phpmin = array(5,5);
+		$this->need_dolibarr_version = array(4,0);
 		$this->langfiles = array("mylangfile@mymodule");
 
 		// Constants
-		// List of particular constants to add when module is enabled (key, 'chaine', value, desc, visible, 'current' or 'allentities', deleteonunactive)
-		// Example: $this->const=array(0=>array('MYMODULE_MYNEWCONST1','chaine','myvalue','This is a constant to add',1),
-		//                             1=>array('MYMODULE_MYNEWCONST2','chaine','myvalue','This is another constant to add',0, 'current', 1)
-		// );
 		$this->const = array(
 		    0 => ['BBC_FLIGHT_LOG_TAUX_REMB_KM','chaine','0.25', 'Taux remboursement des kilomètres au BBC', true, 'current', true],
 		    1 => ['BBC_FLIGHT_LOG_UNIT_PRICE_MISSION','chaine','35', 'Unit price special mission', true, 'current', true],
         );
 
 		// Array to add new pages in new tabs
-		// Example: $this->tabs = array('objecttype:+tabname1:Title1:mylangfile@mymodule:$user->rights->mymodule->read:/mymodule/mynewtab1.php?id=__ID__',  					// To add a new tab identified by code tabname1
-        //                              'objecttype:+tabname2:SUBSTITUTION_Title2:mylangfile@mymodule:$user->rights->othermodule->read:/mymodule/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2. Label will be result of calling all substitution functions on 'Title2' key.
-        //                              'objecttype:-tabname:NU:conditiontoremove');                                                     										// To remove an existing tab identified by code tabname
-		// where objecttype can be
-		// 'categories_x'	  to add a tab in category view (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
-		// 'contact'          to add a tab in contact view
-		// 'contract'         to add a tab in contract view
-		// 'group'            to add a tab in group view
-		// 'intervention'     to add a tab in intervention view
-		// 'invoice'          to add a tab in customer invoice view
-		// 'invoice_supplier' to add a tab in supplier invoice view
-		// 'member'           to add a tab in fundation member view
-		// 'opensurveypoll'	  to add a tab in opensurvey poll view
-		// 'order'            to add a tab in customer order view
-		// 'order_supplier'   to add a tab in supplier order view
-		// 'payment'		  to add a tab in payment view
-		// 'payment_supplier' to add a tab in supplier payment view
-		// 'product'          to add a tab in product view
-		// 'propal'           to add a tab in propal view
-		// 'project'          to add a tab in project view
-		// 'stock'            to add a tab in stock view
-		// 'thirdparty'       to add a tab in third party view
-		// 'user'             to add a tab in user view
         $this->tabs = array();
 
 		if (! isset($conf->flightLog) || ! isset($conf->flightLog->enabled))
@@ -158,22 +129,6 @@ class modFlightLog extends DolibarrModules
         }
 
         // Dictionaries
-		$this->dictionaries=array();
-        /* Example:
-        $this->dictionaries=array(
-            'langs'=>'mylangfile@mymodule',
-            'tabname'=>array(MAIN_DB_PREFIX."table1",MAIN_DB_PREFIX."table2",MAIN_DB_PREFIX."table3"),		// List of tables we want to see into dictonnary editor
-            'tablib'=>array("Table1","Table2","Table3"),													// Label of tables
-            'tabsql'=>array('SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table1 as f','SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table2 as f','SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table3 as f'),	// Request to select fields
-            'tabsqlsort'=>array("label ASC","label ASC","label ASC"),																					// Sort order
-            'tabfield'=>array("code,label","code,label","code,label"),																					// List of fields (result of select to show dictionary)
-            'tabfieldvalue'=>array("code,label","code,label","code,label"),																				// List of fields (list of fields to edit a record)
-            'tabfieldinsert'=>array("code,label","code,label","code,label"),																			// List of fields (list of fields for insert)
-            'tabrowid'=>array("rowid","rowid","rowid"),																									// Name of columns with primary key (try to always name it 'rowid')
-            'tabcond'=>array($conf->mymodule->enabled,$conf->mymodule->enabled,$conf->mymodule->enabled)												// Condition to show each dictionary
-        );
-        */
-
         $this->dictionaries=array(
             'langs'=>'mylangfile@mymodule',
             'tabname'=>array(MAIN_DB_PREFIX."bbc_types"),
@@ -188,14 +143,7 @@ class modFlightLog extends DolibarrModules
         );
 
         // Boxes
-		// Add here list of php file(s) stored in core/boxes that contains class to show a box.
-        $this->boxes = array();			// List of boxes
-		// Example:
-		//$this->boxes=array(
-		//    0=>array('file'=>'myboxa.php@mymodule','note'=>'','enabledbydefaulton'=>'Home'),
-		//    1=>array('file'=>'myboxb.php@mymodule','note'=>''),
-		//    2=>array('file'=>'myboxc.php@mymodule','note'=>'')
-		//);
+        $this->boxes = [];
 
 		// Cronjobs
 		$this->cronjobs = array();			// List of cron jobs entries to add
