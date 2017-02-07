@@ -100,48 +100,60 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
             $object->note_private = GETPOST('private_note','alpha');
 
             $expenseNoteId = $object->create($expenseNoteUser);
+            if($expenseNoteId < 0){
+                dol_htmloutput_errors("Erreur lors de la création de la note de frais" , $object->errors);
+                continue;
+            }
 
-            // Kilometers
-            $object_ligne = new ExpenseReportLine($db);
-            $object_ligne->comments = "Kilometres réalisé pour le club";
-            $object_ligne->qty = $currentMission["quartil"][$quarter]["km"];
-            $object_ligne->value_unit = $tauxRemb;
 
-            $object_ligne->date = $endDate->format("Y-m-d");
+            $flightsForQuarter = findFlightByPilotAndQuarter($currentMissionUserId, $year, $quarter);
 
-            $object_ligne->fk_c_type_fees = 2;
-            $object_ligne->fk_expensereport = $expenseNoteId;
-            $object_ligne->fk_projet = '';
+            foreach($flightsForQuarter as $currentFlightForQuarter) {
 
-            $object_ligne->vatrate = price2num($vatrate);
+                // Kilometers
+                $object_ligne = new ExpenseReportLine($db);
+                $object_ligne->comments = $langs->trans(sprintf("Vol (id: %d) %s à %s  détail: %s", $currentFlightForQuarter->idBBC_vols, $currentFlightForQuarter->lieuD, $currentFlightForQuarter->lieuA, $currentFlightForQuarter->justif_kilometers));
+                $object_ligne->qty = $currentFlightForQuarter->kilometers;
+                $object_ligne->value_unit = $tauxRemb;
 
-            $tmp = calcul_price_total($object_ligne->qty, $object_ligne->value_unit, 0, $vatrate, 0, 0, 0, 'TTC', 0, 0, '');
-            $object_ligne->total_ttc = $tmp[2];
-            $object_ligne->total_ht = $tmp[0];
-            $object_ligne->total_tva = $tmp[1];
+                $object_ligne->date = $currentFlightForQuarter->date;
 
-            $resultLine = $object_ligne->insert();
+                $object_ligne->fk_c_type_fees = 2;
+                $object_ligne->fk_expensereport = $expenseNoteId;
+                $object_ligne->fk_projet = '';
 
-            // Missions
-            $object_ligne = new ExpenseReportLine($db);
-            $object_ligne->comments = "Mission réalisé pour le club";
-            $object_ligne->qty = $currentMission["quartil"][$quarter]["flight"];
-            $object_ligne->value_unit = $unitPriceMission;
+                $object_ligne->vatrate = price2num($vatrate);
 
-            $object_ligne->date = $endDate->format("Y-m-d");
+                $tmp = calcul_price_total($object_ligne->qty, $object_ligne->value_unit, 0, $vatrate, 0, 0, 0, 'TTC', 0,
+                    0, '');
+                $object_ligne->total_ttc = $tmp[2];
+                $object_ligne->total_ht = $tmp[0];
+                $object_ligne->total_tva = $tmp[1];
 
-            $object_ligne->fk_c_type_fees = 8;
-            $object_ligne->fk_expensereport = $expenseNoteId;
-            $object_ligne->fk_projet = '';
+                $resultLine = $object_ligne->insert();
 
-            $object_ligne->vatrate = price2num($vatrate);
+                // Missions
+                $object_ligne = new ExpenseReportLine($db);
+                $object_ligne->comments = sprintf("Vol (id: %d) %s à %s", $currentFlightForQuarter->idBBC_vols, $currentFlightForQuarter->lieuD, $currentFlightForQuarter->lieuA);
+                $object_ligne->qty = 1;
+                $object_ligne->value_unit = $unitPriceMission;
 
-            $tmp = calcul_price_total($object_ligne->qty, $object_ligne->value_unit, 0, $vatrate, 0, 0, 0, 'TTC', 0, 0, '');
-            $object_ligne->total_ttc = $tmp[2];
-            $object_ligne->total_ht = $tmp[0];
-            $object_ligne->total_tva = $tmp[1];
+                $object_ligne->date = $currentFlightForQuarter->date;
 
-            $resultLine = $object_ligne->insert();
+                $object_ligne->fk_c_type_fees = 8;
+                $object_ligne->fk_expensereport = $expenseNoteId;
+                $object_ligne->fk_projet = '';
+
+                $object_ligne->vatrate = price2num($vatrate);
+
+                $tmp = calcul_price_total($object_ligne->qty, $object_ligne->value_unit, 0, $vatrate, 0, 0, 0, 'TTC', 0,
+                    0, '');
+                $object_ligne->total_ttc = $tmp[2];
+                $object_ligne->total_ht = $tmp[0];
+                $object_ligne->total_tva = $tmp[1];
+
+                $resultLine = $object_ligne->insert();
+            }
 
             $object->fetch($expenseNoteId);
             $object->setValidate($user);
@@ -173,7 +185,6 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
 
 $form = new Form($db);
-
 
 $tabLinks = [];
 foreach($flightYears as $currentFlightYear){
@@ -215,7 +226,9 @@ dol_fiche_head($tabLinks, "tab_".$year);
 
         <!-- Public note -->
         <label><?= $langs->trans("Note publique (commune à toutes les notes de frais)"); ?></label><br/>
-        <textarea name="public_note" wrap="soft" class="quatrevingtpercent" rows="2"></textarea>
+        <textarea name="public_note" wrap="soft" class="quatrevingtpercent" rows="2">
+            Les frais pilotes regroupent tous les frais qu'à le pilote pour organiser son vol (Champagne, Téléphone, Diplômes, ...).
+        </textarea>
         <br/>
 
         <!-- Private note -->

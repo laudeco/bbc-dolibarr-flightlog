@@ -147,6 +147,84 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showempty = 0, $
 }
 
 /**
+ * @param int  $year
+ *
+ * @param int  $pilotId
+ *
+ * @param int  $quarter
+ *
+ * @param bool $goupBy
+ *
+ * @return string
+ */
+function generateQuarterQuery($year = null, $pilotId = null, $quarter = null, $groupBy = true){
+
+    global $db;
+
+    $sql = "SELECT USR.rowid, USR.lastname, USR.firstname, QUARTER(VOL.date) as quartil ";
+
+    if($groupBy){
+        $sql.= " , SUM(VOL.kilometers) as SUM";
+        $sql.= " , COUNT(VOL.idBBC_vols) as nbrFlight";
+    }else{
+        $sql.= " , VOL.*";
+    }
+
+    $sql .= " FROM llx_bbc_vols as VOL";
+    $sql .= " LEFT OUTER JOIN llx_user AS USR ON VOL.fk_pilot = USR.rowid";
+    $sql .= " WHERE ";
+    $sql .= " 1 = 1 ";
+    $sql .= " AND YEAR(VOL.date) = " . ($year ?: 'YEAR(NOW())');
+    $sql .= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
+
+    if($pilotId){
+        $sql .= " AND USR.rowid = ".$pilotId;
+    }
+
+    if($quarter){
+        $sql .= " AND QUARTER(VOL.date) = ".$quarter;
+    }
+
+    if($groupBy){
+        $sql .= " GROUP BY QUARTER(VOL.date), VOL.fk_pilot";
+    }
+    $sql .= " ORDER BY QUARTER(VOL.date), VOL.fk_pilot";
+
+    return $db->escape($sql);
+}
+
+/**
+ * @param int $pilotId
+ * @param int $year
+ * @param int $quarter
+ *
+ * @return array
+ */
+function findFlightByPilotAndQuarter($pilotId, $year, $quarter){
+    global $db;
+
+    $sql = generateQuarterQuery($year, $pilotId, $quarter, false);
+    $flights = [];
+    $resql = $db->query($sql);
+    if ($resql) {
+        $num = $db->num_rows($resql);
+        $i = 0;
+        if ($num) {
+            while ($i < $num) {
+                $flight = $db->fetch_object($resql);
+                if ($flight) {
+                    $flights[] = $flight;
+                }
+                $i++;
+            }
+        }
+    }
+
+
+    return $flights;
+}
+
+/**
  * @param int $year
  *
  * @return array
@@ -155,15 +233,7 @@ function bbcKilometersByQuartil($year)
 {
     global $db;
 
-    $sql = "SELECT USR.rowid, USR.lastname, USR.firstname , SUM(VOL.kilometers) as SUM, QUARTER(VOL.date) as quartil, COUNT(VOL.idBBC_vols) as nbrFlight";
-    $sql .= " FROM llx_bbc_vols as VOL";
-    $sql .= " LEFT OUTER JOIN llx_user AS USR ON VOL.fk_pilot = USR.rowid";
-    $sql .= " WHERE ";
-    $sql .= " YEAR(VOL.date) = " . ($year ?: 'YEAR(NOW())');
-    $sql .= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
-    $sql .= " GROUP BY QUARTER(VOL.date), VOL.fk_pilot";
-    $sql .= " ORDER BY QUARTER(VOL.date), VOL.fk_pilot";
-
+    $sql = generateQuarterQuery($year);
     $resql = $db->query($sql);
 
     $kmByQuartil = array();
