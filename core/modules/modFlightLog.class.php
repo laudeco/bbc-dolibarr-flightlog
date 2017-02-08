@@ -260,6 +260,14 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'vol';
         $this->rights[$r][5] = 'detail';
+        $r++;
+
+        $this->rights[$r][0] = 9999;
+        $this->rights[$r][1] = 'Gérer les aspects financier des vols';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'financial';
+        $r++;
 
         // Main menu entries
         $this->menus = array();            // List of menus to add
@@ -484,6 +492,8 @@ class modFlightLog extends DolibarrModules
             "flight.cost"                      => "Flight",
             "flight.fk_receiver"               => "Flight",
             "flight.justif_kilometers"         => "Flight",
+            //"Balloon.immat"                    => "Balloon",
+            //"Balloon.immat"                    => "Balloon",
         );
         $this->export_sql_start[$r] = 'SELECT DISTINCT ';
         $this->export_sql_end[$r] = ' FROM ' . MAIN_DB_PREFIX . 'bbc_vols as flight';

@@ -274,7 +274,7 @@ print '<br/>';
 print '<div class="tabsAction">';
 
 
-if ($conf->expensereport->enabled && $user->rights->flightLog->vol->status) {
+if ($conf->expensereport->enabled && $user->rights->flightLog->vol->status && $user->rights->flightLog->vol->financial) {
     print '<a class="butAction" href="generateExpenseNote.php?year='.(GETPOST("year", 'int')?:date("Y")).'">Générer notes de frais</a>';
 }
 
