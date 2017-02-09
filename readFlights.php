@@ -64,7 +64,12 @@ if (! $mesg)
     $legend=[];
     $graphByTypeAndYear->type = [];
     foreach(fetchBbcFlightTypes() as $flightType){
-        $legend[]= $flightType->numero;
+
+        if(!in_array($flightType->numero, [1,2,3,6])){
+            continue;
+        }
+
+        $legend[]= $flightType->nom;
         $graphByTypeAndYear->type[] = "lines";
     }
     $graphByTypeAndYear->SetLegend($legend);
