@@ -95,6 +95,7 @@ class Bbcvols extends CommonObject
 	public function __construct(DoliDB $db)
 	{
 		$this->db = $db;
+		$this->cost = 0;
 	}
 
 	/**
@@ -523,11 +524,11 @@ class Bbcvols extends CommonObject
 		$sql .= ' fk_type = '.(isset($this->fk_type)?$this->fk_type:"null").',';
 		$sql .= ' fk_pilot = '.(isset($this->fk_pilot)?$this->fk_pilot:"null").',';
 		$sql .= ' fk_organisateur = '.(isset($this->fk_organisateur)?$this->fk_organisateur:"null").',';
-		$sql .= ' is_facture = '.(isset($this->is_facture)?$this->is_facture:"null").',';
-		$sql .= ' kilometers = '.(isset($this->kilometers)?$this->kilometers:"null").',';
-		$sql .= ' cost = '.(isset($this->cost)?"'".$this->db->escape($this->cost)."'":"null").',';
+		$sql .= ' is_facture = '.(isset($this->is_facture)?$this->is_facture:"0").',';
+		$sql .= ' kilometers = '.(!empty($this->kilometers)?$this->kilometers:"0").',';
+		$sql .= ' cost = '.(isset($this->cost)?"'".$this->db->escape($this->cost)."'":"''").',';
 		$sql .= ' fk_receiver = '.(isset($this->fk_receiver)?$this->fk_receiver:"null").',';
-		$sql .= ' justif_kilometers = '.(isset($this->justif_kilometers)?"'".$this->db->escape($this->justif_kilometers)."'":"null");
+		$sql .= ' justif_kilometers = '.(isset($this->justif_kilometers)?"'".$this->db->escape($this->justif_kilometers)."'":"''");
 
         
 		$sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;

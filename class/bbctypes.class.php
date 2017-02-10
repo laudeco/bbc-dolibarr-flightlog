@@ -172,12 +172,10 @@ class Bbctypes extends CommonObject
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$sql = 'SELECT';
-		$sql .= ' t.rowid,';
+		$sql .= ' t.idType,';
 		
-		$sql .= " t.idType,";
 		$sql .= " t.numero,";
 		$sql .= " t.nom,";
-		$sql .= " t.active";
 		$sql .= " t.active";
 
 		
@@ -185,7 +183,7 @@ class Bbctypes extends CommonObject
 		if (null !== $ref) {
 			$sql .= ' WHERE t.ref = ' . '\'' . $ref . '\'';
 		} else {
-			$sql .= ' WHERE t.rowid = ' . $id;
+			$sql .= ' WHERE t.idType = ' . $id;
 		}
 
 		$resql = $this->db->query($sql);
@@ -194,7 +192,7 @@ class Bbctypes extends CommonObject
 			if ($numrows) {
 				$obj = $this->db->fetch_object($resql);
 
-				$this->id = $obj->rowid;
+				$this->id = $obj->idType;
 				
 				$this->idType = $obj->idType;
 				$this->numero = $obj->numero;
@@ -338,7 +336,7 @@ class Bbctypes extends CommonObject
 		$sql .= ' active = '.(isset($this->active)?$this->active:"null");
 
         
-		$sql .= ' WHERE rowid=' . $this->id;
+		$sql .= ' WHERE idType=' . $this->id;
 
 		$this->db->begin();
 
@@ -401,7 +399,7 @@ class Bbctypes extends CommonObject
 
 		if (!$error) {
 			$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . $this->table_element;
-			$sql .= ' WHERE rowid=' . $this->id;
+			$sql .= ' WHERE idType=' . $this->id;
 
 			$resql = $this->db->query($sql);
 			if (!$resql) {

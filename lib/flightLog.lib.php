@@ -54,7 +54,6 @@ function fetchBbcFlightTypes($active = 1)
 
     $bbcTypes = new Bbctypes($db);
 
-    $test = $db;
     $bbcTypes->fetchAll('','',0,0, [
         "active" => $active
     ]);
