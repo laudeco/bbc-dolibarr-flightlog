@@ -28,6 +28,11 @@ Module500000Desc = Carnet de vol
 #
 
 #
+# List
+#
+MyModuleListTitle = Liste de vols
+
+#
 # Card
 #
 

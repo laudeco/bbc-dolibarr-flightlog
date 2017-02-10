@@ -143,7 +143,7 @@ if ($reshook < 0) {
 }
 
 if (empty($reshook)) {
-    if ($cancel) {
+    if ($cancel || !($user->rights->flightLog->vol->edit || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id))) {
         if ($id > 0 || !empty($ref)) {
             $object->fetch($id);
 
