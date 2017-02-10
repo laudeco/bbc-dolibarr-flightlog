@@ -161,7 +161,7 @@ class modFlightLog extends DolibarrModules
         $this->conflictwith = array();
         $this->phpmin = array(5, 5);
         $this->need_dolibarr_version = array(4, 0);
-        $this->langfiles = array("mylangfile@mymodule");
+        $this->langfiles = array("mymodule@flightLog");
 
         // Constants
         $this->const = array(
@@ -451,6 +451,7 @@ class modFlightLog extends DolibarrModules
             "flight.cost"                      => "Cout",
             "flight.fk_receiver"               => "Identifiant receveur d'argent",
             "flight.justif_kilometers"         => "Justificatif kilomètres",
+            "balloon.immat"                    => "Immat.",
         );
 
         $this->export_TypeFields_array[$r] = [
@@ -492,12 +493,11 @@ class modFlightLog extends DolibarrModules
             "flight.cost"                      => "Flight",
             "flight.fk_receiver"               => "Flight",
             "flight.justif_kilometers"         => "Flight",
-            //"Balloon.immat"                    => "Balloon",
-            //"Balloon.immat"                    => "Balloon",
+            "balloon.immat"                    => "Balloon",
         );
         $this->export_sql_start[$r] = 'SELECT DISTINCT ';
         $this->export_sql_end[$r] = ' FROM ' . MAIN_DB_PREFIX . 'bbc_vols as flight';
-        //$this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'product as p on (fd.fk_product = p.rowid)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_ballons as balloon on (flight.BBC_ballons_idBBC_ballons = balloon.rowid)';
         $this->export_sql_end[$r] .= ' WHERE 1 = 1';
         $r++;
     }
