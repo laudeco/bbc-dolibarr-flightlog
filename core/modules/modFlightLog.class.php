@@ -452,6 +452,10 @@ class modFlightLog extends DolibarrModules
             "flight.fk_receiver"               => "Identifiant receveur d'argent",
             "flight.justif_kilometers"         => "Justificatif kilomètres",
             "balloon.immat"                    => "Immat.",
+            "pilot.login"                      => "Pilote",
+            "flightType.nom"                   => "Type de vol",
+            "organisator.login"                => "Organisateur",
+            "receiver.login"                   => "Percepteur",
         );
 
         $this->export_TypeFields_array[$r] = [
@@ -494,10 +498,18 @@ class modFlightLog extends DolibarrModules
             "flight.fk_receiver"               => "Flight",
             "flight.justif_kilometers"         => "Flight",
             "balloon.immat"                    => "Balloon",
+            "pilot.login"                      => "Pilot",
+            "flightType.nom"                   => "FlightType",
+            "organisator.login"                => "Organisator",
+            "receiver.login"                   => "Percepteur",
         );
         $this->export_sql_start[$r] = 'SELECT DISTINCT ';
         $this->export_sql_end[$r] = ' FROM ' . MAIN_DB_PREFIX . 'bbc_vols as flight';
         $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_ballons as balloon on (flight.BBC_ballons_idBBC_ballons = balloon.rowid)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_types as flightType on (flight.fk_type = flightType.idType)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as pilot on (flight.fk_pilot = pilot.rowid)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as organisator on (flight.fk_organisateur = organisator.rowid)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as receiver on (flight.fk_receiver = receiver.rowid)';
         $this->export_sql_end[$r] .= ' WHERE 1 = 1';
         $r++;
     }
