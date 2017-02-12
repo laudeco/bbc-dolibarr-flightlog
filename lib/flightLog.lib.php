@@ -68,7 +68,7 @@ function fetchBbcFlightTypes($active = 1)
  * @param   mixed $htmlname  Name of field in form
  * @param   mixed $showempty Add an empty field
  */
-function select_flight_type($selected = '1', $htmlname = 'type', $showempty = 0)
+function select_flight_type($selected = '1', $htmlname = 'type', $showempty = false)
 {
 
     global $db, $langs, $user;
@@ -86,6 +86,10 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = 0)
         print '>';
         echo "T".$flightType->numero . '-' . $flightType->nom;
         print "</option>";
+    }
+
+    if($showempty){
+        print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected = 0 || $selected == -1) ? "selected" : ""));
     }
 
     print '</select>';
