@@ -278,7 +278,7 @@ class modFlightLog extends DolibarrModules
         $this->menu[$r] = array(
             'fk_menu'  => 'fk_mainmenu=flightLog',
             'type'     => self::MENU_TYPE_TOP,
-            'titre'    => 'Carnet de vol',
+            'titre'    => 'Carnet de vols',
             'mainmenu' => 'flightLog',
             'leftmenu' => 'readFlight',
             'url'      => '/flightLog/readFlights.php',
@@ -320,56 +320,15 @@ class modFlightLog extends DolibarrModules
             'target'   => '',
             'user'     => 2
         );
-        $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=showFlight',
+            'fk_menu'  => 'fk_mainmenu=flightLog',
             // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
             'type'     => self::MENU_TYPE_LEFT,
             // This is a Left menu entry
-            'titre'    => 'Par Ballon',
+            'titre'    => 'Les vols',
             'mainmenu' => 'flightLog',
-            'leftmenu' => 'showFlightByBalloon',
-            'url'      => '/flightLog/readFlightsBalloon.php',
-            'langs'    => 'mylangfile',
-            // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-            'position' => 103,
-            'enabled'  => '1',
-            // Define condition to show or hide menu entry. Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
-            'perms'    => '1',
-            // Use 'perms'=>'$user->rights->mymodule->level1->level2' if you want your menu with a permission rules
-            'target'   => '',
-            'user'     => 2
-        );                // 0=Menu for internal users, 1=external users, 2=both
-        $r++;
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=showFlight',
-            // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
-            'type'     => self::MENU_TYPE_LEFT,
-            // This is a Left menu entry
-            'titre'    => 'Par Pilote',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'showFlightByPilot',
-            'url'      => '/flightLog/readFlightsPilot.php',
-            'langs'    => 'mylangfile',
-            // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-            'position' => 104,
-            'enabled'  => '1',
-            // Define condition to show or hide menu entry. Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
-            'perms'    => '1',
-            // Use 'perms'=>'$user->rights->mymodule->level1->level2' if you want your menu with a permission rules
-            'target'   => '',
-            'user'     => 2
-        );                // 0=Menu for internal users, 1=external users, 2=both
-        $r++;
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=showFlight',
-            // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
-            'type'     => self::MENU_TYPE_LEFT,
-            // This is a Left menu entry
-            'titre'    => 'Par Organisateur',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'showFlightByOrganiser',
-            'url'      => '/flightLog/readFlightsOrganisator.php',
+            'leftmenu' => 'flightLog',
+            'url'      => '/flightLog/list.php',
             'langs'    => 'mylangfile',
             // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position' => 105,
@@ -406,7 +365,7 @@ class modFlightLog extends DolibarrModules
             'langs'    => 'mylangfile',
             'position' => 107,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->status',
+            'perms'    => '$user->rights->flightLog->vol->financial',
             'target'   => '',
             'user'     => 2
         );

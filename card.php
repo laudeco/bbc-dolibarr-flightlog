@@ -390,11 +390,14 @@ if (($id || $ref) && $action == 'edit') {
     print "</td></tr>";
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_pilot") . "</td><td>".$form->select_dolusers($object->fk_pilot, "fk_pilot")."</td></tr>";
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_organisateur") . "</td><td>".$form->select_dolusers($object->fk_organisateur, "fk_organisateur")."</td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldkilometers") . "</td><td><input class=\"flat\" type=\"number\" name=\"kilometers\" value=\"" . $object->kilometers . "\"></td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldcost") . "</td><td><input class=\"flat\" type=\"number\" name=\"cost\" value=\"" . $object->cost . "\"></td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_receiver") . "</td><td>".$form->select_dolusers($object->fk_receiver, "fk_receiver")."</td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldjustif_kilometers") . "</td><td><textarea class=\"flat\" name=\"justif_kilometers\">".$object->justif_kilometers."</textarea></td></tr>";
 
+    if($user->rights->flightLog->vol->financial || $user->id == $object->fk_pilot) {
+        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldkilometers") . "</td><td><input class=\"flat\" type=\"number\" name=\"kilometers\" value=\"" . $object->kilometers . "\"></td></tr>";
+        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldcost") . "</td><td><input class=\"flat\" type=\"number\" name=\"cost\" value=\"" . $object->cost . "\"></td></tr>";
+        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_receiver") . "</td><td>" . $form->select_dolusers($object->fk_receiver,
+                "fk_receiver") . "</td></tr>";
+        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldjustif_kilometers") . "</td><td><textarea class=\"flat\" name=\"justif_kilometers\">" . $object->justif_kilometers . "</textarea></td></tr>";
+    }
     print '</table>';
 
     dol_fiche_end();
