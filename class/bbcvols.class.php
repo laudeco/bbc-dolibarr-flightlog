@@ -731,7 +731,7 @@ class Bbcvols extends CommonObject
      */
     function getLibStatut($mode = 0)
     {
-        return $this->LibStatut($this->status, $mode);
+        return $this->LibStatut($this->is_facture, $mode);
     }
 
     /**
@@ -742,7 +742,7 @@ class Bbcvols extends CommonObject
      *
      * @return string                    Label of status
      */
-    function LibStatut($status, $mode = 0)
+    private function LibStatut($status, $mode = 0)
     {
         global $langs;
 

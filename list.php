@@ -127,7 +127,7 @@ $arrayfields = array(
     't.fk_type'                   => array('label' => $langs->trans("Fieldfk_type"), 'checked' => 1),
     't.fk_pilot'                  => array('label' => $langs->trans("Fieldfk_pilot"), 'checked' => 1),
     't.fk_organisateur'           => array('label' => $langs->trans("Fieldfk_organisateur"), 'checked' => 1),
-    //'t.is_facture'                => array('label' => $langs->trans("Fieldis_facture"), 'checked' => 1),
+    't.is_facture'                => array('label' => $langs->trans("Fieldis_facture"), 'checked' => 1),
     //'t.kilometers'                => array('label' => $langs->trans("Fieldkilometers"), 'checked' => 1),
     //'t.cost'                      => array('label' => $langs->trans("Fieldcost"), 'checked' => 1),
     //'t.fk_receiver'               => array('label' => $langs->trans("Fieldfk_receiver"), 'checked' => 1),
@@ -560,12 +560,12 @@ if (!empty($arrayfields['t.fk_organisateur']['checked'])) {
     print_liste_field_titre($arrayfields['t.fk_organisateur']['label'], $_SERVER['PHP_SELF'], 't.fk_organisateur', '',
         $params, '', $sortfield, $sortorder);
 }
-/*
+
 if (!empty($arrayfields['t.is_facture']['checked'])) {
     print_liste_field_titre($arrayfields['t.is_facture']['label'], $_SERVER['PHP_SELF'], 't.is_facture', '', $params,
         '', $sortfield, $sortorder);
 }
-if (!empty($arrayfields['t.kilometers']['checked'])) {
+/*if (!empty($arrayfields['t.kilometers']['checked'])) {
     print_liste_field_titre($arrayfields['t.kilometers']['label'], $_SERVER['PHP_SELF'], 't.kilometers', '', $params,
         '', $sortfield, $sortorder);
 }
@@ -667,10 +667,13 @@ if (!empty($arrayfields['t.fk_organisateur']['checked'])) {
         print $form->select_dolusers($search_fk_organisateur, "search_fk_organisateur", true);
     print '</td>';
 }
-/*
+
 if (!empty($arrayfields['t.is_facture']['checked'])) {
-    print '<td class="liste_titre"><input type="text" class="flat" name="search_is_facture" value="' . $search_is_facture . '" size="10"></td>';
+    print '<td class="liste_titre">';
+    print '<select name="search_is_facture"><option value=""></option><option value="1">Facturé</option><option value="0">Ouvert</option></select>';
+    print '</td>';
 }
+/*
 if (!empty($arrayfields['t.kilometers']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_kilometers" value="' . $search_kilometers . '" size="10"></td>';
 }
@@ -760,7 +763,7 @@ while ($i < min($num, $limit)) {
         if (! empty($arrayfields['t.date']['checked']))
         {
             print '<td>';
-                print dol_print_date($db->jdate($obj->date), 'd-%m-%y');
+                print dol_print_date($db->jdate($obj->date), '%d-%m-%y');
             print '</td>';
 
             if (! $i) $totalarray['nbfield']++;
@@ -833,7 +836,8 @@ while ($i < min($num, $limit)) {
         }
         if (! empty($arrayfields['t.is_facture']['checked']))
         {
-            print '<td>'.$obj->is_facture.'</td>';
+            $flight->is_facture = $obj->is_facture;
+            print '<td>'.$flight->getLibStatut(3).'</td>';
 
             if (! $i) $totalarray['nbfield']++;
         }
