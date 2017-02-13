@@ -78,6 +78,10 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
 
     print '<select class="flat" name="' . $htmlname . '">';
 
+    if($showempty){
+        print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected = 0 || $selected == -1) ? "selected" : ""));
+    }
+
     foreach ($types as $flightType) {
         print '<option value="' . $flightType->id . '"';
         if ($flightType->numero == $selected) {
@@ -88,19 +92,17 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
         print "</option>";
     }
 
-    if($showempty){
-        print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected = 0 || $selected == -1) ? "selected" : ""));
-    }
-
     print '</select>';
 }
 
 /**
  *        Return list of Balloons
  *
- * @param   mixed  $selected  Preselected Balloon
- * @param   mixed  $htmlname  Name of field in form
- * @param    mixed $showempty Add an empty field
+ * @param int|string $selected  Preselected Balloon
+ * @param string     $htmlname  Name of field in form
+ * @param bool       $showempty Add an empty field
+ * @param bool       $showimmat
+ * @param bool       $showDeclasse
  */
 function select_balloons($selected = '', $htmlname = 'ballon', $showempty = 0, $showimmat = 0, $showDeclasse = 1)
 {
@@ -110,8 +112,8 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showempty = 0, $
     print '<!-- select_balloons in form class -->';
     print '<select class="flat" name="' . $htmlname . '">';
 
-    print '<option value="-1"';
-    if ($selected == -1) {
+    print '<option value=""';
+    if ($selected == -1 || $selected == ''|| $selected == 0) {
         print ' selected="selected"';
     }
     print '>&nbsp;</option>';

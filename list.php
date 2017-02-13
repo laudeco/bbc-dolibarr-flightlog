@@ -15,6 +15,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 require_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
+dol_include_once('/flightBalloon/bbc_ballons.class.php');
 dol_include_once('/flightLog/class/bbcvols.class.php');
 dol_include_once('/flightLog/class/bbctypes.class.php');
 dol_include_once('/flightLog/lib/flightLog.lib.php');
@@ -36,6 +37,7 @@ $myparam = GETPOST('myparam', 'alpha');
 $search_all = trim(GETPOST("sall"));
 
 $search_idBBC_vols = GETPOST('search_idBBC_vols', 'int');
+$search_date = GETPOST('search_date', 'alpha');
 $search_lieuD = GETPOST('search_lieuD', 'alpha');
 $search_lieuA = GETPOST('search_lieuA', 'alpha');
 $search_heureD = GETPOST('search_heureD', 'alpha');
@@ -45,7 +47,14 @@ $search_nbrPax = GETPOST('search_nbrPax', 'alpha');
 $search_remarque = GETPOST('search_remarque', 'alpha');
 $search_incidents = GETPOST('search_incidents', 'alpha');
 $search_fk_type = GETPOST('search_fk_type', 'int');
-$search_fk_pilot = GETPOST('search_fk_pilot', 'int');
+
+if($user->rights->flightLog->vol->detail){
+    $search_fk_pilot = GETPOST('search_fk_pilot', 'int');
+}else{
+    $search_fk_pilot = $user->id;
+}
+
+
 $search_fk_organisateur = GETPOST('search_fk_organisateur', 'int');
 $search_is_facture = GETPOST('search_is_facture', 'int');
 $search_kilometers = GETPOST('search_kilometers', 'int');
@@ -106,6 +115,7 @@ if (empty($user->socid)) {
 $arrayfields = array(
 
     't.idBBC_vols'                => array('label' => $langs->trans("FieldidBBC_vols"), 'checked' => 1),
+    't.date'                     => array('label' => $langs->trans("FieldDate"), 'checked' => 1),
     't.lieuD'                     => array('label' => $langs->trans("FieldlieuD"), 'checked' => 1),
     't.lieuA'                     => array('label' => $langs->trans("FieldlieuA"), 'checked' => 1),
     't.heureD'                    => array('label' => $langs->trans("FieldheureD"), 'checked' => 1),
@@ -187,6 +197,7 @@ if (empty($reshook)) {
     {
 
         $search_idBBC_vols = '';
+        $search_date = '';
         $search_lieuD = '';
         $search_lieuA = '';
         $search_heureD = '';
@@ -212,8 +223,8 @@ if (empty($reshook)) {
     }
 
     // Mass actions
-    $objectclass = 'Skeleton';
-    $objectlabel = 'Skeleton';
+    $objectclass = 'BbcVols';
+    $objectlabel = 'Vol';
     $permtoread = $user->rights->bbcvols->read;
     $permtodelete = $user->rights->bbcvols->delete;
     $uploaddir = $conf->bbcvols->dir_output;
@@ -270,8 +281,12 @@ $sql .= " t.is_facture,";
 $sql .= " t.kilometers,";
 $sql .= " t.cost,";
 $sql .= " t.fk_receiver,";
-$sql .= " t.justif_kilometers";
-
+$sql .= " t.justif_kilometers, ";
+$sql .= " balloon.immat as bal, ";
+$sql .= " CONCAT_WS(' ', 'T', flightType.numero,'-', flightType.nom) as flight_type, ";
+$sql .= " CONCAT_WS(' ', pilot.firstname, pilot.lastname) as pilot, ";
+$sql .= " CONCAT_WS(' ', organisator.firstname, organisator.lastname) as organisator, ";
+$sql .= " CONCAT_WS(' ', receiver.firstname , receiver.lastname) as receiver";
 
 // Add fields from extrafields
 foreach ($extrafields->attribute_label as $key => $val) {
@@ -286,10 +301,19 @@ $sql .= " FROM " . MAIN_DB_PREFIX . "bbc_vols as t";
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) {
     $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "bbc_vols_extrafields as ef on (t.rowid = ef.fk_object)";
 }
+$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_ballons as balloon on (t.BBC_ballons_idBBC_ballons = balloon.rowid)';
+$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_types as flightType on (t.fk_type = flightType.idType)';
+$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as pilot on (t.fk_pilot = pilot.rowid)';
+$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as organisator on (t.fk_organisateur = organisator.rowid)';
+$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as receiver on (t.fk_receiver = receiver.rowid)';
+
 $sql .= " WHERE 1 = 1";
 
 if ($search_idBBC_vols) {
     $sql .= natural_search("idBBC_vols", $search_idBBC_vols);
+}
+if ($search_lieuD) {
+    $sql .= natural_search("date", $search_date);
 }
 if ($search_lieuD) {
     $sql .= natural_search("lieuD", $search_lieuD);
@@ -318,10 +342,10 @@ if ($search_incidents) {
 if ($search_fk_type) {
     $sql .= natural_search("fk_type", $search_fk_type);
 }
-if ($search_fk_pilot) {
-    $sql .= natural_search("fk_pilot", $search_fk_pilot);
+if ($search_fk_pilot && $search_fk_pilot != -1) {
+    $sql .= natural_search("fk_pilot", $search_fk_pilot, 2);
 }
-if ($search_fk_organisateur) {
+if ($search_fk_organisateur && $search_fk_organisateur != -1) {
     $sql .= natural_search("fk_organisateur", $search_fk_organisateur);
 }
 
@@ -456,7 +480,7 @@ if ($sall) {
 
 $moreforfilter = '';
 $moreforfilter .= '<div class="divsearchfield">';
-$moreforfilter .= $langs->trans('MyFilter') . ': <input type="text" name="search_myfield" value="' . dol_escape_htmltag($search_myfield) . '">';
+//$moreforfilter .= $langs->trans('MyFilter') . ': <input type="text" name="search_myfield" value="' . dol_escape_htmltag($search_myfield) . '">';
 $moreforfilter .= '</div>';
 
 $parameters = array();
@@ -486,6 +510,10 @@ print '<tr class="liste_titre">';
 // 
 if (!empty($arrayfields['t.idBBC_vols']['checked'])) {
     print_liste_field_titre($arrayfields['t.idBBC_vols']['label'], $_SERVER['PHP_SELF'], 't.idBBC_vols', '', $params,
+        '', $sortfield, $sortorder);
+}
+if (!empty($arrayfields['t.date']['checked'])) {
+    print_liste_field_titre($arrayfields['t.date']['label'], $_SERVER['PHP_SELF'], 't.date', '', $params,
         '', $sortfield, $sortorder);
 }
 if (!empty($arrayfields['t.lieuD']['checked'])) {
@@ -590,6 +618,9 @@ print '<tr class="liste_titre">';
 if (!empty($arrayfields['t.idBBC_vols']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_idBBC_vols" value="' . $search_idBBC_vols . '" size="10"></td>';
 }
+if (!empty($arrayfields['t.date']['checked'])) {
+    print '<td class="liste_titre"><input type="text" class="flat" name="search_date" value="' . $search_date . '" size="10"></td>';
+}
 if (!empty($arrayfields['t.lieuD']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_lieuD" value="' . $search_lieuD . '" size="10"></td>';
 }
@@ -603,7 +634,10 @@ if (!empty($arrayfields['t.heureA']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_heureA" value="' . $search_heureA . '" size="10"></td>';
 }
 if (!empty($arrayfields['t.BBC_ballons_idBBC_ballons']['checked'])) {
-    print '<td class="liste_titre"><input type="text" class="flat" name="search_BBC_ballons_idBBC_ballons" value="' . $search_BBC_ballons_idBBC_ballons . '" size="10"></td>';
+
+    print '<td class="liste_titre">';
+    select_balloons($search_BBC_ballons_idBBC_ballons, "search_BBC_ballons_idBBC_ballons");
+    print '</td>';
 }
 if (!empty($arrayfields['t.nbrPax']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_nbrPax" value="' . $search_nbrPax . '" size="10"></td>';
@@ -616,14 +650,22 @@ if (!empty($arrayfields['t.incidents']['checked'])) {
 }*/
 if (!empty($arrayfields['t.fk_type']['checked'])) {
     print '<td class="liste_titre fk_type">';
-    select_flight_type($search_fk_type, 'search_fk_type', true);
+        select_flight_type($search_fk_type, 'search_fk_type', true);
     print '</td>';
 }
 if (!empty($arrayfields['t.fk_pilot']['checked'])) {
-    print '<td class="liste_titre"><input type="text" class="flat" name="search_fk_pilot" value="' . $search_fk_pilot . '" size="10"></td>';
+    print '<td class="liste_titre">';
+        if($user->rights->flightLog->vol->detail){
+            print $form->select_dolusers($search_fk_pilot, "search_fk_pilot", true);
+        }else{
+            print $user->login;
+        }
+    print '</td>';
 }
 if (!empty($arrayfields['t.fk_organisateur']['checked'])) {
-    print '<td class="liste_titre"><input type="text" class="flat" name="search_fk_organisateur" value="' . $search_fk_organisateur . '" size="10"></td>';
+    print '<td class="liste_titre">';
+        print $form->select_dolusers($search_fk_organisateur, "search_fk_organisateur", true);
+    print '</td>';
 }
 /*
 if (!empty($arrayfields['t.is_facture']['checked'])) {
@@ -682,13 +724,6 @@ if (!empty($arrayfields['t.tms']['checked'])) {
     print '<td class="liste_titre">';
     print '</td>';
 }
-/*if (! empty($arrayfields['u.statut']['checked']))
-{
-    // Status
-    print '<td class="liste_titre" align="center">';
-    print $form->selectarray('search_statut', array('-1'=>'','0'=>$langs->trans('Disabled'),'1'=>$langs->trans('Enabled')),$search_statut);
-    print '</td>';
-}*/
 // Action column
 print '<td class="liste_titre" align="right">';
 $searchpitco = $form->showFilterAndCheckAddButtons($massactionbutton ? 1 : 0, 'checkforselect', 1);
@@ -700,20 +735,33 @@ print '</tr>' . "\n";
 $i = 0;
 $var = true;
 $totalarray = array();
+$flight = new Bbcvols($db);
 while ($i < min($num, $limit)) {
     $obj = $db->fetch_object($resql);
+
     if ($obj) {
         $var = !$var;
 
+        $flight->idBBC_vols = $obj->idBBC_vols;
+        $flight->date = $obj->date;
+        $flight->heureA = $obj->heureA;
+        $flight->heureD = $obj->heureD;
+        $flight->setRef($obj->idBBC_vols);
+
         // Show here line of result
         print '<tr ' . $bc[$var] . '>';
-        // LIST_OF_TD_FIELDS_LIST
-
-
 
         if (! empty($arrayfields['t.idBBC_vols']['checked']))
         {
-            print '<td>'.$obj->idBBC_vols.'</td>';
+            print '<td>'.$flight->getNomUrl(0).'</td>';
+
+            if (! $i) $totalarray['nbfield']++;
+        }
+        if (! empty($arrayfields['t.date']['checked']))
+        {
+            print '<td>';
+                print dol_print_date($db->jdate($obj->date), 'd-%m-%y');
+            print '</td>';
 
             if (! $i) $totalarray['nbfield']++;
         }
@@ -743,7 +791,7 @@ while ($i < min($num, $limit)) {
         }
         if (! empty($arrayfields['t.BBC_ballons_idBBC_ballons']['checked']))
         {
-            print '<td>'.$obj->BBC_ballons_idBBC_ballons.'</td>';
+            print '<td>'.$obj->bal.'</td>';
 
             if (! $i) $totalarray['nbfield']++;
         }
@@ -767,19 +815,19 @@ while ($i < min($num, $limit)) {
         }
         if (! empty($arrayfields['t.fk_type']['checked']))
         {
-            print '<td>'.$obj->fk_type.'</td>';
+            print '<td>'.$obj->flight_type.'</td>';
 
             if (! $i) $totalarray['nbfield']++;
         }
         if (! empty($arrayfields['t.fk_pilot']['checked']))
         {
-            print '<td>'.$obj->fk_pilot.'</td>';
+            print '<td>'.$obj->pilot.'</td>';
 
             if (! $i) $totalarray['nbfield']++;
         }
         if (! empty($arrayfields['t.fk_organisateur']['checked']))
         {
-            print '<td>'.$obj->fk_organisateur.'</td>';
+            print '<td>'.$obj->organisator.'</td>';
 
             if (! $i) $totalarray['nbfield']++;
         }
@@ -803,7 +851,7 @@ while ($i < min($num, $limit)) {
         }
         if (! empty($arrayfields['t.fk_receiver']['checked']))
         {
-            print '<td>'.$obj->fk_receiver.'</td>';
+            print '<td>'.$obj->receiver.'</td>';
 
             if (! $i) $totalarray['nbfield']++;
         }
