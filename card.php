@@ -122,7 +122,7 @@ include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php';  // Must be inc
 
 // Initialize technical object to manage hooks of modules. Note that conf->hooks_modules contains array array
 $hookmanager->initHooks(array('bbcvols'));
-
+$object->ref = $object->idBBC_vols;
 $receiver->fetch($object->fk_receiver);
 $pilot->fetch($object->fk_pilot);
 $organisator->fetch($object->fk_organisateur);
@@ -394,8 +394,7 @@ if (($id || $ref) && $action == 'edit') {
     if($user->rights->flightLog->vol->financial || $user->id == $object->fk_pilot) {
         print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldkilometers") . "</td><td><input class=\"flat\" type=\"number\" name=\"kilometers\" value=\"" . $object->kilometers . "\"></td></tr>";
         print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldcost") . "</td><td><input class=\"flat\" type=\"number\" name=\"cost\" value=\"" . $object->cost . "\"></td></tr>";
-        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_receiver") . "</td><td>" . $form->select_dolusers($object->fk_receiver,
-                "fk_receiver") . "</td></tr>";
+        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_receiver") . "</td><td>" . $form->select_dolusers($object->fk_receiver,"fk_receiver", true ) . "</td></tr>";
         print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldjustif_kilometers") . "</td><td><textarea class=\"flat\" name=\"justif_kilometers\">" . $object->justif_kilometers . "</textarea></td></tr>";
     }
     print '</table>';
@@ -417,6 +416,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     print load_fiche_titre($langs->trans($pageTitle));
 
+    $linkback = '<a href="'.DOL_URL_ROOT.'/flightLog/list.php">'.$langs->trans("BackToList").'</a>';
+    //dol_banner_tab($object, 'idBBC_vols', $linkback);
+    print $form->showrefnav($object, "idBBC_vols", $linkback, true, "idBBC_vols");
     dol_fiche_head();
 
     if ($action == 'delete') {

@@ -689,6 +689,8 @@ if (!empty($arrayfields['t.justif_kilometers']['checked'])) {
 
 //if (! empty($arrayfields['t.field1']['checked'])) print '<td class="liste_titre"><input type="text" class="flat" name="search_field1" value="'.$search_field1.'" size="10"></td>';
 //if (! empty($arrayfields['t.field2']['checked'])) print '<td class="liste_titre"><input type="text" class="flat" name="search_field2" value="'.$search_field2.'" size="10"></td>';
+
+
 // Extra fields
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) {
     foreach ($extrafields->attribute_label as $key => $val) {
@@ -712,6 +714,8 @@ if (is_array($extrafields->attribute_label) && count($extrafields->attribute_lab
         }
     }
 }
+
+
 // Fields from hook
 $parameters = array('arrayfields' => $arrayfields);
 $reshook = $hookmanager->executeHooks('printFieldListOption',
@@ -727,6 +731,8 @@ if (!empty($arrayfields['t.tms']['checked'])) {
     print '<td class="liste_titre">';
     print '</td>';
 }
+
+
 // Action column
 print '<td class="liste_titre" align="right">';
 $searchpitco = $form->showFilterAndCheckAddButtons($massactionbutton ? 1 : 0, 'checkforselect', 1);
