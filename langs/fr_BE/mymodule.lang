@@ -28,6 +28,23 @@ Module500000Desc = Carnet de vol
 #
 
 #
+# Read flights
+#
+
+Remboursement aux pilotes =  Remboursement aux pilotes
+Type 1 : Sponsor = Type 1 : Sponsor
+Type 2 : Baptême = Type 2 : Baptême
+Organisateur (T1/T2) = Organisateur (T1/T2)
+Total bonus = Total bonus
+Type 3 : Privé = Type 3 : Privé
+Type 4: Meeting = Type 4: Meeting
+Type 5: Chambley = Type 5: Chambley
+Type 6: instruction = Type 6: instruction
+Type 7: vols < 50  = Type 7: vols < 50
+Facture = Facture
+A payer = A payer
+
+#
 # List
 #
 MyModule = Vol

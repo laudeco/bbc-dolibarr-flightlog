@@ -25,8 +25,7 @@ dol_include_once('/flightLog/class/YearGraphicalData.php');
 
 dol_include_once("/flightLog/lib/flightLog.lib.php");
 
-// Load translation files required by the page
-$langs->load("mymodule@mymodule");
+$langs->load("mymodule@flightLog");
 
 // Get parameters
 //TODO get all parameters from here
@@ -150,17 +149,17 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
 
     print '<tr class="liste_titre">';
     print '<td colspan="2">Nom</td>';
-    print '<td class="liste_titre" colspan="2">Type 1 : Sponsor</td>';
-    print '<td class="liste_titre" colspan="2">Type 2 : Baptême</td>';
-    print '<td class="liste_titre" colspan="2">Organisateur (T1/T2)</td>';
-    print '<td class="liste_titre" >Total bonus</td>';
-    print '<td class="liste_titre" colspan="2">Type 3 : Privé</td>';
-    print '<td class="liste_titre" colspan="2">Type 4: Meeting</td>';
-    print '<td class="liste_titre" colspan="1">Type 5: Chambley</td>';
-    print '<td class="liste_titre" colspan="2">Type 6: instruction</td>';
-    print '<td class="liste_titre" colspan="2">Type 7: vols < 50 </td>';
-    print '<td class="liste_titre" colspan="1">Facture</td>';
-    print '<td class="liste_titre" colspan="1">A payer</td>';
+    print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 1 : Sponsor") . '</td>';
+    print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 2 : Baptême") . '</td>';
+    print '<td class="liste_titre" colspan="2">' . $langs->trans("Organisateur (T1/T2)") . '</td>';
+    print '<td class="liste_titre" >'            . $langs->trans("Total bonus") . '</td>';
+    print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 3 : Privé") . '</td>';
+    print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 4: Meeting") . '</td>';
+    print '<td class="liste_titre" colspan="1">' . $langs->trans("Type 5: Chambley") . '</td>';
+    print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 6: instruction") . '</td>';
+    print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 7: vols < 50 ") . '</td>';
+    print '<td class="liste_titre" colspan="1">' . $langs->trans("Facture") . '</td>';
+    print '<td class="liste_titre" colspan="1">' . $langs->trans("A payer") . '</td>';
     print '<tr>';
 
     print '<tr class="liste_titre">';
@@ -253,7 +252,7 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
 
 
     print '<br/>';
-    print '<h3>Remboursement aux pilotes</h3>';
+    print '<h3>' . $langs->trans("Remboursement aux pilotes") . '</h3>';
 
     //table km
     $tauxRemb = isset($conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
