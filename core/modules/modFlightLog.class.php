@@ -249,7 +249,7 @@ class modFlightLog extends DolibarrModules
         $r++;
 
         $this->rights[$r][0] = 9995;
-        $this->rights[$r][1] = 'Permet de modifier un vol.';
+        $this->rights[$r][1] = 'Permet de modifier tous les vols.';
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'vol';
         $this->rights[$r][5] = 'edit';

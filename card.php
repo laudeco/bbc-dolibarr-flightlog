@@ -57,7 +57,11 @@ include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 dol_include_once('/flightLog/class/bbcvols.class.php');
 dol_include_once('/flightLog/class/bbctypes.class.php');
 dol_include_once('/flightLog/lib/flightLog.lib.php');
+dol_include_once('/flightLog/lib/PilotService.php');
 dol_include_once('/flightBalloon/bbc_ballons.class.php');
+dol_include_once('/user/class/usergroup.class.php');
+
+use PilotService;
 
 // Load traductions files requiredby by page
 $langs->load("mymodule@flightLog");
@@ -107,6 +111,7 @@ $extrafields = new ExtraFields($db);
 
 $receiver = new User($db);
 
+$pilotService = new PilotService($db);
 $pilot = new User($db);
 
 $organisator = new User($db);
@@ -143,7 +148,9 @@ if ($reshook < 0) {
 }
 
 if (empty($reshook)) {
-    if ($cancel || !($user->rights->flightLog->vol->edit || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id))) {
+    $isAllowedEdit = ($user->rights->flightLog->vol->edit || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id));
+    $isAllowedDelete = ($user->rights->flightLog->vol->delete || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id && !$object->is_facture));
+    if ($cancel || (!$isAllowedDelete && $action == 'update') || (!$isAllowedDelete && $action == "confirm_delete")) {
         if ($id > 0 || !empty($ref)) {
             $object->fetch($id);
 
@@ -158,6 +165,7 @@ if (empty($reshook)) {
 
     // Action to add record
     if ($action == 'add') {
+
         if (GETPOST('cancel')) {
             $urltogo = $backtopage ? $backtopage : dol_buildpath('/flightLog/list.php', 1);
             header("Location: " . $urltogo);
@@ -239,12 +247,41 @@ if (empty($reshook)) {
         $object->justif_kilometers = GETPOST('justif_kilometers', 'alpha');
 
 
+        //validation
         if (empty($object->idBBC_vols)) {
             $error++;
             setEventMessages($langs->transnoentitiesnoconv("ErrorFieldRequired", $langs->transnoentitiesnoconv("idBBC_vols")),
                 null, 'errors');
         }
 
+        if(!dol_validElement($object->lieuD)){
+            $error++;
+            setEventMessage("Erreur le champ : lieu de décollage", 'errors');
+        }
+
+        if(!dol_validElement($object->lieuA)){
+            $error++;
+            setEventMessage("Erreur le champ : lieu d'atterissage", 'errors');
+        }
+
+        $dateD = date_create_from_format("H:i:s", $object->heureD);
+        $dateA = date_create_from_format("H:i:s", $object->heureA);
+        if ($dateA <= $dateD) {
+            $error++;
+            setEventMessage("Erreur avec les heures de vol", 'errors');
+        }
+
+        if(!is_numeric($object->nbrPax) || $object->nbrPax < 0 ){
+            $error++;
+            setEventMessage("Erreur le champ : nombre de passagers", 'errors');
+        }
+
+        if(!$pilotService->isPilot($object->fk_pilot)){
+            $error++;
+            setEventMessage("Le pilote selectionne n'est pas pilote", 'errors');
+        }
+
+        // action : edit
         if (!$error) {
             $result = $object->update($user);
             if ($result > 0) {
@@ -388,7 +425,7 @@ if (($id || $ref) && $action == 'edit') {
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_type") . "</td><td>";
         select_flight_type($object->fk_type, "fk_type");
     print "</td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_pilot") . "</td><td>".$form->select_dolusers($object->fk_pilot, "fk_pilot")."</td></tr>";
+    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_pilot") . "</td><td>".$form->select_dolusers($object->fk_pilot, "fk_pilot", 0, '', 0, '', '', 0, 0, 0, '', 0, '', '', 1)."</td></tr>";
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_organisateur") . "</td><td>".$form->select_dolusers($object->fk_organisateur, "fk_organisateur")."</td></tr>";
 
     if($user->rights->flightLog->vol->financial || $user->id == $object->fk_pilot) {
@@ -472,7 +509,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=edit">' . $langs->trans("Modify") . '</a></div>' . "\n";
     }
 
-    if ($user->rights->flightLog->vol->delete && !$object->is_facture) {
+    if ($user->rights->flightLog->vol->delete || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id && !$object->is_facture)) {
         print '<div class="inline-block divButAction"><a class="butActionDelete" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=delete">' . $langs->trans('Delete') . '</a></div>' . "\n";
     }
     print '</div>' . "\n";

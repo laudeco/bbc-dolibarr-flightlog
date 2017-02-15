@@ -655,11 +655,7 @@ if (!empty($arrayfields['t.fk_type']['checked'])) {
 }
 if (!empty($arrayfields['t.fk_pilot']['checked'])) {
     print '<td class="liste_titre">';
-        if($user->rights->flightLog->vol->detail){
-            print $form->select_dolusers($search_fk_pilot, "search_fk_pilot", true);
-        }else{
-            print $user->login;
-        }
+        print $form->select_dolusers($search_fk_pilot, "search_fk_pilot", true);
     print '</td>';
 }
 if (!empty($arrayfields['t.fk_organisateur']['checked'])) {
