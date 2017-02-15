@@ -9,7 +9,7 @@
 
 // Load Dolibarr environment
 if (false === (@include '../main.inc.php')) {  // From htdocs directory
-	require '../../documents/custom/main.inc.php'; // From "custom" directory
+    require '../../documents/custom/main.inc.php'; // From "custom" directory
 }
 
 global $db, $langs, $user, $conf;
@@ -22,12 +22,6 @@ dol_include_once('/flightLog/class/GraphicalType.php');
 dol_include_once('/flightLog/class/GraphicalValue.php');
 dol_include_once('/flightLog/class/GraphicalValueType.php');
 dol_include_once('/flightLog/class/YearGraphicalData.php');
-
-use GraphicalType;
-use GraphicalData;
-use GraphicalValue;
-use GraphicalValueType;
-use YearGraphicalData;
 
 dol_include_once("/flightLog/lib/flightLog.lib.php");
 
@@ -43,38 +37,37 @@ $myparam = GETPOST('myparam', 'alpha');
 $unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
 
 //variables
-$WIDTH=DolGraph::getDefaultGraphSizeForStats('width', 768);
-$HEIGHT=DolGraph::getDefaultGraphSizeForStats('height');
+$WIDTH = DolGraph::getDefaultGraphSizeForStats('width', 768);
+$HEIGHT = DolGraph::getDefaultGraphSizeForStats('height');
 
-$year=strftime("%Y", dol_now());
-$dir=$conf->expensereport->dir_temp;
+$year = strftime("%Y", dol_now());
+$dir = $conf->expensereport->dir_temp;
 
-$filenamenb = $dir."/test2-".$year.".png";
-$fileurlnb = DOL_URL_ROOT.'/viewimage.php?modulepart=flightLog&amp;file='.$fileurlnb;
+$filenamenb = $dir . "/test2-" . $year . ".png";
+$fileurlnb = DOL_URL_ROOT . '/viewimage.php?modulepart=flightLog&amp;file=' . $fileurlnb;
 
 $graphByTypeAndYear = new DolGraph();
 $mesg = $graphByTypeAndYear->isGraphKo();
-if (! $mesg)
-{
+if (!$mesg) {
     $data = getGraphByTypeAndYearData();
 
     $graphByTypeAndYear->SetData($data->export());
     $graphByTypeAndYear->SetPrecisionY(0);
 
-    $legend=[];
+    $legend = [];
     $graphByTypeAndYear->type = [];
-    foreach(fetchBbcFlightTypes() as $flightType){
+    foreach (fetchBbcFlightTypes() as $flightType) {
 
-        if(!in_array($flightType->numero, [1,2,3,6])){
+        if (!in_array($flightType->numero, [1, 2, 3, 6])) {
             continue;
         }
 
-        $legend[]= $flightType->nom;
+        $legend[] = $flightType->nom;
         $graphByTypeAndYear->type[] = "lines";
     }
     $graphByTypeAndYear->SetLegend($legend);
     $graphByTypeAndYear->SetMaxValue($graphByTypeAndYear->GetCeilMaxValue());
-    $graphByTypeAndYear->SetWidth($WIDTH+100);
+    $graphByTypeAndYear->SetWidth($WIDTH + 100);
     $graphByTypeAndYear->SetHeight($HEIGHT);
     $graphByTypeAndYear->SetYLabel($langs->trans("YEAR"));
     $graphByTypeAndYear->SetShading(3);
@@ -83,21 +76,21 @@ if (! $mesg)
 
     $graphByTypeAndYear->SetTitle($langs->trans("Par type et par année"));
 
-    $graphByTypeAndYear->draw($filenamenb,$fileurlnb);
+    $graphByTypeAndYear->draw($filenamenb, $fileurlnb);
 }
 
 // Default action
 if (empty($action) && empty($id) && empty($ref)) {
-	$action='create';
+    $action = 'create';
 }
 
 // Load object if id or ref is provided as parameter
 $object = new Bbcvols($db);
-if (($id > 0 || ! empty($ref)) && $action != 'add') {
-	$result = $object->fetch($id, $ref);
-	if ($result < 0) {
-		dol_print_error($db);
-	}
+if (($id > 0 || !empty($ref)) && $action != 'add') {
+    $result = $object->fetch($id, $ref);
+    if ($result < 0) {
+        dol_print_error($db);
+    }
 }
 
 /*
@@ -121,16 +114,11 @@ $data = array(); // array(array('abs1',valA1,valB1), array('abs2',valA2,valB2), 
 $tmp = array();
 $legend = array();
 
-//si l'utilisateur n'a pas de droit sur la page
-if (!$user->rights->flightLog->vol->detail && !$user->rights->flightLog->vol->status && !$user->admin) {
-    exit;
-}
-
 //tableau par pilote
 $sql = "SELECT USR.lastname AS nom , USR.firstname AS prenom ,COUNT(`idBBC_vols`) AS nbr,fk_pilot as pilot, TT.numero as type,SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(heureA,heureD)))) AS time";
-$sql.= " FROM llx_bbc_vols, llx_user AS USR,llx_bbc_types AS TT ";
-$sql.= " WHERE `fk_pilot`= USR.rowid AND fk_type = TT.idType AND YEAR(llx_bbc_vols.date) = ". (GETPOST("year") ? "'".GETPOST("year")."'" : 'YEAR(NOW())');
-$sql.= " GROUP BY fk_pilot,`fk_type`";
+$sql .= " FROM llx_bbc_vols, llx_user AS USR,llx_bbc_types AS TT ";
+$sql .= " WHERE `fk_pilot`= USR.rowid AND fk_type = TT.idType AND YEAR(llx_bbc_vols.date) = " . (GETPOST("year") ? "'" . GETPOST("year") . "'" : 'YEAR(NOW())');
+$sql .= " GROUP BY fk_pilot,`fk_type`";
 
 $resql = $db->query($sql);
 
@@ -148,8 +136,9 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
 
         while ($i < $num) {
             $obj = $db->fetch_object($resql_years); //vol
-            if($obj->annee)
-                print '<a class="tab" id="'. (GETPOST("year") == $obj->annee || (!GETPOST("year") && $obj->annee == date("Y"))? 'active' : '').'" " href="readFlights.php?year=' . $obj->annee . '">'.$obj->annee.'</a>';
+            if ($obj->annee) {
+                print '<a class="tab" id="' . (GETPOST("year") == $obj->annee || (!GETPOST("year") && $obj->annee == date("Y")) ? 'active' : '') . '" " href="readFlights.php?year=' . $obj->annee . '">' . $obj->annee . '</a>';
+            }
             $i++;
         }
         print '</div>';
@@ -209,18 +198,22 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
     $table = sqlToArray($db, $sql, true, (GETPOST("year") ?: date("Y")));
     foreach ($table as $key => $value) {
 
-        $totalBonus = $value['1']['count']*50 + $value['2']['count']*50 + $value['orga']['count']*25;
-        $totalFacture = $value['3']['count'] * 150 + $value['4']['count'] * 100+ $value['6']['count'] * 50 + $value['7']['count'] * 75;
-        $facturable = $totalFacture-$totalBonus;
+        if (!$user->rights->flightLog->vol->detail && $user->id != $value["id"]) {
+            continue;
+        }
+
+        $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25;
+        $totalFacture = $value['3']['count'] * 150 + $value['4']['count'] * 100 + $value['6']['count'] * 50 + $value['7']['count'] * 75;
+        $facturable = $totalFacture - $totalBonus;
 
         $pilotNumberFlight[$value['id']] = array(
-            "1" =>  $value['1']['count'],
-            "2" =>  $value['2']['count'],
-            "3" =>  $value['3']['count'],
-            "4" =>  $value['4']['count'],
-            "5" =>  $value['5']['count'],
-            "6" =>  $value['6']['count'],
-            "7" =>  $value['7']['count'],
+            "1" => $value['1']['count'],
+            "2" => $value['2']['count'],
+            "3" => $value['3']['count'],
+            "4" => $value['4']['count'],
+            "5" => $value['5']['count'],
+            "6" => $value['6']['count'],
+            "7" => $value['7']['count'],
         );
 
         print '<tr>';
@@ -228,32 +221,32 @@ if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
         print '<td>' . $value['name'] . '</td>';
 
         print '<td>' . $value['1']['count'] . '</td>';
-        print '<td>' . $value['1']['count']*50 . '</td>';
+        print '<td>' . $value['1']['count'] * 50 . '</td>';
 
         print '<td>' . $value['2']['count'] . '</td>';
-        print '<td>' . $value['2']['count']*50 . '</td>';
+        print '<td>' . $value['2']['count'] * 50 . '</td>';
 
         print '<td>' . $value['orga']['count'] . '</td>';
-        print '<td>' . $value['orga']['count']*25 . '</td>';
+        print '<td>' . $value['orga']['count'] * 25 . '</td>';
 
         print '<td><b>' . ($totalBonus) . '</b></td>';
 
         print '<td>' . $value['3']['count'] . '</td>';
-        print '<td>' . price($value['3']['count']*150) . '€</td>';
+        print '<td>' . price($value['3']['count'] * 150) . '€</td>';
 
         print '<td>' . $value['4']['count'] . '</td>';
-        print '<td>' . price($value['4']['count']*100) . '€</td>';
+        print '<td>' . price($value['4']['count'] * 100) . '€</td>';
 
         print '<td>' . $value['5']['count'] . '</td>';
 
         print '<td>' . $value['6']['count'] . '</td>';
-        print '<td>' . price($value['6']['count']*50) . '€</td>';
+        print '<td>' . price($value['6']['count'] * 50) . '€</td>';
 
         print '<td>' . $value['7']['count'] . '</td>';
-        print '<td>' . price($value['7']['count']*75) . '€</td>';
+        print '<td>' . price($value['7']['count'] * 75) . '€</td>';
 
         print '<td>' . price($totalFacture) . '€ </td>';
-        print '<td><b>' . price(($facturable < 0 ? 0 : $facturable )). '€</b></td>';
+        print '<td><b>' . price(($facturable < 0 ? 0 : $facturable)) . '€</b></td>';
         print '</tr>';
     }
     print'</table>';
@@ -279,8 +272,9 @@ print '<br/>';
 print '<div class="tabsAction">';
 
 
-if ($conf->expensereport->enabled && $user->rights->flightLog->vol->status && $user->rights->flightLog->vol->financial) {
-    print '<a class="butAction" href="generateExpenseNote.php?year='.(GETPOST("year", 'int')?:date("Y")).'">Générer notes de frais</a>';
+if (false && $conf->expensereport->enabled && $user->rights->flightLog->vol->financial) {
+    print '<a class="butAction" href="generateExpenseNote.php?year=' . (GETPOST("year",
+            'int') ?: date("Y")) . '">Générer notes de frais</a>';
 }
 
 print '</div>';
@@ -289,16 +283,9 @@ print '</div>';
 ?>
 
 
-
-<div class="fichecenter">
-
+    <div class="fichecenter">
         <?php print $graphByTypeAndYear->show(); ?>
-
     </div>
 
-
-
 <?php
-
-
 llxFooter();

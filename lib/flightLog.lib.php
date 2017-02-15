@@ -257,6 +257,8 @@ function bbcKilometersByQuartil($year)
                     $quartil = $obj->quartil;
 
                     $kmByQuartil[$rowId]["name"] = $name;
+                    $kmByQuartil[$rowId]["name"] = $name;
+                    $kmByQuartil[$rowId]["name"] = $name;
                     $kmByQuartil[$rowId]["firstname"] = $firstname;
 
                     $kmByQuartil[$rowId]["quartil"][$quartil]["km"] = $sum;
@@ -278,6 +280,8 @@ function bbcKilometersByQuartil($year)
  */
 function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
 {
+    global $user;
+
     print '<table class="border" width="100%">';
 
     print '<tr>';
@@ -325,6 +329,10 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
     print '</tr>';
 
     foreach ($kmByQuartil as $id => $rembKm) {
+        if(!$user->rights->flightLog->vol->detail && $id != $user->id){
+            continue;
+        }
+
         $name = $rembKm["name"];
         $firstname = $rembKm["firstname"];
         $sumQ1 = isset($rembKm["quartil"]["1"]["km"]) ? $rembKm["quartil"]["1"]["km"] : 0;
