@@ -125,7 +125,7 @@ $sqlYear = "SELECT DISTINCT(YEAR(llx_bbc_vols.date)) as annee FROM llx_bbc_vols 
 $resql_years = $db->query($sqlYear);
 
 $pilotNumberFlight = array();
-if ($resql && ($user->rights->flightLog->vol->detail || $user->admin)) {
+if ($resql) {
 
     $num = $db->num_rows($resql_years);
     $i = 0;

@@ -48,11 +48,7 @@ $search_remarque = GETPOST('search_remarque', 'alpha');
 $search_incidents = GETPOST('search_incidents', 'alpha');
 $search_fk_type = GETPOST('search_fk_type', 'int');
 
-if($user->rights->flightLog->vol->detail){
-    $search_fk_pilot = GETPOST('search_fk_pilot', 'int');
-}else{
-    $search_fk_pilot = $user->id;
-}
+    $search_fk_pilot = GETPOST('search_fk_pilot', 'int') ?: $user->id;
 
 
 $search_fk_organisateur = GETPOST('search_fk_organisateur', 'int');
@@ -312,7 +308,7 @@ $sql .= " WHERE 1 = 1";
 if ($search_idBBC_vols) {
     $sql .= natural_search("idBBC_vols", $search_idBBC_vols);
 }
-if ($search_lieuD) {
+if ($search_date) {
     $sql .= natural_search("date", $search_date);
 }
 if ($search_lieuD) {
