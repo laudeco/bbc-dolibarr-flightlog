@@ -126,7 +126,6 @@ print '</td></tr>';
 print "<tr>";
 print '<td class="fieldrequired"> Pilote </td><td>';
 print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $_GET["pilot"], 'pilot', $user->id);
-//print '<td class="fieldrequired"> Pilote <input type="hidden" name="pilot" value="'.$user->id.'"/></td><td>';
 print '</td></tr>';
 //organisateur
 print "<tr>";
@@ -136,7 +135,7 @@ print '</td></tr>';
 //Ballon
 print "<tr>";
 print '<td width="25%" class="fieldrequired">Ballon</td><td>';
-print select_balloons($_POST['ballon'], 'ballon', $showempty = 0, $showimmat = 0, $showDeclasse = 0);
+print select_balloons($_POST['ballon'], 'ballon', 0, 0);
 print '</td></tr>';
 //lieu d�part
 print "<tr>";
@@ -208,8 +207,6 @@ print '</form>';
  *
  * Put here code to view linked object
  * ************************************************** */
-//$somethingshown=$myobject->showLinkedObjectBlock();
 // End of page
 $db->close();
 llxFooter('$Date: 2011/07/31 22:21:57 $ - $Revision: 1.19 $');
-?>

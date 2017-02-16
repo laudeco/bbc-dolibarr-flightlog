@@ -96,15 +96,12 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
 }
 
 /**
- *        Return list of Balloons
- *
- * @param int|string $selected  Preselected Balloon
- * @param string     $htmlname  Name of field in form
- * @param bool       $showempty Add an empty field
- * @param bool       $showimmat
- * @param bool       $showDeclasse
+ * @param string $selected
+ * @param string $htmlname
+ * @param int    $showimmat
+ * @param int    $showDeclasse
  */
-function select_balloons($selected = '', $htmlname = 'ballon', $showempty = 0, $showimmat = 0, $showDeclasse = 1)
+function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $showDeclasse = 1)
 {
 
     global $db, $langs, $user;
@@ -152,13 +149,10 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showempty = 0, $
 }
 
 /**
- * @param int  $year
- *
- * @param int  $pilotId
- *
- * @param int  $quarter
- *
- * @param bool $goupBy
+ * @param null $year
+ * @param null $pilotId
+ * @param null $quarter
+ * @param bool $groupBy
  *
  * @return string
  */
@@ -182,11 +176,11 @@ function generateQuarterQuery($year = null, $pilotId = null, $quarter = null, $g
     $sql .= " AND YEAR(VOL.date) = " . ($year ?: 'YEAR(NOW())');
     $sql .= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
 
-    if($pilotId){
+    if($pilotId !== null){
         $sql .= " AND USR.rowid = ".$pilotId;
     }
 
-    if($quarter){
+    if($quarter !== null){
         $sql .= " AND QUARTER(VOL.date) = ".$quarter;
     }
 
@@ -420,7 +414,9 @@ function addValueForYear($results, $year, $type, $val)
         return $results;
     }
 
-    for ($i = 0; $i < count($results); $i++) {
+    $countResults = count($results);
+
+    for ($i = 0; $i < $countResults; $i++) {
         $resultLine = $results[$i];
         if (!is_array($resultLine)) {
             throw new \Exception("not an array ");

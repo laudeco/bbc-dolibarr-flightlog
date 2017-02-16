@@ -23,18 +23,6 @@
  *                    Initialy built by build_class_from_table on 2017-02-09 11:10
  */
 
-//if (! defined('NOREQUIREUSER'))  define('NOREQUIREUSER','1');
-//if (! defined('NOREQUIREDB'))    define('NOREQUIREDB','1');
-//if (! defined('NOREQUIRESOC'))   define('NOREQUIRESOC','1');
-//if (! defined('NOREQUIRETRAN'))  define('NOREQUIRETRAN','1');
-//if (! defined('NOCSRFCHECK'))    define('NOCSRFCHECK','1');			// Do not check anti CSRF attack test
-//if (! defined('NOSTYLECHECK'))   define('NOSTYLECHECK','1');			// Do not check style html tag into posted data
-//if (! defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL','1');		// Do not check anti POST attack test
-//if (! defined('NOREQUIREMENU'))  define('NOREQUIREMENU','1');			// If there is no need to load and show top and left menu
-//if (! defined('NOREQUIREHTML'))  define('NOREQUIREHTML','1');			// If we don't need to load the html.form.class.php
-//if (! defined('NOREQUIREAJAX'))  define('NOREQUIREAJAX','1');
-//if (! defined("NOLOGIN"))        define("NOLOGIN",'1');				// If this page is public (can be called outside logged session)
-
 // Change this following line to use the correct relative path (../, ../../, etc)
 $res = 0;
 if (!$res && file_exists("../main.inc.php")) {
@@ -100,11 +88,6 @@ if (empty($action) && empty($id) && empty($ref)) {
 }
 
 // Protection if external user
-if ($user->societe_id > 0) {
-    //accessforbidden();
-}
-//$result = restrictedArea($user, 'flightLog', $id);
-
 
 $object = new Bbcvols($db);
 $extrafields = new ExtraFields($db);
@@ -240,7 +223,6 @@ if (empty($reshook)) {
         $object->fk_type = GETPOST('fk_type', 'int');
         $object->fk_pilot = GETPOST('fk_pilot', 'int');
         $object->fk_organisateur = GETPOST('fk_organisateur', 'int');
-        //$object->is_facture = GETPOST('is_facture', 'int');
         $object->kilometers = GETPOST('kilometers', 'int');
         $object->cost = GETPOST('cost', 'alpha');
         $object->fk_receiver = GETPOST('fk_receiver', 'int');
@@ -339,7 +321,6 @@ $form = new Form($db);
 
 // Put here content of your page
 
-// Example : Adding jquery code
 print '<script type="text/javascript" language="javascript">
 jQuery(document).ready(function() {
 	function init_myfunc()
@@ -366,8 +347,6 @@ if ($action == 'create') {
     dol_fiche_head();
 
     print '<table class="border centpercent">' . "\n";
-    // print '<tr><td class="fieldrequired">'.$langs->trans("Label").'</td><td><input class="flat" type="text" size="36" name="label" value="'.$label.'"></td></tr>';
-    //
     print '<tr><td class="fieldrequired">' . $langs->trans("FieldidBBC_vols") . '</td><td><input class="flat" type="text" name="idBBC_vols" value="' . GETPOST('idBBC_vols') . '"></td></tr>';
     print '<tr><td class="fieldrequired">' . $langs->trans("FieldlieuD") . '</td><td><input class="flat" type="text" name="lieuD" value="' . GETPOST('lieuD') . '"></td></tr>';
     print '<tr><td class="fieldrequired">' . $langs->trans("FieldlieuA") . '</td><td><input class="flat" type="text" name="lieuA" value="' . GETPOST('lieuA') . '"></td></tr>';
@@ -454,7 +433,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print load_fiche_titre($langs->trans($pageTitle));
 
     $linkback = '<a href="'.DOL_URL_ROOT.'/flightLog/list.php">'.$langs->trans("BackToList").'</a>';
-    //dol_banner_tab($object, 'idBBC_vols', $linkback);
     print $form->showrefnav($object, "idBBC_vols", $linkback, true, "idBBC_vols");
     dol_fiche_head();
 
@@ -513,13 +491,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '<div class="inline-block divButAction"><a class="butActionDelete" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=delete">' . $langs->trans('Delete') . '</a></div>' . "\n";
     }
     print '</div>' . "\n";
-
-
-    // Example 2 : Adding links to objects
-    // Show links to link elements
-    //$linktoelem = $form->showLinkToObjectBlock($object, null, array('bbcvols'));
-    //$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
-
 }
 
 

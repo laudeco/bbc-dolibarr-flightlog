@@ -209,4 +209,3 @@ if($msg && $idBallon != -1){
 // End of page
 $db->close();
 llxFooter('$Date: 2011/07/31 22:21:57 $ - $Revision: 1.19 $');
-?>

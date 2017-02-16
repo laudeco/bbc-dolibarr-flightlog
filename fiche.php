@@ -165,7 +165,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'edit' && ($user->rights->fligh
     //Ballon
     print "<tr>";
     print '<td width="25%" class="fieldrequired">Ballon</td><td>';
-    print select_balloons($vol->BBC_ballons_idBBC_ballons, 'ballon', $showempty = 0, $showimmat = 0, $showDeclasse = 0);
+    print select_balloons($vol->BBC_ballons_idBBC_ballons, 'ballon', 0, 0);
     print '</td></tr>';
     //lieu d�part
     print "<tr>";
