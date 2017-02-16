@@ -87,6 +87,11 @@ class modFlightLog extends DolibarrModules
     public $export_TypeFields_array = [];
 
     /**
+     * @var array
+     */
+    public $menus;
+
+    /**
      * Constructor. Define names, constants, directories, boxes, permissions
      *
      * @param DoliDB $db Database handler
@@ -125,7 +130,7 @@ class modFlightLog extends DolibarrModules
         // Name of image file used for this module.
         // If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
         // If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
-        $this->picto = 'generic';
+        $this->picto = 'flight@flightLog';
 
         // Defined all module parts (triggers, login, substitutions, menus, css, etc...)
         // for default path (eg: /mymodule/core/xxxxx) (0=disable, 1=enable)
@@ -186,7 +191,9 @@ class modFlightLog extends DolibarrModules
         );
 
         // Array to add new pages in new tabs
-        $this->tabs = array();
+        $this->tabs = [
+            'user:+flights:Flights:mymodule@flightLog:$user->rights->flightLog->vol->access:/flightLog/list.php?search_fk_pilot=__ID__',
+        ];
 
         if (!isset($conf->flightLog) || !isset($conf->flightLog->enabled)) {
             $conf->flightLog = new stdClass();
@@ -269,121 +276,9 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][5] = 'financial';
         $r++;
 
-        // Main menu entries
-        $this->menus = array();            // List of menus to add
-        $r = 0;
 
-        // Add here entries to declare new menus
-        // Example to declare the Top Menu entry:
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
-            'type'     => self::MENU_TYPE_TOP,
-            'titre'    => 'Carnet de vols',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'readFlight',
-            'url'      => '/flightLog/readFlights.php',
-            'langs'    => 'mylangfile',
-            'position' => 100,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->access',
-            'target'   => '',
-            'user'     => 0
-        );
-        $r++;
+        $this->initMenu();
 
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Ajouter un vol',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'addFlight',
-            'url'      => '/flightLog/addFlight.php',
-            'langs'    => 'mylangfile',
-            'position' => 101,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->add',
-            'target'   => '',
-            'user'     => 2
-        );
-        $r++;
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Visualisation',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'showFlight',
-            'url'      => '/flightLog/readFlights.php',
-            'langs'    => 'mylangfile',
-            'position' => 102,
-            'enabled'  => '1',
-            'perms'    => '1',
-            'target'   => '',
-            'user'     => 2
-        );
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
-            // Use r=value where r is index key used for the parent menu entry (higher parent must be a top menu entry)
-            'type'     => self::MENU_TYPE_LEFT,
-            // This is a Left menu entry
-            'titre'    => 'Les vols',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'flightLog',
-            'url'      => '/flightLog/list.php',
-            'langs'    => 'mylangfile',
-            // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-            'position' => 105,
-            'enabled'  => '1',
-            // Define condition to show or hide menu entry. Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
-            'perms'    => '1',
-            // Use 'perms'=>'$user->rights->mymodule->level1->level2' if you want your menu with a permission rules
-            'target'   => '',
-            'user'     => 2
-        );
-        $r++;
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Gestion',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'management',
-            'url'      => '',
-            'langs'    => 'mylangfile',
-            'position' => 106,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->status||$user->rights->flightLog->vol->detail',
-            'target'   => '',
-            'user'     => 2
-        );
-        $r++;
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=management',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Payement',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'flightBilling',
-            'url'      => '/flightLog/listFact.php?view=1',
-            'langs'    => 'mylangfile',
-            'position' => 107,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->financial',
-            'target'   => '',
-            'user'     => 2
-        );
-        $r++;
-        $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=management',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Aviabel',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'flightAviabel',
-            'url'      => '/flightLog/listFact.php?view=2',
-            'langs'    => 'mylangfile',
-            'position' => 108,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->detail',
-            'target'   => '',
-            'user'     => 2
-        );
         // Exports
         $r = 0;
 
@@ -505,6 +400,122 @@ class modFlightLog extends DolibarrModules
         $sql = array();
 
         return $this->_remove($sql, $options);
+    }
+
+    /**
+     * Init menu
+     *
+     * @return int
+     */
+    private function initMenu()
+    {
+        $this->menus = array();
+        $r = 0;
+
+        $this->menu[$r] = array(
+            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'type'     => self::MENU_TYPE_TOP,
+            'titre'    => 'Carnet de vols',
+            'mainmenu' => 'flightLog',
+            'leftmenu' => 'readFlight',
+            'url'      => '/flightLog/readFlights.php',
+            'langs'    => 'mylangfile',
+            'position' => 100,
+            'enabled'  => '1',
+            'perms'    => '$user->rights->flightLog->vol->access',
+            'target'   => '',
+            'user'     => 0
+        );
+        $r++;
+
+        $this->menu[$r] = array(
+            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'type'     => self::MENU_TYPE_LEFT,
+            'titre'    => 'Ajouter un vol',
+            'mainmenu' => 'flightLog',
+            'leftmenu' => 'addFlight',
+            'url'      => '/flightLog/addFlight.php',
+            'langs'    => 'mylangfile',
+            'position' => 101,
+            'enabled'  => '1',
+            'perms'    => '$user->rights->flightLog->vol->add',
+            'target'   => '',
+            'user'     => 2
+        );
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'type'     => self::MENU_TYPE_LEFT,
+            'titre'    => 'Visualisation',
+            'mainmenu' => 'flightLog',
+            'leftmenu' => 'showFlight',
+            'url'      => '/flightLog/readFlights.php',
+            'langs'    => 'mylangfile',
+            'position' => 102,
+            'enabled'  => '1',
+            'perms'    => '1',
+            'target'   => '',
+            'user'     => 2
+        );
+        $this->menu[$r] = array(
+            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'type'     => self::MENU_TYPE_LEFT,
+            'titre'    => 'Les vols',
+            'mainmenu' => 'flightLog',
+            'leftmenu' => 'flightLog',
+            'url'      => '/flightLog/list.php',
+            'langs'    => 'mylangfile',
+            'position' => 105,
+            'enabled'  => '1',
+            'perms'    => '1',
+            'target'   => '',
+            'user'     => 2
+        );
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'type'     => self::MENU_TYPE_LEFT,
+            'titre'    => 'Gestion',
+            'mainmenu' => 'flightLog',
+            'leftmenu' => 'management',
+            'url'      => '',
+            'langs'    => 'mylangfile',
+            'position' => 106,
+            'enabled'  => '1',
+            'perms'    => '$user->rights->flightLog->vol->status||$user->rights->flightLog->vol->detail',
+            'target'   => '',
+            'user'     => 2
+        );
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=management',
+            'type'     => self::MENU_TYPE_LEFT,
+            'titre'    => 'Payement',
+            'mainmenu' => 'flightLog',
+            'leftmenu' => 'flightBilling',
+            'url'      => '/flightLog/listFact.php?view=1',
+            'langs'    => 'mylangfile',
+            'position' => 107,
+            'enabled'  => '1',
+            'perms'    => '$user->rights->flightLog->vol->financial',
+            'target'   => '',
+            'user'     => 2
+        );
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=management',
+            'type'     => self::MENU_TYPE_LEFT,
+            'titre'    => 'Aviabel',
+            'mainmenu' => 'flightLog',
+            'leftmenu' => 'flightAviabel',
+            'url'      => '/flightLog/listFact.php?view=2',
+            'langs'    => 'mylangfile',
+            'position' => 108,
+            'enabled'  => '1',
+            'perms'    => '$user->rights->flightLog->vol->detail',
+            'target'   => '',
+            'user'     => 2
+        );
     }
 
 }
