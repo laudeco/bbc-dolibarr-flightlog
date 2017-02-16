@@ -3,8 +3,6 @@
  *
  */
 
-use UserGroup;
-
 /**
  * PilotService class
  *

@@ -219,7 +219,7 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->fk_pilot) ? 'NULL' : $this->fk_pilot) . ',';
         $sql .= ' ' . (!isset($this->fk_organisateur) ? 'NULL' : $this->fk_organisateur) . ',';
         $sql .= ' ' . (!isset($this->is_facture) ? '0' : $this->is_facture) . ',';
-        $sql .= ' ' . (!isset($this->kilometers) ? 'NULL' : $this->kilometers) . ',';
+        $sql .= ' ' . (!isset($this->kilometers) || empty($this->kilometers) ? '0' : $this->kilometers) . ',';
         $sql .= ' ' . (!isset($this->cost) ? 'NULL' : "'" . $this->db->escape($this->cost) . "'") . ',';
         $sql .= ' ' . (!isset($this->fk_receiver) ? 'NULL' : $this->fk_receiver) . ',';
         $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'");
@@ -795,6 +795,8 @@ class Bbcvols extends CommonObject
                 return $langs->trans('Disabled') . ' ' . img_picto($langs->trans('Disabled'), 'statut5');
             }
         }
+
+        return "";
     }
 
 

@@ -140,8 +140,8 @@ if($msg && $idBallon != -1){
 		$num = $db->num_rows($resql);
                 //>Nombre d'incidences
                 print '<tr>';
-                print '<td>Nombre d\'incidences</.td>';
-                print '<td>' . $num . '</.td>';
+                print '<td>Nombre d\'incidences</td>';
+                print '<td>' . $num . '</td>';
                 print '</tr>';
         }
                 print '<tr><td colspan="4" align="center"><input type="submit" class="button" name="submit" value="Rafraichir"></td></tr></table>';

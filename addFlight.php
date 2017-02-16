@@ -12,7 +12,7 @@ dol_include_once('/flightLog/class/bbctypes.class.php');
 dol_include_once("/flightLog/lib/flightLog.lib.php");
 
 // Load translation files required by the page
-$langs->load("mymodule@mymodule");
+$langs->load("mymodule@flightLog");
 
 
 if (!$user->rights->flightLog->vol->add) {
@@ -91,9 +91,6 @@ if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
 }
 
 
-
-
-
 /* * *************************************************
  * PAGE
  *
@@ -120,7 +117,7 @@ print '</td></tr>';
 //type du vol
 print "<tr>";
 print '<td class="fieldrequired"> Type du vol</td><td>';
-print select_flight_type($_POST['type']);
+select_flight_type($_POST['type']);
 print '</td></tr>';
 //Pilote
 print "<tr>";
@@ -135,7 +132,7 @@ print '</td></tr>';
 //Ballon
 print "<tr>";
 print '<td width="25%" class="fieldrequired">Ballon</td><td>';
-print select_balloons($_POST['ballon'], 'ballon', 0, 0);
+select_balloons($_POST['ballon'], 'ballon', 0, 0);
 print '</td></tr>';
 //lieu d�part
 print "<tr>";
@@ -197,8 +194,8 @@ print '</td></tr>';
 
 print '</table>';
 
-print '<br><center><input class="button" type="submit" value="' . $langs->trans("Save") . '"> &nbsp; &nbsp; ';
-print '<input class="button" type="submit" name="cancel" value="' . $langs->trans("Cancel") . '"></center';
+print '<br><input class="button" type="submit" value="' . $langs->trans("Save") . '"> &nbsp; &nbsp; ';
+print '<input class="button" type="submit" name="cancel" value="' . $langs->trans("Cancel") . '">';
 
 print '</form>';
 

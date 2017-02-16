@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * @param DoliDb $db
+ * @param string $sql
+ * @param bool   $total
+ * @param string $year
+ *
+ * @return array
+ */
 function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
 {
     $resql = $db->query($sql);
@@ -54,7 +61,7 @@ function fetchBbcFlightTypes($active = 1)
 
     $bbcTypes = new Bbctypes($db);
 
-    $bbcTypes->fetchAll('','',0,0, [
+    $bbcTypes->fetchAll('', '', 0, 0, [
         "active" => $active
     ]);
 
@@ -71,14 +78,14 @@ function fetchBbcFlightTypes($active = 1)
 function select_flight_type($selected = '1', $htmlname = 'type', $showempty = false)
 {
 
-    global $db, $langs, $user;
+    global $langs;
     $langs->load("trips");
 
     $types = fetchBbcFlightTypes();
 
     print '<select class="flat" name="' . $htmlname . '">';
 
-    if($showempty){
+    if ($showempty) {
         print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected = 0 || $selected == -1) ? "selected" : ""));
     }
 
@@ -88,7 +95,7 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
             print ' selected="selected"';
         }
         print '>';
-        echo "T".$flightType->numero . '-' . $flightType->nom;
+        echo "T" . $flightType->numero . '-' . $flightType->nom;
         print "</option>";
     }
 
@@ -110,7 +117,7 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $
     print '<select class="flat" name="' . $htmlname . '">';
 
     print '<option value=""';
-    if ($selected == -1 || $selected == ''|| $selected == 0) {
+    if ($selected == -1 || $selected == '' || $selected == 0) {
         print ' selected="selected"';
     }
     print '>&nbsp;</option>';
@@ -156,17 +163,18 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $
  *
  * @return string
  */
-function generateQuarterQuery($year = null, $pilotId = null, $quarter = null, $groupBy = true){
+function generateQuarterQuery($year = null, $pilotId = null, $quarter = null, $groupBy = true)
+{
 
     global $db;
 
     $sql = "SELECT USR.rowid, USR.lastname, USR.firstname, QUARTER(VOL.date) as quartil ";
 
-    if($groupBy){
-        $sql.= " , SUM(VOL.kilometers) as SUM";
-        $sql.= " , COUNT(VOL.idBBC_vols) as nbrFlight";
-    }else{
-        $sql.= " , VOL.*";
+    if ($groupBy) {
+        $sql .= " , SUM(VOL.kilometers) as SUM";
+        $sql .= " , COUNT(VOL.idBBC_vols) as nbrFlight";
+    } else {
+        $sql .= " , VOL.*";
     }
 
     $sql .= " FROM llx_bbc_vols as VOL";
@@ -176,15 +184,15 @@ function generateQuarterQuery($year = null, $pilotId = null, $quarter = null, $g
     $sql .= " AND YEAR(VOL.date) = " . ($year ?: 'YEAR(NOW())');
     $sql .= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
 
-    if($pilotId !== null){
-        $sql .= " AND USR.rowid = ".$pilotId;
+    if ($pilotId !== null) {
+        $sql .= " AND USR.rowid = " . $pilotId;
     }
 
-    if($quarter !== null){
-        $sql .= " AND QUARTER(VOL.date) = ".$quarter;
+    if ($quarter !== null) {
+        $sql .= " AND QUARTER(VOL.date) = " . $quarter;
     }
 
-    if($groupBy){
+    if ($groupBy) {
         $sql .= " GROUP BY QUARTER(VOL.date), VOL.fk_pilot";
     }
     $sql .= " ORDER BY QUARTER(VOL.date), VOL.fk_pilot";
@@ -199,7 +207,8 @@ function generateQuarterQuery($year = null, $pilotId = null, $quarter = null, $g
  *
  * @return array
  */
-function findFlightByPilotAndQuarter($pilotId, $year, $quarter){
+function findFlightByPilotAndQuarter($pilotId, $year, $quarter)
+{
     global $db;
 
     $sql = generateQuarterQuery($year, $pilotId, $quarter, false);
@@ -323,7 +332,7 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
     print '</tr>';
 
     foreach ($kmByQuartil as $id => $rembKm) {
-        if(!$user->rights->flightLog->vol->detail && $id != $user->id){
+        if (!$user->rights->flightLog->vol->detail && $id != $user->id) {
             continue;
         }
 
@@ -408,6 +417,15 @@ function getFlightYears()
     return $results;
 }
 
+/**
+ * @param array $results
+ * @param int   $year
+ * @param int   $type
+ * @param int   $val
+ *
+ * @return array
+ * @throws Exception
+ */
 function addValueForYear($results, $year, $type, $val)
 {
     if (!is_array($results)) {
@@ -477,10 +495,10 @@ function getGraphByTypeAndYearData()
 
     $graphData = new GraphicalData();
 
-    foreach(getFlightYears() as $flightYear){
+    foreach (getFlightYears() as $flightYear) {
         $pieceData = new YearGraphicalData($flightYear);
 
-        foreach($flightTypes as $flightType){
+        foreach ($flightTypes as $flightType) {
             $pieceData->addType(new GraphicalType($flightType->id, $flightType->nom));
         }
 
