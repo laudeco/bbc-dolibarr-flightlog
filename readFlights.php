@@ -109,7 +109,7 @@ llxHeader('', $langs->trans('Read flights'), '');
 $form = new Form($db);
 
 // Put here content of your page
-$data = array(); // array(array('abs1',valA1,valB1), array('abs2',valA2,valB2), ...)
+$data = array();
 $tmp = array();
 $legend = array();
 

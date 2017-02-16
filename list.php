@@ -21,6 +21,8 @@ dol_include_once('/flightLog/class/bbctypes.class.php');
 dol_include_once('/flightLog/lib/flightLog.lib.php');
 
 // Load traductions files requiredby by page
+global $user, $langs, $conf;
+
 $langs->load("mymodule@flightLog");
 $langs->load("other");
 
@@ -47,10 +49,7 @@ $search_nbrPax = GETPOST('search_nbrPax', 'alpha');
 $search_remarque = GETPOST('search_remarque', 'alpha');
 $search_incidents = GETPOST('search_incidents', 'alpha');
 $search_fk_type = GETPOST('search_fk_type', 'int');
-
-    $search_fk_pilot = GETPOST('search_fk_pilot', 'int') ?: $user->id;
-
-
+$search_fk_pilot = GETPOST('search_fk_pilot', 'int') ?: ($user->admin ? '' : $user->id);
 $search_fk_organisateur = GETPOST('search_fk_organisateur', 'int');
 $search_is_facture = GETPOST('search_is_facture', 'int');
 $search_kilometers = GETPOST('search_kilometers', 'int');

@@ -241,4 +241,3 @@ dol_fiche_head($tabLinks, "tab_".$year);
 
 <?php
 llxFooter();
-?>
