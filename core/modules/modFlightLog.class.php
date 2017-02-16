@@ -169,26 +169,7 @@ class modFlightLog extends DolibarrModules
         $this->langfiles = array("mymodule@flightLog");
 
         // Constants
-        $this->const = array(
-            0 => [
-                'BBC_FLIGHT_LOG_TAUX_REMB_KM',
-                'chaine',
-                '0.25',
-                'Taux remboursement des kilomètres au BBC',
-                true,
-                'current',
-                true
-            ],
-            1 => [
-                'BBC_FLIGHT_LOG_UNIT_PRICE_MISSION',
-                'chaine',
-                '35',
-                'Unit price special mission',
-                true,
-                'current',
-                true
-            ],
-        );
+        $this->initConstants();
 
         // Array to add new pages in new tabs
         $this->tabs = [
@@ -200,84 +181,12 @@ class modFlightLog extends DolibarrModules
             $conf->flightLog->enabled = 0;
         }
 
-        // Dictionaries
-        $this->dictionaries = array(
-            'langs'          => 'mylangfile@mymodule',
-            'tabname'        => array(MAIN_DB_PREFIX . "bbc_types"),
-            'tablib'         => array("Types de vols"),
-            'tabsql'         => array('SELECT f.idType, f.numero, f.nom, f.active FROM ' . MAIN_DB_PREFIX . 'bbc_types as f',),
-            'tabsqlsort'     => array("numero ASC"),
-            'tabfield'       => array("idType,numero,nom"),
-            'tabfieldvalue'  => array("numero,nom"),
-            'tabfieldinsert' => array("numero,nom"),
-            'tabrowid'       => array("idType"),
-            'tabcond'        => array('$conf->flightLog->enabled'),
-        );
-
-        // Boxes
         $this->boxes = [];
 
-        // Cronjobs
-        $this->cronjobs = array();            // List of cron jobs entries to add
-        // Example: $this->cronjobs=array(0=>array('label'=>'My label', 'jobtype'=>'method', 'class'=>'/dir/class/file.class.php', 'objectname'=>'MyClass', 'method'=>'myMethod', 'parameters'=>'', 'comment'=>'Comment', 'frequency'=>2, 'unitfrequency'=>3600, 'test'=>true),
-        //                                1=>array('label'=>'My label', 'jobtype'=>'command', 'command'=>'', 'parameters'=>'', 'comment'=>'Comment', 'frequency'=>1, 'unitfrequency'=>3600*24, 'test'=>true)
-        // );
-
-        // Permissions
-        $this->rights = array();        // Permission array used by this module
-        $r = 0;
-
-        $this->rights[$r][0] = 9993;
-        $this->rights[$r][1] = 'Permet d\'acceder au module des vols.';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'vol';
-        $this->rights[$r][5] = 'access';
-        $r++;
-
-        $this->rights[$r][0] = 9998;
-        $this->rights[$r][1] = 'Enregistrer un nouveau vol.';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'vol';
-        $this->rights[$r][5] = 'add';
-        $r++;
-
-        $this->rights[$r][0] = 9997;
-        $this->rights[$r][1] = 'Permet de facturer un vol.';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'vol';
-        $this->rights[$r][5] = 'status';
-        $r++;
-
-        $this->rights[$r][0] = 9996;
-        $this->rights[$r][1] = 'Permet de supprimer un vol.';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'vol';
-        $this->rights[$r][5] = 'delete';
-        $r++;
-
-        $this->rights[$r][0] = 9995;
-        $this->rights[$r][1] = 'Permet de modifier tous les vols.';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'vol';
-        $this->rights[$r][5] = 'edit';
-        $r++;
-
-        $this->rights[$r][0] = 9994;
-        $this->rights[$r][1] = 'affiche les details de tous les ballons et de tous les pilotes.';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'vol';
-        $this->rights[$r][5] = 'detail';
-        $r++;
-
-        $this->rights[$r][0] = 9999;
-        $this->rights[$r][1] = 'Gérer les aspects financier des vols';
-        $this->rights[$r][3] = 0;
-        $this->rights[$r][4] = 'vol';
-        $this->rights[$r][5] = 'financial';
-        $r++;
-
-
+        $this->initDictionnaries();
+        $this->initCronJobs();
         $this->initMenu();
+        $this->initPermissions();
 
         // Exports
         $r = 0;
@@ -404,8 +313,6 @@ class modFlightLog extends DolibarrModules
 
     /**
      * Init menu
-     *
-     * @return int
      */
     private function initMenu()
     {
@@ -515,6 +422,117 @@ class modFlightLog extends DolibarrModules
             'perms'    => '$user->rights->flightLog->vol->detail',
             'target'   => '',
             'user'     => 2
+        );
+    }
+
+    /**
+     * Init permissions
+     */
+    private function initPermissions()
+    {
+        $this->rights = array();        // Permission array used by this module
+        $r = 0;
+
+        $this->rights[$r][0] = 9993;
+        $this->rights[$r][1] = 'Permet d\'acceder au module des vols.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'access';
+        $r++;
+
+        $this->rights[$r][0] = 9998;
+        $this->rights[$r][1] = 'Enregistrer un nouveau vol.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'add';
+        $r++;
+
+        $this->rights[$r][0] = 9997;
+        $this->rights[$r][1] = 'Permet de facturer un vol.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'status';
+        $r++;
+
+        $this->rights[$r][0] = 9996;
+        $this->rights[$r][1] = 'Permet de supprimer un vol.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'delete';
+        $r++;
+
+        $this->rights[$r][0] = 9995;
+        $this->rights[$r][1] = 'Permet de modifier tous les vols.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'edit';
+        $r++;
+
+        $this->rights[$r][0] = 9994;
+        $this->rights[$r][1] = 'affiche les details de tous les ballons et de tous les pilotes.';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'detail';
+        $r++;
+
+        $this->rights[$r][0] = 9999;
+        $this->rights[$r][1] = 'Gérer les aspects financier des vols';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'financial';
+        $r++;
+    }
+
+    private function initCronJobs()
+    {
+        $this->cronjobs = array();            // List of cron jobs entries to add
+        // Example: $this->cronjobs=array(0=>array('label'=>'My label', 'jobtype'=>'method', 'class'=>'/dir/class/file.class.php', 'objectname'=>'MyClass', 'method'=>'myMethod', 'parameters'=>'', 'comment'=>'Comment', 'frequency'=>2, 'unitfrequency'=>3600, 'test'=>true),
+        //                                1=>array('label'=>'My label', 'jobtype'=>'command', 'command'=>'', 'parameters'=>'', 'comment'=>'Comment', 'frequency'=>1, 'unitfrequency'=>3600*24, 'test'=>true)
+        // );
+    }
+
+    private function initDictionnaries()
+    {
+        $this->initFlightTypeDictionnary();
+    }
+
+    private function initFlightTypeDictionnary()
+    {
+        $this->dictionaries = array(
+            'langs'          => 'mylangfile@mymodule',
+            'tabname'        => array(MAIN_DB_PREFIX . "bbc_types"),
+            'tablib'         => array("Types de vols"),
+            'tabsql'         => array('SELECT f.idType, f.numero, f.nom, f.active FROM ' . MAIN_DB_PREFIX . 'bbc_types as f',),
+            'tabsqlsort'     => array("numero ASC"),
+            'tabfield'       => array("idType,numero,nom"),
+            'tabfieldvalue'  => array("numero,nom"),
+            'tabfieldinsert' => array("numero,nom"),
+            'tabrowid'       => array("idType"),
+            'tabcond'        => array('$conf->flightLog->enabled'),
+        );
+    }
+
+    private function initConstants()
+    {
+        $this->const = array(
+            0 => [
+                'BBC_FLIGHT_LOG_TAUX_REMB_KM',
+                'chaine',
+                '0.25',
+                'Taux remboursement des kilomètres au BBC',
+                true,
+                'current',
+                true
+            ],
+            1 => [
+                'BBC_FLIGHT_LOG_UNIT_PRICE_MISSION',
+                'chaine',
+                '35',
+                'Unit price special mission',
+                true,
+                'current',
+                true
+            ],
         );
     }
 
