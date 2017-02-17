@@ -55,20 +55,23 @@ MyModuleListTitle = Liste de vols
 # Card
 #
 
-FieldidBBC_vols = identifiant
+FieldidBBC_vols = ID
 FieldlieuD = Lieu de décollage
+Fielddate = Date du vol
 FieldlieuA = Lieu atterissage
 FieldheureD = Heure décollage
 FieldheureA = Heure atterissage
-FieldBBC_ballons_idBBC_ballons = Id ballon
+FieldBBC_ballons_idBBC_ballons = Ballon
 FieldnbrPax = # pax
 Fieldremarque = Remarque
 Fieldincidents = Field incidents
-Fieldfk_type = Id Type
-Fieldfk_pilot = Id pilote
-Fieldfk_organisateur = Id organisateur
+Fieldfk_type = Type
+Fieldfk_pilot = Pilote
+Fieldfk_organisateur = Organisateur
 Fieldis_facture = Facturé ?
 Fieldkilometers = KM
 Fieldcost = Cout
-Fieldfk_receiver = Id percepteur d'argent
+Fieldfk_receiver = Percepteur d'argent
 Fieldjustif_kilometers = Justificatif de KM
+FieldDateCreation = Date de création dans le système
+FieldDateUpdate = Date de modification dans le système

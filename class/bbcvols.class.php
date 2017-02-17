@@ -71,6 +71,8 @@ class Bbcvols extends CommonObject
     public $cost;
     public $fk_receiver;
     public $justif_kilometers;
+    public $date_creation;
+    public $date_update;
 
     /**
      * @return int
@@ -201,7 +203,9 @@ class Bbcvols extends CommonObject
         $sql .= 'kilometers,';
         $sql .= 'cost,';
         $sql .= 'fk_receiver,';
-        $sql .= 'justif_kilometers';
+        $sql .= 'justif_kilometers,';
+        $sql .= 'date_creation,';
+        $sql .= 'date_update';
 
 
         $sql .= ') VALUES (';
@@ -222,7 +226,9 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->kilometers) || empty($this->kilometers) ? '0' : $this->kilometers) . ',';
         $sql .= ' ' . (!isset($this->cost) ? 'NULL' : "'" . $this->db->escape($this->cost) . "'") . ',';
         $sql .= ' ' . (!isset($this->fk_receiver) ? 'NULL' : $this->fk_receiver) . ',';
-        $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'");
+        $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
+        $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
+        $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . '';
 
 
         $sql .= ')';
@@ -292,7 +298,9 @@ class Bbcvols extends CommonObject
         $sql .= " t.kilometers,";
         $sql .= " t.cost,";
         $sql .= " t.fk_receiver,";
-        $sql .= " t.justif_kilometers";
+        $sql .= " t.justif_kilometers,";
+        $sql .= " t.date_creation,";
+        $sql .= " t.date_update";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -328,6 +336,8 @@ class Bbcvols extends CommonObject
                 $this->cost = $obj->cost;
                 $this->fk_receiver = $obj->fk_receiver;
                 $this->justif_kilometers = $obj->justif_kilometers;
+                $this->date_creation = $obj->date_creation;
+                $this->date_update = $obj->date_update;
 
 
             }
@@ -386,7 +396,9 @@ class Bbcvols extends CommonObject
         $sql .= " t.kilometers,";
         $sql .= " t.cost,";
         $sql .= " t.fk_receiver,";
-        $sql .= " t.justif_kilometers";
+        $sql .= " t.justif_kilometers,";
+        $sql .= " t.date_creation,";
+        $sql .= " t.date_update";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -437,6 +449,8 @@ class Bbcvols extends CommonObject
                 $line->cost = $obj->cost;
                 $line->fk_receiver = $obj->fk_receiver;
                 $line->justif_kilometers = $obj->justif_kilometers;
+                $line->date_creation = $obj->date_creation;
+                $line->date_update = $obj->date_update;
 
 
                 $this->lines[$line->id] = $line;
@@ -543,8 +557,8 @@ class Bbcvols extends CommonObject
         $sql .= ' kilometers = ' . (!empty($this->kilometers) ? $this->kilometers : "0") . ',';
         $sql .= ' cost = ' . (isset($this->cost) ? "'" . $this->db->escape($this->cost) . "'" : "''") . ',';
         $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) ? $this->fk_receiver : "null") . ',';
-        $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'" : "''");
-
+        $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
+        $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "'";
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -701,7 +715,7 @@ class Bbcvols extends CommonObject
 
         $label = '<u>' . $langs->trans("MyModule") . '</u>';
         $label .= '<div width="100%">';
-        $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->ref.'<br>';
+        $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->ref . '<br>';
         $label .= '<b>' . $langs->trans('Date') . ':</b> ' . $this->date;
         $label .= '</div>';
 
@@ -889,6 +903,8 @@ class BbcvolsLine
     public $cost;
     public $fk_receiver;
     public $justif_kilometers;
+    public $date_creation;
+    public $date_update;
 
     /**
      * @var mixed Sample line property 2
