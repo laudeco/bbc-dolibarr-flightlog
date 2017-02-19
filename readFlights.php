@@ -197,10 +197,6 @@ if ($resql) {
     $table = sqlToArray($db, $sql, true, (GETPOST("year") ?: date("Y")));
     foreach ($table as $key => $value) {
 
-        if (!$user->rights->flightLog->vol->detail && $user->id != $value["id"]) {
-            continue;
-        }
-
         $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25;
         $totalFacture = $value['3']['count'] * 150 + $value['4']['count'] * 100 + $value['6']['count'] * 50 + $value['7']['count'] * 75;
         $facturable = $totalFacture - $totalBonus;
