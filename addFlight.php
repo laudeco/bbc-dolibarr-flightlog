@@ -80,7 +80,7 @@ if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
             if ($result > 0) {
                 //creation OK
                 $msg = '<div class="ok">L\'ajout du vol du : ' . $_POST["reday"] . '/' . $_POST["remonth"] . '/' . $_POST["reyear"] . ' s\'est correctement effectue ! </div>';
-                Header("Location: fiche.php?vol=" . $result);
+                Header("Location: card.php?id=" . $result);
             } else {
                 // Creation KO
                 $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . $vol->error . '! </div>';
