@@ -332,10 +332,6 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
     print '</tr>';
 
     foreach ($kmByQuartil as $id => $rembKm) {
-        if (!$user->rights->flightLog->vol->detail && $id != $user->id) {
-            continue;
-        }
-
         $name = $rembKm["name"];
         $firstname = $rembKm["firstname"];
         $sumQ1 = isset($rembKm["quartil"]["1"]["km"]) ? $rembKm["quartil"]["1"]["km"] : 0;
