@@ -37,7 +37,6 @@ $backtopage = GETPOST('backtopage');
 $myparam = GETPOST('myparam', 'alpha');
 
 $search_all = trim(GETPOST("sall"));
-
 $search_idBBC_vols = GETPOST('search_idBBC_vols', 'int');
 $search_date = GETPOST('search_date', 'alpha');
 $search_lieuD = GETPOST('search_lieuD', 'alpha');
@@ -56,6 +55,7 @@ $search_kilometers = GETPOST('search_kilometers', 'int');
 $search_cost = GETPOST('search_cost', 'alpha');
 $search_fk_receiver = GETPOST('search_fk_receiver', 'int');
 $search_justif_kilometers = GETPOST('search_justif_kilometers', 'alpha');
+
 
 
 $search_myfield = GETPOST('search_myfield');
@@ -422,12 +422,61 @@ if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) {
 if ($limit > 0 && $limit != $conf->liste_limit) {
     $param .= '&limit=' . $limit;
 }
-if ($search_field1 != '') {
-    $param .= '&amp;search_field1=' . urlencode($search_field1);
+if ($search_idBBC_vols  != '') {
+    $param .= '&amp;search_idBBC_vols=' . urlencode($search_idBBC_vols);
 }
-if ($search_field2 != '') {
-    $param .= '&amp;search_field2=' . urlencode($search_field2);
+if ($search_date  != '') {
+    $param .= '&amp;search_date=' . urlencode($search_date);
 }
+if ($search_lieuD  != '') {
+    $param .= '&amp;search_lieuD=' . urlencode($search_lieuD);
+}
+if ($search_lieuA  != '') {
+    $param .= '&amp;search_lieuA=' . urlencode($search_lieuA);
+}
+if ($search_heureD  != '') {
+    $param .= '&amp;search_heureD=' . urlencode($search_heureD);
+}
+if ($search_heureA  != '') {
+    $param .= '&amp;search_heureA=' . urlencode($search_heureA);
+}
+if ($search_BBC_ballons_idBBC_ballons  != '') {
+    $param .= '&amp;search_BBC_ballons_idBBC_ballons=' . urlencode($search_BBC_ballons_idBBC_ballons);
+}
+if ($search_nbrPax  != '') {
+    $param .= '&amp;search_nbrPax=' . urlencode($search_nbrPax);
+}
+if ($search_remarque  != '') {
+    $param .= '&amp;search_remarque=' . urlencode($search_remarque);
+}
+if ($search_incidents  != '') {
+    $param .= '&amp;search_incidents=' . urlencode($search_incidents);
+}
+if ($search_fk_type  != '') {
+    $param .= '&amp;search_fk_type=' . urlencode($search_fk_type);
+}
+if ($search_fk_pilot != '') {
+    $param .= '&amp;search_fk_pilot=' . urlencode($search_fk_pilot);
+}
+if ($search_fk_organisateur  != '') {
+    $param .= '&amp;search_fk_organisateur=' . urlencode($search_fk_organisateur);
+}
+if ($search_is_facture  != '') {
+    $param .= '&amp;search_is_facture=' . urlencode($search_is_facture);
+}
+if ($search_kilometers  != '') {
+    $param .= '&amp;search_kilometers=' . urlencode($search_kilometers);
+}
+if ($search_cost  != '') {
+    $param .= '&amp;search_cost=' . urlencode($search_cost);
+}
+if ($search_fk_receiver  != '') {
+    $param .= '&amp;search_fk_receiver=' . urlencode($search_fk_receiver);
+}
+if ($search_justif_kilometers  != '') {
+    $param .= '&amp;search_justif_kilometers=' . urlencode($search_justif_kilometers);
+}
+
 if ($optioncss != '') {
     $param .= '&optioncss=' . $optioncss;
 }
@@ -577,8 +626,6 @@ if (!empty($arrayfields['t.justif_kilometers']['checked'])) {
         '', $params, '', $sortfield, $sortorder);
 }*/
 
-//if (! empty($arrayfields['t.field1']['checked'])) print_liste_field_titre($arrayfields['t.field1']['label'],$_SERVER['PHP_SELF'],'t.field1','',$param,'',$sortfield,$sortorder);
-//if (! empty($arrayfields['t.field2']['checked'])) print_liste_field_titre($arrayfields['t.field2']['label'],$_SERVER['PHP_SELF'],'t.field2','',$param,'',$sortfield,$sortorder);
 // Extra fields
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) {
     foreach ($extrafields->attribute_label as $key => $val) {
@@ -677,10 +724,6 @@ if (!empty($arrayfields['t.fk_receiver']['checked'])) {
 if (!empty($arrayfields['t.justif_kilometers']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_justif_kilometers" value="' . $search_justif_kilometers . '" size="10"></td>';
 }*/
-
-//if (! empty($arrayfields['t.field1']['checked'])) print '<td class="liste_titre"><input type="text" class="flat" name="search_field1" value="'.$search_field1.'" size="10"></td>';
-//if (! empty($arrayfields['t.field2']['checked'])) print '<td class="liste_titre"><input type="text" class="flat" name="search_field2" value="'.$search_field2.'" size="10"></td>';
-
 
 // Extra fields
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) {
