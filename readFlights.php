@@ -195,11 +195,13 @@ if ($resql) {
 
     print'</tr>';
     $table = sqlToArray($db, $sql, true, (GETPOST("year") ?: date("Y")));
+    $total = 0;
     foreach ($table as $key => $value) {
 
         $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25;
         $totalFacture = $value['3']['count'] * 150 + $value['4']['count'] * 100 + $value['6']['count'] * 50 + $value['7']['count'] * 75;
-        $facturable = $totalFacture - $totalBonus;
+        $facturable = ($totalFacture - $totalBonus < 0 ? 0 : $totalFacture - $totalBonus);
+        $total += $facturable;
 
         $pilotNumberFlight[$value['id']] = array(
             "1" => $value['1']['count'],
@@ -241,9 +243,17 @@ if ($resql) {
         print '<td>' . price($value['7']['count'] * 75) . '€</td>';
 
         print '<td>' . price($totalFacture) . '€ </td>';
-        print '<td><b>' . price(($facturable < 0 ? 0 : $facturable)) . '€</b></td>';
+        print '<td><b>' . price($facturable) . '€</b></td>';
         print '</tr>';
     }
+
+    print "<tr>";
+    print "<td colspan='18'></td>";
+    print "<td>Total à reçevoir</td>";
+    print "<td>".price($total)."€</td>";
+    print "</tr>";
+
+
     print'</table>';
 
 
