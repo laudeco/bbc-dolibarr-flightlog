@@ -304,6 +304,10 @@ $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as receiver on (t.fk_receiver = r
 
 $sql .= " WHERE 1 = 1";
 
+if($search_all){
+    $sql .= natural_search(["idBBC_vols",  "lieuD", "lieuA", "pilot.lastname", "pilot.firstname", "balloon.immat"], $search_all);
+}
+
 if ($search_idBBC_vols) {
     $sql .= natural_search("idBBC_vols", $search_idBBC_vols);
 }
@@ -476,6 +480,9 @@ if ($search_fk_receiver  != '') {
 if ($search_justif_kilometers  != '') {
     $param .= '&amp;search_justif_kilometers=' . urlencode($search_justif_kilometers);
 }
+if ($search_all != '') {
+    $param .= '&amp;sall=' . urlencode($search_all);
+}
 
 if ($optioncss != '') {
     $param .= '&optioncss=' . $optioncss;
@@ -512,9 +519,15 @@ print '<input type="hidden" name="sortfield" value="' . $sortfield . '">';
 print '<input type="hidden" name="sortorder" value="' . $sortorder . '">';
 print '<input type="hidden" name="contextpage" value="' . $contextpage . '">';
 
-print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, '', $num, $nbtotalofrecords,
-    'title_companies', 0, '', '', $limit);
 
+$moreHtml = "";
+if($search_all !== ""){
+    $moreHtml = "<p>".$langs->trans(sprintf("La liste est en recherche globale sur : l'identifiant du vol, le nom du pilote, l'immat du ballon, le lieu de Décollage et le lieu d'atterissage : %s", $search_all))."</p>";
+}
+
+print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, '', $num, $nbtotalofrecords,
+    'title_companies', 0, "", '', $limit);
+echo $moreHtml;
 if ($sall) {
     foreach ($fieldstosearchall as $key => $val) {
         $fieldstosearchall[$key] = $langs->trans($val);

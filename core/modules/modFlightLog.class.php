@@ -166,6 +166,7 @@ class modFlightLog extends DolibarrModules
         $this->initDictionnaries();
         $this->initCronJobs();
         $this->initMenu();
+        $this->initHooks();
         $this->initPermissions();
 
         // Exports
@@ -490,6 +491,19 @@ class modFlightLog extends DolibarrModules
             'tabrowid'       => array("idType"),
             'tabcond'        => array('$conf->flightLog->enabled'),
         );
+    }
+
+    /**
+     * Init hooks
+     */
+    private function initHooks()
+    {
+        if (!isset($this->module_parts["hooks"])) {
+            $this->module_parts["hooks"] = [];
+        }
+
+        $this->module_parts["hooks"][] = "searchform";
+
     }
 
     private function initConstants()
