@@ -24,6 +24,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 dol_include_once('/compta/facture/class/facture.class.php');
 dol_include_once('/adherents/class/adherent.class.php');
 dol_include_once("/flightLog/lib/flightLog.lib.php");
+dol_include_once('/core/modules/facture/modules_facture.php');
 
 global $db, $langs, $user, $conf;
 
@@ -45,6 +46,12 @@ $amouts = GETPOST('amout', 'array', 2);
 $amoutDiscounts = GETPOST('amoutDiscount', 'array', 2);
 $publicNote = GETPOST('public_note', 'alpha', 2);
 $privateNote = GETPOST('private_note', 'alpha', 2);
+$type = GETPOST("type", "int", 3);
+$conditionReglement = GETPOST("cond_reglement_id", "int", 3);
+$modeReglement = GETPOST("mode_reglement_id", "int", 3);
+$bankAccount = GETPOST("fk_account", "int", 3);
+$documentModel = GETPOST("model", "alpha", 3);
+
 
 $currentYear = date('Y');
 
@@ -90,347 +97,352 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
     if ($year < $currentYear) {
 
-        $table = sqlToArray($db, $sql, true, $year);
-        foreach ($table as $currentMissionUserId => $value) {
+        if (empty($documentModel) || $conditionReglement == 0 || empty($conditionReglement) || $modeReglement == 0 || empty($modeReglement)) {
+            dol_htmloutput_errors("Erreur de configuration !");
+        }else{
+            $table = sqlToArray($db, $sql, true, $year);
 
-            $addBonus = (int)$additionalBonus[$currentMissionUserId];
-            if($addBonus < 0){
-                continue;
+            foreach ($table as $currentMissionUserId => $value) {
+
+                $addBonus = (int)$additionalBonus[$currentMissionUserId];
+                if($addBonus < 0){
+                    continue;
+                }
+
+                $totalFlights = $value['1']['count'] + $value['2']['count'] + $value['orga']['count'] + $value['3']['count'] + $value['4']['count'] + $value['6']['count'] + $value['7']['count'];
+                $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25 + $addBonus;
+
+                $totalFacture = $value['3']['count'] * 150 + $value['4']['count'] * 100 + $value['6']['count'] * 50 + $value['7']['count'] * 75;
+
+                $facturable = ($totalFacture - $totalBonus < 0 ? 0 : $totalFacture - $totalBonus);
+
+                if ($facturable == 0) {
+                    continue;
+                }
+
+                $discount = ((int)((($totalFacture - $facturable) * 100 / $totalFacture) * 10000)) / 10000;
+
+                $expenseNoteUser = new User($db);
+                $expenseNoteUser->fetch($currentMissionUserId);
+
+                $adherent = new Adherent($db);
+                $adherent->fetch($expenseNoteUser->fk_member);
+
+                $object = new Facture($db);
+                $object->fetch_thirdparty();
+
+                $object->socid = $adherent->fk_soc;
+                $object->type = $type;
+                $object->number = "provisoire";
+                $object->date = (new DateTime())->getTimestamp();
+                $object->date_pointoftax = "";
+                $object->note_public = $publicNote;
+                $object->note_private = $privateNote;
+                $object->ref_client = "";
+                $object->ref_int = "";
+                $object->modelpdf = $documentModel;
+                $object->cond_reglement_id = $conditionReglement;
+                $object->mode_reglement_id = $modeReglement;
+                $object->fk_account = $bankAccount;
+
+                $id = $object->create($user);
+
+                if ($id <= 0) {
+                    setEventMessages($object->error, $object->errors, 'errors');
+                }
+
+                $localtax1_tx = get_localtax(0, 1, $object->thirdparty);
+                $localtax2_tx = get_localtax(0, 2, $object->thirdparty);
+
+                //T1
+                $pu_ht = price2num(0, 'MU');
+                $pu_ttc = price2num(0, 'MU');
+                $pu_ht_devise = price2num(0, 'MU');
+                $qty = $value['1']['count'];
+                $desc = "Vols T1 (Sponsor) en " . $year;
+
+                $result = $object->addline(
+                    $desc,
+                    $pu_ht,
+                    $qty,
+                    0,
+                    $localtax1_tx,
+                    $localtax2_tx,
+                    0,
+                    $discount,
+                    '',
+                    '',
+                    0,
+                    0,
+                    '',
+                    'HT',
+                    $pu_ttc,
+                    1,
+                    -1,
+                    0,
+                    '',
+                    0,
+                    0,
+                    '',
+                    '',
+                    '',
+                    [],
+                    100,
+                    '',
+                    0,
+                    0
+                );
+
+                //T2
+                $pu_ht = price2num(0, 'MU');
+                $pu_ttc = price2num(0, 'MU');
+                $pu_ht_devise = price2num(0, 'MU');
+                $qty = $value['3']['count'];
+                $desc = "Vols T2 (Vol passagers) en " . $year;
+
+                $result = $object->addline(
+                    $desc,
+                    $pu_ht,
+                    $qty,
+                    0,
+                    $localtax1_tx,
+                    $localtax2_tx,
+                    0,
+                    $discount,
+                    '',
+                    '',
+                    0,
+                    0,
+                    '',
+                    'HT',
+                    $pu_ttc,
+                    1,
+                    -1,
+                    0,
+                    '',
+                    0,
+                    0,
+                    '',
+                    '',
+                    '',
+                    [],
+                    100,
+                    '',
+                    0,
+                    0
+                );
+
+                //Orga
+                $pu_ht = price2num(0, 'MU');
+                $pu_ttc = price2num(0, 'MU');
+                $pu_ht_devise = price2num(0, 'MU');
+                $qty = $value['orga']['count'];
+                $desc = "Vols Organisateur  ";
+
+                $result = $object->addline(
+                    $desc,
+                    $pu_ht,
+                    $qty,
+                    0,
+                    $localtax1_tx,
+                    $localtax2_tx,
+                    0,
+                    $discount,
+                    '',
+                    '',
+                    0,
+                    0,
+                    '',
+                    'HT',
+                    $pu_ttc,
+                    1,
+                    -1,
+                    0,
+                    '',
+                    0,
+                    0,
+                    '',
+                    '',
+                    '',
+                    [],
+                    100,
+                    '',
+                    0,
+                    0
+                );
+
+                //T3
+                $pu_ht = price2num(150, 'MU');
+                $pu_ttc = price2num(150, 'MU');
+                $pu_ht_devise = price2num(150, 'MU');
+                $qty = $value['3']['count'];
+                $desc = "Vols T3 (privé) en " . $year;
+
+                $result = $object->addline(
+                    $desc,
+                    $pu_ht,
+                    $qty,
+                    0,
+                    $localtax1_tx,
+                    $localtax2_tx,
+                    0,
+                    $discount,
+                    '',
+                    '',
+                    0,
+                    0,
+                    '',
+                    'HT',
+                    $pu_ttc,
+                    1,
+                    -1,
+                    0,
+                    '',
+                    0,
+                    0,
+                    '',
+                    '',
+                    '',
+                    [],
+                    100,
+                    '',
+                    0,
+                    0
+                );
+
+                //T4
+                $pu_ht = price2num(100, 'MU');
+                $pu_ttc = price2num(100, 'MU');
+                $pu_ht_devise = price2num(100, 'MU');
+                $qty = $value['4']['count'];
+                $desc = "Vols T4 (meeting) en " . $year;
+
+                $result = $object->addline(
+                    $desc,
+                    $pu_ht,
+                    $qty,
+                    0,
+                    $localtax1_tx,
+                    $localtax2_tx,
+                    0,
+                    $discount,
+                    '',
+                    '',
+                    0,
+                    0,
+                    '',
+                    'HT',
+                    $pu_ttc,
+                    1,
+                    -1,
+                    0,
+                    '',
+                    0,
+                    0,
+                    '',
+                    '',
+                    '',
+                    [],
+                    100,
+                    '',
+                    0,
+                    0
+                );
+
+                //T6
+                $pu_ht = price2num(50, 'MU');
+                $pu_ttc = price2num(50, 'MU');
+                $pu_ht_devise = price2num(50, 'MU');
+                $qty = $value['6']['count'];
+                $desc = "Vols T6 (écolage) en " . $year;
+
+                $result = $object->addline(
+                    $desc,
+                    $pu_ht,
+                    $qty,
+                    0,
+                    $localtax1_tx,
+                    $localtax2_tx,
+                    0,
+                    $discount,
+                    '',
+                    '',
+                    0,
+                    0,
+                    '',
+                    'HT',
+                    $pu_ttc,
+                    1,
+                    -1,
+                    0,
+                    '',
+                    0,
+                    0,
+                    '',
+                    '',
+                    '',
+                    [],
+                    100,
+                    '',
+                    0,
+                    0
+                );
+
+                //T7
+                $pu_ht = price2num(75, 'MU');
+                $pu_ttc = price2num(75, 'MU');
+                $pu_ht_devise = price2num(75, 'MU');
+                $qty = $value['7']['count'];
+                $desc = "Vols T7(< 50 vols) en " . $year;
+
+                $result = $object->addline(
+                    $desc,
+                    $pu_ht,
+                    $qty,
+                    0,
+                    $localtax1_tx,
+                    $localtax2_tx,
+                    0,
+                    $discount,
+                    '',
+                    '',
+                    0,
+                    0,
+                    '',
+                    'HT',
+                    $pu_ttc,
+                    1,
+                    -1,
+                    0,
+                    '',
+                    0,
+                    0,
+                    '',
+                    '',
+                    '',
+                    [],
+                    100,
+                    '',
+                    0,
+                    0
+                );
+
+                $ret = $object->fetch($id);
+                $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
+                $object->fetch($id);
+                $object->validate($user);
+                $object->fetch($id);
+                $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
+
             }
 
-            $totalFlights = $value['1']['count'] + $value['2']['count'] + $value['orga']['count'] + $value['3']['count'] + $value['4']['count'] + $value['6']['count'] + $value['7']['count'];
-            $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25 + $addBonus;
-
-            $totalFacture = $value['3']['count'] * 150 + $value['4']['count'] * 100 + $value['6']['count'] * 50 + $value['7']['count'] * 75;
-
-            $facturable = ($totalFacture - $totalBonus < 0 ? 0 : $totalFacture - $totalBonus);
-
-            if ($facturable == 0) {
-                continue;
+            if ($result > 0) {
+                dol_htmloutput_mesg("Facture créées");
+            } else {
+                dol_htmloutput_errors("Note de frais non créée");
             }
-
-            $discount = ((int)((($totalFacture - $facturable) * 100 / $totalFacture) * 10000)) / 10000;
-
-            $expenseNoteUser = new User($db);
-            $expenseNoteUser->fetch($currentMissionUserId);
-
-            $adherent = new Adherent($db);
-            $adherent->fetch($expenseNoteUser->fk_member);
-
-            $object = new Facture($db);
-            $object->fetch_thirdparty();
-
-            $object->socid = $adherent->fk_soc;
-            $object->type = Facture::TYPE_STANDARD;
-            $object->number = "provisoire";
-            $object->date = (new DateTime())->getTimestamp();
-            $object->date_pointoftax = "";
-            $object->note_public = $publicNote;
-            $object->note_private = $privateNote;
-            $object->ref_client = "";
-            $object->ref_int = "";
-            $object->modelpdf = "crabe";
-            $object->cond_reglement_id = 2;
-            $object->mode_reglement_id = 2;
-            $object->fk_account = 5;
-
-            $id = $object->create($user);
-
-            if ($id <= 0) {
-                setEventMessages($object->error, $object->errors, 'errors');
-            }
-
-            $localtax1_tx = get_localtax(0, 1, $object->thirdparty);
-            $localtax2_tx = get_localtax(0, 2, $object->thirdparty);
-
-            //T1
-            $pu_ht = price2num(0, 'MU');
-            $pu_ttc = price2num(0, 'MU');
-            $pu_ht_devise = price2num(0, 'MU');
-            $qty = $value['1']['count'];
-            $desc = "Vols T1 (Sponsor) en " . $year;
-
-            $result = $object->addline(
-                $desc,
-                $pu_ht,
-                $qty,
-                0,
-                $localtax1_tx,
-                $localtax2_tx,
-                0,
-                $discount,
-                '',
-                '',
-                0,
-                0,
-                '',
-                'HT',
-                $pu_ttc,
-                1,
-                -1,
-                0,
-                '',
-                0,
-                0,
-                '',
-                '',
-                '',
-                [],
-                100,
-                '',
-                0,
-                0
-            );
-
-            //T2
-            $pu_ht = price2num(0, 'MU');
-            $pu_ttc = price2num(0, 'MU');
-            $pu_ht_devise = price2num(0, 'MU');
-            $qty = $value['3']['count'];
-            $desc = "Vols T2 (Vol passagers) en " . $year;
-
-            $result = $object->addline(
-                $desc,
-                $pu_ht,
-                $qty,
-                0,
-                $localtax1_tx,
-                $localtax2_tx,
-                0,
-                $discount,
-                '',
-                '',
-                0,
-                0,
-                '',
-                'HT',
-                $pu_ttc,
-                1,
-                -1,
-                0,
-                '',
-                0,
-                0,
-                '',
-                '',
-                '',
-                [],
-                100,
-                '',
-                0,
-                0
-            );
-
-            //Orga
-            $pu_ht = price2num(0, 'MU');
-            $pu_ttc = price2num(0, 'MU');
-            $pu_ht_devise = price2num(0, 'MU');
-            $qty = $value['orga']['count'];
-            $desc = "Vols Organisateur  ";
-
-            $result = $object->addline(
-                $desc,
-                $pu_ht,
-                $qty,
-                0,
-                $localtax1_tx,
-                $localtax2_tx,
-                0,
-                $discount,
-                '',
-                '',
-                0,
-                0,
-                '',
-                'HT',
-                $pu_ttc,
-                1,
-                -1,
-                0,
-                '',
-                0,
-                0,
-                '',
-                '',
-                '',
-                [],
-                100,
-                '',
-                0,
-                0
-            );
-
-            //T3
-            $pu_ht = price2num(150, 'MU');
-            $pu_ttc = price2num(150, 'MU');
-            $pu_ht_devise = price2num(150, 'MU');
-            $qty = $value['3']['count'];
-            $desc = "Vols T3 (privé) en " . $year;
-
-            $result = $object->addline(
-                $desc,
-                $pu_ht,
-                $qty,
-                0,
-                $localtax1_tx,
-                $localtax2_tx,
-                0,
-                $discount,
-                '',
-                '',
-                0,
-                0,
-                '',
-                'HT',
-                $pu_ttc,
-                1,
-                -1,
-                0,
-                '',
-                0,
-                0,
-                '',
-                '',
-                '',
-                [],
-                100,
-                '',
-                0,
-                0
-            );
-
-            //T4
-            $pu_ht = price2num(100, 'MU');
-            $pu_ttc = price2num(100, 'MU');
-            $pu_ht_devise = price2num(100, 'MU');
-            $qty = $value['4']['count'];
-            $desc = "Vols T4 (meeting) en " . $year;
-
-            $result = $object->addline(
-                $desc,
-                $pu_ht,
-                $qty,
-                0,
-                $localtax1_tx,
-                $localtax2_tx,
-                0,
-                $discount,
-                '',
-                '',
-                0,
-                0,
-                '',
-                'HT',
-                $pu_ttc,
-                1,
-                -1,
-                0,
-                '',
-                0,
-                0,
-                '',
-                '',
-                '',
-                [],
-                100,
-                '',
-                0,
-                0
-            );
-
-            //T6
-            $pu_ht = price2num(50, 'MU');
-            $pu_ttc = price2num(50, 'MU');
-            $pu_ht_devise = price2num(50, 'MU');
-            $qty = $value['6']['count'];
-            $desc = "Vols T6 (écolage) en " . $year;
-
-            $result = $object->addline(
-                $desc,
-                $pu_ht,
-                $qty,
-                0,
-                $localtax1_tx,
-                $localtax2_tx,
-                0,
-                $discount,
-                '',
-                '',
-                0,
-                0,
-                '',
-                'HT',
-                $pu_ttc,
-                1,
-                -1,
-                0,
-                '',
-                0,
-                0,
-                '',
-                '',
-                '',
-                [],
-                100,
-                '',
-                0,
-                0
-            );
-
-            //T7
-            $pu_ht = price2num(75, 'MU');
-            $pu_ttc = price2num(75, 'MU');
-            $pu_ht_devise = price2num(75, 'MU');
-            $qty = $value['7']['count'];
-            $desc = "Vols T7(< 50 vols) en " . $year;
-
-            $result = $object->addline(
-                $desc,
-                $pu_ht,
-                $qty,
-                0,
-                $localtax1_tx,
-                $localtax2_tx,
-                0,
-                $discount,
-                '',
-                '',
-                0,
-                0,
-                '',
-                'HT',
-                $pu_ttc,
-                1,
-                -1,
-                0,
-                '',
-                0,
-                0,
-                '',
-                '',
-                '',
-                [],
-                100,
-                '',
-                0,
-                0
-            );
-
-            $ret = $object->fetch($id);
-            $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
-            $object->fetch($id);
-            $object->validate($user);
-            $object->fetch($id);
-            $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
-
         }
 
-
-        if ($result > 0) {
-            dol_htmloutput_mesg("Facture créées");
-        } else {
-            dol_htmloutput_errors("Note de frais non créée");
-        }
     } else {
         //Quarter not yet finished
         dol_htmloutput_errors("L'année n'est pas encore finie !");
@@ -602,11 +614,37 @@ dol_fiche_head($tabLinks, "tab_" . $year);
 
         <?php endif; ?>
 
+        <!-- Billing type -->
+        <label><?= $langs->trans("Type de facture"); ?></label>
+        <input type="radio" id="radio_standard" name="type" value="0" checked="checked" />
+        <?= $form->textwithpicto($langs->trans("InvoiceStandardAsk"), $langs->transnoentities("InvoiceStandardDesc"), 1, 'help', '', 0, 3)?>
+        <br/>
+        <br/>
+
+        <!-- Term condition -->
+        <label><?= $langs->trans("Condition de règlement"); ?></label>
+        <?php $form->select_conditions_paiements(0, 'cond_reglement_id'); ?>
+        <br/>
+        <br/>
+
+        <!-- Payment mode -->
+        <label><?= $langs->trans("Mode de payement"); ?></label>
+        <?php $form->select_types_paiements(0, 'mode_reglement_id', 'CRDT'); ?>
+        <br/>
+        <br/>
+
+        <!-- bank account -->
+        <label><?= $langs->trans("Compte en banque"); ?></label>
+        <?php $form->select_comptes(0, 'fk_account', 0, '', 1); ?>
+        <br/>
+        <br/>
+
         <!-- Public note -->
         <label><?= $langs->trans("Note publique (commune à toutes les factures)"); ?></label><br/>
         <textarea name="public_note" wrap="soft" class="quatrevingtpercent" rows="2">
             Les vols sont facturés comme le stipule l'annexe du ROI.
         </textarea>
+        <br/>
         <br/>
 
         <!-- Private note -->
@@ -615,6 +653,23 @@ dol_fiche_head($tabLinks, "tab_" . $year);
             Aux points de vols, s'ajoutent une indemnité pour les membres du CA/CD de 300 points.
         </textarea>
         <br/>
+
+        <!-- model document -->
+        <label><?= $langs->trans("Model de document "); ?></label><br/>
+        <?php $liste = ModelePDFFactures::liste_modeles($db);?>
+        <?= $form->selectarray('model', $liste, $conf->global->FACTURE_ADDON_PDF);?>
+        <br/>
+
+        <!-- Send mail -->
+        <label>Envoi du mail automatique</label>
+        <input type="radio" value="1" checked="checked"/> Oui / <input type="radio" value="0" /> Non
+        <br/>
+        <textarea>
+            Bonjour %NAME%,
+
+            Tu trouveras en 
+
+        </textarea>
 
         <?php if ($year >= $currentYear) : ?>
             <a class="butActionRefused" href="#">Générer</a>
