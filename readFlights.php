@@ -277,6 +277,11 @@ print '<br/>';
 print '<div class="tabsAction">';
 
 
+if ($conf->facture->enabled && $user->rights->flightLog->vol->status && $user->rights->flightLog->vol->financialGenerateDocuments) {
+    print '<a class="butAction" href="generateBilling.php?year=' . (GETPOST("year",
+            'int') ?: date("Y")) . '">Générer Factures</a>';
+}
+
 if ($conf->expensereport->enabled && $user->rights->flightLog->vol->financialGenerateDocuments) {
     print '<a class="butAction" href="generateExpenseNote.php?year=' . (GETPOST("year",
             'int') ?: date("Y")) . '">Générer notes de frais</a>';

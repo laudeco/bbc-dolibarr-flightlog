@@ -68,7 +68,7 @@ $object = new Facture($db);
 $vatrate = "0.000";
 
 // Access control
-if (!$conf->expensereport->enabled || !$user->rights->flightLog->vol->status || !$user->rights->flightLog->vol->financialGenerateDocuments) {
+if (!$conf->facture->enabled || !$user->rights->flightLog->vol->status || !$user->rights->flightLog->vol->financialGenerateDocuments) {
     accessforbidden();
 }
 
@@ -94,6 +94,10 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
         foreach ($table as $currentMissionUserId => $value) {
 
             $addBonus = (int)$additionalBonus[$currentMissionUserId];
+            if($addBonus < 0){
+                continue;
+            }
+
             $totalFlights = $value['1']['count'] + $value['2']['count'] + $value['orga']['count'] + $value['3']['count'] + $value['4']['count'] + $value['6']['count'] + $value['7']['count'];
             $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25 + $addBonus;
 
@@ -105,7 +109,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 continue;
             }
 
-            $discount = ((int)((($totalFacture - $facturable) * 100 / $totalFacture)*10000))/10000;
+            $discount = ((int)((($totalFacture - $facturable) * 100 / $totalFacture) * 10000)) / 10000;
 
             $expenseNoteUser = new User($db);
             $expenseNoteUser->fetch($currentMissionUserId);
@@ -184,6 +188,45 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
             $pu_ht_devise = price2num(0, 'MU');
             $qty = $value['3']['count'];
             $desc = "Vols T2 (Vol passagers) en " . $year;
+
+            $result = $object->addline(
+                $desc,
+                $pu_ht,
+                $qty,
+                0,
+                $localtax1_tx,
+                $localtax2_tx,
+                0,
+                $discount,
+                '',
+                '',
+                0,
+                0,
+                '',
+                'HT',
+                $pu_ttc,
+                1,
+                -1,
+                0,
+                '',
+                0,
+                0,
+                '',
+                '',
+                '',
+                [],
+                100,
+                '',
+                0,
+                0
+            );
+
+            //Orga
+            $pu_ht = price2num(0, 'MU');
+            $pu_ttc = price2num(0, 'MU');
+            $pu_ht_devise = price2num(0, 'MU');
+            $qty = $value['orga']['count'];
+            $desc = "Vols Organisateur  ";
 
             $result = $object->addline(
                 $desc,
@@ -373,45 +416,6 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 0
             );
 
-            //Orga
-            $pu_ht = price2num(0, 'MU');
-            $pu_ttc = price2num(0, 'MU');
-            $pu_ht_devise = price2num(0, 'MU');
-            $qty = $value['orga']['count'];
-            $desc = "Vols Organisateur  ";
-
-            $result = $object->addline(
-                $desc,
-                $pu_ht,
-                $qty,
-                0,
-                $localtax1_tx,
-                $localtax2_tx,
-                0,
-                $discount,
-                '',
-                '',
-                0,
-                0,
-                '',
-                'HT',
-                $pu_ttc,
-                1,
-                -1,
-                0,
-                '',
-                0,
-                0,
-                '',
-                '',
-                '',
-                [],
-                100,
-                '',
-                0,
-                0
-            );
-
             $ret = $object->fetch($id);
             $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
             $object->fetch($id);
@@ -429,7 +433,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
         }
     } else {
         //Quarter not yet finished
-        dol_htmloutput_errors("Le quartil n'est pas encore fini !");
+        dol_htmloutput_errors("L'année n'est pas encore finie !");
     }
 }
 
@@ -601,16 +605,23 @@ dol_fiche_head($tabLinks, "tab_" . $year);
         <!-- Public note -->
         <label><?= $langs->trans("Note publique (commune à toutes les factures)"); ?></label><br/>
         <textarea name="public_note" wrap="soft" class="quatrevingtpercent" rows="2">
-            Les frais pilotes regroupent tous les frais qu'à le pilote pour organiser son vol (Champagne, Téléphone, Diplômes, ...).
+            Les vols sont facturés comme le stipule l'annexe du ROI.
         </textarea>
         <br/>
 
         <!-- Private note -->
         <label><?= $langs->trans("Note privée (commune à toutes les factures)"); ?></label><br/>
-        <textarea name="private_note" wrap="soft" class="quatrevingtpercent" rows="2"></textarea>
+        <textarea name="private_note" wrap="soft" class="quatrevingtpercent" rows="2">
+            Aux points de vols, s'ajoutent une indemnité pour les membres du CA/CD de 300 points.
+        </textarea>
         <br/>
 
-        <button class="butAction" type="submit">Générer</button>
+        <?php if ($year >= $currentYear) : ?>
+            <a class="butActionRefused" href="#">Générer</a>
+        <?php else: ?>
+            <button class="butAction" type="submit">Générer</button>
+        <?php endif; ?>
+
     </form>
 
 <?php
