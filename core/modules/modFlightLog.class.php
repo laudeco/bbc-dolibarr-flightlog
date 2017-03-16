@@ -462,6 +462,13 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][4] = 'vol';
         $this->rights[$r][5] = 'financial';
         $r++;
+
+        $this->rights[$r][0] = 10000;
+        $this->rights[$r][1] = 'Gérer des documents financiers';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'financialGenerateDocuments';
+        $r++;
     }
 
     private function initCronJobs()
