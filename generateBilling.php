@@ -32,7 +32,6 @@ global $db, $langs, $user, $conf;
 $langs->load("mymodule@mymodule");
 $langs->load("trips");
 $langs->load("bills");
-$langs->load("mails");
 
 // Get parameters
 $id = GETPOST('id', 'int');
@@ -51,8 +50,6 @@ $conditionReglement = GETPOST("cond_reglement_id", "int", 3);
 $modeReglement = GETPOST("mode_reglement_id", "int", 3);
 $bankAccount = GETPOST("fk_account", "int", 3);
 $documentModel = GETPOST("model", "alpha", 3);
-$mailContent = GETPOST("mail_content", "alpha", 3);
-$isMail = GETPOST("mail_sent", "int", 3);
 
 
 $currentYear = date('Y');
@@ -114,7 +111,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
                 $addBonus = (int)$additionalBonus[$currentMissionUserId];
                 if ($addBonus < 0) {
-                    dol_htmloutput_mesg("Facture ignorée ".$adherent->getFullName($langs), '', 'warning');
+                    dol_htmloutput_mesg("Facture ignorée " . $adherent->getFullName($langs), '', 'warning');
                     continue;
                 }
 
@@ -359,21 +356,6 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 $object->fetch($id);
                 $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
 
-                //Send e-mail
-                if (!$isMail) {
-                    continue;
-                }
-
-                $mailSubject = GETPOST("mail_subject", 3);
-                $maiContent = GETPOST("mail_content", 3);
-                //TODO format mail content
-
-                $object->fetch($id);
-                $mailfile = new CMailFile($mailSubject,$sendto,$from,$message,$filepath,$mimetype,$filename,$sendtocc,$sendtobcc,$deliveryreceipt,-1,'','',$trackid);
-                if (!$mailfile->error)
-                {
-                    $result=$mailfile->sendfile();
-                }
             }
 
             if ($result > 0) {
@@ -603,32 +585,6 @@ dol_fiche_head($tabLinks, "tab_" . $year);
         <?php $liste = ModelePDFFactures::liste_modeles($db); ?>
         <?= $form->selectarray('model', $liste, $conf->global->FACTURE_ADDON_PDF); ?>
         <br/>
-        <br/>
-
-        <!-- Send mail -->
-        <label>Envoi du mail automatique</label><br/>
-        <input type="radio" value="1" checked="checked" name="mail_sent"/> Oui / <input type="radio" value="0" name="mail_sent"/> Non
-        <br/>
-        <br/>
-
-        <!-- Mail subject -->
-        <label>Sujet de l'e-mail</label><br/>
-        <input type="text" class="quatrevingtpercent" value="Factures des vols de <?= $year ?>" name ="mail_subject"/>
-        <br/>
-
-        <label>Contenu de l'e-mail </label><br/>
-        <textarea name="mail_content" wrap="soft" class="quatrevingtpercent" rows="8">
-            Bonjour %NAME%,
-
-            Tu trouveras en pièce jointe de ce mail la facture pour les vols de l'année : %YEAR%.
-
-            Merci de bien vouloir respecter les délais de payement.
-
-            Bien à toi
-            Le trésorier
-        </textarea>
-        <br/>
-        <span>Les mots magiques sont : %NAME%, %YEAR%</span>
         <br/>
 
         <?php if ($year >= $currentYear) : ?>
