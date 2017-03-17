@@ -51,6 +51,8 @@ $conditionReglement = GETPOST("cond_reglement_id", "int", 3);
 $modeReglement = GETPOST("mode_reglement_id", "int", 3);
 $bankAccount = GETPOST("fk_account", "int", 3);
 $documentModel = GETPOST("model", "alpha", 3);
+$mailContent = GETPOST("mail_content", "alpha", 3);
+$isMail = GETPOST("mail_sent", "int", 3);
 
 
 $currentYear = date('Y');
@@ -99,13 +101,20 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
         if (empty($documentModel) || $conditionReglement == 0 || empty($conditionReglement) || $modeReglement == 0 || empty($modeReglement)) {
             dol_htmloutput_errors("Erreur de configuration !");
-        }else{
+        } else {
             $table = sqlToArray($db, $sql, true, $year);
 
             foreach ($table as $currentMissionUserId => $value) {
 
+                $expenseNoteUser = new User($db);
+                $expenseNoteUser->fetch($currentMissionUserId);
+
+                $adherent = new Adherent($db);
+                $adherent->fetch($expenseNoteUser->fk_member);
+
                 $addBonus = (int)$additionalBonus[$currentMissionUserId];
-                if($addBonus < 0){
+                if ($addBonus < 0) {
+                    dol_htmloutput_mesg("Facture ignorée ".$adherent->getFullName($langs), '', 'warning');
                     continue;
                 }
 
@@ -119,14 +128,6 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 if ($facturable == 0) {
                     continue;
                 }
-
-                $discount = ((int)((($totalFacture - $facturable) * 100 / $totalFacture) * 10000)) / 10000;
-
-                $expenseNoteUser = new User($db);
-                $expenseNoteUser->fetch($currentMissionUserId);
-
-                $adherent = new Adherent($db);
-                $adherent->fetch($expenseNoteUser->fk_member);
 
                 $object = new Facture($db);
                 $object->fetch_thirdparty();
@@ -147,129 +148,15 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
                 $id = $object->create($user);
 
+                $soc = new Societe($db);
+                $soc->fetch($adherent->fk_soc);
+
                 if ($id <= 0) {
                     setEventMessages($object->error, $object->errors, 'errors');
                 }
 
                 $localtax1_tx = get_localtax(0, 1, $object->thirdparty);
                 $localtax2_tx = get_localtax(0, 2, $object->thirdparty);
-
-                //T1
-                $pu_ht = price2num(0, 'MU');
-                $pu_ttc = price2num(0, 'MU');
-                $pu_ht_devise = price2num(0, 'MU');
-                $qty = $value['1']['count'];
-                $desc = "Vols T1 (Sponsor) en " . $year;
-
-                $result = $object->addline(
-                    $desc,
-                    $pu_ht,
-                    $qty,
-                    0,
-                    $localtax1_tx,
-                    $localtax2_tx,
-                    0,
-                    $discount,
-                    '',
-                    '',
-                    0,
-                    0,
-                    '',
-                    'HT',
-                    $pu_ttc,
-                    1,
-                    -1,
-                    0,
-                    '',
-                    0,
-                    0,
-                    '',
-                    '',
-                    '',
-                    [],
-                    100,
-                    '',
-                    0,
-                    0
-                );
-
-                //T2
-                $pu_ht = price2num(0, 'MU');
-                $pu_ttc = price2num(0, 'MU');
-                $pu_ht_devise = price2num(0, 'MU');
-                $qty = $value['3']['count'];
-                $desc = "Vols T2 (Vol passagers) en " . $year;
-
-                $result = $object->addline(
-                    $desc,
-                    $pu_ht,
-                    $qty,
-                    0,
-                    $localtax1_tx,
-                    $localtax2_tx,
-                    0,
-                    $discount,
-                    '',
-                    '',
-                    0,
-                    0,
-                    '',
-                    'HT',
-                    $pu_ttc,
-                    1,
-                    -1,
-                    0,
-                    '',
-                    0,
-                    0,
-                    '',
-                    '',
-                    '',
-                    [],
-                    100,
-                    '',
-                    0,
-                    0
-                );
-
-                //Orga
-                $pu_ht = price2num(0, 'MU');
-                $pu_ttc = price2num(0, 'MU');
-                $pu_ht_devise = price2num(0, 'MU');
-                $qty = $value['orga']['count'];
-                $desc = "Vols Organisateur  ";
-
-                $result = $object->addline(
-                    $desc,
-                    $pu_ht,
-                    $qty,
-                    0,
-                    $localtax1_tx,
-                    $localtax2_tx,
-                    0,
-                    $discount,
-                    '',
-                    '',
-                    0,
-                    0,
-                    '',
-                    'HT',
-                    $pu_ttc,
-                    1,
-                    -1,
-                    0,
-                    '',
-                    0,
-                    0,
-                    '',
-                    '',
-                    '',
-                    [],
-                    100,
-                    '',
-                    0,
-                    0
-                );
 
                 //T3
                 $pu_ht = price2num(150, 'MU');
@@ -427,13 +314,66 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                     0
                 );
 
+                //### DISCOUNTS
+
+                //T1
+                $pu_ht = price2num(50 * $value['1']['count'], 'MU');
+                $desc = $year . " - Vols T1 (Sponsor) - (" . $value['1']['count'] . " * 50)";
+
+                $discountid = $soc->set_remise_except($pu_ht, $user, $desc, 0);
+                $object->insert_discount($discountid);
+
+                //T2
+                $pu_ht = price2num(50 * $value['2']['count'], 'MU');
+                $desc = $year . " - Vols T2 (Vol passagers) - (" . $value['2']['count'] . " * 50)";
+
+                $discountid = $soc->set_remise_except($pu_ht, $user, $desc, 0);
+                $object->insert_discount($discountid);
+
+                //Orga
+                $pu_ht = price2num(25 * $value['orga']['count'], 'MU');
+                $desc = $year . " - Vols dont vous êtes organisateur - (" . $value['orga']['count'] . " * 25)";
+
+                $discountid = $soc->set_remise_except($pu_ht, $user, $desc, 0);
+                $object->insert_discount($discountid);
+
+                //Additional bonus
+                if ((int)$addBonus > 0) {
+
+                    $pu_ht = price2num($addBonus, 'MU');
+
+                    $desc = sprintf("%s - %s", $year, GETPOST("additional_message", 3));
+
+                    $discountid = $soc->set_remise_except($pu_ht, $user, $desc, 0);
+                    $object->insert_discount($discountid);
+                }
+
                 $ret = $object->fetch($id);
                 $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
+
+                // Validate
                 $object->fetch($id);
                 $object->validate($user);
+
+                // Generate document
                 $object->fetch($id);
                 $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
 
+                //Send e-mail
+                if (!$isMail) {
+                    continue;
+                }
+
+                $mailSubject = GETPOST("mail_subject", 3);
+                $maiContent = GETPOST("mail_content", 3);
+                //TODO format mail content
+
+                $object->fetch($id);
+                $mailfile = new CMailFile($mailSubject,$sendto,$from,$message,$filepath,$mimetype,$filename,$sendtocc,$sendtobcc,$deliveryreceipt,-1,'','',$trackid);
+                if (!$mailfile->error)
+                {
+                    $result=$mailfile->sendfile();
+                }
             }
 
             if ($result > 0) {
@@ -614,27 +554,31 @@ dol_fiche_head($tabLinks, "tab_" . $year);
 
         <?php endif; ?>
 
-        <!-- Billing type -->
-        <label><?= $langs->trans("Type de facture"); ?></label>
-        <input type="radio" id="radio_standard" name="type" value="0" checked="checked" />
-        <?= $form->textwithpicto($langs->trans("InvoiceStandardAsk"), $langs->transnoentities("InvoiceStandardDesc"), 1, 'help', '', 0, 3)?>
+
+        <!-- Additional Point message -->
+        <label>Message de réduction pour points supplémentaire (Commun à toutes les factures)</label><br/>
+        <textarea name="additional_message" wrap="soft" class="quatrevingtpercent" rows="2">
+            Points additionel (cf.annexe du ROI)
+        </textarea>
         <br/>
         <br/>
 
-        <!-- Term condition -->
-        <label><?= $langs->trans("Condition de règlement"); ?></label>
-        <?php $form->select_conditions_paiements(0, 'cond_reglement_id'); ?>
+        <!-- Billing type -->
+        <label><?= $langs->trans("Type de facture"); ?></label><br/>
+        <input type="radio" id="radio_standard" name="type" value="0" checked="checked"/>
+        <?= $form->textwithpicto($langs->trans("InvoiceStandardAsk"), $langs->transnoentities("InvoiceStandardDesc"), 1,
+            'help', '', 0, 3) ?>
         <br/>
         <br/>
 
         <!-- Payment mode -->
-        <label><?= $langs->trans("Mode de payement"); ?></label>
+        <label><?= $langs->trans("Mode de payement"); ?></label><br/>
         <?php $form->select_types_paiements(0, 'mode_reglement_id', 'CRDT'); ?>
         <br/>
         <br/>
 
         <!-- bank account -->
-        <label><?= $langs->trans("Compte en banque"); ?></label>
+        <label><?= $langs->trans("Compte en banque"); ?></label><br/>
         <?php $form->select_comptes(0, 'fk_account', 0, '', 1); ?>
         <br/>
         <br/>
@@ -656,20 +600,36 @@ dol_fiche_head($tabLinks, "tab_" . $year);
 
         <!-- model document -->
         <label><?= $langs->trans("Model de document "); ?></label><br/>
-        <?php $liste = ModelePDFFactures::liste_modeles($db);?>
-        <?= $form->selectarray('model', $liste, $conf->global->FACTURE_ADDON_PDF);?>
+        <?php $liste = ModelePDFFactures::liste_modeles($db); ?>
+        <?= $form->selectarray('model', $liste, $conf->global->FACTURE_ADDON_PDF); ?>
+        <br/>
         <br/>
 
         <!-- Send mail -->
-        <label>Envoi du mail automatique</label>
-        <input type="radio" value="1" checked="checked"/> Oui / <input type="radio" value="0" /> Non
+        <label>Envoi du mail automatique</label><br/>
+        <input type="radio" value="1" checked="checked" name="mail_sent"/> Oui / <input type="radio" value="0" name="mail_sent"/> Non
         <br/>
-        <textarea>
+        <br/>
+
+        <!-- Mail subject -->
+        <label>Sujet de l'e-mail</label><br/>
+        <input type="text" class="quatrevingtpercent" value="Factures des vols de <?= $year ?>" name ="mail_subject"/>
+        <br/>
+
+        <label>Contenu de l'e-mail </label><br/>
+        <textarea name="mail_content" wrap="soft" class="quatrevingtpercent" rows="8">
             Bonjour %NAME%,
 
-            Tu trouveras en 
+            Tu trouveras en pièce jointe de ce mail la facture pour les vols de l'année : %YEAR%.
 
+            Merci de bien vouloir respecter les délais de payement.
+
+            Bien à toi
+            Le trésorier
         </textarea>
+        <br/>
+        <span>Les mots magiques sont : %NAME%, %YEAR%</span>
+        <br/>
 
         <?php if ($year >= $currentYear) : ?>
             <a class="butActionRefused" href="#">Générer</a>
