@@ -1,18 +1,3 @@
-# <one line to give the program's name and a brief idea of what it does.>
-# Copyright (C) <year>  <name of author>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
 # Générique
@@ -20,53 +5,74 @@
 
 # Module label 'ModuleXXXName'
 # (where XXX is value of numeric property 'numero' of module)
-Module500000Name = Mon module
+Module500000Name = Carnet de vol
+
 # Module description 'ModuleXXXDesc'
 # (where XXX is value of numeric property 'numero' of module)
-Module500000Desc = Description de mon module
+Module500000Desc = Carnet de vol
 
 #
 # Page d'administration
 #
-MyModuleSetup = Configuration du module mon module
-Settings = Réglages
-MyModuleSetupPage = Page de réglage de mon module
 
 #
 # Page À propos
 #
-About = À propos
-MyModuleAbout = À propos de mon module
-MyModuleAboutPage = Page à propos de mon module
 
 #
 # Page d'exemple
 #
-MyPageName = Nom de ma page
 
 #
 # Box d'exemple
 #
-MyBox = Ma boîte
-MyBoxDescription = Description de ma boîte
 
+#
+# Read flights
+#
 
+Remboursement aux pilotes =  Remboursement aux pilotes
+Type 1 : Sponsor = Type 1 : Sponsor
+Type 2 : Baptême = Type 2 : Baptême
+Organisateur (T1/T2) = Organisateur (T1/T2)
+Total bonus = Total bonus
+Type 3 : Privé = Type 3 : Privé
+Type 4: Meeting = Type 4: Meeting
+Type 5: Chambley = Type 5: Chambley
+Type 6: instruction = Type 6: instruction
+Type 7: vols < 50  = Type 7: vols < 50
+Facture = Facture
+A payer = A payer
 
+#
+# List
+#
+MyModule = Vol
+
+MyModuleListTitle = Liste de vols
+
+#
 # Card
-FieldidBBC_vols = Field idBBC_vols
-FieldlieuD = Field lieuD
-FieldlieuA = Field lieuA
-FieldheureD = Field heureD
-FieldheureA = Field heureA
-FieldBBC_ballons_idBBC_ballons = Field BBC_ballons_idBBC_ballons
-FieldnbrPax = Field nbrPax
-Fieldremarque = Field remarque
+#
+Field idBBC_vols = ID
+FieldidBBC_vols = ID
+FieldlieuD = Lieu de décollage
+Fielddate = Date du vol
+FieldDate = Date du vol
+FieldlieuA = Lieu atterissage
+FieldheureD = Heure décollage
+FieldheureA = Heure atterissage
+FieldBBC_ballons_idBBC_ballons = Ballon
+FieldnbrPax = # pax
+Fieldremarque = Remarque
 Fieldincidents = Field incidents
-Fieldfk_type = Field fk_type
-Fieldfk_pilot = Field fk_pilot
-Fieldfk_organisateur = Field fk_organisateur
-Fieldis_facture = Field is_facture
-Fieldkilometers = Field kilometers
-Fieldcost = Field cost
-Fieldfk_receiver = Field fk_receiver
-Fieldjustif_kilometers = Field justif_kilometers
+Fieldfk_type = Type
+Fieldfk_pilot = Pilote
+Fieldfk_organisateur = Organisateur
+Fieldis_facture = Facturé ?
+Fieldkilometers = KM
+Fieldcost = Cout
+Fieldfk_receiver = Percepteur d'argent
+Fieldjustif_kilometers = Justificatif de KM
+FieldDateCreation = Date de création dans le système
+FieldDateUpdate = Date de modification dans le système

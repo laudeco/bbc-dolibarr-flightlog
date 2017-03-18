@@ -54,10 +54,11 @@ MyModuleListTitle = Liste de vols
 #
 # Card
 #
-
+Field idBBC_vols = ID
 FieldidBBC_vols = ID
 FieldlieuD = Lieu de décollage
 Fielddate = Date du vol
+FieldDate = Date du vol
 FieldlieuA = Lieu atterissage
 FieldheureD = Heure décollage
 FieldheureA = Heure atterissage
