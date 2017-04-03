@@ -32,4 +32,14 @@ class ActionsFlightLog
             'url'   => DOL_URL_ROOT . '/flightLog/list.php?mainmenu=flightLog&sall='.$searchInfo['search_boxvalue']
         ];
     }
+
+    /**
+     * @param $parameter
+     * @param $object
+     * @param $action
+     */
+    public function showLinkToObjectBlock($parameter, $object, $action){
+        $this->results["flightlog_bbcvols"]= array('enabled'=>1, 'perms'=>1, 'label'=>'LinkToFlight', 'sql'=>"SELECT f.idBBC_vols as rowid, CONCAT(f.date, '-',f.lieuD, ' ; ', f.lieuA) as ref FROM ".MAIN_DB_PREFIX."bbc_vols as f WHERE YEAR(f.date) = (YEAR(NOW())) ORDER BY date DESC");
+
+    }
 }

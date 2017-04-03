@@ -510,6 +510,8 @@ class modFlightLog extends DolibarrModules
         }
 
         $this->module_parts["hooks"][] = "searchform";
+        $this->module_parts["hooks"][] = "showLinkToObjectBlock";
+        $this->module_parts["hooks"][] = "criccar";
 
     }
 

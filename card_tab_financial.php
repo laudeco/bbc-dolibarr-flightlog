@@ -104,6 +104,11 @@ dol_fiche_end();
 print '<div class="tabsAction">' . "\n";
 print '</div>' . "\n";
 
+if($user->rights->flightLog->vol->financial){
+    print '<div class="fichecenter"><div class="fichehalfleft">';
+    $form->showLinkedObjectBlock($object);
+    print '</div></div>';
+}
 
 // End of page
 llxFooter();

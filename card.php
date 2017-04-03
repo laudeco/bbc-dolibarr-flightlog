@@ -493,6 +493,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '<div class="inline-block divButAction"><a class="butActionDelete" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=delete">' . $langs->trans('Delete') . '</a></div>' . "\n";
     }
     print '</div>' . "\n";
+
+    if($user->rights->flightLog->vol->financial){
+        print '<div class="fichecenter"><div class="fichehalfleft">';
+        $form->showLinkedObjectBlock($object);
+        print '</div></div>';
+    }
+
 }
 
 

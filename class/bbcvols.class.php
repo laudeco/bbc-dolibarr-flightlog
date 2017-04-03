@@ -42,7 +42,7 @@ class Bbcvols extends CommonObject
     /**
      * @var string Id to identify managed objects
      */
-    public $element = 'bbcvols';
+    public $element = 'flightlog_bbcvols';
     /**
      * @var string Name of table without prefix where object is stored
      */
@@ -715,8 +715,8 @@ class Bbcvols extends CommonObject
 
         $label = '<u>' . $langs->trans("MyModule") . '</u>';
         $label .= '<div width="100%">';
-        $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->ref . '<br>';
-        $label .= '<b>' . $langs->trans('Date') . ':</b> ' . $this->date;
+        $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->idBBC_vols . '<br>';
+        $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y');
         $label .= '</div>';
 
         $link = '<a href="' . DOL_URL_ROOT . '/flightLog/card.php?id=' . $this->idBBC_vols . '"';
@@ -732,7 +732,7 @@ class Bbcvols extends CommonObject
                 $result .= ' ';
             }
         }
-        $result .= $link . $this->ref . $linkend;
+        $result .= $link . $this->idBBC_vols . $linkend;
         return $result;
     }
 
