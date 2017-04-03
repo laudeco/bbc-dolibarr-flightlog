@@ -346,7 +346,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 }
 
                 $ret = $object->fetch($id);
-                $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
+                $result = $object->generateDocument($documentModel, $langs, $hidedetails, $hidedesc, $hideref);
 
                 // Validate
                 $object->fetch($id);
@@ -354,7 +354,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
                 // Generate document
                 $object->fetch($id);
-                $result = $object->generateDocument("crabe", $langs, $hidedetails, $hidedesc, $hideref);
+                $result = $object->generateDocument($documentModel, $langs, $hidedetails, $hidedesc, $hideref);
 
             }
 
