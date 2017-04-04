@@ -24,6 +24,8 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 dol_include_once('/compta/facture/class/facture.class.php');
 dol_include_once('/adherents/class/adherent.class.php');
 dol_include_once("/flightLog/lib/flightLog.lib.php");
+dol_include_once("/flightLog/class/bbctypes.class.php");
+dol_include_once("/product/class/product.class.php");
 dol_include_once('/core/modules/facture/modules_facture.php');
 
 global $db, $langs, $user, $conf;
@@ -51,8 +53,23 @@ $modeReglement = GETPOST("mode_reglement_id", "int", 3);
 $bankAccount = GETPOST("fk_account", "int", 3);
 $documentModel = GETPOST("model", "alpha", 3);
 
-
+//variables
 $currentYear = date('Y');
+
+$t1 = new Bbctypes($db);
+$t1->fetch(1);
+$t2 = new Bbctypes($db);
+$t2->fetch(2);
+$t3 = new Bbctypes($db);
+$t3->fetch(3);
+$t4 = new Bbctypes($db);
+$t4->fetch(4);
+$t5 = new Bbctypes($db);
+$t5->fetch(5);
+$t6 = new Bbctypes($db);
+$t6->fetch(6);
+$t7 = new Bbctypes($db);
+$t7->fetch(7);
 
 //Query
 $sql = "SELECT USR.lastname AS nom , USR.firstname AS prenom ,COUNT(`idBBC_vols`) AS nbr,fk_pilot as pilot, TT.numero as type,SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(heureA,heureD)))) AS time";
@@ -100,6 +117,8 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
             dol_htmloutput_errors("Erreur de configuration !");
         } else {
             $table = sqlToArray($db, $sql, true, $year);
+            $startYearTimestamp = (new \DateTime())->setDate($year, 1, 1)->getTimestamp();
+            $endYearTimestamp = (new \DateTime())->setDate($year, 12, 31)->getTimestamp();
 
             foreach ($table as $currentMissionUserId => $value) {
 
@@ -116,9 +135,9 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 }
 
                 $totalFlights = $value['1']['count'] + $value['2']['count'] + $value['orga']['count'] + $value['3']['count'] + $value['4']['count'] + $value['6']['count'] + $value['7']['count'];
-                $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25 + $addBonus;
+                $totalBonus = $value['1']['count'] * $t1->service->price_ttc + $value['2']['count'] * $t2->service->price_ttc + $value['orga']['count'] * 25 + $addBonus;
 
-                $totalFacture = $value['3']['count'] * 150 + $value['4']['count'] * 100 + $value['6']['count'] * 50 + $value['7']['count'] * 75;
+                $totalFacture = $value['3']['count'] * $t3->service->price_ttc + $value['4']['count'] * $t4->service->price_ttc + $value['6']['count'] * $t6->service->price_ttc + $value['7']['count'] * $t7->service->price_ttc;
 
                 $facturable = ($totalFacture - $totalBonus < 0 ? 0 : $totalFacture - $totalBonus);
 
@@ -156,27 +175,26 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 $localtax2_tx = get_localtax(0, 2, $object->thirdparty);
 
                 //T3
-                $pu_ht = price2num(150, 'MU');
-                $pu_ttc = price2num(150, 'MU');
-                $pu_ht_devise = price2num(150, 'MU');
+                $pu_ht = price2num($t3->service->price, 'MU');
+                $pu_ttc = price2num($t3->service->price_ttc, 'MU');
+                $pu_ht_devise = price2num($t3->service->price, 'MU');
                 $qty = $value['3']['count'];
-                $desc = "Vols T3 (privé) en " . $year;
 
                 $result = $object->addline(
-                    $desc,
+                    $t3->service->description,
                     $pu_ht,
                     $qty,
                     0,
                     $localtax1_tx,
                     $localtax2_tx,
+                    $t3->service->id,
                     0,
-                    $discount,
-                    '',
-                    '',
+                    $startYearTimestamp,
+                    $endYearTimestamp,
                     0,
                     0,
                     '',
-                    'HT',
+                    'TTC',
                     $pu_ttc,
                     1,
                     -1,
@@ -186,7 +204,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                     0,
                     '',
                     '',
-                    '',
+                    $t3->service->label,
                     [],
                     100,
                     '',
@@ -195,23 +213,22 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 );
 
                 //T4
-                $pu_ht = price2num(100, 'MU');
-                $pu_ttc = price2num(100, 'MU');
-                $pu_ht_devise = price2num(100, 'MU');
+                $pu_ht = price2num($t4->service->price, 'MU');
+                $pu_ttc = price2num($t4->service->price_ttc, 'MU');
+                $pu_ht_devise = price2num($t4->service->price, 'MU');
                 $qty = $value['4']['count'];
-                $desc = "Vols T4 (meeting) en " . $year;
 
                 $result = $object->addline(
-                    $desc,
+                    $t4->service->description,
                     $pu_ht,
                     $qty,
                     0,
                     $localtax1_tx,
                     $localtax2_tx,
+                    $t4->service->id,
                     0,
-                    $discount,
-                    '',
-                    '',
+                    $startYearTimestamp,
+                    $endYearTimestamp,
                     0,
                     0,
                     '',
@@ -225,7 +242,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                     0,
                     '',
                     '',
-                    '',
+                    $t4->service->label,
                     [],
                     100,
                     '',
@@ -234,23 +251,22 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 );
 
                 //T6
-                $pu_ht = price2num(50, 'MU');
-                $pu_ttc = price2num(50, 'MU');
-                $pu_ht_devise = price2num(50, 'MU');
+                $pu_ht = price2num($t6->service->price, 'MU');
+                $pu_ttc = price2num($t6->service->price, 'MU');
+                $pu_ht_devise = price2num($t6->service->price, 'MU');
                 $qty = $value['6']['count'];
-                $desc = "Vols T6 (écolage) en " . $year;
 
                 $result = $object->addline(
-                    $desc,
+                    $t6->service->description,
                     $pu_ht,
                     $qty,
                     0,
                     $localtax1_tx,
                     $localtax2_tx,
+                    $t6->service->id,
                     0,
-                    $discount,
-                    '',
-                    '',
+                    $startYearTimestamp,
+                    $endYearTimestamp,
                     0,
                     0,
                     '',
@@ -264,7 +280,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                     0,
                     '',
                     '',
-                    '',
+                    $t6->service->label,
                     [],
                     100,
                     '',
@@ -273,23 +289,22 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 );
 
                 //T7
-                $pu_ht = price2num(75, 'MU');
-                $pu_ttc = price2num(75, 'MU');
-                $pu_ht_devise = price2num(75, 'MU');
+                $pu_ht = price2num($t7->service->price, 'MU');
+                $pu_ttc = price2num($t7->service->price_ttc, 'MU');
+                $pu_ht_devise = price2num($t7->service->price, 'MU');
                 $qty = $value['7']['count'];
-                $desc = "Vols T7(< 50 vols) en " . $year;
 
                 $result = $object->addline(
-                    $desc,
+                    $t7->service->description,
                     $pu_ht,
                     $qty,
                     0,
                     $localtax1_tx,
                     $localtax2_tx,
+                    $t7->service->id,
                     0,
-                    $discount,
-                    '',
-                    '',
+                    $startYearTimestamp,
+                    $endYearTimestamp,
                     0,
                     0,
                     '',
@@ -303,7 +318,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                     0,
                     '',
                     '',
-                    '',
+                    $t7->service->label,
                     [],
                     100,
                     '',
@@ -315,14 +330,14 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
                 //T1
                 $pu_ht = price2num(50 * $value['1']['count'], 'MU');
-                $desc = $year . " - Vols T1 (Sponsor) - (" . $value['1']['count'] . " * 50)";
+                $desc = $year . " - " . $t1->service->label . " - (" . $value['1']['count'] . " * 50)";
 
                 $discountid = $soc->set_remise_except($pu_ht, $user, $desc, 0);
                 $object->insert_discount($discountid);
 
                 //T2
                 $pu_ht = price2num(50 * $value['2']['count'], 'MU');
-                $desc = $year . " - Vols T2 (Vol passagers) - (" . $value['2']['count'] . " * 50)";
+                $desc = $year . " - " . $t2->service->label . "  - (" . $value['2']['count'] . " * 50)";
 
                 $discountid = $soc->set_remise_except($pu_ht, $user, $desc, 0);
                 $object->insert_discount($discountid);
@@ -389,6 +404,9 @@ foreach ($flightYears as $currentFlightYear) {
     ];
 }
 
+if (!$t1->service || !$t2->service || !$t3->service || !$t4->service || !$t5->service || !$t6->service || !$t7->service) {
+    dol_htmloutput_mesg("Un service n'a pas été configuré", '', 'warning');
+}
 dol_fiche_head($tabLinks, "tab_" . $year);
 
 ?>
@@ -559,6 +577,12 @@ dol_fiche_head($tabLinks, "tab_" . $year);
         <br/>
         <br/>
 
+        <!-- Payment condition -->
+        <label><?= $langs->trans("Condition de payement"); ?></label><br/>
+        <?php $form->select_conditions_paiements(0, 'cond_reglement_id'); ?>
+        <br/>
+        <br/>
+
         <!-- bank account -->
         <label><?= $langs->trans("Compte en banque"); ?></label><br/>
         <?php $form->select_comptes(0, 'fk_account', 0, '', 1); ?>
@@ -587,7 +611,7 @@ dol_fiche_head($tabLinks, "tab_" . $year);
         <br/>
         <br/>
 
-        <?php if ($year >= $currentYear) : ?>
+        <?php if ($year >= $currentYear || !$t1->service || !$t2->service || !$t3->service || !$t4->service || !$t5->service || !$t6->service || !$t7->service) : ?>
             <a class="butActionRefused" href="#">Générer</a>
         <?php else: ?>
             <button class="butAction" type="submit">Générer</button>

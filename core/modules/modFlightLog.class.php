@@ -138,7 +138,9 @@ class modFlightLog extends DolibarrModules
         $this->dirs = array();
 
         // Config pages. Put here list of php page, stored into mymodule/admin directory, to use to setup module.
-        $this->config_page_url = array();
+        $this->config_page_url = [
+            "vol.php@flightLog",
+        ];
 
         // Dependencies
         $this->hidden = false;

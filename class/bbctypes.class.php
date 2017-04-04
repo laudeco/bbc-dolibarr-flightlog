@@ -31,7 +31,7 @@
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
-//require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
+require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
 /**
  * Class Bbctypes
@@ -62,6 +62,12 @@ class Bbctypes extends CommonObject
 	public $numero;
 	public $nom;
 	public $active;
+	public $fkService;
+
+    /**
+     * @var Product
+     */
+	public $service;
 
 	/**
 	 * Constructor
@@ -101,6 +107,9 @@ class Bbctypes extends CommonObject
 		if (isset($this->active)) {
 			 $this->active = trim($this->active);
 		}
+		if (isset($this->fkService)) {
+			 $this->fkService = trim($this->fkService);
+		}
 
 
 
@@ -111,7 +120,8 @@ class Bbctypes extends CommonObject
 		$sql = 'INSERT INTO ' . MAIN_DB_PREFIX . $this->table_element . '(';
 		
 		$sql.= 'numero,';
-		$sql.= 'nom';
+		$sql.= 'nom,';
+		$sql.= 'fkService,';
 		$sql.= 'active';
 
 		
@@ -119,6 +129,7 @@ class Bbctypes extends CommonObject
 		
 		$sql .= ' '.(! isset($this->numero)?'NULL':$this->numero).',';
 		$sql .= ' '.(! isset($this->nom)?'NULL':"'".$this->db->escape($this->nom)."'").',';
+		$sql .= ' '.(! isset($this->fkService)?'NULL':"'".$this->db->escape($this->fkService)."'").',';
 		$sql .= ' '.(! isset($this->active)?'NULL':$this->active);
 
 		
@@ -176,6 +187,7 @@ class Bbctypes extends CommonObject
 		
 		$sql .= " t.numero,";
 		$sql .= " t.nom,";
+		$sql .= " t.fkService,";
 		$sql .= " t.active";
 
 		
@@ -197,9 +209,13 @@ class Bbctypes extends CommonObject
 				$this->idType = $obj->idType;
 				$this->numero = $obj->numero;
 				$this->nom = $obj->nom;
+				$this->fkService = $obj->fkService;
 				$this->active = $obj->active;
 
-				
+				if($this->fkService){
+                    $this->service = new Product($this->db);
+                    $this->service->fetch($this->fkService);
+                }
 			}
 			$this->db->free($resql);
 
@@ -236,6 +252,7 @@ class Bbctypes extends CommonObject
 		$sql .= " t.idType,";
 		$sql .= " t.numero,";
 		$sql .= " t.nom,";
+		$sql .= " t.fkService,";
 		$sql .= " t.active";
 
 		
@@ -279,6 +296,7 @@ class Bbctypes extends CommonObject
 				$line->idType = $obj->idType;
 				$line->numero = $obj->numero;
 				$line->nom = $obj->nom;
+				$line->fkService = $obj->fkService;
 				$line->active = $obj->active;
 
 				$this->lines[$line->id] = $line;
@@ -319,6 +337,9 @@ class Bbctypes extends CommonObject
 		if (isset($this->nom)) {
 			 $this->nom = trim($this->nom);
 		}
+		if (isset($this->fkService)) {
+			 $this->fkService = trim($this->fkService);
+		}
 		if (isset($this->active)) {
 			 $this->active = trim($this->active);
 		}
@@ -333,6 +354,7 @@ class Bbctypes extends CommonObject
 		
 		$sql .= ' numero = '.(isset($this->numero)?$this->numero:"null").',';
 		$sql .= ' nom = '.(isset($this->nom)?"'".$this->db->escape($this->nom)."'":"null").',';
+		$sql .= ' fkService = '.(isset($this->fkService)?"'".$this->db->escape($this->fkService)."'":"null").',';
 		$sql .= ' active = '.(isset($this->active)?$this->active:"null");
 
         
@@ -578,6 +600,7 @@ class Bbctypes extends CommonObject
 		$this->idType = '';
 		$this->numero = '';
 		$this->nom = '';
+		$this->fkService = null;
 		$this->active = '';
 
 		
@@ -594,17 +617,10 @@ class BbctypesLine
 	 * @var int ID
 	 */
 	public $id;
-	/**
-	 * @var mixed Sample line property 1
-	 */
-	
+
 	public $idType;
 	public $numero;
 	public $nom;
+	public $fkService;
 	public $active;
-
-	/**
-	 * @var mixed Sample line property 2
-	 */
-	
 }
