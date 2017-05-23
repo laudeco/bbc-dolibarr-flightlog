@@ -136,18 +136,6 @@ if ($reshook < 0) {
 }
 
 if (empty($reshook)) {
-    if ($cancel || (!$isAllowedEdit && $action == 'update') || (!$isAllowedDelete && $action == "confirm_delete")) {
-        if ($id > 0 || !empty($ref)) {
-            $object->fetch($id);
-
-            $receiver->fetch($object->fk_receiver);
-            $pilot->fetch($object->fk_pilot);
-            $organisator->fetch($object->fk_organisateur);
-            $flightType->fetch($object->fk_type);
-            $balloon->fetch($object->BBC_ballons_idBBC_ballons);
-        }
-        $action = '';
-    }
 
     // Action to add record
     if ($action == 'add') {
