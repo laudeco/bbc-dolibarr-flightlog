@@ -122,6 +122,12 @@ $organisator->fetch($object->fk_organisateur);
 $flightType->fetch($object->fk_type);
 $balloon->fetch($object->BBC_ballons_idBBC_ballons);
 
+
+if (($action == "update" || $action == "edit") && !($user->rights->flightLog->vol->edit || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id))) {
+    setEventMessage("Ceci n'est pas un de tes vols tu ne peux l'editer ! ", 'errors');
+    $action = 'view';
+}
+
 /*******************************************************************
  * ACTIONS
  *
