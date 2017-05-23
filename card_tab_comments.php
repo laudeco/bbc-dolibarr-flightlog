@@ -65,9 +65,6 @@ include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php';  // Must be inc
 $hookmanager->initHooks(array('bbcvols'));
 $object->ref = $object->idBBC_vols;
 
-if (!($user->rights->flightLog->vol->financial || $user->id == $object->fk_pilot)) {
-    accessforbidden($langs->trans("Tu n'as pas accès au vol"));
-}
 
 $receiver->fetch($object->fk_receiver);
 $pilot->fetch($object->fk_pilot);
