@@ -4,11 +4,11 @@
  */
 
 /**
- * ActionsFlightLog class
+ * ActionsFlightlog class
  *
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
-class ActionsFlightLog
+class ActionsFlightlog
 {
 
     public $results = [];
@@ -24,12 +24,12 @@ class ActionsFlightLog
     {
         global $langs;
 
-        $langs->load("mymodule@flightLog");
+        $langs->load("mymodule@flightlog");
 
-        $this->results["flightLog"] = [
+        $this->results["flightlog"] = [
             'label' => $langs->trans("Search flight"),
             'text'  => $langs->trans("Search flight"),
-            'url'   => DOL_URL_ROOT . '/flightLog/list.php?mainmenu=flightLog&sall='.$searchInfo['search_boxvalue']
+            'url'   => DOL_URL_ROOT . '/flightlog/list.php?mainmenu=flightlog&sall='.$searchInfo['search_boxvalue']
         ];
     }
 

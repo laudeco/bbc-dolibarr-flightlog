@@ -11,7 +11,7 @@ define("EXPENSE_REPORT_GENERATOR_ACTION_SELECT", "select");
 
 /**
  * \file    generateExpenseNote.php
- * \ingroup flightLog
+ * \ingroup flightlog
  * \brief   Generate expense notes for a quartil
  *
  */
@@ -23,8 +23,8 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 dol_include_once('/compta/facture/class/facture.class.php');
 dol_include_once('/adherents/class/adherent.class.php');
-dol_include_once("/flightLog/lib/flightLog.lib.php");
-dol_include_once("/flightLog/class/bbctypes.class.php");
+dol_include_once("/flightlog/lib/flightlog.lib.php");
+dol_include_once("/flightlog/class/bbctypes.class.php");
 dol_include_once("/product/class/product.class.php");
 dol_include_once('/core/modules/facture/modules_facture.php');
 
@@ -398,7 +398,7 @@ $form = new Form($db);
 $tabLinks = [];
 foreach ($flightYears as $currentFlightYear) {
     $tabLinks[] = [
-        DOL_URL_ROOT . "/flightLog/generateBilling.php?year=" . $currentFlightYear,
+        DOL_URL_ROOT . "/flightlog/generateBilling.php?year=" . $currentFlightYear,
         $currentFlightYear,
         "tab_" . $currentFlightYear
     ];

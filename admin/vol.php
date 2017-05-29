@@ -4,12 +4,12 @@
 require '../../main.inc.php';
 
 require_once '../../core/lib/admin.lib.php';
-dol_include_once("/flightLog/class/bbctypes.class.php");
+dol_include_once("/flightlog/class/bbctypes.class.php");
 
 global $langs, $user, $db, $conf;
 
 $langs->load("admin");
-$langs->load("mymodule@flightLog");
+$langs->load("mymodule@flightlog");
 
 const ACTION_SAVE = "save";
 

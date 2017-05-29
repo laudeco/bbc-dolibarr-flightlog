@@ -105,7 +105,7 @@ class modFlightLog extends DolibarrModules
         // Id for module (must be unique).
         $this->numero = 500000;
         // Key text used to identify module (for permissions, menus, etc...)
-        $this->rights_class = 'flightLog';
+        $this->rights_class = 'flightlog';
 
         // Family can be 'crm','financial','hr','projects','products','ecm','technic','interface','other'
         // It is used to group modules by family in module setup page
@@ -130,7 +130,7 @@ class modFlightLog extends DolibarrModules
         // Name of image file used for this module.
         // If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
         // If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
-        $this->picto = 'flight@flightLog';
+        $this->picto = 'flight@flightlog';
 
         $this->module_parts = array();
 
@@ -139,7 +139,7 @@ class modFlightLog extends DolibarrModules
 
         // Config pages. Put here list of php page, stored into mymodule/admin directory, to use to setup module.
         $this->config_page_url = [
-            "vol.php@flightLog",
+            "vol.php@flightlog",
         ];
 
         // Dependencies
@@ -149,7 +149,7 @@ class modFlightLog extends DolibarrModules
         $this->conflictwith = array();
         $this->phpmin = array(5, 5);
         $this->need_dolibarr_version = array(4, 0);
-        $this->langfiles = array("mymodule@flightLog");
+        $this->langfiles = array("mymodule@flightlog");
 
         // Constants
         $this->initConstants();
@@ -177,7 +177,7 @@ class modFlightLog extends DolibarrModules
         $this->export_code[$r] = $this->rights_class . '_' . $r;
         $this->export_label[$r] = 'Flights export';
         $this->export_enabled[$r] = '1';
-        $this->export_permission[$r] = array(array("flightLog", "vol", "detail"));
+        $this->export_permission[$r] = array(array("flightlog", "vol", "detail"));
         $this->export_fields_array[$r] = array(
             "flight.idBBC_vols"                => "Identifiant",
             "flight.date"                      => "Date",
@@ -273,7 +273,7 @@ class modFlightLog extends DolibarrModules
     {
         $sql = array();
 
-        $this->_load_tables('/flightLog/sql/');
+        $this->_load_tables('/flightlog/sql/');
 
         return $this->_init($sql, $options);
     }
@@ -303,43 +303,43 @@ class modFlightLog extends DolibarrModules
         $r = 0;
 
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_TOP,
             'titre'    => 'Carnet de vols',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'readFlight',
-            'url'      => '/flightLog/readFlights.php',
+            'url'      => '/flightlog/readFlights.php',
             'langs'    => 'mylangfile',
             'position' => 100,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->access',
+            'perms'    => '$user->rights->flightlog->vol->access',
             'target'   => '',
             'user'     => 0
         );
         $r++;
 
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Ajouter un vol',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'addFlight',
-            'url'      => '/flightLog/addFlight.php',
+            'url'      => '/flightlog/addFlight.php',
             'langs'    => 'mylangfile',
             'position' => 101,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->add',
+            'perms'    => '$user->rights->flightlog->vol->add',
             'target'   => '',
             'user'     => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Visualisation',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'showFlight',
-            'url'      => '/flightLog/readFlights.php',
+            'url'      => '/flightlog/readFlights.php',
             'langs'    => 'mylangfile',
             'position' => 102,
             'enabled'  => '1',
@@ -348,12 +348,12 @@ class modFlightLog extends DolibarrModules
             'user'     => 2
         );
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Les vols',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'flightLog',
-            'url'      => '/flightLog/list.php',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'flightlog',
+            'url'      => '/flightlog/list.php',
             'langs'    => 'mylangfile',
             'position' => 105,
             'enabled'  => '1',
@@ -363,46 +363,46 @@ class modFlightLog extends DolibarrModules
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Gestion',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'management',
             'url'      => '',
             'langs'    => 'mylangfile',
             'position' => 106,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->status||$user->rights->flightLog->vol->detail',
+            'perms'    => '$user->rights->flightlog->vol->status||$user->rights->flightlog->vol->detail',
             'target'   => '',
             'user'     => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=management',
+            'fk_menu'  => 'fk_mainmenu=flightlog,fk_leftmenu=management',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Payement',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'flightBilling',
-            'url'      => '/flightLog/listFact.php?view=1',
+            'url'      => '/flightlog/listFact.php?view=1',
             'langs'    => 'mylangfile',
             'position' => 107,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->financial',
+            'perms'    => '$user->rights->flightlog->vol->financial',
             'target'   => '',
             'user'     => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=management',
+            'fk_menu'  => 'fk_mainmenu=flightlog,fk_leftmenu=management',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Aviabel',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'flightAviabel',
-            'url'      => '/flightLog/listFact.php?view=2',
+            'url'      => '/flightlog/listFact.php?view=2',
             'langs'    => 'mylangfile',
             'position' => 108,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->detail',
+            'perms'    => '$user->rights->flightlog->vol->detail',
             'target'   => '',
             'user'     => 2
         );
@@ -498,7 +498,7 @@ class modFlightLog extends DolibarrModules
             'tabfieldvalue'  => array("numero,nom"),
             'tabfieldinsert' => array("numero,nom"),
             'tabrowid'       => array("idType"),
-            'tabcond'        => array('$conf->flightLog->enabled'),
+            'tabcond'        => array('$conf->flightlog->enabled'),
         );
     }
 

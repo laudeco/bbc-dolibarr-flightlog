@@ -7,12 +7,12 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 global $db, $langs, $user;
 
-dol_include_once('/flightLog/class/bbcvols.class.php');
-dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once("/flightLog/lib/flightLog.lib.php");
+dol_include_once('/flightlog/class/bbcvols.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once("/flightlog/lib/flightlog.lib.php");
 
 // Load translation files required by the page
-$langs->load("mymodule@flightLog");
+$langs->load("mymodule@flightlog");
 
 
 if (!$user->rights->flightLog->vol->add) {

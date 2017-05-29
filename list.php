@@ -1,7 +1,7 @@
 <?php
 /**
- *    \file       flightLog/bbcvols_list.php
- *        \ingroup    flightLog
+ *    \file       flightlog/bbcvols_list.php
+ *        \ingroup    flightlog
  *        \brief      This file is an example of a php page
  *                    Initialy built by build_class_from_table on 2017-02-10 16:55
  */
@@ -16,14 +16,14 @@ require_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 dol_include_once('/flightBalloon/bbc_ballons.class.php');
-dol_include_once('/flightLog/class/bbcvols.class.php');
-dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once('/flightLog/lib/flightLog.lib.php');
+dol_include_once('/flightlog/class/bbcvols.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once('/flightlog/lib/flightlog.lib.php');
 
 // Load traductions files requiredby by page
 global $user, $langs, $conf;
 
-$langs->load("mymodule@flightLog");
+$langs->load("mymodule@flightlog");
 $langs->load("other");
 
 $action = GETPOST('action', 'alpha');
@@ -94,7 +94,7 @@ $hookmanager->initHooks(array('flightLoglist'));
 $extrafields = new ExtraFields($db);
 
 // fetch optionals attributes and labels
-$extralabels = $extrafields->fetch_name_optionals_label('flightLog');
+$extralabels = $extrafields->fetch_name_optionals_label('flightlog');
 $search_array_options = $extrafields->getOptionalsFromPost($extralabels, '', 'search_');
 
 // List of fields to search into when doing a "search in all"

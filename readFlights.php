@@ -15,17 +15,17 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 global $db, $langs, $user, $conf;
 
 dol_include_once('/core/class/dolgraph.class.php');
-dol_include_once('/flightLog/class/bbcvols.class.php');
-dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once('/flightLog/class/GraphicalData.php');
-dol_include_once('/flightLog/class/GraphicalType.php');
-dol_include_once('/flightLog/class/GraphicalValue.php');
-dol_include_once('/flightLog/class/GraphicalValueType.php');
-dol_include_once('/flightLog/class/YearGraphicalData.php');
+dol_include_once('/flightlog/class/bbcvols.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once('/flightlog/class/GraphicalData.php');
+dol_include_once('/flightlog/class/GraphicalType.php');
+dol_include_once('/flightlog/class/GraphicalValue.php');
+dol_include_once('/flightlog/class/GraphicalValueType.php');
+dol_include_once('/flightlog/class/YearGraphicalData.php');
 
-dol_include_once("/flightLog/lib/flightLog.lib.php");
+dol_include_once("/flightlog/lib/flightlog.lib.php");
 
-$langs->load("mymodule@flightLog");
+$langs->load("mymodule@flightlog");
 
 // Get parameters
 //TODO get all parameters from here
@@ -43,7 +43,7 @@ $year = strftime("%Y", dol_now());
 $dir = $conf->expensereport->dir_temp;
 
 $filenamenb = $dir . "/test2-" . $year . ".png";
-$fileurlnb = DOL_URL_ROOT . '/viewimage.php?modulepart=flightLog&amp;file=' . $fileurlnb;
+$fileurlnb = DOL_URL_ROOT . '/viewimage.php?modulepart=flightlog&amp;file=' . $fileurlnb;
 
 $graphByTypeAndYear = new DolGraph();
 $mesg = $graphByTypeAndYear->isGraphKo();

@@ -22,8 +22,8 @@
 //TODO refactor to match the table
 
 /**
- * \file    flightLog/bbctypes.class.php
- * \ingroup flightLog
+ * \file    flightlog/bbctypes.class.php
+ * \ingroup flightlog
  * \brief   This file is an example for a CRUD class file (Create/Read/Update/Delete)
  *          Put some comments here
  */
@@ -515,7 +515,7 @@ class Bbctypes extends CommonObject
         $label.= '<div width="100%">';
         $label.= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->ref;
 
-        $link = '<a href="'.DOL_URL_ROOT.'/flightLog/card.php?id='.$this->id.'"';
+        $link = '<a href="'.DOL_URL_ROOT.'/flightlog/card.php?id='.$this->id.'"';
         $link.= ($notooltip?'':' title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip'.($morecss?' '.$morecss:'').'"');
         $link.= '>';
 		$linkend='</a>';

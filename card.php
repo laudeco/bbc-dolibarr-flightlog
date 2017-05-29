@@ -17,8 +17,8 @@
  */
 
 /**
- *    \file       flightLog/bbcvols_card.php
- *        \ingroup    flightLog
+ *    \file       flightlog/bbcvols_card.php
+ *        \ingroup    flightlog
  *        \brief      This file is an example of a php page
  *                    Initialy built by build_class_from_table on 2017-02-09 11:10
  */
@@ -42,18 +42,18 @@ if (!$res) {
 }
 // Change this following line to use the correct relative path from htdocs
 include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
-dol_include_once('/flightLog/class/bbcvols.class.php');
-dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once('/flightLog/lib/flightLog.lib.php');
-dol_include_once('/flightLog/lib/card.lib.php');
-dol_include_once('/flightLog/lib/PilotService.php');
+dol_include_once('/flightlog/class/bbcvols.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once('/flightlog/lib/flightlog.lib.php');
+dol_include_once('/flightlog/lib/card.lib.php');
+dol_include_once('/flightlog/lib/PilotService.php');
 dol_include_once('/flightBalloon/bbc_ballons.class.php');
 dol_include_once('/user/class/usergroup.class.php');
 
 global $langs, $user;
 
 // Load traductions files requiredby by page
-$langs->load("mymodule@flightLog");
+$langs->load("mymodule@flightlog");
 $langs->load("other");
 
 // Get parameters
@@ -147,7 +147,7 @@ if (empty($reshook)) {
     if ($action == 'add') {
 
         if (GETPOST('cancel')) {
-            $urltogo = $backtopage ? $backtopage : dol_buildpath('/flightLog/list.php', 1);
+            $urltogo = $backtopage ? $backtopage : dol_buildpath('/flightlog/list.php', 1);
             header("Location: " . $urltogo);
             exit;
         }
@@ -185,7 +185,7 @@ if (empty($reshook)) {
             $result = $object->create($user);
             if ($result > 0) {
                 // Creation OK
-                $urltogo = $backtopage ? $backtopage : dol_buildpath('/flightLog/list.php', 1);
+                $urltogo = $backtopage ? $backtopage : dol_buildpath('/flightlog/list.php', 1);
                 header("Location: " . $urltogo);
                 exit;
             }
@@ -294,7 +294,7 @@ if (empty($reshook)) {
         if ($result > 0) {
             // Delete OK
             setEventMessages("RecordDeleted", null, 'mesgs');
-            header("Location: " . dol_buildpath('/flightLog/list.php', 1));
+            header("Location: " . dol_buildpath('/flightlog/list.php', 1));
             exit;
         } else {
             if (!empty($object->errors)) {
@@ -442,7 +442,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     dol_fiche_head($head, 'general', $langs->trans("Vol"));
 
-    $linkback = '<a href="' . DOL_URL_ROOT . '/flightLog/list.php">' . $langs->trans("BackToList") . '</a>';
+    $linkback = '<a href="' . DOL_URL_ROOT . '/flightlog/list.php">' . $langs->trans("BackToList") . '</a>';
     print $form->showrefnav($object, "idBBC_vols", $linkback, true, "idBBC_vols");
 
     if ($action == 'delete') {

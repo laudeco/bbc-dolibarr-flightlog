@@ -1,8 +1,8 @@
 <?php
 
 /**
- *    \file       flightLog/bbcvols_card.php
- *        \ingroup    flightLog
+ *    \file       flightlog/bbcvols_card.php
+ *        \ingroup    flightlog
  *        \brief      This file is an example of a php page
  *                    Initialy built by build_class_from_table on 2017-02-09 11:10
  */
@@ -26,18 +26,18 @@ if (!$res) {
 }
 // Change this following line to use the correct relative path from htdocs
 include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
-dol_include_once('/flightLog/class/bbcvols.class.php');
-dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once('/flightLog/lib/flightLog.lib.php');
-dol_include_once('/flightLog/lib/card.lib.php');
-dol_include_once('/flightLog/lib/PilotService.php');
+dol_include_once('/flightlog/class/bbcvols.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once('/flightlog/lib/flightlog.lib.php');
+dol_include_once('/flightlog/lib/card.lib.php');
+dol_include_once('/flightlog/lib/PilotService.php');
 dol_include_once('/flightBalloon/bbc_ballons.class.php');
 dol_include_once('/user/class/usergroup.class.php');
 
 global $langs, $user;
 
 // Load traductions files requiredby by page
-$langs->load("mymodule@flightLog");
+$langs->load("mymodule@flightlog");
 $langs->load("other");
 
 $id = GETPOST('id', 'int') ?: GETPOST('idBBC_vols', 'int');
@@ -80,7 +80,7 @@ llxHeader('', $langs->trans('financial of flight'), '');
 $head = prepareFlightTabs($object);
 dol_fiche_head($head, 'financial', $langs->trans("Vol"));
 
-$linkback = '<a href="' . DOL_URL_ROOT . '/flightLog/list.php">' . $langs->trans("BackToList") . '</a>';
+$linkback = '<a href="' . DOL_URL_ROOT . '/flightlog/list.php">' . $langs->trans("BackToList") . '</a>';
 print $form->showrefnav($object, "idBBC_vols", $linkback, true, "idBBC_vols");
 
 print '<table class="border centpercent">' . "\n";
