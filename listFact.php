@@ -8,7 +8,7 @@ global $db, $langs, $user;
 
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once("/flightlog/lib/flightlog.lib.php");
+dol_include_once("/flightlog/lib/flightLog.lib.php");
 dol_include_once("/flightBalloon/bbc_ballons.class.php");
 
 // Load translation files required by the page
@@ -18,7 +18,7 @@ $langs->load("mymodule@mymodule");
 $myparam = isset($_GET["myparam"]) ? $_GET["myparam"] : '';
 
 // Protection if the user can't acces to the module
-if (!$user->rights->flightLog->vol->detail && !$user->rights->flightLog->vol->status && !$user->admin) {
+if (!$user->rights->flightlog->vol->detail && !$user->rights->flightlog->vol->status && !$user->admin) {
     accessforbidden();
 }
 
@@ -26,10 +26,10 @@ if (!$user->rights->flightLog->vol->detail && !$user->rights->flightLog->vol->st
 // 2 = liste de tous les vols pour tous les pilotes et tous les ballons avec filtre sur les dates
 $viewSelection = 1;
 if ($_GET['view']) {
-    if (!$user->rights->flightLog->vol->status && !$user->admin && $_GET['view'] == 1) {
+    if (!$user->rights->flightlog->vol->status && !$user->admin && $_GET['view'] == 1) {
         accessforbidden();
     }
-    if (!$user->rights->flightLog->vol->detail && !$user->admin && $_GET['view'] == 2) {
+    if (!$user->rights->flightlog->vol->detail && !$user->admin && $_GET['view'] == 2) {
         accessforbidden();
 
     }

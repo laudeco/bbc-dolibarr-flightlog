@@ -28,7 +28,7 @@ if (!$res) {
 include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once('/flightlog/lib/flightlog.lib.php');
+dol_include_once('/flightlog/lib/flightLog.lib.php');
 dol_include_once('/flightlog/lib/card.lib.php');
 dol_include_once('/flightlog/lib/PilotService.php');
 dol_include_once('/flightBalloon/bbc_ballons.class.php');
@@ -94,7 +94,7 @@ dol_fiche_end();
 print '<div class="tabsAction">' . "\n";
 print '</div>' . "\n";
 
-if($user->rights->flightLog->vol->financial){
+if($user->rights->flightlog->vol->financial){
     print '<div class="fichecenter"><div class="fichehalfleft">';
     $form->showLinkedObjectBlock($object);
     print '</div></div>';

@@ -23,11 +23,13 @@ dol_include_once('/flightlog/class/GraphicalValue.php');
 dol_include_once('/flightlog/class/GraphicalValueType.php');
 dol_include_once('/flightlog/class/YearGraphicalData.php');
 
-dol_include_once("/flightlog/lib/flightlog.lib.php");
+dol_include_once("/flightlog/lib/flightLog.lib.php");
+
+
 
 $langs->load("mymodule@flightlog");
 
-// Get parameters
+// Get parametersI
 //TODO get all parameters from here
 $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
@@ -49,7 +51,6 @@ $graphByTypeAndYear = new DolGraph();
 $mesg = $graphByTypeAndYear->isGraphKo();
 if (!$mesg) {
     $data = getGraphByTypeAndYearData();
-
     $graphByTypeAndYear->SetData($data->export());
     $graphByTypeAndYear->SetPrecisionY(0);
 
@@ -277,12 +278,12 @@ print '<br/>';
 print '<div class="tabsAction">';
 
 
-if ($conf->facture->enabled && $user->rights->flightLog->vol->status && $user->rights->flightLog->vol->financialGenerateDocuments) {
+if ($conf->facture->enabled && $user->rights->flightlog->vol->status && $user->rights->flightlog->vol->financialGenerateDocuments) {
     print '<a class="butAction" href="generateBilling.php?year=' . (GETPOST("year",
             'int') ?: date("Y")) . '">Générer Factures</a>';
 }
 
-if ($conf->expensereport->enabled && $user->rights->flightLog->vol->financialGenerateDocuments) {
+if ($conf->expensereport->enabled && $user->rights->flightlog->vol->financialGenerateDocuments) {
     print '<a class="butAction" href="generateExpenseNote.php?year=' . (GETPOST("year",
             'int') ?: date("Y")) . '">Générer notes de frais</a>';
 }

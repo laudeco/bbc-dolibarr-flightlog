@@ -38,6 +38,6 @@ class PilotService
         $pilot->fetch($userId);
         $pilot->getrights("flightlog");
 
-        return isset($pilot->rights->flightLog->vol->add) && $pilot->rights->flightLog->vol->add;
+        return isset($pilot->rights->flightlog->vol->add) && $pilot->rights->flightlog->vol->add;
     }
 }

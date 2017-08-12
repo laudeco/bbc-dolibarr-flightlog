@@ -9,13 +9,13 @@ global $db, $langs, $user;
 
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once("/flightlog/lib/flightlog.lib.php");
+dol_include_once("/flightlog/lib/flightLog.lib.php");
 
 // Load translation files required by the page
 $langs->load("mymodule@flightlog");
 
 
-if (!$user->rights->flightLog->vol->add) {
+if (!$user->rights->flightlog->vol->add) {
     accessforbidden();
 }
 

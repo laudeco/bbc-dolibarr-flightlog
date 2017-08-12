@@ -28,7 +28,7 @@ if (!$res) {
 include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once('/flightlog/lib/flightlog.lib.php');
+dol_include_once('/flightlog/lib/flightLog.lib.php');
 dol_include_once('/flightlog/lib/card.lib.php');
 dol_include_once('/flightlog/lib/PilotService.php');
 dol_include_once('/flightBalloon/bbc_ballons.class.php');
@@ -65,7 +65,7 @@ include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php';  // Must be inc
 $hookmanager->initHooks(array('bbcvols'));
 $object->ref = $object->idBBC_vols;
 
-if (!($user->rights->flightLog->vol->financial || $user->id == $object->fk_pilot)) {
+if (!($user->rights->flightlog->vol->financial || $user->id == $object->fk_pilot)) {
     accessforbidden($langs->trans("Tu n'as pas accès au vol"));
 }
 
@@ -88,7 +88,7 @@ print '<table class="border centpercent">' . "\n";
 print '<tr><td class="fieldrequired">' . $langs->trans("FieldidBBC_vols") . '</td><td>' . $object->idBBC_vols . '</td></tr>';
 print '<tr><td class="fieldrequired">' . $langs->trans("Fielddate") . '</td><td>' . dol_print_date($object->date) . '</td></tr>';
 
-if ($user->rights->flightLog->vol->financial) {
+if ($user->rights->flightlog->vol->financial) {
     print '<tr><td class="fieldrequired">' . $langs->trans("Fieldis_facture") . '</td><td>' . $object->getLibStatut(5). '</td></tr>';
 }
 
@@ -104,7 +104,7 @@ dol_fiche_end();
 print '<div class="tabsAction">' . "\n";
 print '</div>' . "\n";
 
-if($user->rights->flightLog->vol->financial){
+if($user->rights->flightlog->vol->financial){
     print '<div class="fichecenter"><div class="fichehalfleft">';
     $form->showLinkedObjectBlock($object);
     print '</div></div>';

@@ -22,7 +22,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 }
 
 dol_include_once('/expensereport/class/expensereport.class.php');
-dol_include_once("/flightlog/lib/flightlog.lib.php");
+dol_include_once("/flightlog/lib/flightLog.lib.php");
 
 global $db, $langs, $user, $conf;
 
@@ -57,7 +57,7 @@ $object = new ExpenseReport($db);
 $vatrate = "0.000";
 
 // Access control
-if (!$conf->expensereport->enabled || !$user->rights->flightLog->vol->status || !$user->rights->flightLog->vol->financialGenerateDocuments) {
+if (!$conf->expensereport->enabled || !$user->rights->flightlog->vol->status || !$user->rights->flightlog->vol->financialGenerateDocuments) {
     accessforbidden();
 }
 

@@ -18,7 +18,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 dol_include_once('/flightBalloon/bbc_ballons.class.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once('/flightlog/lib/flightlog.lib.php');
+dol_include_once('/flightlog/lib/flightLog.lib.php');
 
 // Load traductions files requiredby by page
 global $user, $langs, $conf;
@@ -485,7 +485,7 @@ $arrayofmassactions = array(
     'presend'  => $langs->trans("SendByMail"),
     'builddoc' => $langs->trans("PDFMerge"),
 );
-if ($user->rights->flightLog->supprimer) {
+if ($user->rights->flightlog->supprimer) {
     $arrayofmassactions['delete'] = $langs->trans("Delete");
 }
 if ($massaction == 'presend') {

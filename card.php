@@ -44,7 +44,7 @@ if (!$res) {
 include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once('/flightlog/lib/flightlog.lib.php');
+dol_include_once('/flightlog/lib/flightLog.lib.php');
 dol_include_once('/flightlog/lib/card.lib.php');
 dol_include_once('/flightlog/lib/PilotService.php');
 dol_include_once('/flightBalloon/bbc_ballons.class.php');
@@ -63,8 +63,8 @@ $cancel = GETPOST('cancel');
 $backtopage = GETPOST('backtopage');
 $myparam = GETPOST('myparam', 'alpha');
 
-$isAllowedEdit = ($user->rights->flightLog->vol->edit || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id));
-$isAllowedDelete = ($user->rights->flightLog->vol->delete || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id && !$object->is_facture));
+$isAllowedEdit = ($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id));
+$isAllowedDelete = ($user->rights->flightlog->vol->delete || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id && !$object->is_facture));
 
 $search_idBBC_vols = GETPOST('search_idBBC_vols', 'int');
 $search_lieuD = GETPOST('search_lieuD', 'alpha');
@@ -86,7 +86,7 @@ $search_justif_kilometers = GETPOST('search_justif_kilometers', 'alpha');
 
 $pageTitle = "Fiche vol " . $id;
 
-if (!$user->rights->flightLog->vol->access) {
+if (!$user->rights->flightlog->vol->access) {
     accessforbidden($langs->trans("Tu n'as pas accès au vol"));
 }
 
@@ -123,7 +123,7 @@ $flightType->fetch($object->fk_type);
 $balloon->fetch($object->BBC_ballons_idBBC_ballons);
 
 
-if (($action == "update" || $action == "edit") && !($user->rights->flightLog->vol->edit || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id))) {
+if (($action == "update" || $action == "edit") && !($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id))) {
     setEventMessage("Ceci n'est pas un de tes vols tu ne peux l'editer ! ", 'errors');
     $action = 'view';
 }
@@ -412,7 +412,7 @@ if (($id || $ref) && $action == 'edit') {
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_organisateur") . "</td><td>" . $form->select_dolusers($object->fk_organisateur,
             "fk_organisateur") . "</td></tr>";
 
-    if ($user->rights->flightLog->vol->financial || $user->id == $object->fk_pilot) {
+    if ($user->rights->flightlog->vol->financial || $user->id == $object->fk_pilot) {
         print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldkilometers") . "</td><td><input class=\"flat\" type=\"number\" name=\"kilometers\" value=\"" . $object->kilometers . "\"></td></tr>";
         print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldcost") . "</td><td><input class=\"flat\" type=\"number\" name=\"cost\" value=\"" . $object->cost . "\"></td></tr>";
         print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_receiver") . "</td><td>" . $form->select_dolusers($object->fk_receiver,
@@ -479,16 +479,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
     }
 
-    if ($user->rights->flightLog->vol->edit || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id)) {
+    if ($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) {
         print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=edit">' . $langs->trans("Modify") . '</a></div>' . "\n";
     }
 
-    if ($user->rights->flightLog->vol->delete || ($user->rights->flightLog->vol->add && $object->fk_pilot == $user->id && !$object->is_facture)) {
+    if ($user->rights->flightlog->vol->delete || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id && !$object->is_facture)) {
         print '<div class="inline-block divButAction"><a class="butActionDelete" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=delete">' . $langs->trans('Delete') . '</a></div>' . "\n";
     }
     print '</div>' . "\n";
 
-    if($user->rights->flightLog->vol->financial){
+    if($user->rights->flightlog->vol->financial){
         print '<div class="fichecenter"><div class="fichehalfleft">';
         $form->showLinkedObjectBlock($object);
         print '</div></div>';

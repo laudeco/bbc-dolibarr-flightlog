@@ -16,7 +16,7 @@ function prepareFlightTabs(Bbcvols $flight)
 
     $tabUrls = [
         DOL_URL_ROOT . '/flightlog/card.php?id=' . $flight->idBBC_vols,
-        ($user->rights->flightLog->vol->financial || $user->id == $flight->fk_pilot) ? DOL_URL_ROOT . '/flightlog/card_tab_financial.php?id=' . $flight->idBBC_vols : '',
+        ($user->rights->flightlog->vol->financial || $user->id == $flight->fk_pilot) ? DOL_URL_ROOT . '/flightlog/card_tab_financial.php?id=' . $flight->idBBC_vols : '',
         DOL_URL_ROOT . '/flightlog/card_tab_comments.php?id=' . $flight->idBBC_vols,
         DOL_URL_ROOT . '/flightlog/card_tab_follow.php?id=' . $flight->idBBC_vols,
     ];

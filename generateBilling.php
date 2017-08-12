@@ -23,7 +23,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 dol_include_once('/compta/facture/class/facture.class.php');
 dol_include_once('/adherents/class/adherent.class.php');
-dol_include_once("/flightlog/lib/flightlog.lib.php");
+dol_include_once("/flightlog/lib/flightLog.lib.php");
 dol_include_once("/flightlog/class/bbctypes.class.php");
 dol_include_once("/product/class/product.class.php");
 dol_include_once('/core/modules/facture/modules_facture.php');
@@ -91,7 +91,7 @@ $object = new Facture($db);
 $vatrate = "0.000";
 
 // Access control
-if (!$conf->facture->enabled || !$user->rights->flightLog->vol->status || !$user->rights->flightLog->vol->financialGenerateDocuments) {
+if (!$conf->facture->enabled || !$user->rights->flightlog->vol->status || !$user->rights->flightlog->vol->financialGenerateDocuments) {
     accessforbidden();
 }
 
