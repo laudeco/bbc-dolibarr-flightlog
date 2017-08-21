@@ -26,6 +26,7 @@ dol_include_once('/adherents/class/adherent.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
 dol_include_once("/flightlog/class/bbctypes.class.php");
 dol_include_once("/flightlog/class/bbcvols.class.php");
+dol_include_once('/flightBalloon/bbc_ballons.class.php');
 dol_include_once("/product/class/product.class.php");
 dol_include_once('/core/modules/facture/modules_facture.php');
 dol_include_once('/fourn/class/fournisseur.class.php');
@@ -78,6 +79,9 @@ $adherent->fetch($pilot->fk_member);
 
 $customer = new Fournisseur($db);
 $customer->fetch($conf->global->BBC_FLIGHT_DEFAULT_CUSTOMER ?: $adherent->fk_soc);
+
+$balloon = new Bbc_ballons($db);
+$balloon->fetch($flight->BBC_ballons_idBBC_ballons);
 
 //Query
 
@@ -197,7 +201,6 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
             $flight->update($user);
 
             Header("Location: card.php?id=" . $flight->getId());
-            return;
         } else {
             dol_htmloutput_errors("Facture non créée");
         }
@@ -219,7 +222,7 @@ if (!$flightProduct) {
     dol_htmloutput_mesg("Le produit -vol- n'est pas configuré", '', 'warning');
 }
 
-if ($puFlight > $flightProduct->total_ttc) {
+if ($puFlight > $flightProduct->price_ttc) {
     dol_htmloutput_mesg("Le prix unitaire encodé pour ce vol est suppérieur au prix unitaire du produit", '',
         'warning');
 }
@@ -240,6 +243,10 @@ if ($pilot->id != $receiver->id || $pilot->id != $organisator->id) {
         <tr>
             <td class="fieldrequired"><?php echo $langs->trans("Fielddate") ?> </td>
             <td> <?php echo dol_print_date($flight->date) ?> </td>
+        </tr>
+        <tr>
+            <td class="fieldrequired"><?php echo $langs->trans("FieldBBC_ballons_idBBC_ballons") ?> </td>
+            <td> <?php echo $balloon->immat ?> </td>
         </tr>
 
         <tr>
