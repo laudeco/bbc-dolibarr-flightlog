@@ -33,6 +33,9 @@ if($action === ACTION_SAVE){
             $flightType->update($user);
         }
     }
+
+    dolibarr_set_const($db, 'BBC_FLIGHT_TYPE_CUSTOMER', GETPOST('customer_product'), 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'BBC_FLIGHT_DEFAULT_CUSTOMER', GETPOST('defaultCustomer'), 'chaine', 0, '', $conf->entity);
 }
 
 /*
@@ -67,6 +70,25 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                     </td>
                 </tr>
             <?php endforeach; ?>
+
+
+            <tr class="impair">
+                <td>
+                    Vol client
+                </td>
+                <td>
+                    <?php $form->select_produits($conf->global->BBC_FLIGHT_TYPE_CUSTOMER, 'customer_product', $filtertype, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1, array(),$buyer->id); ?>
+                </td>
+            </tr>
+
+            <tr class="pair">
+                <td>
+                    Client par défaut
+                </td>
+                <td>
+                    <?php echo $form->select_thirdparty_list($conf->global->BBC_FLIGHT_DEFAULT_CUSTOMER, 'defaultCustomer'); ?>
+                </td>
+            </tr>
 
         </table>
         <input type="submit" />

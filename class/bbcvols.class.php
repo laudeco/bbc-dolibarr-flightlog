@@ -870,6 +870,13 @@ class Bbcvols extends CommonObject
         return $this->statut;
     }
 
+    /**
+     * @return boolean 
+     */
+    public function hasFacture(){
+        return count($this->linkedObjectsIds) > 0;
+    }
+
 }
 
 /**

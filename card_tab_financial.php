@@ -102,6 +102,11 @@ dol_fiche_end();
 
 // Buttons
 print '<div class="tabsAction">' . "\n";
+
+if($user->rights->flightlog->vol->financial && $object->fk_type == 2 && !$object->hasFacture()){
+    print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/facture.php?id=' . $object->id.'">' . $langs->trans("Facturer") . '</a></div>' . "\n";
+}
+
 print '</div>' . "\n";
 
 if($user->rights->flightlog->vol->financial){
