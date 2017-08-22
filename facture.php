@@ -195,7 +195,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
         $result = $object->generateDocument($documentModel, $langs, $hidedetails, $hidedesc, $hideref);
 
         if ($result > 0) {
-            dol_htmloutput_mesg("Facture créées");
+            //dol_htmloutput_mesg("Facture créées");
 
             $flight->is_facture = true;
             $flight->update($user);
@@ -274,7 +274,7 @@ if ($pilot->id != $receiver->id || $pilot->id != $organisator->id) {
 
         <tr>
             <td class="fieldrequired">Prix standard</td>
-            <td> <?php echo $flightProduct->total_ttc . " " . $langs->getCurrencySymbol($conf->currency) ?> </td>
+            <td> <?php echo $flightProduct->price_ttc . " " . $langs->getCurrencySymbol($conf->currency) ?> </td>
         </tr>
         <tr>
             <td class="fieldrequired"><?php echo $langs->trans("Fieldcost") ?> </td>
