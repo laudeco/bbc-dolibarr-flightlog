@@ -153,6 +153,7 @@ if ($resql) {
     print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 1 : Sponsor") . '</td>';
     print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 2 : Baptême") . '</td>';
     print '<td class="liste_titre" colspan="2">' . $langs->trans("Organisateur (T1/T2)") . '</td>';
+    print '<td class="liste_titre" colspan="2">' . $langs->trans("Instructeur (orga T6)") . '</td>';
     print '<td class="liste_titre" >'            . $langs->trans("Total bonus") . '</td>';
     print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 3 : Privé") . '</td>';
     print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 4: Meeting") . '</td>';
@@ -165,6 +166,9 @@ if ($resql) {
 
     print '<tr class="liste_titre">';
     print '<td colspan="2" class="liste_titre"></td>';
+
+    print '<td class="liste_titre"> # </td>';
+    print '<td class="liste_titre"> Pts </td>';
 
     print '<td class="liste_titre"> # </td>';
     print '<td class="liste_titre"> Pts </td>';
@@ -199,7 +203,7 @@ if ($resql) {
     $total = 0;
     foreach ($table as $key => $value) {
 
-        $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25;
+        $totalBonus = $value['1']['count'] * 50 + $value['2']['count'] * 50 + $value['orga']['count'] * 25 + $value['orga_T6']['count'] * 50;
         $totalFacture = $value['3']['count'] * 150 + $value['4']['count'] * 100 + $value['6']['count'] * 50 + $value['7']['count'] * 75;
         $facturable = ($totalFacture - $totalBonus < 0 ? 0 : $totalFacture - $totalBonus);
         $total += $facturable;
@@ -227,6 +231,9 @@ if ($resql) {
         print '<td>' . $value['orga']['count'] . '</td>';
         print '<td>' . $value['orga']['count'] * 25 . '</td>';
 
+        print '<td>' . $value['orga_T6']['count'] . '</td>';
+        print '<td>' . $value['orga_T6']['count'] * 50 . '</td>';
+
         print '<td><b>' . ($totalBonus) . '</b></td>';
 
         print '<td>' . $value['3']['count'] . '</td>';
@@ -249,7 +256,7 @@ if ($resql) {
     }
 
     print "<tr>";
-    print "<td colspan='18'></td>";
+    print "<td colspan='20'></td>";
     print "<td>Total à reçevoir</td>";
     print "<td>".price($total)."€</td>";
     print "</tr>";

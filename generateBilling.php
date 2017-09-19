@@ -135,7 +135,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                 }
 
                 $totalFlights = $value['1']['count'] + $value['2']['count'] + $value['orga']['count'] + $value['3']['count'] + $value['4']['count'] + $value['6']['count'] + $value['7']['count'];
-                $totalBonus = $value['1']['count'] * $t1->service->price_ttc + $value['2']['count'] * $t2->service->price_ttc + $value['orga']['count'] * 25 + $addBonus;
+                $totalBonus = $value['1']['count'] * $t1->service->price_ttc + $value['2']['count'] * $t2->service->price_ttc + $value['orga']['count'] * 25 + $addBonus + $value['orga_T6']['count'] * 50;
 
                 $totalFacture = $value['3']['count'] * $t3->service->price_ttc + $value['4']['count'] * $t4->service->price_ttc + $value['6']['count'] * $t6->service->price_ttc + $value['7']['count'] * $t7->service->price_ttc;
 
@@ -348,6 +348,15 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
                 $discountid = $soc->set_remise_except($pu_ht, $user, $desc, 0);
                 $object->insert_discount($discountid);
+
+                //Instructeur / examinateur
+                if($value['orga_T6']['count'] > 0){
+                    $pu_ht = price2num($value['orga_T6']['count'] * 50, 'MU');
+                    $desc = $year . " - Vols dont vous êtes instructeur/examinateur - (" . $value['orga_T6']['count'] . " * 50)";
+
+                    $discountid = $soc->set_remise_except($pu_ht, $user, $desc, 0);
+                    $object->insert_discount($discountid);
+                }
 
                 //Additional bonus
                 if ((int)$addBonus > 0) {

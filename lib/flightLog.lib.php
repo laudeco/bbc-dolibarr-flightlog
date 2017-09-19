@@ -28,7 +28,7 @@ function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
         }
     }
 
-    //total time for pilot
+    //total orga
     $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $year . '\' AND fk_type IN (1,2) GROUP BY fk_organisateur';
     $resql = $db->query($sql);
     if ($resql && $total) {
@@ -41,6 +41,25 @@ function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
                 if ($obj) {
                     $array[$obj->rowid]['name'] = $obj->firstname . ' ' . $obj->name;
                     $array[$obj->rowid]['orga']['count'] = $obj->total;
+                }
+                $i++;
+            }
+        }
+    }
+
+    //total orga T6 - instructeur
+    $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $year . '\' AND fk_type = 6 GROUP BY fk_organisateur';
+    $resql = $db->query($sql);
+    if ($resql && $total) {
+        $num = $db->num_rows($resql);
+        $i = 0;
+        if ($num) {
+            while ($i < $num) {
+                $obj = $db->fetch_object($resql); //vol
+
+                if ($obj) {
+                    $array[$obj->rowid]['name'] = $obj->firstname . ' ' . $obj->name;
+                    $array[$obj->rowid]['orga_T6']['count'] = $obj->total;
                 }
                 $i++;
             }
@@ -292,9 +311,9 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
     print '<td></td>';
 
     print '<td class="liste_titre" colspan="5">Trimestre 1 (Jan - Mars)</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 2</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 3</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 4</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 2 (Avr - Juin)</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 3 (Juil - Sept)</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 4 (Oct - Dec)</td>';
     print '<td class="liste_titre" >Total</td>';
 
     print '</tr>';
