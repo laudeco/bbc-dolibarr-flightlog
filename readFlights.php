@@ -146,8 +146,9 @@ if ($resql) {
 
 
     print '<div class="tabBar">';
-    print '<table class="border" width="100%">';
+    print '<table class="" width="100%">';
 
+    print '<tbody>';
     print '<tr class="liste_titre">';
     print '<td colspan="2">Nom</td>';
     print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 1 : Sponsor") . '</td>';
@@ -218,7 +219,7 @@ if ($resql) {
             "7" => $value['7']['count'],
         );
 
-        print '<tr>';
+        print '<tr class="oddeven">';
         print '<td>' . $key . '</td>';
         print '<td>' . $value['name'] . '</td>';
 
@@ -261,7 +262,7 @@ if ($resql) {
     print "<td>".price($total)."€</td>";
     print "</tr>";
 
-
+    print '</tbody>';
     print'</table>';
 
 
