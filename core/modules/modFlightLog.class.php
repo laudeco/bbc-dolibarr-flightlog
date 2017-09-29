@@ -173,10 +173,7 @@ class modFlightLog extends DolibarrModules
         $this->initExports();
 
         $this->activateTriggers();
-
-        $this->module_parts['workflow'] = [
-            "WORKFLOW_BBC_FLIGHTLOG_SEND_MAIL_ON_INCIDENT" => ['family'=>'create', 'position'=>10, 'enabled'=>'! empty($conf->propal->enabled) && ! empty($conf->commande->enabled)', 'picto'=>'order'],
-        ];
+        $this->initWorkflows();
     }
 
     /**
@@ -565,6 +562,21 @@ class modFlightLog extends DolibarrModules
     private function activateTriggers()
     {
         $this->module_parts['triggers'] = 1;
+    }
+
+    /**
+     * Initialize all workflows
+     */
+    private function initWorkflows()
+    {
+        $this->module_parts['workflow'] = [
+            "WORKFLOW_BBC_FLIGHTLOG_SEND_MAIL_ON_INCIDENT" => [
+                'family' => 'create',
+                'position' => 10,
+                'enabled' => '1',
+                'picto' => 'order'
+            ],
+        ];
     }
 
 }
