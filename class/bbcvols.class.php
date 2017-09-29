@@ -75,6 +75,16 @@ class Bbcvols extends CommonObject
     public $date_update;
 
     /**
+     * @var Bbc_ballons
+     */
+    private $balloon;
+
+    /**
+     * @var User
+     */
+    private $pilot;
+
+    /**
      * @return int
      */
     public function getIdBBCVols()
@@ -338,8 +348,9 @@ class Bbcvols extends CommonObject
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
-
-
+                
+                $this->balloon = $this->fetchBalloon();
+                $this->pilot = $this->fetchUser($this->fk_pilot);
             }
             $this->db->free($resql);
 
@@ -876,6 +887,71 @@ class Bbcvols extends CommonObject
     public function hasFacture(){
         return count($this->linkedObjectsIds) > 0;
     }
+
+    /**
+     * @param int $userId
+     * 
+     * @return User
+     */
+    private function fetchUser($userId)
+    {
+        $user = new User($this->db);
+        $user->fetch($userId);
+        
+        return $user;
+    }
+
+    /**
+     * @return Bbc_ballons
+     */
+    private function fetchBalloon()
+    {
+        $balloon = new Bbc_ballons($this->db);
+        $balloon->fetch($this->BBC_ballons_idBBC_ballons);
+
+        return $balloon;
+    }
+
+    /**
+     * @return Bbc_ballons
+     */
+    public function getBalloon()
+    {
+        if(!$this->balloon){
+            $this->balloon = $this->fetchBalloon();
+        }
+
+        return $this->balloon;
+    }
+
+    /**
+     * @return User
+     */
+    public function getPilot()
+    {
+        if(!$this->pilot){
+            $this->pilot = $this->fetchUser($this->fk_pilot);
+        }
+
+        return $this->pilot;
+    }
+
+    /**
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->remarque;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIncident()
+    {
+        return $this->incidents;
+    }
+
 
 }
 

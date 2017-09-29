@@ -5,7 +5,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
     require '../../documents/custom/main.inc.php'; // From "custom" directory
 }
 
-global $db, $langs, $user;
+global $db, $langs, $user, $conf;
 
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
@@ -79,6 +79,11 @@ if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
             $result = $vol->create($user);
             if ($result > 0) {
                 //creation OK
+
+                include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+                $interface = new Interfaces($db);
+                $triggerResult = $interface->run_triggers('BBC_FLIGHT_LOG_ADD_FLIGHT', $vol, $user, $langs, $conf);
+
                 $msg = '<div class="ok">L\'ajout du vol du : ' . $_POST["reday"] . '/' . $_POST["remonth"] . '/' . $_POST["reyear"] . ' s\'est correctement effectue ! </div>';
                 Header("Location: card.php?id=" . $result);
             } else {

@@ -48,10 +48,10 @@ dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once('/flightlog/lib/flightLog.lib.php');
 dol_include_once('/flightlog/lib/card.lib.php');
 dol_include_once('/flightlog/lib/PilotService.php');
-dol_include_once('/flightBalloon/bbc_ballons.class.php');
+dol_include_once('/flightballoon/class/bbc_ballons.class.php');
 dol_include_once('/user/class/usergroup.class.php');
 
-global $langs, $user;
+global $langs, $user, $conf;
 
 // Load traductions files requiredby by page
 $langs->load("mymodule@flightlog");
@@ -188,11 +188,16 @@ if (empty($reshook)) {
             $result = $object->create($user);
             if ($result > 0) {
                 // Creation OK
+
+                include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+                $interface = new Interfaces($db);
+                $result = $interface->run_triggers('BBC_FLIGHT_LOG_ADD_FLIGHT', $object, $user, $langs, $conf);
+
                 $urltogo = $backtopage ? $backtopage : dol_buildpath('/flightlog/list.php', 1);
                 header("Location: " . $urltogo);
                 exit;
             }
-            {
+            else{
                 // Creation KO
                 if (!empty($object->errors)) {
                     setEventMessages(null, $object->errors, 'errors');
@@ -319,7 +324,6 @@ if (empty($reshook)) {
 llxHeader('', $pageTitle, '');
 
 $form = new Form($db);
-
 
 // Put here content of your page
 

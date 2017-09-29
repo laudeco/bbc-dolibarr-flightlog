@@ -172,6 +172,8 @@ class modFlightLog extends DolibarrModules
         $this->initPermissions();
         $this->initExports();
 
+        $this->activateTriggers();
+
         $this->module_parts['workflow'] = [
             "WORKFLOW_BBC_FLIGHTLOG_SEND_MAIL_ON_INCIDENT" => ['family'=>'create', 'position'=>10, 'enabled'=>'! empty($conf->propal->enabled) && ! empty($conf->commande->enabled)', 'picto'=>'order'],
         ];
@@ -555,6 +557,14 @@ class modFlightLog extends DolibarrModules
         $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as organisator on (flight.fk_organisateur = organisator.rowid)';
         $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as receiver on (flight.fk_receiver = receiver.rowid)';
         $this->export_sql_end[$r] .= ' WHERE 1 = 1';
+    }
+
+    /**
+     * Activate triggers for this module
+     */
+    private function activateTriggers()
+    {
+        $this->module_parts['triggers'] = 1;
     }
 
 }
