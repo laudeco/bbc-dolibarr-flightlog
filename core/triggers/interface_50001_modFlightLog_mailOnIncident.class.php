@@ -100,7 +100,7 @@ class InterfaceMailOnIncident extends DolibarrTriggers
 
         $message = "<p>Bonjour,</p><br/>";
         $message .= sprintf("<p>Vous recevez cet e-mail car un vol a été encodé avec un incident/ une remarque sur le ballon : %s.</p>", $object->getBalloon()->immat);
-        $message .= sprintf("<p>Vol id : %d/p>", $object->getId());
+        $message .= sprintf("<p>Vol id : %d</p>", $object->getId());
         $message .= sprintf("<p>Réalisé par : %s </p>", $object->getPilot()->getFullName($langs));
         $message .= "<br/>";
         $message .= sprintf("<p>Commentaire : %s </p>", $object->getComment());
