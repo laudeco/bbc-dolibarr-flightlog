@@ -32,7 +32,7 @@ dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once('/flightlog/lib/flightLog.lib.php');
 dol_include_once('/flightlog/lib/card.lib.php');
 dol_include_once('/flightlog/lib/PilotService.php');
-dol_include_once('/flightBalloon/bbc_ballons.class.php');
+dol_include_once('/flightballoon/bbc_ballons.class.php');
 dol_include_once('/user/class/usergroup.class.php');
 
 global $langs, $user;

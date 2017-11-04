@@ -9,7 +9,7 @@ global $db, $langs, $user;
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
-dol_include_once("/flightBalloon/bbc_ballons.class.php");
+dol_include_once("/flightballoon/bbc_ballons.class.php");
 
 // Load translation files required by the page
 $langs->load("mymodule@mymodule");

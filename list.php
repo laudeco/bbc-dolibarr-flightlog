@@ -15,7 +15,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 require_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
-dol_include_once('/flightBalloon/bbc_ballons.class.php');
+dol_include_once('/flightballoon/bbc_ballons.class.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once('/flightlog/lib/flightLog.lib.php');
