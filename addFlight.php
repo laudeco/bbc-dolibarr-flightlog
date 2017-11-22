@@ -48,6 +48,7 @@ if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
         $vol->cost = $_POST['cost'];
         $vol->fk_receiver = $_POST['fk_receiver'];
         $vol->justif_kilometers = $_POST['justif_kilometers'];
+        $isGroupedFlight = (int)GETPOST('grouped_flight', 'int',2) === 1;
 
         //verification des heures
         $patern = '#[0-9]{4}#';
@@ -70,11 +71,27 @@ if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
             $error++;
         }
 
-        // verification du nombre de pax
+        // PAX
         if ($vol->nbrPax < 0) {
-            $msg = '<div class="error">Erreur le nombre de passager est �gale � 0 ou est un nombre n�gatif.</div>';
+            $msg = '<div class="error">Erreur le nombre de passager est un nombre négatif.</div>';
             $error++;
         }
+
+        if ($vol->mustHavePax() && !$vol->hasPax()) {
+            $msg = '<div class="error">Erreur ce type de vol doit etre fait avec des passagers.</div>';
+            $error++;
+        }
+
+        // verification billing
+        if (!$isGroupedFlight && $vol->getFlightType()->isBillingRequired() && $vol->isFree()) {
+            $msg = '<div class="error">Erreur ce type de vol doit être payant.</div>';
+            $error++;
+        }
+        if($vol->getFlightType()->isBillingRequired() && !$vol->hasReceiver()){
+            $msg = '<div class="error">Erreur ce type de vol doit être payant, mais personne n\'a été signalé comme recepteur d\'argent.</div>';
+            $error++;
+        }
+
         if ($error == 0) {
             $result = $vol->create($user);
             if ($result > 0) {
@@ -123,6 +140,14 @@ print '</td></tr>';
 print "<tr>";
 print '<td class="fieldrequired"> Type du vol</td><td>';
 select_flight_type($_POST['type']);
+print '</td></tr>';
+?>
+<tr>
+<td>Il y'avait-il plusieurs ballons ?</td>
+<td><input type="checkbox" value="1" name="grouped_flight" /> - Oui </td>
+</tr>
+
+<?php
 print '</td></tr>';
 //Pilote
 print "<tr>";

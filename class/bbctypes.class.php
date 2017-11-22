@@ -606,6 +606,30 @@ class Bbctypes extends CommonObject
 		
 	}
 
+    /**
+     * @return boolean
+     */
+    public function isPaxRequired()
+    {
+        switch((int)$this->idType){
+            case 1:
+            case 2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Return true if this type of flight requires money.
+     *
+     * @return boolean
+     */
+    public function isBillingRequired()
+    {
+        return (int)$this->idType === 2;
+    }
+
 }
 
 /**

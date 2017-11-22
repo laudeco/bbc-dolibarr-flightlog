@@ -29,8 +29,7 @@
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 require_once DOL_DOCUMENT_ROOT . '/flightballoon/class/bbc_ballons.class.php';
-//require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
-//require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
+require_once DOL_DOCUMENT_ROOT . '/flightlog/class/bbctypes.class.php';
 
 /**
  * Class Bbcvols
@@ -658,53 +657,6 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * Load an object from its id and create a new one in database
-     *
-     * @param int $fromid Id of object to clone
-     *
-     * @return int New id of clone
-     */
-    public function createFromClone($fromid)
-    {
-        dol_syslog(__METHOD__, LOG_DEBUG);
-
-        global $user;
-        $error = 0;
-        $object = new Bbcvols($this->db);
-
-        $this->db->begin();
-
-        // Load source object
-        $object->fetch($fromid);
-        // Reset object
-        $object->id = 0;
-
-        // Clear fields
-        // ...
-
-        // Create clone
-        $result = $object->create($user);
-
-        // Other options
-        if ($result < 0) {
-            $error++;
-            $this->errors = $object->errors;
-            dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
-        }
-
-        // End
-        if (!$error) {
-            $this->db->commit();
-
-            return $object->id;
-        } else {
-            $this->db->rollback();
-
-            return -1;
-        }
-    }
-
-    /**
      *  Return a link to the user card (with optionaly the picto)
      *    Use this->id,this->lastname, this->firstname
      *
@@ -938,6 +890,16 @@ class Bbcvols extends CommonObject
     }
 
     /**
+     * @return Bbctypes
+     */
+    public function getFlightType(){
+        $flightType = new Bbctypes($this->db);
+        $flightType->fetch($this->fk_type);
+
+        return $flightType;
+    }
+
+    /**
      * @return string
      */
     public function getComment()
@@ -953,6 +915,42 @@ class Bbcvols extends CommonObject
         return $this->incidents;
     }
 
+    /**
+     * Return true if the number of pax is greater than 0
+     *
+     * @return boolean
+     */
+    public function hasPax()
+    {
+        return (int)$this->nbrPax > 0;
+    }
+
+    /**
+     * Regarding the type of the flight give an indication if the flight must have pax to be valid.
+     * @return boolean
+     */
+    public function mustHavePax()
+    {
+        return $this->getFlightType()->isPaxRequired();
+    }
+
+    /**
+     * Returns true if the amount requested by the flight is 0.
+     *
+     * @return boolean
+     */
+    public function isFree()
+    {
+        return empty($this->cost);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasReceiver()
+    {
+        return !empty($this->fk_receiver);
+    }
 
 }
 
