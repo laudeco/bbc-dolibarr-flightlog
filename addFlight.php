@@ -165,7 +165,7 @@ print '<td width="25%" class="fieldrequired">Nombre de kilometres effectués pou
 print '<input type="number" name="kilometers" class="flat" value="' . $_POST['kilometers'] . '"/>';
 print '</td></tr>';
 
-//Justif KIlometers
+//Justif Kilometers
 print "<tr>";
 print '<td width="25%" class="fieldrequired">Justificatif des KM</td><td>';
 print '<textarea rows="2" cols="60" class="flat" name="justif_kilometers" >' . $_POST['justif_kilometers'] . '</textarea> ';
@@ -204,11 +204,4 @@ print '<input class="button" type="submit" name="cancel" value="' . $langs->tran
 
 print '</form>';
 
-/* * *************************************************
- * LINKED OBJECT BLOCK
- *
- * Put here code to view linked object
- * ************************************************** */
-// End of page
 $db->close();
-llxFooter('$Date: 2011/07/31 22:21:57 $ - $Revision: 1.19 $');

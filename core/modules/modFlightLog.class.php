@@ -84,6 +84,9 @@ class modFlightLog extends DolibarrModules
      */
     public $export_sql_end = array();
 
+    /**
+     * @var array
+     */
     public $export_TypeFields_array = [];
 
     /**
@@ -92,15 +95,25 @@ class modFlightLog extends DolibarrModules
     public $menus;
 
     /**
+     * @var array
+     */
+    public $tabs;
+
+    /**
+     * @var array
+     */
+    public $dictionaries;
+
+    /**
      * Constructor. Define names, constants, directories, boxes, permissions
      *
      * @param DoliDB $db Database handler
      */
     public function __construct($db)
     {
-        global $langs, $conf;
+        parent::__construct($db);
 
-        $this->db = $db;
+        global $conf;
 
         // Id for module (must be unique).
         $this->numero = 500000;
@@ -155,8 +168,7 @@ class modFlightLog extends DolibarrModules
         $this->initConstants();
 
         // Array to add new pages in new tabs
-        $this->tabs = [
-        ];
+        $this->tabs = [];
 
         if (!isset($conf->flightLog) || !isset($conf->flightLog->enabled)) {
             $conf->flightLog = new stdClass();
@@ -386,15 +398,11 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'vol';
         $this->rights[$r][5] = 'financialGenerateDocuments';
-        $r++;
     }
 
     private function initCronJobs()
     {
-        $this->cronjobs = array();            // List of cron jobs entries to add
-        // Example: $this->cronjobs=array(0=>array('label'=>'My label', 'jobtype'=>'method', 'class'=>'/dir/class/file.class.php', 'objectname'=>'MyClass', 'method'=>'myMethod', 'parameters'=>'', 'comment'=>'Comment', 'frequency'=>2, 'unitfrequency'=>3600, 'test'=>true),
-        //                                1=>array('label'=>'My label', 'jobtype'=>'command', 'command'=>'', 'parameters'=>'', 'comment'=>'Comment', 'frequency'=>1, 'unitfrequency'=>3600*24, 'test'=>true)
-        // );
+        $this->cronjobs = array();
     }
 
     private function initDictionnaries()
