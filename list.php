@@ -396,7 +396,7 @@ $num = $db->num_rows($resql);
 if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $search_all) {
     $obj = $db->fetch_object($resql);
     $id = $obj->idBBC_vols;
-    header("Location: " . DOL_URL_ROOT . '/bbcvols/card.php?id=' . $id);
+    header("Location: " . DOL_URL_ROOT . '/flightlog/card.php?id=' . $id);
     exit;
 }
 
