@@ -105,7 +105,7 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
     print '<select class="flat" name="' . $htmlname . '">';
 
     if ($showempty) {
-        print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected = 0 || $selected == -1) ? "selected" : ""));
+        print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected == 0 || $selected == -1) ? "selected" : ""));
     }
 
     foreach ($types as $flightType) {
