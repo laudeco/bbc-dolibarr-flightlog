@@ -35,6 +35,7 @@ require_once DOL_DOCUMENT_ROOT . '/flightlog/class/bbctypes.class.php';
  * Class Bbcvols
  *
  * Put here description of your class
+ *
  * @see CommonObject
  */
 class Bbcvols extends CommonObject
@@ -348,7 +349,7 @@ class Bbcvols extends CommonObject
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
-                
+
                 $this->balloon = $this->fetchBalloon();
                 $this->pilot = $this->fetchUser($this->fk_pilot);
             }
@@ -710,10 +711,10 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     *  Renvoi le libelle d'un status donne
+     * Renvoi le libelle d'un status donne
      *
-     * @param    int $status Id status
-     * @param  int   $mode   0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
+     * @param int $status Id status
+     * @param int $mode   0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
      *
      * @return string                    Label of status
      */
@@ -776,39 +777,6 @@ class Bbcvols extends CommonObject
         return "";
     }
 
-
-    /**
-     * Initialise object with example values
-     * Id must be 0 if object instance is a specimen
-     *
-     * @return void
-     */
-    public function initAsSpecimen()
-    {
-        $this->id = 0;
-
-        $this->idBBC_vols = '';
-        $this->date = '';
-        $this->lieuD = '';
-        $this->lieuA = '';
-        $this->heureD = '';
-        $this->heureA = '';
-        $this->BBC_ballons_idBBC_ballons = '';
-        $this->nbrPax = '';
-        $this->remarque = '';
-        $this->incidents = '';
-        $this->fk_type = '';
-        $this->fk_pilot = '';
-        $this->fk_organisateur = '';
-        $this->is_facture = '';
-        $this->kilometers = '';
-        $this->cost = '';
-        $this->fk_receiver = '';
-        $this->justif_kilometers = '';
-
-
-    }
-
     /**
      * @return string
      */
@@ -834,22 +802,23 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return boolean 
+     * @return boolean
      */
-    public function hasFacture(){
+    public function hasFacture()
+    {
         return count($this->linkedObjectsIds) > 0;
     }
 
     /**
      * @param int $userId
-     * 
+     *
      * @return User
      */
     private function fetchUser($userId)
     {
         $user = new User($this->db);
         $user->fetch($userId);
-        
+
         return $user;
     }
 
@@ -869,7 +838,7 @@ class Bbcvols extends CommonObject
      */
     public function getBalloon()
     {
-        if(!$this->balloon){
+        if (!$this->balloon) {
             $this->balloon = $this->fetchBalloon();
         }
 
@@ -881,7 +850,7 @@ class Bbcvols extends CommonObject
      */
     public function getPilot()
     {
-        if(!$this->pilot){
+        if (!$this->pilot) {
             $this->pilot = $this->fetchUser($this->fk_pilot);
         }
 
@@ -891,7 +860,8 @@ class Bbcvols extends CommonObject
     /**
      * @return Bbctypes
      */
-    public function getFlightType(){
+    public function getFlightType()
+    {
         $flightType = new Bbctypes($this->db);
         $flightType->fetch($this->fk_type);
 
@@ -926,6 +896,7 @@ class Bbcvols extends CommonObject
 
     /**
      * Regarding the type of the flight give an indication if the flight must have pax to be valid.
+     *
      * @return boolean
      */
     public function mustHavePax()
@@ -986,9 +957,4 @@ class BbcvolsLine
     public $justif_kilometers;
     public $date_creation;
     public $date_update;
-
-    /**
-     * @var mixed Sample line property 2
-     */
-
 }
