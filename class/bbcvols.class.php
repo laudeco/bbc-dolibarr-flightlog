@@ -670,12 +670,9 @@ class Bbcvols extends CommonObject
      */
     function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $maxlen = 24, $morecss = '')
     {
-        global $langs, $conf, $db;
-        global $dolibarr_main_authentication, $dolibarr_main_demo;
-        global $menumanager;
+        global $langs;
 
         $result = '';
-        $companylink = '';
 
         $label = '<u>' . $langs->trans("MyModule") . '</u>';
         $label .= '<div width="100%">';
@@ -724,53 +721,55 @@ class Bbcvols extends CommonObject
     {
         global $langs;
 
+        $billDone = $langs->trans('Facturé');
+        $billNotDone = $langs->trans('Non facturé');
+
         if ($mode == 0) {
-            $prefix = '';
             if ($status == 1) {
-                return $langs->trans('Enabled');
+                return $billDone;
             }
             if ($status == 0) {
-                return $langs->trans('Disabled');
+                return $billNotDone;
             }
         }
         if ($mode == 1) {
             if ($status == 1) {
-                return $langs->trans('Enabled');
+                return $billDone;
             }
             if ($status == 0) {
-                return $langs->trans('Disabled');
+                return $billNotDone;
             }
         }
         if ($mode == 2) {
             if ($status == 1) {
-                return img_picto($langs->trans('Enabled'), 'statut4') . ' ' . $langs->trans('Enabled');
+                return img_picto($billDone, 'statut4') . ' ' . $billDone;
             }
             if ($status == 0) {
-                return img_picto($langs->trans('Disabled'), 'statut5') . ' ' . $langs->trans('Disabled');
+                return img_picto($billNotDone, 'statut5') . ' ' . $billNotDone;
             }
         }
         if ($mode == 3) {
             if ($status == 1) {
-                return img_picto($langs->trans('Enabled'), 'statut4');
+                return img_picto($billDone, 'statut4');
             }
             if ($status == 0) {
-                return img_picto($langs->trans('Disabled'), 'statut5');
+                return img_picto($billNotDone, 'statut5');
             }
         }
         if ($mode == 4) {
             if ($status == 1) {
-                return img_picto($langs->trans('Enabled'), 'statut4') . ' ' . $langs->trans('Enabled');
+                return img_picto($billDone, 'statut4') . ' ' . $billDone;
             }
             if ($status == 0) {
-                return img_picto($langs->trans('Disabled'), 'statut5') . ' ' . $langs->trans('Disabled');
+                return img_picto($billNotDone, 'statut5') . ' ' . $billNotDone;
             }
         }
         if ($mode == 5) {
             if ($status == 1) {
-                return $langs->trans('Enabled') . ' ' . img_picto($langs->trans('Enabled'), 'statut4');
+                return $billDone . ' ' . img_picto($billDone, 'statut4');
             }
             if ($status == 0) {
-                return $langs->trans('Disabled') . ' ' . img_picto($langs->trans('Disabled'), 'statut5');
+                return $billNotDone . ' ' . img_picto($billNotDone, 'statut5');
             }
         }
 

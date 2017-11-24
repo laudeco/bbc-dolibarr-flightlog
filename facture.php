@@ -183,6 +183,10 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
         $object->add_object_linked('flightlog_bbcvols', $flight->getId());
 
+        $object->add_contact($flight->fk_pilot, 'BBC_PILOT', 'internal');
+        $object->add_contact($flight->fk_receiver, 'BBC_RECEIVER', 'internal');
+        $object->add_contact($flight->fk_organisateur, 'BBC_ORGANISATOR', 'internal');
+
         $ret = $object->fetch($id);
         $result = $object->generateDocument($documentModel, $langs, $hidedetails, $hidedesc, $hideref);
 
@@ -195,8 +199,6 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
         $result = $object->generateDocument($documentModel, $langs, $hidedetails, $hidedesc, $hideref);
 
         if ($result > 0) {
-            //dol_htmloutput_mesg("Facture créées");
-
             $flight->is_facture = true;
             $flight->update($user);
 
