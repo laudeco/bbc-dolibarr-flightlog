@@ -723,7 +723,7 @@ class Bbcvols extends CommonObject
         global $langs;
 
         $billDone = $langs->trans('Facturé');
-        $billNotDone = $langs->trans('Non facturé');
+        $billNotDone = $langs->trans('Ouvert');
 
         if ($mode == 0) {
             if ($status == 1) {

@@ -50,7 +50,7 @@ $search_incidents = GETPOST('search_incidents', 'alpha');
 $search_fk_type = GETPOST('search_fk_type', 'int');
 $search_fk_pilot = GETPOST('search_fk_pilot', 'int') ?: ($user->admin ? '' : $user->id);
 $search_fk_organisateur = GETPOST('search_fk_organisateur', 'int');
-$search_is_facture = GETPOST('search_is_facture', 'int');
+$search_is_facture = GETPOST('search_is_facture', 'int') === ''? -1 : (int)GETPOST('search_is_facture', 'int');
 $search_kilometers = GETPOST('search_kilometers', 'int');
 $search_cost = GETPOST('search_cost', 'alpha');
 $search_fk_receiver = GETPOST('search_fk_receiver', 'int');
@@ -204,7 +204,7 @@ if (empty($reshook)) {
         $search_fk_type = '';
         $search_fk_pilot = '';
         $search_fk_organisateur = '';
-        $search_is_facture = '';
+        $search_is_facture = -1;
         $search_kilometers = '';
         $search_cost = '';
         $search_fk_receiver = '';
@@ -333,7 +333,7 @@ if ($search_fk_organisateur && $search_fk_organisateur != -1) {
     $sql .= natural_search("fk_organisateur", $search_fk_organisateur);
 }
 
-if ($search_is_facture) {
+if ($search_is_facture != -1) {
     $sql .= natural_search("is_facture", $search_is_facture);
 }
 if ($search_kilometers) {
@@ -450,7 +450,7 @@ if ($search_fk_pilot != '') {
 if ($search_fk_organisateur  != '') {
     $param .= '&amp;search_fk_organisateur=' . urlencode($search_fk_organisateur);
 }
-if ($search_is_facture  != '') {
+if ($search_is_facture  != -1) {
     $param .= '&amp;search_is_facture=' . urlencode($search_is_facture);
 }
 if ($search_kilometers  != '') {
@@ -706,7 +706,7 @@ if (!empty($arrayfields['t.fk_organisateur']['checked'])) {
 
 if (!empty($arrayfields['t.is_facture']['checked'])) {
     print '<td class="liste_titre">';
-    print '<select name="search_is_facture"><option value=""></option><option value="1">Facturé</option><option value="0">Ouvert</option></select>';
+    print '<select name="search_is_facture"><option value="-1" '.($search_is_facture != 1 && $search_is_facture != 0 ? 'selected' : '' ).'></option><option value="1" '.($search_is_facture == 1 ? 'selected' : '' ).'>Facturé</option><option value="0" '.($search_is_facture == 0 ? 'selected' : '' ).'>Ouvert</option></select>';
     print '</td>';
 }
 /*
