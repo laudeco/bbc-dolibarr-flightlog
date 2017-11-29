@@ -32,10 +32,15 @@ if($action === ACTION_SAVE){
             $flightType->fkService = $serviceId;
             $flightType->update($user);
         }
+
+        dolibarr_set_const($db, 'BBC_POINTS_BONUS_'.$flightTypeId, GETPOST('points_bonus_'.$flightTypeId), 'chaine', 0, 'Points pour le vol T'.$flightTypeId, $conf->entity);
     }
 
     dolibarr_set_const($db, 'BBC_FLIGHT_TYPE_CUSTOMER', GETPOST('customer_product'), 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'BBC_FLIGHT_DEFAULT_CUSTOMER', GETPOST('defaultCustomer'), 'chaine', 0, '', $conf->entity);
+
+    dolibarr_set_const($db, 'BBC_POINTS_BONUS_ORGANISATOR', GETPOST('points_bonus_organisator'), 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'BBC_POINTS_BONUS_INSTRUCTOR', GETPOST('points_bonus_instructor'), 'chaine', 0, '', $conf->entity);
 }
 
 /*
@@ -87,6 +92,43 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                 </td>
                 <td>
                     <?php echo $form->select_thirdparty_list($conf->global->BBC_FLIGHT_DEFAULT_CUSTOMER, 'defaultCustomer'); ?>
+                </td>
+            </tr>
+
+            <tr class="impar">
+                <td>
+                    <?php echo $langs->trans('Points par type de vols')?>
+                </td>
+
+                <td>
+                <?php foreach ($flightType->lines as $flightTypeLine): ?>
+                    <label for="points_bonus_<?php echo $flightTypeLine->numero; ?>">
+                        (T<?php echo $flightTypeLine->numero ?>) - <?php echo $flightTypeLine->nom ?>
+                    </label>
+                    <?php $prop = 'BBC_POINTS_BONUS_'.$flightTypeLine->numero; ?>
+                    <input type="number" id="points_bonus_<?php echo $flightTypeLine->numero; ?>" name="points_bonus_<?php echo $flightTypeLine->numero; ?>" value="<?php echo $conf->global->$prop?>" />
+                    <br/>
+                <?php endforeach; ?>
+                </td>
+            </tr>
+
+            <tr class="pair">
+                <td>
+                    <?php echo $langs->trans('Points organisateur')?>
+                </td>
+
+                <td>
+                    <input type="number" id="points_bonus_organisator" name="points_bonus_organisator" value="<?php echo $conf->global->BBC_POINTS_BONUS_ORGANISATOR?>" />
+                </td>
+            </tr>
+
+            <tr class="impar">
+                <td>
+                    <?php echo $langs->trans('Points instructeur')?>
+                </td>
+
+                <td>
+                    <input type="number" id="points_bonus_instructor" name="points_bonus_instructor" value="<?php echo $conf->global->BBC_POINTS_BONUS_INSTRUCTOR?>" />
                 </td>
             </tr>
 

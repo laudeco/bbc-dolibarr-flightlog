@@ -1,5 +1,7 @@
 <?php
 /**
+ * @deprecated use the BillableFlightQueryHandler for that.
+ *
  * @param DoliDb $db
  * @param string $sql
  * @param bool   $total
@@ -130,7 +132,8 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
 function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $showDeclasse = 1)
 {
 
-    global $db, $langs, $user;
+    global $db, $langs;
+
     $langs->load("trips");
     print '<!-- select_balloons in form class -->';
     print '<select class="flat" name="' . $htmlname . '">';
@@ -302,8 +305,6 @@ function bbcKilometersByQuartil($year)
  */
 function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
 {
-    global $user;
-
     print '<table class="border" width="100%">';
 
     print '<tr>';

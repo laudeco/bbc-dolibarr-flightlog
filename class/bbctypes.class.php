@@ -630,6 +630,22 @@ class Bbctypes extends CommonObject
         return (int)$this->idType === 2;
     }
 
+    /**
+     * @return Product
+     */
+    public function getService()
+    {
+        if(!$this->service){
+            if(!$this->fkService){
+                throw new \InvalidArgumentException('FK service is missing');
+            }
+
+            $this->service = new Product($this->db);
+            $this->service->fetch($this->fkService);
+        }
+
+        return $this->service;
+    }
 }
 
 /**
