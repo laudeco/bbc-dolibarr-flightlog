@@ -1,0 +1,30 @@
+box: php
+build:
+  steps:
+    - script:
+        name: echo
+        code: |
+          echo "Hello belgian Balloon Club - Flight log - thanks for the contribution !"
+
+deploy:
+  steps:
+    - install-packages:
+        packages: openssh-client rsync git unzip
+    - add-to-known_hosts:
+        hostname: ftp.cluster006.ovh.net
+    - mktemp:
+        envvar: PRIVATEKEY_PATH
+    - create-file:
+        name: write key
+        filename: $PRIVATEKEY_PATH
+        content: $PRIVATEKEY_FILE_PRIVATE
+        overwrite: true
+        hide-from-log: true
+    - script:
+        name: rsync - BE
+        code: |-
+          rsync -ravz -e "ssh -i $PRIVATEKEY_PATH" -h --stats \
+          --update \
+          --exclude 'README.md' \
+          --exclude 'wercker.yml' \
+          --exclude 'composer.*' . belgianb@ftp.cluster006.ovh.net:/homez.577/belgianb/www/intranet/htdocs/flightlog
