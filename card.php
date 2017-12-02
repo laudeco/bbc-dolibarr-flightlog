@@ -41,7 +41,6 @@ if (!$res) {
     die("Include of main fails");
 }
 // Change this following line to use the correct relative path from htdocs
-include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');

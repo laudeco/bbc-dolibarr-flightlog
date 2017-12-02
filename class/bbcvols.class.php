@@ -27,9 +27,8 @@
  */
 
 // Put here all includes required by your class file
-require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
-require_once DOL_DOCUMENT_ROOT . '/flightballoon/class/bbc_ballons.class.php';
-require_once DOL_DOCUMENT_ROOT . '/flightlog/class/bbctypes.class.php';
+dol_include_once('/flightballoon/class/bbc_ballons.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
 
 /**
  * Class Bbcvols

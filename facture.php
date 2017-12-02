@@ -17,8 +17,21 @@ define("EXPENSE_REPORT_GENERATOR_ACTION_CREATE", "select");
  */
 
 // Load Dolibarr environment
-if (false === (@include '../main.inc.php')) {  // From htdocs directory
-    require '../../documents/custom/main.inc.php'; // From "custom" directory
+$res = 0;
+if (!$res && file_exists("../main.inc.php")) {
+    $res = @include '../main.inc.php';
+}                    // to work if your module directory is into dolibarr root htdocs directory
+if (!$res && file_exists("../../main.inc.php")) {
+    $res = @include '../../main.inc.php';
+}            // to work if your module directory is into a subdir of root htdocs directory
+if (!$res && file_exists("../../../dolibarr/htdocs/main.inc.php")) {
+    $res = @include '../../../dolibarr/htdocs/main.inc.php';
+}     // Used on dev env only
+if (!$res && file_exists("../../../../dolibarr/htdocs/main.inc.php")) {
+    $res = @include '../../../../dolibarr/htdocs/main.inc.php';
+}   // Used on dev env only
+if (!$res) {
+    die("Include of main fails");
 }
 
 dol_include_once('/compta/facture/class/facture.class.php');

@@ -1,19 +1,22 @@
 <?php
-
-// Load Dolibarr environment
-if (false === (@include '../main.inc.php')) {  // From htdocs directory
-    require '../../documents/custom/main.inc.php'; // From "custom" directory
+$res = 0;
+if (!$res && file_exists("../main.inc.php")) {
+    $res = @include '../main.inc.php';
+}                    // to work if your module directory is into dolibarr root htdocs directory
+if (!$res && file_exists("../../main.inc.php")) {
+    $res = @include '../../main.inc.php';
+}            // to work if your module directory is into a subdir of root htdocs directory
+if (!$res && file_exists("../../../dolibarr/htdocs/main.inc.php")) {
+    $res = @include '../../../dolibarr/htdocs/main.inc.php';
+}     // Used on dev env only
+if (!$res && file_exists("../../../../dolibarr/htdocs/main.inc.php")) {
+    $res = @include '../../../../dolibarr/htdocs/main.inc.php';
+}   // Used on dev env only
+if (!$res) {
+    die("Include of main fails");
 }
 
-global $db, $langs, $user, $conf;
-
-dol_include_once('/flightlog/class/bbcvols.class.php');
-dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once("/flightlog/lib/flightLog.lib.php");
-
-// Load translation files required by the page
-$langs->load("mymodule@flightlog");
-
+dol_include_once('/flightlog/includes/core.inc.php');
 
 if (!$user->rights->flightlog->vol->add) {
     accessforbidden();
