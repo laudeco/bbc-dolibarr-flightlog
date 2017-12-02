@@ -31,8 +31,8 @@ class FlightTypeCount
     public function __construct($type, $count = 0, $factor = 0)
     {
         $this->type = $type;
-        $this->count = (int)$count;
-        $this->factor = (int)$factor;
+        $this->count = (int) $count;
+        $this->factor = (int) $factor;
     }
 
     /**

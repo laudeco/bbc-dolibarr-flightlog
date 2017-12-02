@@ -1,9 +1,9 @@
 <?php
 
-require_once(DOL_DOCUMENT_ROOT.'/flightlog/class/flight/FlightBonus.php');
-require_once(DOL_DOCUMENT_ROOT.'/flightlog/class/flight/FlightPoints.php');
-require_once(DOL_DOCUMENT_ROOT.'/flightlog/class/flight/FlightTypeCount.php');
-require_once(DOL_DOCUMENT_ROOT.'/flightlog/class/billing/FlightCost.php');
+require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightBonus.php');
+require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightPoints.php');
+require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightTypeCount.php');
+require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/billing/FlightCost.php');
 
 /**
  * Pilot class
@@ -85,11 +85,13 @@ class Pilot
                 break;
             }
 
-            $types[] = new FlightTypeCount($currentType->getType(), $currentType->getCount(), $currentType->getFactor());
+            $types[] = new FlightTypeCount($currentType->getType(), $currentType->getCount(),
+                $currentType->getFactor());
         }
 
         if (!$found) {
-            $types[] = new FlightTypeCount($flightTypeCount->getType(), $flightTypeCount->getCount(), $flightTypeCount->getFactor());
+            $types[] = new FlightTypeCount($flightTypeCount->getType(), $flightTypeCount->getCount(),
+                $flightTypeCount->getFactor());
         }
 
         return new Pilot($this->name, $this->id, $types);
@@ -156,7 +158,8 @@ class Pilot
     /**
      * @return boolean
      */
-    public function isBillable(){
+    public function isBillable()
+    {
         return $this->getTotalBill()->getValue() > 0;
     }
 

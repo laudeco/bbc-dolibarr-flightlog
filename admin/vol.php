@@ -82,7 +82,8 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                     Vol client
                 </td>
                 <td>
-                    <?php $form->select_produits($conf->global->BBC_FLIGHT_TYPE_CUSTOMER, 'customer_product', $filtertype, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1, array(),$buyer->id); ?>
+                    <?php $form->select_produits($conf->global->BBC_FLIGHT_TYPE_CUSTOMER, 'customer_product',
+                        $filtertype, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1, array(),$buyer->id); ?>
                 </td>
             </tr>
 

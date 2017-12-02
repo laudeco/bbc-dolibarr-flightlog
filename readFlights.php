@@ -28,7 +28,6 @@ dol_include_once('/flightlog/query/BillableFlightQueryHandler.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
 
 
-
 $langs->load("mymodule@flightlog");
 
 // Get parametersI
@@ -147,7 +146,7 @@ print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 1 : Sponsor")
 print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 2 : Baptême") . '</td>';
 print '<td class="liste_titre" colspan="2">' . $langs->trans("Organisateur (T1/T2)") . '</td>';
 print '<td class="liste_titre" colspan="2">' . $langs->trans("Instructeur (orga T6)") . '</td>';
-print '<td class="liste_titre" >'            . $langs->trans("Total bonus") . '</td>';
+print '<td class="liste_titre" >' . $langs->trans("Total bonus") . '</td>';
 print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 3 : Privé") . '</td>';
 print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 4: Meeting") . '</td>';
 print '<td class="liste_titre" colspan="1">' . $langs->trans("Type 5: Chambley") . '</td>';
@@ -243,7 +242,7 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
 print "<tr>";
 print "<td colspan='20'></td>";
 print "<td>Total à reçevoir</td>";
-print "<td>".price($total)."€</td>";
+print "<td>" . price($total) . "€</td>";
 print "</tr>";
 
 print '</tbody>';

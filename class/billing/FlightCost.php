@@ -1,6 +1,6 @@
 <?php
 
-require_once(DOL_DOCUMENT_ROOT.'/flightlog/class/flight/FlightBonus.php');
+require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightBonus.php');
 
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>

@@ -133,7 +133,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
             $flights = $tableQueryHandler->__invoke(new BillableFlightQuery(true, $year));
             foreach ($flights as $currentMissionUserId => $value) {
 
-                $addBonus = (int)$additionalBonus[$currentMissionUserId];
+                $addBonus = (int) $additionalBonus[$currentMissionUserId];
                 if ($addBonus < 0) {
                     dol_htmloutput_mesg("Facture ignorée " . $value->getName(), '', 'warning');
                     continue;
@@ -172,30 +172,30 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
     }
 }
 
-    /*
-     * VIEW
-     *
-     * Put here all code to build page
-     */
+/*
+ * VIEW
+ *
+ * Put here all code to build page
+ */
 
 
-    $form = new Form($db);
+$form = new Form($db);
 
-    $tabLinks = [];
-    foreach ($flightYears as $currentFlightYear) {
-        $tabLinks[] = [
-            DOL_URL_ROOT . "/flightlog/generateBilling.php?year=" . $currentFlightYear,
-            $currentFlightYear,
-            "tab_" . $currentFlightYear
-        ];
-    }
+$tabLinks = [];
+foreach ($flightYears as $currentFlightYear) {
+    $tabLinks[] = [
+        DOL_URL_ROOT . "/flightlog/generateBilling.php?year=" . $currentFlightYear,
+        $currentFlightYear,
+        "tab_" . $currentFlightYear
+    ];
+}
 
-    if (!$t1->service || !$t2->service || !$t3->service || !$t4->service || !$t5->service || !$t6->service || !$t7->service) {
-        dol_htmloutput_mesg("Un service n'a pas été configuré", '', 'warning');
-    }
-    dol_fiche_head($tabLinks, "tab_" . $year);
+if (!$t1->service || !$t2->service || !$t3->service || !$t4->service || !$t5->service || !$t6->service || !$t7->service) {
+    dol_htmloutput_mesg("Un service n'a pas été configuré", '', 'warning');
+}
+dol_fiche_head($tabLinks, "tab_" . $year);
 
-    ?>
+?>
     <div>
         <p>
             Pour ignorer une ligne, il faut mettre un montant négatif en points additionel.
@@ -402,5 +402,5 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
     </form>
 
-    <?php
-    llxFooter();
+<?php
+llxFooter();

@@ -125,8 +125,8 @@ class BillableFlightQueryHandler
                         $array[$obj->rowid] = $array[$obj->rowid]->addCount(
                             new FlightTypeCount(
                                 'orga_T6',
-                                    $obj->total,
-                                    $this->getFactorByType('orga_T6')
+                                $obj->total,
+                                $this->getFactorByType('orga_T6')
                             )
                         );
                     }
@@ -159,7 +159,7 @@ class BillableFlightQueryHandler
             return $this->getFactorForService($type);
         }
 
-        return (int)$this->conf->$constVariableName;
+        return (int) $this->conf->$constVariableName;
 
     }
 

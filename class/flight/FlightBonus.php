@@ -1,6 +1,6 @@
 <?php
 
-require_once(DOL_DOCUMENT_ROOT.'/flightlog/class/flight/FlightPoints.php');
+require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightPoints.php');
 
 /**
  * A bonus won by a pilot
