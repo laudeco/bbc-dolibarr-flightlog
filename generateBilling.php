@@ -217,7 +217,7 @@ dol_fiche_head($tabLinks, "tab_" . $year);
         print '<td colspan="2">Nom</td>';
         print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 1 : Sponsor") . '</td>';
         print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 2 : Baptême") . '</td>';
-        print '<td class="liste_titre" colspan="2">' . $langs->trans("Organisateur (T1/T2)") . '</td>';
+        print '<td class="liste_titre" colspan="2">' . $langs->trans("Organisateur_(T1/T2)") . '</td>';
         print '<td class="liste_titre" colspan="2">' . $langs->trans("Instructeur") . '</td>';
         print '<td class="liste_titre" colspan="2">' . $langs->trans("Total bonus") . '</td>';
         print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 3 : Privé") . '</td>';

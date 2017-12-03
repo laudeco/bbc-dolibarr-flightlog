@@ -1,0 +1,12 @@
+
+/* Form */
+.flight-form .form-section .form-section-title {
+    text-decoration: underline;
+    color: dodgerblue;
+    border-bottom: solid grey 1px;
+    padding: 3px 10px;
+}
+
+.flight-form .form-section table tr > td {
+    width: 25%;
+}

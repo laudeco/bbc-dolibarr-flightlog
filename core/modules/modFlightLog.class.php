@@ -145,7 +145,9 @@ class modFlightLog extends DolibarrModules
         // If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
         $this->picto = 'flight@flightlog';
 
-        $this->module_parts = array();
+        $this->module_parts = [
+            'css' => '/flightlog/css/flightlog.css',
+        ];
 
         // Data directories to create when module is enabled.
         $this->dirs = array();

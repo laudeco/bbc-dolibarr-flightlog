@@ -26,7 +26,7 @@ if (!$user->rights->flightlog->vol->add) {
  * Put here all code to do according to value of "action" parameter
  * ****************************************************************** */
 $msg = '';
-if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
+if (GETPOST("action") == 'add') {
     if (!$_POST["cancel"]) {
         $dated = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
 
@@ -48,7 +48,7 @@ if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
         $vol->cost = $_POST['cost'];
         $vol->fk_receiver = $_POST['fk_receiver'];
         $vol->justif_kilometers = $_POST['justif_kilometers'];
-        $isGroupedFlight = (int)GETPOST('grouped_flight', 'int',2) === 1;
+        $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
 
         //verification des heures
         $patern = '#[0-9]{4}#';
@@ -87,7 +87,7 @@ if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
             $msg = '<div class="error">Erreur ce type de vol doit être payant.</div>';
             $error++;
         }
-        if($vol->getFlightType()->isBillingRequired() && !$vol->hasReceiver()){
+        if ($vol->getFlightType()->isBillingRequired() && !$vol->hasReceiver()) {
             $msg = '<div class="error">Erreur ce type de vol doit être payant, mais personne n\'a été signalé comme recepteur d\'argent.</div>';
             $error++;
         }
@@ -127,102 +127,164 @@ if ($msg) {
     print $msg;
 }
 
-// Put here content of your page
-print "<form name='add' action=\"addFlight.php\" method=\"post\">\n";
-print '<input type="hidden" name="action" value="add"/>';
-print '<table class="border" width="100%">';
-//date du vol
-print "<tr>";
-print '<td class="fieldrequired"> Date du vol</td><td>';
-print $html->select_date($datec ? $datec : -1, '', '', '', '', 'add', 1, 1);
-print '</td></tr>';
-//type du vol
-print "<tr>";
-print '<td class="fieldrequired"> Type du vol</td><td>';
-select_flight_type($_POST['type']);
-print '</td></tr>';
 ?>
-<tr>
-<td>Il y'avait-il plusieurs ballons ?</td>
-<td><input type="checkbox" value="1" name="grouped_flight" /> - Oui </td>
-</tr>
+    <form class="flight-form" name='add' action="addFlight.php" method="post">
+    <input type="hidden" name="action" value="add"/>
 
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Date & heures'); ?></h1>
+        <table class="border" width="100%">
+            <?php
+            //type du vol
+            print "<tr>";
+            print '<td class="fieldrequired"> Type du vol</td><td colspan="3">';
+            select_flight_type($_POST['type']);
+            print '</td></tr>';
+
+            //date du vol
+            print "<tr>";
+            print '<td class="fieldrequired"> Date du vol</td><td>';
+            print $html->select_date($datec ? $datec : -1, '', '', '', '', 'add', 1, 1);
+            print '</td></tr>';
+
+            //Hour start
+            print '<tr><td class="fieldrequired">Heure de d&#233;part (format autorise XXXX)</td><td width="25%" >';
+            print '<input type="text" name="heureD" class="flat" value="' . $_POST['heureD'] . '"/>';
+            print '</td>';
+
+            //Hour end
+            print '<td class="fieldrequired">Heure d\'arriv&#233;e (format autorise XXXX)</td><td>';
+            print '<input type="text" name="heureA" class="flat" value="' . $_POST['heureA'] . '"/>';
+            print '</td></tr>';
+
+            ?>
+        </table>
+    </section>
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Pilote & ballon') ?></h1>
+        <table class="border" width="50%">
+            <?php
+            //Pilote
+            print "<tr>";
+            print '<td class="fieldrequired"> Pilote </td><td >';
+            print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $_GET["pilot"], 'pilot', $user->id);
+            print '</td></tr>';
+
+            //Ballon
+            print "<tr>";
+            print '<td width="25%" class="fieldrequired">Ballon</td><td>';
+            select_balloons($_POST['ballon'], 'ballon', 0, 0);
+            print '</td></tr>';
+            ?>
+
+            <tr>
+                <td>Il y'avait-il plusieurs ballons ?</td>
+                <td colspan="3"><input type="checkbox" value="1" name="grouped_flight"/> - Oui</td>
+            </tr>
+        </table>
+    </section>
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Lieux') ?></h1>
+        <table class="border" width="100%">
+            <?php
+
+            //place start
+            print "<tr>";
+            print '<td class="fieldrequired">Lieu de d&#233;part </td><td width="25%" >';
+            print '<input type="text" name="lieuD" class="flat" value="' . $_POST['lieuD'] . '"/>';
+            print '</td>';
+
+            //place end
+            print '<td class="fieldrequired">Lieu d\'arriv&#233;e </td><td>';
+            print '<input type="text" name="lieuA" class="flat" value="' . $_POST['lieuA'] . '"/>';
+            print '</td></tr>';
+
+            ?>
+
+        </table>
+    </section>
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Fieldfk_organisateur') ?></h1>
+        <table class="border" width="50%">
+
+            <?php
+
+
+            //organisateur
+            print "<tr>";
+            print '<td class="fieldrequired">' . $langs->trans('Fieldfk_organisateur') . ' </td><td>';
+            print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $_GET["orga"], 'orga', 1);
+            print '</td></tr>';
+            ?>
+
+        </table>
+    </section>
+
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Déplacements') ?></h1>
+        <table class="border" width="50%">
+            <?php
+
+            //Numbe rof kilometrs done for the flight
+            print "<tr>";
+            print '<td class="fieldrequired">Nombre de kilometres effectués pour le vol</td><td>';
+            print '<input type="number" name="kilometers" class="flat" value="' . $_POST['kilometers'] . '"/>';
+            print '</td></tr>';
+
+            //Justif Kilometers
+            print "<tr>";
+            print '<td width="25%" class="fieldrequired">Justificatif des KM</td><td>';
+            print '<textarea rows="2" cols="60" class="flat" name="justif_kilometers" >' . $_POST['justif_kilometers'] . '</textarea> ';
+            print '</td></tr>';
+
+
+            ?>
+        </table>
+    </section>
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Passager') ?></h1>
+        <table class="border" width="50%">
+            <?php
+            //NBR pax
+            print "<tr>";
+            print '<td class="fieldrequired">Nombre de passagers</td><td>';
+            print '<input type="number" name="nbrPax" class="flat" value="' . $_POST['nbrPax'] . '"/>';
+            print '</td></tr>';
+
+            //Flight cost
+            print "<tr>";
+            print '<td class="fieldrequired">Montant perçu</td><td>';
+            print '<input type="text" name="cost" class="flat" value="' . $_POST['cost'] . '"/>';
+            print "&euro;";
+            print '</td></tr>';
+
+            //Money receiver
+            print "<tr>";
+            print '<td class="fieldrequired">Qui a perçu l\'argent</td><td>';
+            print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $_GET["fk_receiver"],
+                'fk_receiver', 1);
+            print '</td></tr>';
+
+            //commentaires
+            print "<tr>";
+            print '<td class="fieldrequired"> Commentaire </td><td>';
+            print '<textarea rows="2" cols="60" class="flat" name="comm" placeholder="RAS">' . $_POST['comm'] . '</textarea> ';
+            print '</td></tr>';
+
+            //incidents
+            print "<tr>";
+            print '<td class="fieldrequired"> incidents </td><td>';
+            print '<textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS">' . $_POST['inci'] . '</textarea> ';
+            print '</td></tr>';
+            ?>
+        </table>
+    </section>
 <?php
-print '</td></tr>';
-//Pilote
-print "<tr>";
-print '<td class="fieldrequired"> Pilote </td><td>';
-print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $_GET["pilot"], 'pilot', $user->id);
-print '</td></tr>';
-//organisateur
-print "<tr>";
-print '<td class="fieldrequired"> Organisateur </td><td>';
-print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $_GET["orga"], 'orga', 1);
-print '</td></tr>';
-//Ballon
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Ballon</td><td>';
-select_balloons($_POST['ballon'], 'ballon', 0, 0);
-print '</td></tr>';
-//lieu d�part
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Lieu de d&#233;part </td><td>';
-print '<input type="text" name="lieuD" class="flat" value="' . $_POST['lieuD'] . '"/>';
-print '</td></tr>';
-//lieu arriv�e
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Lieu d\'arriv&#233;e </td><td>';
-print '<input type="text" name="lieuA" class="flat" value="' . $_POST['lieuA'] . '"/>';
-print '</td></tr>';
-//heure d�part
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Heure de d&#233;part <br/>(format autorise XXXX)</td><td>';
-print '<input type="text" name="heureD" class="flat" value="' . $_POST['heureD'] . '"/>';
-print '</td></tr>';
-//heure arriv�e
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Heure d\'arriv&#233;e <br/>(format autorise XXXX)</td><td>';
-print '<input type="text" name="heureA" class="flat" value="' . $_POST['heureA'] . '"/>';
-print '</td></tr>';
-//Numbe rof kilometrs done for the flight
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Nombre de kilometres effectués pour le vol</td><td>';
-print '<input type="number" name="kilometers" class="flat" value="' . $_POST['kilometers'] . '"/>';
-print '</td></tr>';
-
-//Justif Kilometers
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Justificatif des KM</td><td>';
-print '<textarea rows="2" cols="60" class="flat" name="justif_kilometers" >' . $_POST['justif_kilometers'] . '</textarea> ';
-print '</td></tr>';
-//NBR pax
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Nombre de passagers</td><td>';
-print '<input type="number" name="nbrPax" class="flat" value="' . $_POST['nbrPax'] . '"/>';
-print '</td></tr>';
-//Flight cost
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Montant perçu</td><td>';
-print '<input type="text" name="cost" class="flat" value="' . $_POST['cost'] . '"/>';
-print "&euro;";
-print '</td></tr>';
-//Money receiver
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Qui a perçu l\'argent</td><td>';
-print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $_GET["fk_receiver"], 'fk_receiver', 1);
-print '</td></tr>';
-//commentaires
-print "<tr>";
-print '<td class="fieldrequired"> Commentaire </td><td>';
-print '<textarea rows="2" cols="60" class="flat" name="comm" placeholder="RAS">' . $_POST['comm'] . '</textarea> ';
-print '</td></tr>';
-//incidents
-print "<tr>";
-print '<td class="fieldrequired"> incidents </td><td>';
-print '<textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS">' . $_POST['inci'] . '</textarea> ';
-print '</td></tr>';
-
-print '</table>';
 
 print '<br><input class="button" type="submit" value="' . $langs->trans("Save") . '"> &nbsp; &nbsp; ';
 print '<input class="button" type="submit" name="cancel" value="' . $langs->trans("Cancel") . '">';
