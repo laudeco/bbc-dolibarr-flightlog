@@ -113,7 +113,7 @@ $balloon = new Bbc_ballons($db);
 $extralabels = $extrafields->fetch_name_optionals_label($object->table_element);
 
 // Load object
-include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php';  // Must be include, not include_once  // Must be include, not include_once. Include fetch and fetch_thirdparty but not fetch_optionals
+include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php';  // Must be include, not include_once. Include fetch and fetch_thirdparty but not fetch_optionals
 include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
 
 // Initialize technical object to manage hooks of modules. Note that conf->hooks_modules contains array array
@@ -146,92 +146,22 @@ if ($reshook < 0) {
 
 if (empty($reshook)) {
 
-    // Action to add record
-    if ($action == 'add') {
-
-        if (GETPOST('cancel')) {
-            $urltogo = $backtopage ? $backtopage : dol_buildpath('/flightlog/list.php', 1);
-            header("Location: " . $urltogo);
-            exit;
-        }
-
-        $error = 0;
-
-        /* object_prop_getpost_prop */
-
-        $object->idBBC_vols = GETPOST('idBBC_vols', 'int');
-        $object->lieuD = GETPOST('lieuD', 'alpha');
-        $object->lieuA = GETPOST('lieuA', 'alpha');
-        $object->heureD = GETPOST('heureD', 'alpha');
-        $object->heureA = GETPOST('heureA', 'alpha');
-        $object->BBC_ballons_idBBC_ballons = GETPOST('BBC_ballons_idBBC_ballons', 'int');
-        $object->nbrPax = GETPOST('nbrPax', 'alpha');
-        $object->remarque = GETPOST('remarque', 'alpha');
-        $object->incidents = GETPOST('incidents', 'alpha');
-        $object->fk_type = GETPOST('fk_type', 'int');
-        $object->fk_pilot = GETPOST('fk_pilot', 'int');
-        $object->fk_organisateur = GETPOST('fk_organisateur', 'int');
-        $object->is_facture = GETPOST('is_facture', 'int');
-        $object->kilometers = GETPOST('kilometers', 'int');
-        $object->cost = GETPOST('cost', 'alpha');
-        $object->fk_receiver = GETPOST('fk_receiver', 'int');
-        $object->justif_kilometers = GETPOST('justif_kilometers', 'alpha');
-
-
-        if (empty($object->idBBC_vols)) {
-            $error++;
-            setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("idBBC_vols")), null,
-                'errors');
-        }
-
-        if (!$error) {
-            $result = $object->create($user);
-            if ($result > 0) {
-                // Creation OK
-
-                include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
-                $interface = new Interfaces($db);
-                $result = $interface->run_triggers('BBC_FLIGHT_LOG_ADD_FLIGHT', $object, $user, $langs, $conf);
-
-                $urltogo = $backtopage ? $backtopage : dol_buildpath('/flightlog/list.php', 1);
-                header("Location: " . $urltogo);
-                exit;
-            }
-            else{
-                // Creation KO
-                if (!empty($object->errors)) {
-                    setEventMessages(null, $object->errors, 'errors');
-                } else {
-                    setEventMessages($object->error, null, 'errors');
-                }
-                $action = 'create';
-            }
-        } else {
-            $action = 'create';
-        }
-    }
-
     // Action to update record
     if ($action == 'update') {
         $error = 0;
 
-        $object->date = dol_mktime(12, 0, 0, GETPOST("remonth"), GETPOST("reday"), GETPOST("reyear"));
         $object->idBBC_vols = GETPOST('idBBC_vols', 'int');
         $object->id = $object->idBBC_vols;
+
         $object->lieuD = GETPOST('lieuD', 'alpha');
         $object->lieuA = GETPOST('lieuA', 'alpha');
         $object->heureD = GETPOST('heureD_h', 'int') . ":" . GETPOST('heureD_m', 'int') . ":00";
         $object->heureA = GETPOST('heureA_h', 'int') . ":" . GETPOST('heureA_m', 'int') . ":00";
         $object->BBC_ballons_idBBC_ballons = GETPOST('BBC_ballons_idBBC_ballons', 'int');
-        $object->nbrPax = GETPOST('nbrPax', 'alpha');
+
         $object->remarque = GETPOST('remarque', 'alpha');
         $object->incidents = GETPOST('incidents', 'alpha');
-        $object->fk_type = GETPOST('fk_type', 'int');
-        $object->fk_pilot = GETPOST('fk_pilot', 'int');
-        $object->fk_organisateur = GETPOST('fk_organisateur', 'int');
         $object->kilometers = GETPOST('kilometers', 'int') ?: $object->kilometers;
-        $object->cost = GETPOST('cost', 'alpha') ?: $object->cost;
-        $object->fk_receiver = GETPOST('fk_receiver', 'int') ?: $object->fk_receiver;
         $object->justif_kilometers = GETPOST('justif_kilometers', 'alpha') ?: $object->justif_kilometers;
 
 
@@ -265,17 +195,13 @@ if (empty($reshook)) {
             setEventMessage("Erreur le champ : nombre de passagers", 'errors');
         }
 
-        if (!$pilotService->isPilot($object->fk_pilot)) {
-            $error++;
-            setEventMessage($langs->trans("Le pilote selectionne n'est pas pilote", 'errors'));
-        }
-
         // action : edit
         if (!$error) {
             $result = $object->update($user);
             if ($result > 0) {
                 $action = 'view';
 
+                $object->id = $object->idBBC_vols;
                 $receiver->fetch($object->fk_receiver);
                 $pilot->fetch($object->fk_pilot);
                 $organisator->fetch($object->fk_organisateur);
@@ -342,45 +268,6 @@ jQuery(document).ready(function() {
 </script>';
 
 
-// Part to create
-if ($action == 'create') {
-    print load_fiche_titre($langs->trans("NewMyModule"));
-
-    print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-    print '<input type="hidden" name="action" value="add">';
-    print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
-
-    dol_fiche_head();
-
-    print '<table class="border centpercent">' . "\n";
-    print '<tr><td class="fieldrequired">' . $langs->trans("FieldidBBC_vols") . '</td><td><input class="flat" type="text" name="idBBC_vols" value="' . GETPOST('idBBC_vols') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("FieldlieuD") . '</td><td><input class="flat" type="text" name="lieuD" value="' . GETPOST('lieuD') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("FieldlieuA") . '</td><td><input class="flat" type="text" name="lieuA" value="' . GETPOST('lieuA') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("FieldheureD") . '</td><td><input class="flat" type="text" name="heureD" value="' . GETPOST('heureD') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("FieldheureA") . '</td><td><input class="flat" type="text" name="heureA" value="' . GETPOST('heureA') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("FieldBBC_ballons_idBBC_ballons") . '</td><td><input class="flat" type="text" name="BBC_ballons_idBBC_ballons" value="' . GETPOST('BBC_ballons_idBBC_ballons') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("FieldnbrPax") . '</td><td><input class="flat" type="text" name="nbrPax" value="' . GETPOST('nbrPax') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldremarque") . '</td><td><input class="flat" type="text" name="remarque" value="' . GETPOST('remarque') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldincidents") . '</td><td><input class="flat" type="text" name="incidents" value="' . GETPOST('incidents') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_type") . '</td><td><input class="flat" type="text" name="fk_type" value="' . GETPOST('fk_type') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_pilot") . '</td><td><input class="flat" type="text" name="fk_pilot" value="' . GETPOST('fk_pilot') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_organisateur") . '</td><td><input class="flat" type="text" name="fk_organisateur" value="' . GETPOST('fk_organisateur') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldis_facture") . '</td><td><input class="flat" type="text" name="is_facture" value="' . GETPOST('is_facture') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldkilometers") . '</td><td><input class="flat" type="text" name="kilometers" value="' . GETPOST('kilometers') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldcost") . '</td><td><input class="flat" type="text" name="cost" value="' . GETPOST('cost') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_receiver") . '</td><td><input class="flat" type="text" name="fk_receiver" value="' . GETPOST('fk_receiver') . '"></td></tr>';
-    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldjustif_kilometers") . '</td><td><input class="flat" type="text" name="justif_kilometers" value="' . GETPOST('justif_kilometers') . '"></td></tr>';
-
-    print '</table>' . "\n";
-
-    dol_fiche_end();
-
-    print '<div class="center"><input type="submit" class="button" name="add" value="' . $langs->trans("Create") . '"> &nbsp; <input type="submit" class="button" name="cancel" value="' . $langs->trans("Cancel") . '"></div>';
-
-    print '</form>';
-}
-
-
 // Part to edit record
 if (($id || $ref) && $action == 'edit') {
     print load_fiche_titre($langs->trans("MyModule"));
@@ -394,9 +281,6 @@ if (($id || $ref) && $action == 'edit') {
 
     print '<table class="border centpercent">' . "\n";
 
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldDate") . "</td><td>";
-    print $form->select_date($object->date, '', '', '', '', 'add', 1, 1);
-    print "</td></tr>";
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldlieuD") . "</td><td><input class=\"flat\" type=\"text\" name=\"lieuD\" value=\"" . $object->lieuD . "\"></td></tr>";
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldlieuA") . "</td><td><input class=\"flat\" type=\"text\" name=\"lieuA\" value=\"" . $object->lieuA . "\"></td></tr>";
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldheureD") . "</td><td><input class=\"flat\" min=\"0\" max=\"23\" type=\"number\" name=\"heureD_h\" value=\"" . explode(":",
@@ -408,22 +292,11 @@ if (($id || $ref) && $action == 'edit') {
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldBBC_ballons_idBBC_ballons") . "</td><td>";
     select_balloons($object->BBC_ballons_idBBC_ballons, "BBC_ballons_idBBC_ballons");
     print "</td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldnbrPax") . "</td><td><input class=\"flat\" type=\"number\" name=\"nbrPax\" value=\"" . $object->nbrPax . "\"></td></tr>";
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldremarque") . "</td><td><textarea class=\"flat\" name=\"remarque\">" . $object->remarque . "</textarea></td></tr>";
     print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldincidents") . "</td><td><textarea class=\"flat\" name=\"incidents\">" . $object->incidents . "</textarea></td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_type") . "</td><td>";
-    select_flight_type($object->fk_type, "fk_type");
-    print "</td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_pilot") . "</td><td>" . $form->select_dolusers($object->fk_pilot,
-            "fk_pilot", 0, '', 0, '', '', 0, 0, 0, '', 0, '', '', 1) . "</td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_organisateur") . "</td><td>" . $form->select_dolusers($object->fk_organisateur,
-            "fk_organisateur") . "</td></tr>";
 
     if ($user->rights->flightlog->vol->financial || $user->id == $object->fk_pilot) {
         print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldkilometers") . "</td><td><input class=\"flat\" type=\"number\" name=\"kilometers\" value=\"" . $object->kilometers . "\"></td></tr>";
-        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldcost") . "</td><td><input class=\"flat\" type=\"number\" name=\"cost\" value=\"" . $object->cost . "\"></td></tr>";
-        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldfk_receiver") . "</td><td>" . $form->select_dolusers($object->fk_receiver,
-                "fk_receiver", true) . "</td></tr>";
         print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldjustif_kilometers") . "</td><td><textarea class=\"flat\" name=\"justif_kilometers\">" . $object->justif_kilometers . "</textarea></td></tr>";
     }
     print '</table>';

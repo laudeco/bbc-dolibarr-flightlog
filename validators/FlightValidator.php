@@ -35,7 +35,7 @@ class FlightValidator extends AbstractValidator
         }
 
         // PAX
-        if ($vol->nbrPax < 0) {
+        if (!is_integer($vol->nbrPax)||$vol->nbrPax < 0) {
             $this->addError('nbrPax', 'Erreur le nombre de passager est un nombre négatif.');
         }
 
