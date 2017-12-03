@@ -149,10 +149,10 @@ class Bbcvols extends CommonObject
             $this->lieuA = trim($this->lieuA);
         }
         if (isset($this->heureD)) {
-            $this->heureD = trim($this->heureD);
+            $this->heureD = trim($this->heureD).'00';
         }
         if (isset($this->heureA)) {
-            $this->heureA = trim($this->heureA);
+            $this->heureA = trim($this->heureA).'00';
         }
         if (isset($this->BBC_ballons_idBBC_ballons)) {
             $this->BBC_ballons_idBBC_ballons = trim($this->BBC_ballons_idBBC_ballons);

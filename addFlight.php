@@ -10,15 +10,16 @@ global $db, $langs, $user, $conf;
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
+dol_include_once("/flightlog/validators/FlightValidator.php");
 
 // Load translation files required by the page
 $langs->load("mymodule@flightlog");
 
+$validator = new FlightValidator($langs);
 
 if (!$user->rights->flightlog->vol->add) {
     accessforbidden();
 }
-
 
 /* * *****************************************************************
  * ACTIONS
@@ -50,49 +51,7 @@ if (GETPOST("action") == 'add') {
         $vol->justif_kilometers = $_POST['justif_kilometers'];
         $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
 
-        //verification des heures
-        $patern = '#[0-9]{4}#';
-        $error = 0;
-        if (preg_match($patern, $vol->heureD) == 0 || strlen($vol->heureD) != 4) {
-            $msg = '<div class="error">L\'heure depart n\'est pas correcte</div>';
-            $error++;
-        } else {
-            $vol->heureD = $vol->heureD . '00';
-        }
-        if (preg_match($patern, $vol->heureA) == 0 || strlen($vol->heureA) != 4) {
-            $msg = '<div class="error">L\'heure d\'arrivee n\'est pas correcte</div>';
-            $error++;
-        } else {
-            $vol->heureA = $vol->heureA . '00';
-        }
-
-        if ($error == 0 && ($vol->heureA - $vol->heureD) <= 0) {
-            $msg = '<div class="error">L\'heure de depart est plus grande  que l\'heure d\'arrivee</div>';
-            $error++;
-        }
-
-        // PAX
-        if ($vol->nbrPax < 0) {
-            $msg = '<div class="error">Erreur le nombre de passager est un nombre négatif.</div>';
-            $error++;
-        }
-
-        if ($vol->mustHavePax() && !$vol->hasPax()) {
-            $msg = '<div class="error">Erreur ce type de vol doit etre fait avec des passagers.</div>';
-            $error++;
-        }
-
-        // verification billing
-        if (!$isGroupedFlight && $vol->getFlightType()->isBillingRequired() && $vol->isFree()) {
-            $msg = '<div class="error">Erreur ce type de vol doit être payant.</div>';
-            $error++;
-        }
-        if ($vol->getFlightType()->isBillingRequired() && !$vol->hasReceiver()) {
-            $msg = '<div class="error">Erreur ce type de vol doit être payant, mais personne n\'a été signalé comme recepteur d\'argent.</div>';
-            $error++;
-        }
-
-        if ($error == 0) {
+        if ($validator->isValid($vol, $_REQUEST)) {
             $result = $vol->create($user);
             if ($result > 0) {
                 //creation OK
@@ -106,7 +65,6 @@ if (GETPOST("action") == 'add') {
             } else {
                 // Creation KO
                 $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . $vol->error . '! </div>';
-                $error++;
             }
         }
     }
@@ -128,9 +86,18 @@ if ($msg) {
 }
 
 ?>
+
+    <div class="errors error-messages">
+        <?php
+        foreach ($validator->getErrors() as $errorMessage) {
+            print sprintf('<div class="error"><span>%s</span></div>', $errorMessage);
+        }
+        ?>
+    </div>
     <form class="flight-form" name='add' action="addFlight.php" method="post">
     <input type="hidden" name="action" value="add"/>
 
+    <!-- Date et heures -->
     <section class="form-section">
         <h1 class="form-section-title"><?php echo $langs->trans('Date & heures'); ?></h1>
         <table class="border" width="100%">
@@ -148,16 +115,23 @@ if ($msg) {
             print '</td></tr>';
 
             //Hour start
-            print '<tr><td class="fieldrequired">Heure de d&#233;part (format autorise XXXX)</td><td width="25%" >';
-            print '<input type="text" name="heureD" class="flat" value="' . $_POST['heureD'] . '"/>';
-            print '</td>';
+            print '<tr><td class="fieldrequired">Heure de d&#233;part (format autorise XXXX)</td><td width="25%" >'; ?>
+            <input type="text"
+                   name="heureD"
+                   class="flat <?php echo($validator->hasError('heureD') ? 'error' : '') ?>"
+                   value="<?php echo $_POST['heureD'] ?>" />
+            </td>
 
+            <?php
             //Hour end
-            print '<td class="fieldrequired">Heure d\'arriv&#233;e (format autorise XXXX)</td><td>';
-            print '<input type="text" name="heureA" class="flat" value="' . $_POST['heureA'] . '"/>';
-            print '</td></tr>';
+            print '<td class="fieldrequired">Heure d\'arriv&#233;e (format autorise XXXX)</td><td>'; ?>
+            <input type="text"
+                   name="heureA"
+                   class="flat <?php echo($validator->hasError('heureA') ? 'error' : '') ?>"
+                   value="<?php echo $_POST['heureA'] ?>" />
+            </td>
+            </tr>
 
-            ?>
         </table>
     </section>
 
@@ -246,16 +220,21 @@ if ($msg) {
         </table>
     </section>
 
+    <!-- Passagers -->
     <section class="form-section">
         <h1 class="form-section-title"><?php echo $langs->trans('Passager') ?></h1>
         <table class="border" width="50%">
-            <?php
-            //NBR pax
-            print "<tr>";
-            print '<td class="fieldrequired">Nombre de passagers</td><td>';
-            print '<input type="number" name="nbrPax" class="flat" value="' . $_POST['nbrPax'] . '"/>';
-            print '</td></tr>';
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans('Nombre de passagers'); ?></td>
+                <td>
+                    <input type="number"
+                           name="nbrPax"
+                           class="flat <?php echo $validator->hasError('nbrPax') ? 'error' : '' ?>"
+                           value="<?php echo $_POST['nbrPax'] ?>"/>
+                </td>
+            </tr>
 
+            <?php
             //Flight cost
             print "<tr>";
             print '<td class="fieldrequired">Montant perçu</td><td>';
