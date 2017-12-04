@@ -30,6 +30,8 @@ dol_include_once('/flightballoon/bbc_ballons.class.php');
 dol_include_once("/product/class/product.class.php");
 dol_include_once('/core/modules/facture/modules_facture.php');
 dol_include_once('/fourn/class/fournisseur.class.php');
+dol_include_once('/flightlog/command/CreateFlightBillCommand.php');
+dol_include_once('/flightlog/command/CreateFlightBillCommandHandlerFactory.php');
 
 global $db, $langs, $user, $conf;
 
@@ -82,6 +84,7 @@ $customer->fetch($conf->global->BBC_FLIGHT_DEFAULT_CUSTOMER ?: $adherent->fk_soc
 
 $balloon = new Bbc_ballons($db);
 $balloon->fetch($flight->BBC_ballons_idBBC_ballons);
+$handler = CreateFlightBillCommandHandlerFactory::factory($db, $conf->global, $user, $langs);
 
 //Query
 
@@ -106,108 +109,9 @@ if (empty($action)) {
     $action = EXPENSE_REPORT_GENERATOR_ACTION_CREATE;
 }
 
-/*
- * ACTIONS
- *
- * Put here all code to do according to value of "action" parameter
- */
-
-if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
-    if (empty($documentModel) || $conditionReglement == 0 || empty($conditionReglement) || $modeReglement == 0 || empty($modeReglement) || !$flight) {
-        dol_htmloutput_errors("Erreur de configuration !");
-    } else {
-        $object = new Facture($db);
-        $object->fetch_thirdparty();
-
-        $object->socid = $customer->id;
-        $object->type = $type;
-        $object->number = "provisoire";
-        $object->date = $flight->date;
-        $object->date_pointoftax = "";
-        $object->note_public = $publicNote;
-        $object->note_private = $privateNote;
-        $object->ref_client = "";
-        $object->ref_int = "";
-        $object->modelpdf = $documentModel;
-        $object->cond_reglement_id = $conditionReglement;
-        $object->mode_reglement_id = $modeReglement;
-        $object->fk_account = $bankAccount;
-
-        $id = $object->create($user);
-
-        if ($id <= 0) {
-            setEventMessages($object->error, $object->errors, 'errors');
-        }
-
-        $localtax1_tx = get_localtax(0, 1, $object->thirdparty);
-        $localtax2_tx = get_localtax(0, 2, $object->thirdparty);
-
-        $pu_ht = price2num($flightProduct->price, 'MU');
-        $pu_ttc = price2num($flightProduct->price_ttc, 'MU');
-        $pu_ht_devise = price2num($flightProduct->price, 'MU');
 
 
-        $discount = ($flightProduct->price_ttc - $puFlight) * 100 / $flightProduct->price_ttc;
 
-        $result = $object->addline(
-            $flightProduct->description,
-            $pu_ht,
-            $flight->nbrPax,
-            0,
-            $localtax1_tx,
-            $localtax2_tx,
-            $t3->service->id,
-            $discount,
-            $flight->date,
-            $flight->date,
-            0,
-            0,
-            '',
-            'TTC',
-            $pu_ttc,
-            1,
-            -1,
-            0,
-            '',
-            0,
-            0,
-            '',
-            '',
-            $flightProduct->label,
-            [],
-            100,
-            '',
-            0,
-            0
-        );
-
-        $object->add_object_linked('flightlog_bbcvols', $flight->getId());
-
-        $object->add_contact($flight->fk_pilot, 'BBC_PILOT', 'internal');
-        $object->add_contact($flight->fk_receiver, 'BBC_RECEIVER', 'internal');
-        $object->add_contact($flight->fk_organisateur, 'BBC_ORGANISATOR', 'internal');
-
-        $ret = $object->fetch($id);
-        $result = $object->generateDocument($documentModel, $langs, $hidedetails, $hidedesc, $hideref);
-
-        // Validate
-        $object->fetch($id);
-        $object->validate($user);
-
-        // Generate document
-        $object->fetch($id);
-        $result = $object->generateDocument($documentModel, $langs, $hidedetails, $hidedesc, $hideref);
-
-        if ($result > 0) {
-            $flight->is_facture = true;
-            $flight->update($user);
-
-            Header("Location: card.php?id=" . $flight->getId());
-        } else {
-            dol_htmloutput_errors("Facture non créée");
-        }
-    }
-}
 
 /*
  * VIEW
@@ -215,9 +119,25 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
  * Put here all code to build page
  */
 llxHeader('', $langs->trans('Generate billing'), '');
+
+
+/*
+ * ACTIONS
+ *
+ * Put here all code to do according to value of "action" parameter
+ */
+if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
+    try{
+        $command = new CreateFlightBillCommand($flight->getId(), $modeReglement, $conditionReglement, $documentModel, $type, $publicNote, $privateNote,$bankAccount);
+        $handler->handle($command);
+        Header("Location: card.php?id=" . $flight->getId());
+    }catch (\Exception $e){
+        dol_syslog($e->getMessage(),LOG_ERR);
+        dol_htmloutput_mesg("Facture non créée", '', 'error');
+    }
+}
+
 print load_fiche_titre("Créer facture");
-
-
 $form = new Form($db);
 
 if (!$flightProduct) {
