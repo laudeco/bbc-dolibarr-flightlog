@@ -893,8 +893,8 @@ while ($i < min($num, $limit)) {
         }
         if (! empty($arrayfields['t.cost']['checked']))
         {
-            if($user->rights->flightlog->vol->financial || $user->id == $flight->fk_pilot){
-                print '<td>'.$obj->cost.'€</td>';
+            if(($user->rights->flightlog->vol->financial || $user->id == $flight->fk_pilot) && $obj->cost > 0){
+                print sprintf('<td>%s€ - (%s€/pax)</td>', price($obj->cost), price($obj->cost/$obj->nbrPax));
             }else{
                 print '<td> - €</td>';
             }
