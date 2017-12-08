@@ -119,7 +119,7 @@ if ($msg) {
             <input type="text"
                    name="heureD"
                    class="flat <?php echo($validator->hasError('heureD') ? 'error' : '') ?>"
-                   value="<?php echo $_POST['heureD'] ?>" />
+                   value="<?php echo $_POST['heureD'] ?>"/>
             </td>
 
             <?php
@@ -128,7 +128,7 @@ if ($msg) {
             <input type="text"
                    name="heureA"
                    class="flat <?php echo($validator->hasError('heureA') ? 'error' : '') ?>"
-                   value="<?php echo $_POST['heureA'] ?>" />
+                   value="<?php echo $_POST['heureA'] ?>"/>
             </td>
             </tr>
 
@@ -201,22 +201,24 @@ if ($msg) {
     <section class="form-section">
         <h1 class="form-section-title"><?php echo $langs->trans('Déplacements') ?></h1>
         <table class="border" width="50%">
-            <?php
+            <!-- number of kilometers done for the flight -->
+            <tr>
+                <td class="fieldrequired">Nombre de kilometres effectués pour le vol</td>
+                <td>
+                    <input type="number" name="kilometers" class="flat <?php echo($validator->hasError('kilometers') ? 'error' : '') ?>" value="<?php echo $_POST['kilometers'] ?>"/>
+                </td>
+            </tr>
 
-            //Numbe rof kilometrs done for the flight
-            print "<tr>";
-            print '<td class="fieldrequired">Nombre de kilometres effectués pour le vol</td><td>';
-            print '<input type="number" name="kilometers" class="flat" value="' . $_POST['kilometers'] . '"/>';
-            print '</td></tr>';
+            <!-- Justif Kilometers -->
+            <tr>
 
-            //Justif Kilometers
-            print "<tr>";
-            print '<td width="25%" class="fieldrequired">Justificatif des KM</td><td>';
-            print '<textarea rows="2" cols="60" class="flat" name="justif_kilometers" >' . $_POST['justif_kilometers'] . '</textarea> ';
-            print '</td></tr>';
-
-
-            ?>
+                <td width="25%" class="fieldrequired">Justificatif des KM </td>
+                <td>
+                    <textarea rows="2" cols="60" class="flat <?php echo($validator->hasError('justif_kilometers') ? 'error' : '') ?>" name="justif_kilometers">
+                        <?php echo $_POST['justif_kilometers'] ?>
+                    </textarea>
+                </td>
+            </tr>
         </table>
     </section>
 

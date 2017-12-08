@@ -53,6 +53,18 @@ class FlightValidator extends AbstractValidator
                 'Erreur ce type de vol doit être payant, mais personne n\'a été signalé comme recepteur d\'argent.');
         }
 
+
+        //Kilometers
+        if($vol->hasKilometers() && !$vol->getKilometers() > 0){
+            $this->addError('kilometers',
+                'Les kilometres doivent être un nombre positif');
+        }
+
+        if($vol->hasKilometers() && !$vol->hasKilometersDescription()){
+            $this->addError('justif_kilometers',
+                'Vous essayez d\'encoder des kilometres sans justificatif.');
+        }
+
         return $this->valid;
     }
 

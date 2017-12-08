@@ -922,6 +922,26 @@ class Bbcvols extends CommonObject
         return !empty($this->fk_receiver);
     }
 
+    /**
+     * @return boolean
+     */
+    public function hasKilometers(){
+        return !empty($this->kilometers);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasKilometersDescription(){
+        return !empty($this->justif_kilometers);
+    }
+
+    /**
+     * @return int
+     */
+    public function getKilometers(){
+        return $this->kilometers;
+    }
 }
 
 /**
