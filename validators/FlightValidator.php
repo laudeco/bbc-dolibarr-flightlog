@@ -47,16 +47,16 @@ class FlightValidator extends AbstractValidator
             $this->addError('heures', 'L\'heure de depart est plus grande  que l\'heure d\'arrivee');
         }
 
-        if(empty($vol->lieuD)){
+        if (empty($vol->lieuD)) {
             $this->addError('lieuD', 'Le lieu de départ est vide');
         }
 
-        if(empty($vol->lieuA)){
+        if (empty($vol->lieuA)) {
             $this->addError('lieuA', 'Le lieu d\'arrivée est vide');
         }
 
         // PAX
-        if (!is_numeric($vol->nbrPax) || (int)$vol->nbrPax < 0) {
+        if (!is_numeric($vol->nbrPax) || (int) $vol->nbrPax < 0) {
             $this->addError('nbrPax', 'Erreur le nombre de passager est un nombre négatif.');
         }
 
@@ -74,18 +74,19 @@ class FlightValidator extends AbstractValidator
                 'Erreur ce type de vol doit être payant, mais personne n\'a été signalé comme recepteur d\'argent.');
         }
 
-        if($vol->getFlightType()->isBillingRequired() && ($vol->getAmountPerPassenger()) < $this->getMinPrice()){
+        if ($vol->getFlightType()->isBillingRequired() && ($vol->getAmountPerPassenger()) < $this->getMinPrice()) {
             $this->addError('cost',
-                sprintf('Le montant demandé pour ce vol n\'est pas suffisant un minimum de %s euros est demandé', $this->getMinPrice()));
+                sprintf('Le montant demandé pour ce vol n\'est pas suffisant un minimum de %s euros est demandé',
+                    $this->getMinPrice()));
         }
 
         //Kilometers
-        if($vol->hasKilometers() && !$vol->getKilometers() > 0){
+        if ($vol->hasKilometers() && !$vol->getKilometers() > 0) {
             $this->addError('kilometers',
                 'Les kilometres doivent être un nombre positif');
         }
 
-        if($vol->hasKilometers() && !$vol->hasKilometersDescription()){
+        if ($vol->hasKilometers() && !$vol->hasKilometersDescription()) {
             $this->addError('justif_kilometers',
                 'Vous essayez d\'encoder des kilometres sans justificatif.');
         }
@@ -128,7 +129,8 @@ class FlightValidator extends AbstractValidator
      *
      * @return int
      */
-    public function getMinPrice(){
+    public function getMinPrice()
+    {
         if ($this->defaultService->price_base_type == 'TTC') {
             return $this->defaultService->price_min;
         }
