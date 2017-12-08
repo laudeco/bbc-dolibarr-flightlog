@@ -23,13 +23,20 @@ abstract class AbstractValidator implements ValidatorInterface
     protected $valid;
 
     /**
+     * @var DoliDB
+     */
+    protected $db;
+
+    /**
      * AbstractValidator constructor.
      *
      * @param Translate $langs
+     * @param DoliDB    $db
      */
-    public function __construct(Translate $langs)
+    public function __construct(Translate $langs, DoliDB $db)
     {
         $this->langs = $langs;
+        $this->db = $db;
     }
 
     /**

@@ -10,6 +10,19 @@ require_once __DIR__ . '/../class/bbcvols.class.php';
  */
 class FlightValidator extends AbstractValidator
 {
+    /**
+     * @var Product
+     */
+    private $defaultService;
+
+    /**
+     * @inheritDoc
+     */
+    public function __construct(Translate $langs, DoliDB $db, $defaultServiceId)
+    {
+        parent::__construct($langs, $db);
+        $this->fetchService($defaultServiceId);
+    }
 
     /**
      * {@inheritdoc}
@@ -34,8 +47,16 @@ class FlightValidator extends AbstractValidator
             $this->addError('heures', 'L\'heure de depart est plus grande  que l\'heure d\'arrivee');
         }
 
+        if(empty($vol->lieuD)){
+            $this->addError('lieuD', 'Le lieu de départ est vide');
+        }
+
+        if(empty($vol->lieuA)){
+            $this->addError('lieuA', 'Le lieu d\'arrivée est vide');
+        }
+
         // PAX
-        if (!is_integer($vol->nbrPax) || $vol->nbrPax < 0) {
+        if (!is_numeric($vol->nbrPax) || (int)$vol->nbrPax < 0) {
             $this->addError('nbrPax', 'Erreur le nombre de passager est un nombre négatif.');
         }
 
@@ -53,6 +74,10 @@ class FlightValidator extends AbstractValidator
                 'Erreur ce type de vol doit être payant, mais personne n\'a été signalé comme recepteur d\'argent.');
         }
 
+        if($vol->getFlightType()->isBillingRequired() && ($vol->getAmountPerPassenger()) < $this->getMinPrice()){
+            $this->addError('cost',
+                sprintf('Le montant demandé pour ce vol n\'est pas suffisant un minimum de %s euros est demandé', $this->getMinPrice()));
+        }
 
         //Kilometers
         if($vol->hasKilometers() && !$vol->getKilometers() > 0){
@@ -87,5 +112,26 @@ class FlightValidator extends AbstractValidator
     {
         $patern = '#[0-9]{4}#';
         return !(preg_match($patern, $hour) == 0 || strlen($hour) != 4);
+    }
+
+    /**
+     * @param $defaultServiceId
+     */
+    private function fetchService($defaultServiceId)
+    {
+        $this->defaultService = new Product($this->db);
+        $this->defaultService->fetch($defaultServiceId);
+    }
+
+    /**
+     * Returns the minimum price.
+     *
+     * @return int
+     */
+    public function getMinPrice(){
+        if ($this->defaultService->price_base_type == 'TTC') {
+            return $this->defaultService->price_min;
+        }
+        return $this->defaultService->price_min_ttc;
     }
 }

@@ -915,6 +915,20 @@ class Bbcvols extends CommonObject
     }
 
     /**
+     * @return int
+     */
+    public function getAmountReceived(){
+        return $this->cost;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAmountPerPassenger(){
+        return $this->cost / $this->nbrPax;
+    }
+
+    /**
      * @return boolean
      */
     public function hasReceiver()
@@ -933,7 +947,7 @@ class Bbcvols extends CommonObject
      * @return boolean
      */
     public function hasKilometersDescription(){
-        return !empty($this->justif_kilometers);
+        return !empty(trim($this->justif_kilometers));
     }
 
     /**

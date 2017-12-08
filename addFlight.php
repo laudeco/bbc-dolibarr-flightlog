@@ -15,7 +15,7 @@ dol_include_once("/flightlog/validators/FlightValidator.php");
 // Load translation files required by the page
 $langs->load("mymodule@flightlog");
 
-$validator = new FlightValidator($langs);
+$validator = new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER);
 
 if (!$user->rights->flightlog->vol->add) {
     accessforbidden();
@@ -236,14 +236,16 @@ if ($msg) {
                 </td>
             </tr>
 
-            <?php
-            //Flight cost
-            print "<tr>";
-            print '<td class="fieldrequired">Montant perçu</td><td>';
-            print '<input type="text" name="cost" class="flat" value="' . $_POST['cost'] . '"/>';
-            print "&euro;";
-            print '</td></tr>';
+            <!-- Flight cost -->
+            <tr>
+                <td class="fieldrequired">Montant perçu</td>
+                <td>
+                    <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost'] ?> "/>
+                    &euro;
+                </td>
+            </tr>
 
+            <?php
             //Money receiver
             print "<tr>";
             print '<td class="fieldrequired">Qui a perçu l\'argent</td><td>';
