@@ -90,7 +90,7 @@ class Bbcvols extends CommonObject
      */
     public function getIdBBCVols()
     {
-        return $this->idBBC_vols;
+        return (int) $this->idBBC_vols;
     }
 
     /**
@@ -98,7 +98,7 @@ class Bbcvols extends CommonObject
      */
     public function getId()
     {
-        return $this->getIdBBCVols();
+        return (int) $this->getIdBBCVols();
     }
 
     /**
@@ -149,10 +149,10 @@ class Bbcvols extends CommonObject
             $this->lieuA = trim($this->lieuA);
         }
         if (isset($this->heureD)) {
-            $this->heureD = trim($this->heureD).'00';
+            $this->heureD = trim($this->heureD) . '00';
         }
         if (isset($this->heureA)) {
-            $this->heureA = trim($this->heureA).'00';
+            $this->heureA = trim($this->heureA) . '00';
         }
         if (isset($this->BBC_ballons_idBBC_ballons)) {
             $this->BBC_ballons_idBBC_ballons = trim($this->BBC_ballons_idBBC_ballons);
@@ -891,7 +891,7 @@ class Bbcvols extends CommonObject
      */
     public function hasPax()
     {
-        return (int)$this->nbrPax > 0;
+        return (int) $this->nbrPax > 0;
     }
 
     /**
@@ -917,14 +917,16 @@ class Bbcvols extends CommonObject
     /**
      * @return int
      */
-    public function getAmountReceived(){
+    public function getAmountReceived()
+    {
         return $this->cost;
     }
 
     /**
      * @return int
      */
-    public function getAmountPerPassenger(){
+    public function getAmountPerPassenger()
+    {
         return $this->cost / $this->nbrPax;
     }
 
@@ -939,22 +941,25 @@ class Bbcvols extends CommonObject
     /**
      * @return boolean
      */
-    public function hasKilometers(){
+    public function hasKilometers()
+    {
         return !empty($this->kilometers);
     }
 
     /**
      * @return boolean
      */
-    public function hasKilometersDescription(){
+    public function hasKilometersDescription()
+    {
         return !empty(trim($this->justif_kilometers));
     }
 
     /**
      * @return int
      */
-    public function getKilometers(){
-        return $this->kilometers;
+    public function getKilometers()
+    {
+        return (int) $this->kilometers;
     }
 }
 
