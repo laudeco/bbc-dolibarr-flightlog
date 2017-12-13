@@ -669,7 +669,7 @@ class Bbcvols extends CommonObject
      *
      * @return    string                        String with URL
      */
-    function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $maxlen = 24, $morecss = '')
+    public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $maxlen = 24, $morecss = '')
     {
         global $langs;
 
@@ -705,7 +705,7 @@ class Bbcvols extends CommonObject
      *
      * @return    string                   Label of status
      */
-    function getLibStatut($mode = 0)
+    public function getLibStatut($mode = 0)
     {
         return $this->LibStatut($this->is_facture, $mode);
     }
