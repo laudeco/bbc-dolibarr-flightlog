@@ -42,7 +42,7 @@ class MonthlyBillableQueryHandler
         $sql .= ' WHERE ';
         $sql .= ' flights.fk_type = 2 ';
         $sql .= ' AND flights.is_facture = 0 ';
-        $sql .= ' AND (flights.cost IS NOT NULL OR flights.cost > 0) ';
+        $sql .= ' AND (flights.cost IS NOT NULL AND flights.cost > 0) ';
         $sql .= sprintf(' AND YEAR(flights.date) = %s ', $query->getYear());
         $sql .= sprintf(' AND MONTH(flights.date) = %s', $query->getMonth());
 
