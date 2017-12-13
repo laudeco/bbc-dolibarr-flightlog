@@ -87,8 +87,8 @@ class CreateMonthBillCommandHandler implements CommandHandlerInterface
     }
 
     /**
-     * @param CreateMonthBillCommand $command
-     * @param MonthlyFlightBill      $currentReceiver
+     * @param CreateMonthBillCommand|CommandInterface $command
+     * @param MonthlyFlightBill                       $currentReceiver
      */
     private function createBill($command, $currentReceiver)
     {

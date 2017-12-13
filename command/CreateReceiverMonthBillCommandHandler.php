@@ -20,6 +20,10 @@ class CreateReceiverMonthBillCommandHandler extends AbstractBillCommandHandler
      */
     public function handle(CommandInterface $command)
     {
+        if(!($command instanceof CreateReceiverMonthBillCommand)){
+            throw new \InvalidArgumentException('Command not correct');
+        }
+        
         $object = new Facture($this->db);
         $object->fetch_thirdparty();
 
