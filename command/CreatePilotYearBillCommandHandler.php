@@ -100,7 +100,7 @@ class CreatePilotYearBillCommandHandler
         $this->tOrganisator->label = 'Vols dont vous êtes organisateur';
 
         $this->tInstructor = new Product($this->db);
-        $this->tInstructor = 'Vols dont vous êtes instructeur/examinateur';
+        $this->tInstructor->label = 'Vols dont vous êtes instructeur/examinateur';
     }
 
     /**
