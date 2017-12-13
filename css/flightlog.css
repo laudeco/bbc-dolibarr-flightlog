@@ -10,6 +10,10 @@
     width: 25%;
 }
 
+.flight-form .form-section .form-group{
+    padding: 5px;
+}
+
 input:focus{
     border-color: #ccc;
     border-color: rgba(82,168,236,.8);
@@ -28,4 +32,183 @@ input.error, textarea.error{
     padding: 3px 10px;
     margin-bottom: 5px;
     border-radius: .25rem;
+}
+
+.section .section-title{
+    color: dodgerblue;
+    border-bottom: solid grey 1px;
+    padding: 3px 10px;
+}
+
+/* tables */
+.bbc-style table
+{
+    overflow-x: auto;
+    margin-bottom: 2.5rem;
+    border-collapse: collapse;
+}
+
+.bbc-style table.border{
+    border: 1px solid #e1e1e1;
+}
+.bbc-style table.border td{
+    border: 1px solid #e1e1e1;
+}
+
+.bbc-style th,
+.bbc-style td
+{
+    padding: 12px 15px;
+
+    text-align: left;
+
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.bbc-style th:first-child,
+.bbc-style td:first-child
+{
+    padding-left: 5px;
+}
+
+.bbc-style th:last-child,
+.bbc-style td:last-child
+{
+    padding-right: 5px;
+}
+
+.bbc-style tr:hover
+{
+    background-color: #f5f5f5;
+}
+
+.bbc-style tr:nth-child(even)
+{
+    background-color: #f2f2f2;
+}
+
+/* Helpers */
+.bbc-style ._full-width
+{
+    width: 100%;
+}
+
+.bbc-style ._max-full-width
+{
+    max-width: 100%;
+}
+
+.bbc-style ._force-full-width
+{
+    min-width: 100%;
+}
+
+.bbc-style ._width100
+{
+    width: 100%;
+}
+
+.bbc-style ._width75
+{
+    width: 75%;
+}
+
+.bbc-style ._width50
+{
+    width: 50%;
+}
+
+.bbc-style ._alignCenter
+{
+    text-align: center;
+}
+
+.bbc-style ._alignRight
+{
+    text-align: right;
+}
+
+.bbc-style ._danger
+{
+    border-color: #f44336 !important;
+    background-color: #f44336 !important;
+}
+
+.bbc-style ._success
+{
+    border-color: #90ee90 !important;
+    background-color: #90ee90 !important;
+}
+
+.bbc-style ._info
+{
+    border-color: #2196f3 !important;
+    background-color: #2196f3 !important;
+}
+
+.bbc-style ._warning
+{
+    border-color: #ff9800 !important;
+    background-color: #ff9800 !important;
+}
+
+.bbc-style ._active
+{
+    border: 1px solid #687282 !important;
+    background-color: #687282 !important;
+}
+
+.bbc-style ._dark
+{
+    border: 1px solid #333 !important;
+    background-color: #333 !important;
+}
+
+.bbc-style ._white
+{
+    border: 1px solid #fff !important;
+    background-color: #fff !important;
+}
+
+.bbc-style ._grey
+{
+    border: 1px solid #d3d3d3 !important;
+    background-color: #d3d3d3 !important;
+}
+
+.bbc-style ._cream
+{
+    border: 1px solid #f0f0f0 !important;
+    background-color: #f0f0f0 !important;
+}
+
+.bbc-style ._purple
+{
+    border: 1px solid #800080 !important;
+    background-color: #800080 !important;
+}
+
+.bbc-style ._primary
+{
+    border-color: #33c3f0 !important;
+    background-color: #33c3f0 !important;
+}
+
+.bbc-style ._cream,
+.bbc-style ._white
+{
+    color: #000 !important;
+}
+
+.bbc-style ._primary,
+.bbc-style ._purple,
+.bbc-style ._grey,
+.bbc-style ._dark,
+.bbc-style ._active,
+.bbc-style ._danger,
+.bbc-style ._success,
+.bbc-style ._info,
+.bbc-style ._warning
+{
+    color: #fff !important;
 }

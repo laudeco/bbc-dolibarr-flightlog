@@ -41,6 +41,7 @@ if($action === ACTION_SAVE){
 
     dolibarr_set_const($db, 'BBC_POINTS_BONUS_ORGANISATOR', GETPOST('points_bonus_organisator'), 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'BBC_POINTS_BONUS_INSTRUCTOR', GETPOST('points_bonus_instructor'), 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'BBC_DEFAULT_BANK_ACCOUNT', GETPOST('default_bank_account'), 'chaine', 0, '', $conf->entity);
 }
 
 /*
@@ -130,6 +131,15 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
 
                 <td>
                     <input type="number" id="points_bonus_instructor" name="points_bonus_instructor" value="<?php echo $conf->global->BBC_POINTS_BONUS_INSTRUCTOR?>" />
+                </td>
+            </tr>
+
+            <tr class="pair">
+                <td>
+                    <?php echo $langs->trans('Compte en banque par défaut') ?>
+                </td>
+                <td>
+                    <?php $form->select_comptes($conf->global->BBC_DEFAULT_BANK_ACCOUNT, 'default_bank_account', 0, '', 1); ?>
                 </td>
             </tr>
 

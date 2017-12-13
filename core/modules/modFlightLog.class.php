@@ -138,9 +138,7 @@ class modFlightLog extends DolibarrModules
         // If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
         $this->picto = 'flight@flightlog';
 
-        $this->module_parts = [
-            'css' => '/flightlog/css/flightlog.css',
-        ];
+        $this->configureCss();
 
         // Data directories to create when module is enabled.
         $this->dirs = array();
@@ -226,108 +224,123 @@ class modFlightLog extends DolibarrModules
         $r = 0;
 
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightlog',
-            'type'     => self::MENU_TYPE_TOP,
-            'titre'    => 'Carnet de vols',
+            'fk_menu' => 'fk_mainmenu=flightlog',
+            'type' => self::MENU_TYPE_TOP,
+            'titre' => 'Carnet de vols',
             'mainmenu' => 'flightlog',
             'leftmenu' => 'readFlight',
-            'url'      => '/flightlog/readFlights.php',
-            'langs'    => 'mylangfile',
+            'url' => '/flightlog/readFlights.php',
+            'langs' => 'mylangfile',
             'position' => 100,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightlog->vol->access',
-            'target'   => '',
-            'user'     => 0
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->access',
+            'target' => '',
+            'user' => 0
         );
         $r++;
 
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightlog',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Ajouter un vol',
+            'fk_menu' => 'fk_mainmenu=flightlog',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Ajouter un vol',
             'mainmenu' => 'flightlog',
             'leftmenu' => 'addFlight',
-            'url'      => '/flightlog/addFlight.php',
-            'langs'    => 'mylangfile',
+            'url' => '/flightlog/addFlight.php',
+            'langs' => 'mylangfile',
             'position' => 101,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightlog->vol->add',
-            'target'   => '',
-            'user'     => 2
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->add',
+            'target' => '',
+            'user' => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightlog',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Visualisation',
+            'fk_menu' => 'fk_mainmenu=flightlog',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Visualisation',
             'mainmenu' => 'flightlog',
             'leftmenu' => 'showFlight',
-            'url'      => '/flightlog/readFlights.php',
-            'langs'    => 'mylangfile',
+            'url' => '/flightlog/readFlights.php',
+            'langs' => 'mylangfile',
             'position' => 102,
-            'enabled'  => '1',
-            'perms'    => '1',
-            'target'   => '',
-            'user'     => 2
+            'enabled' => '1',
+            'perms' => '1',
+            'target' => '',
+            'user' => 2
         );
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightlog',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Les vols',
+            'fk_menu' => 'fk_mainmenu=flightlog',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Les vols',
             'mainmenu' => 'flightlog',
             'leftmenu' => 'flightlog',
-            'url'      => '/flightlog/list.php',
-            'langs'    => 'mylangfile',
+            'url' => '/flightlog/list.php',
+            'langs' => 'mylangfile',
             'position' => 105,
-            'enabled'  => '1',
-            'perms'    => '1',
-            'target'   => '',
-            'user'     => 2
+            'enabled' => '1',
+            'perms' => '1',
+            'target' => '',
+            'user' => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightlog',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Gestion',
+            'fk_menu' => 'fk_mainmenu=flightlog',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Gestion',
             'mainmenu' => 'flightlog',
             'leftmenu' => 'management',
-            'url'      => '',
-            'langs'    => 'mylangfile',
+            'url' => '',
+            'langs' => 'mylangfile',
             'position' => 106,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightlog->vol->status||$user->rights->flightlog->vol->detail',
-            'target'   => '',
-            'user'     => 2
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->status||$user->rights->flightlog->vol->detail',
+            'target' => '',
+            'user' => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightlog,fk_leftmenu=management',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Payement',
+            'fk_menu' => 'fk_mainmenu=flightlog,fk_leftmenu=management',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Payement',
             'mainmenu' => 'flightlog',
             'leftmenu' => 'flightBilling',
-            'url'      => '/flightlog/listFact.php?view=1',
-            'langs'    => 'mylangfile',
+            'url' => '/flightlog/listFact.php?view=1',
+            'langs' => 'mylangfile',
             'position' => 107,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightlog->vol->financial',
-            'target'   => '',
-            'user'     => 2
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->financial',
+            'target' => '',
+            'user' => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightlog,fk_leftmenu=management',
-            'type'     => self::MENU_TYPE_LEFT,
-            'titre'    => 'Aviabel',
+            'fk_menu' => 'fk_mainmenu=flightlog,fk_leftmenu=management',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Aviabel',
             'mainmenu' => 'flightlog',
             'leftmenu' => 'flightAviabel',
-            'url'      => '/flightlog/listFact.php?view=2',
-            'langs'    => 'mylangfile',
+            'url' => '/flightlog/listFact.php?view=2',
+            'langs' => 'mylangfile',
             'position' => 108,
-            'enabled'  => '1',
-            'perms'    => '$user->rights->flightlog->vol->detail',
-            'target'   => '',
-            'user'     => 2
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->detail',
+            'target' => '',
+            'user' => 2
+        );
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu' => 'fk_mainmenu=flightlog,fk_leftmenu=management',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Facturation mensuelle',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'monthlyBill',
+            'url' => '/flightlog/generateMonthlyBilling.php',
+            'langs' => 'mylangfile',
+            'position' => 109,
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->financial',
+            'target' => '',
+            'user' => 2
         );
     }
 
@@ -408,16 +421,16 @@ class modFlightLog extends DolibarrModules
     private function initFlightTypeDictionnary()
     {
         $this->dictionaries = array(
-            'langs'          => 'mylangfile@mymodule',
-            'tabname'        => array(MAIN_DB_PREFIX . "bbc_types"),
-            'tablib'         => array("Types de vols"),
-            'tabsql'         => array('SELECT f.idType, f.numero, f.nom, f.active FROM ' . MAIN_DB_PREFIX . 'bbc_types as f',),
-            'tabsqlsort'     => array("numero ASC"),
-            'tabfield'       => array("idType,numero,nom"),
-            'tabfieldvalue'  => array("numero,nom"),
+            'langs' => 'mylangfile@mymodule',
+            'tabname' => array(MAIN_DB_PREFIX . "bbc_types"),
+            'tablib' => array("Types de vols"),
+            'tabsql' => array('SELECT f.idType, f.numero, f.nom, f.active FROM ' . MAIN_DB_PREFIX . 'bbc_types as f',),
+            'tabsqlsort' => array("numero ASC"),
+            'tabfield' => array("idType,numero,nom"),
+            'tabfieldvalue' => array("numero,nom"),
             'tabfieldinsert' => array("numero,nom"),
-            'tabrowid'       => array("idType"),
-            'tabcond'        => array('$conf->flightlog->enabled'),
+            'tabrowid' => array("idType"),
+            'tabcond' => array('$conf->flightlog->enabled'),
         );
     }
 
@@ -579,6 +592,16 @@ class modFlightLog extends DolibarrModules
                 'enabled' => '1',
                 'picto' => 'order'
             ],
+        ];
+    }
+
+    /**
+     * Add stylesheets
+     */
+    private function configureCss()
+    {
+        $this->module_parts['css'] = [
+            '/flightlog/css/flightlog.css',
         ];
     }
 

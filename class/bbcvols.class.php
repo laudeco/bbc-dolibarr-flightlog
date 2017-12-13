@@ -782,7 +782,7 @@ class Bbcvols extends CommonObject
      */
     public function __toString()
     {
-        return $this->idBBC_vols . " " . $this->lieuD . " " . $this->lieuA;
+        return $this->idBBC_vols . " " . $this->getPlaces();
     }
 
     /**
@@ -960,6 +960,14 @@ class Bbcvols extends CommonObject
     public function getKilometers()
     {
         return (int) $this->kilometers;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlaces()
+    {
+        return $this->lieuD.' -> '.$this->lieuA;
     }
 }
 
