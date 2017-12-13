@@ -1,0 +1,15 @@
+{
+    "name": "bbc/flightlog",
+    "description": "Belgian balloon club - Dolibarr - Flight log module",
+    "type": "dolibarr-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "De Coninck Laurent",
+            "email": "lau.deconinck@gmail.com"
+        }
+    ],
+    "require": {
+        "composer/installers": "~1.0"
+    }
+}

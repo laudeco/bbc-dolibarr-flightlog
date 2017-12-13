@@ -5,20 +5,21 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
     require '../../documents/custom/main.inc.php'; // From "custom" directory
 }
 
-global $db, $langs, $user;
+global $db, $langs, $user, $conf;
 
-dol_include_once('/flightLog/class/bbcvols.class.php');
-dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once("/flightLog/lib/flightLog.lib.php");
+dol_include_once('/flightlog/class/bbcvols.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once("/flightlog/lib/flightLog.lib.php");
+dol_include_once("/flightlog/validators/FlightValidator.php");
 
 // Load translation files required by the page
-$langs->load("mymodule@flightLog");
+$langs->load("mymodule@flightlog");
 
+$validator = new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER);
 
-if (!$user->rights->flightLog->vol->add) {
+if (!$user->rights->flightlog->vol->add) {
     accessforbidden();
 }
-
 
 /* * *****************************************************************
  * ACTIONS
@@ -26,7 +27,7 @@ if (!$user->rights->flightLog->vol->add) {
  * Put here all code to do according to value of "action" parameter
  * ****************************************************************** */
 $msg = '';
-if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
+if (GETPOST("action") == 'add') {
     if (!$_POST["cancel"]) {
         $dated = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
 
@@ -48,43 +49,22 @@ if ($_GET["action"] == 'add' || $_POST["action"] == 'add') {
         $vol->cost = $_POST['cost'];
         $vol->fk_receiver = $_POST['fk_receiver'];
         $vol->justif_kilometers = $_POST['justif_kilometers'];
+        $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
 
-        //verification des heures
-        $patern = '#[0-9]{4}#';
-        $error = 0;
-        if (preg_match($patern, $vol->heureD) == 0 || strlen($vol->heureD) != 4) {
-            $msg = '<div class="error">L\'heure depart n\'est pas correcte</div>';
-            $error++;
-        } else {
-            $vol->heureD = $vol->heureD . '00';
-        }
-        if (preg_match($patern, $vol->heureA) == 0 || strlen($vol->heureA) != 4) {
-            $msg = '<div class="error">L\'heure d\'arrivee n\'est pas correcte</div>';
-            $error++;
-        } else {
-            $vol->heureA = $vol->heureA . '00';
-        }
-
-        if ($error == 0 && ($vol->heureA - $vol->heureD) <= 0) {
-            $msg = '<div class="error">L\'heure de depart est plus grande  que l\'heure d\'arrivee</div>';
-            $error++;
-        }
-
-        // verification du nombre de pax
-        if ($vol->nbrPax < 0) {
-            $msg = '<div class="error">Erreur le nombre de passager est �gale � 0 ou est un nombre n�gatif.</div>';
-            $error++;
-        }
-        if ($error == 0) {
+        if ($validator->isValid($vol, $_REQUEST)) {
             $result = $vol->create($user);
             if ($result > 0) {
                 //creation OK
+
+                include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+                $interface = new Interfaces($db);
+                $triggerResult = $interface->run_triggers('BBC_FLIGHT_LOG_ADD_FLIGHT', $vol, $user, $langs, $conf);
+
                 $msg = '<div class="ok">L\'ajout du vol du : ' . $_POST["reday"] . '/' . $_POST["remonth"] . '/' . $_POST["reyear"] . ' s\'est correctement effectue ! </div>';
-                Header("Location: fiche.php?vol=" . $result);
+                Header("Location: card.php?id=" . $result);
             } else {
                 // Creation KO
                 $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . $vol->error . '! </div>';
-                $error++;
             }
         }
     }
@@ -105,105 +85,193 @@ if ($msg) {
     print $msg;
 }
 
-// Put here content of your page
-print "<form name='add' action=\"addFlight.php\" method=\"post\">\n";
-print '<input type="hidden" name="action" value="add"/>';
-print '<table class="border" width="100%">';
-//date du vol
-print "<tr>";
-print '<td class="fieldrequired"> Date du vol</td><td>';
-print $html->select_date($datec ? $datec : -1, '', '', '', '', 'add', 1, 1);
-print '</td></tr>';
-//type du vol
-print "<tr>";
-print '<td class="fieldrequired"> Type du vol</td><td>';
-select_flight_type($_POST['type']);
-print '</td></tr>';
-//Pilote
-print "<tr>";
-print '<td class="fieldrequired"> Pilote </td><td>';
-print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $_GET["pilot"], 'pilot', $user->id);
-print '</td></tr>';
-//organisateur
-print "<tr>";
-print '<td class="fieldrequired"> Organisateur </td><td>';
-print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $_GET["orga"], 'orga', 1);
-print '</td></tr>';
-//Ballon
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Ballon</td><td>';
-select_balloons($_POST['ballon'], 'ballon', 0, 0);
-print '</td></tr>';
-//lieu d�part
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Lieu de d&#233;part </td><td>';
-print '<input type="text" name="lieuD" class="flat" value="' . $_POST['lieuD'] . '"/>';
-print '</td></tr>';
-//lieu arriv�e
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Lieu d\'arriv&#233;e </td><td>';
-print '<input type="text" name="lieuA" class="flat" value="' . $_POST['lieuA'] . '"/>';
-print '</td></tr>';
-//heure d�part
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Heure de d&#233;part <br/>(format autorise XXXX)</td><td>';
-print '<input type="text" name="heureD" class="flat" value="' . $_POST['heureD'] . '"/>';
-print '</td></tr>';
-//heure arriv�e
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Heure d\'arriv&#233;e <br/>(format autorise XXXX)</td><td>';
-print '<input type="text" name="heureA" class="flat" value="' . $_POST['heureA'] . '"/>';
-print '</td></tr>';
-//Numbe rof kilometrs done for the flight
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Nombre de kilometres effectués pour le vol</td><td>';
-print '<input type="number" name="kilometers" class="flat" value="' . $_POST['kilometers'] . '"/>';
-print '</td></tr>';
+?>
 
-//Justif KIlometers
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Justificatif des KM</td><td>';
-print '<textarea rows="2" cols="60" class="flat" name="justif_kilometers" >' . $_POST['justif_kilometers'] . '</textarea> ';
-print '</td></tr>';
-//NBR pax
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Nombre de passagers</td><td>';
-print '<input type="number" name="nbrPax" class="flat" value="' . $_POST['nbrPax'] . '"/>';
-print '</td></tr>';
-//Flight cost
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Montant perçu</td><td>';
-print '<input type="text" name="cost" class="flat" value="' . $_POST['cost'] . '"/>';
-print "&euro;";
-print '</td></tr>';
-//Money receiver
-print "<tr>";
-print '<td width="25%" class="fieldrequired">Qui a perçu l\'argent</td><td>';
-print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $_GET["fk_receiver"], 'fk_receiver', 1);
-print '</td></tr>';
-//commentaires
-print "<tr>";
-print '<td class="fieldrequired"> Commentaire </td><td>';
-print '<textarea rows="2" cols="60" class="flat" name="comm" placeholder="RAS">' . $_POST['comm'] . '</textarea> ';
-print '</td></tr>';
-//incidents
-print "<tr>";
-print '<td class="fieldrequired"> incidents </td><td>';
-print '<textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS">' . $_POST['inci'] . '</textarea> ';
-print '</td></tr>';
+    <div class="errors error-messages">
+        <?php
+        foreach ($validator->getErrors() as $errorMessage) {
+            print sprintf('<div class="error"><span>%s</span></div>', $errorMessage);
+        }
+        ?>
+    </div>
+    <form class="flight-form" name='add' action="addFlight.php" method="post">
+    <input type="hidden" name="action" value="add"/>
 
-print '</table>';
+    <!-- Date et heures -->
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Date & heures'); ?></h1>
+        <table class="border" width="100%">
+            <?php
+            //type du vol
+            print "<tr>";
+            print '<td class="fieldrequired"> Type du vol</td><td colspan="3">';
+            select_flight_type($_POST['type']);
+            print '</td></tr>';
+
+            //date du vol
+            print "<tr>";
+            print '<td class="fieldrequired"> Date du vol</td><td>';
+            print $html->select_date($datec ? $datec : -1, '', '', '', '', 'add', 1, 1);
+            print '</td></tr>';
+
+            //Hour start
+            print '<tr><td class="fieldrequired">Heure de d&#233;part (format autorise XXXX)</td><td width="25%" >'; ?>
+            <input type="text"
+                   name="heureD"
+                   class="flat <?php echo($validator->hasError('heureD') ? 'error' : '') ?>"
+                   value="<?php echo $_POST['heureD'] ?>"/>
+            </td>
+
+            <?php
+            //Hour end
+            print '<td class="fieldrequired">Heure d\'arriv&#233;e (format autorise XXXX)</td><td>'; ?>
+            <input type="text"
+                   name="heureA"
+                   class="flat <?php echo($validator->hasError('heureA') ? 'error' : '') ?>"
+                   value="<?php echo $_POST['heureA'] ?>"/>
+            </td>
+            </tr>
+
+        </table>
+    </section>
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Pilote & ballon') ?></h1>
+        <table class="border" width="50%">
+            <?php
+            //Pilote
+            print "<tr>";
+            print '<td class="fieldrequired"> Pilote </td><td >';
+            print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $_GET["pilot"], 'pilot', $user->id);
+            print '</td></tr>';
+
+            //Ballon
+            print "<tr>";
+            print '<td width="25%" class="fieldrequired">Ballon</td><td>';
+            select_balloons($_POST['ballon'], 'ballon', 0, 0);
+            print '</td></tr>';
+            ?>
+
+            <tr>
+                <td>Il y'avait-il plusieurs ballons ?</td>
+                <td colspan="3"><input type="checkbox" value="1" name="grouped_flight"/> - Oui</td>
+            </tr>
+        </table>
+    </section>
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Lieux') ?></h1>
+        <table class="border" width="100%">
+            <?php
+
+            //place start
+            print "<tr>";
+            print '<td class="fieldrequired">Lieu de d&#233;part </td><td width="25%" >';
+            print '<input type="text" name="lieuD" class="flat" value="' . $_POST['lieuD'] . '"/>';
+            print '</td>';
+
+            //place end
+            print '<td class="fieldrequired">Lieu d\'arriv&#233;e </td><td>';
+            print '<input type="text" name="lieuA" class="flat" value="' . $_POST['lieuA'] . '"/>';
+            print '</td></tr>';
+
+            ?>
+
+        </table>
+    </section>
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Fieldfk_organisateur') ?></h1>
+        <table class="border" width="50%">
+
+            <?php
+
+
+            //organisateur
+            print "<tr>";
+            print '<td class="fieldrequired">' . $langs->trans('Fieldfk_organisateur') . ' </td><td>';
+            print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $_GET["orga"], 'orga', 1);
+            print '</td></tr>';
+            ?>
+
+        </table>
+    </section>
+
+
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Déplacements') ?></h1>
+        <table class="border" width="50%">
+            <!-- number of kilometers done for the flight -->
+            <tr>
+                <td class="fieldrequired">Nombre de kilometres effectués pour le vol</td>
+                <td>
+                    <input type="number" name="kilometers" class="flat <?php echo($validator->hasError('kilometers') ? 'error' : '') ?>" value="<?php echo $_POST['kilometers'] ?>"/>
+                </td>
+            </tr>
+
+            <!-- Justif Kilometers -->
+            <tr>
+
+                <td width="25%" class="fieldrequired">Justificatif des KM </td>
+                <td>
+                    <textarea rows="2" cols="60" class="flat <?php echo($validator->hasError('justif_kilometers') ? 'error' : '') ?>" name="justif_kilometers">
+                        <?php echo $_POST['justif_kilometers'] ?>
+                    </textarea>
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- Passagers -->
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Passager') ?></h1>
+        <table class="border" width="50%">
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans('Nombre de passagers'); ?></td>
+                <td>
+                    <input type="number"
+                           name="nbrPax"
+                           class="flat <?php echo $validator->hasError('nbrPax') ? 'error' : '' ?>"
+                           value="<?php echo $_POST['nbrPax'] ?>"/>
+                </td>
+            </tr>
+
+            <!-- Flight cost -->
+            <tr>
+                <td class="fieldrequired">Montant perçu</td>
+                <td>
+                    <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost'] ?> "/>
+                    &euro;
+                </td>
+            </tr>
+
+            <?php
+            //Money receiver
+            print "<tr>";
+            print '<td class="fieldrequired">Qui a perçu l\'argent</td><td>';
+            print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $_GET["fk_receiver"],
+                'fk_receiver', 1);
+            print '</td></tr>';
+
+            //commentaires
+            print "<tr>";
+            print '<td class="fieldrequired"> Commentaire </td><td>';
+            print '<textarea rows="2" cols="60" class="flat" name="comm" placeholder="RAS">' . $_POST['comm'] . '</textarea> ';
+            print '</td></tr>';
+
+            //incidents
+            print "<tr>";
+            print '<td class="fieldrequired"> incidents </td><td>';
+            print '<textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS">' . $_POST['inci'] . '</textarea> ';
+            print '</td></tr>';
+            ?>
+        </table>
+    </section>
+<?php
 
 print '<br><input class="button" type="submit" value="' . $langs->trans("Save") . '"> &nbsp; &nbsp; ';
 print '<input class="button" type="submit" name="cancel" value="' . $langs->trans("Cancel") . '">';
 
 print '</form>';
 
-/* * *************************************************
- * LINKED OBJECT BLOCK
- *
- * Put here code to view linked object
- * ************************************************** */
-// End of page
 $db->close();
-llxFooter('$Date: 2011/07/31 22:21:57 $ - $Revision: 1.19 $');

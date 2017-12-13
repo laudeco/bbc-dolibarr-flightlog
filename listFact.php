@@ -6,10 +6,10 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 global $db, $langs, $user;
 
-dol_include_once('/flightLog/class/bbcvols.class.php');
-dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once("/flightLog/lib/flightLog.lib.php");
-dol_include_once("/flightBalloon/bbc_ballons.class.php");
+dol_include_once('/flightlog/class/bbcvols.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once("/flightlog/lib/flightLog.lib.php");
+dol_include_once("/flightballoon/bbc_ballons.class.php");
 
 // Load translation files required by the page
 $langs->load("mymodule@mymodule");
@@ -18,7 +18,7 @@ $langs->load("mymodule@mymodule");
 $myparam = isset($_GET["myparam"]) ? $_GET["myparam"] : '';
 
 // Protection if the user can't acces to the module
-if (!$user->rights->flightLog->vol->detail && !$user->rights->flightLog->vol->status && !$user->admin) {
+if (!$user->rights->flightlog->vol->detail && !$user->rights->flightlog->vol->status && !$user->admin) {
     accessforbidden();
 }
 
@@ -26,10 +26,10 @@ if (!$user->rights->flightLog->vol->detail && !$user->rights->flightLog->vol->st
 // 2 = liste de tous les vols pour tous les pilotes et tous les ballons avec filtre sur les dates
 $viewSelection = 1;
 if ($_GET['view']) {
-    if (!$user->rights->flightLog->vol->status && !$user->admin && $_GET['view'] == 1) {
+    if (!$user->rights->flightlog->vol->status && !$user->admin && $_GET['view'] == 1) {
         accessforbidden();
     }
-    if (!$user->rights->flightLog->vol->detail && !$user->admin && $_GET['view'] == 2) {
+    if (!$user->rights->flightlog->vol->detail && !$user->admin && $_GET['view'] == 2) {
         accessforbidden();
 
     }
@@ -127,11 +127,17 @@ $sql = "SELECT BAL.immat as ballon,"; //ballon
 $sql .= " USR.lastname as nom, USR.firstname as prenom, "; //pilote
 $sql .= " idBBC_vols as volid, fk_pilot,  llx_bbc_vols.date , heureD, is_facture as status "; // vol
 $sql .= " FROM llx_bbc_ballons AS BAL, llx_user AS USR, llx_bbc_vols";
+
+if ($viewSelection == 1) {
+    $sql .= " LEFT JOIN llx_element_element ON llx_element_element.fk_source = llx_bbc_vols.idBBC_vols"; // is it linked
+}
+
 $sql .= " WHERE BBC_ballons_idBBC_ballons = BAL.rowid";
 
 if ($viewSelection == 1) {
     $sql .= " AND fk_organisateur = USR.rowid";
-    $sql .= " AND is_facture = 0";
+    $sql .= " AND llx_element_element.rowid IS NULL";
+    $sql .= " AND llx_bbc_vols.fk_type = 2";
 }
 if ($viewSelection == 2) {
     $sql .= " AND fk_pilot = USR.rowid ";
@@ -159,6 +165,8 @@ if ($resql) {
         print '<td class="liste_titre" > id vol </td>';
         print '<td class="liste_titre" > Date </td>';
         print '<td class="liste_titre" > Ballon </td>';
+        print '<td class="liste_titre"> Type </td>';
+
         if ($viewSelection == 1) {
             print '<td class="liste_titre"> Organisateur </td>';
             print '<td class="liste_titre"> Actions </td>';
@@ -178,15 +186,16 @@ if ($resql) {
 
                 print '<tr class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">';
 
-                print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '"><a href="fiche.php?vol=' . $obj->volid . '">' . $obj->volid . '</a></td>';
+                print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '"><a href="card.php?id=' . $obj->volid . '">' . $obj->volid . '</a></td>';
                 print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $obj->date . '</td>';
                 print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $obj->ballon . '</td>';
                 print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $type->idType . '-' . $type->nom . '</td>';
+
                 if ($viewSelection == 1) {
                     print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $obj->nom . ' ' . $obj->prenom . '</td>';
-                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . '<a href="fiche.php?action=fact&vol=' . $obj->volid . '">' . img_action("default",
-                            1) . '</a>' . '</td>';
+                    print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . '</td>';
                 }
+
                 if ($viewSelection == 2) {
                     print '<td class="' . ($i % 2 == 0 ? 'pair' : 'impair') . '">' . $obj->nom . ' ' . $obj->prenom . '</td>';
                 }

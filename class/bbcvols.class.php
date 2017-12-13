@@ -20,21 +20,22 @@
  */
 
 /**
- * \file    flightLog/bbcvols.class.php
- * \ingroup flightLog
+ * \file    flightlog/bbcvols.class.php
+ * \ingroup flightlog
  * \brief   This file is an example for a CRUD class file (Create/Read/Update/Delete)
  *          Put some comments here
  */
 
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
-//require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
-//require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
+require_once DOL_DOCUMENT_ROOT . '/flightballoon/class/bbc_ballons.class.php';
+require_once DOL_DOCUMENT_ROOT . '/flightlog/class/bbctypes.class.php';
 
 /**
  * Class Bbcvols
  *
  * Put here description of your class
+ *
  * @see CommonObject
  */
 class Bbcvols extends CommonObject
@@ -42,7 +43,7 @@ class Bbcvols extends CommonObject
     /**
      * @var string Id to identify managed objects
      */
-    public $element = 'bbcvols';
+    public $element = 'flightlog_bbcvols';
     /**
      * @var string Name of table without prefix where object is stored
      */
@@ -71,13 +72,25 @@ class Bbcvols extends CommonObject
     public $cost;
     public $fk_receiver;
     public $justif_kilometers;
+    public $date_creation;
+    public $date_update;
+
+    /**
+     * @var Bbc_ballons
+     */
+    private $balloon;
+
+    /**
+     * @var User
+     */
+    private $pilot;
 
     /**
      * @return int
      */
     public function getIdBBCVols()
     {
-        return $this->idBBC_vols;
+        return (int) $this->idBBC_vols;
     }
 
     /**
@@ -85,7 +98,7 @@ class Bbcvols extends CommonObject
      */
     public function getId()
     {
-        return $this->getIdBBCVols();
+        return (int) $this->getIdBBCVols();
     }
 
     /**
@@ -136,10 +149,10 @@ class Bbcvols extends CommonObject
             $this->lieuA = trim($this->lieuA);
         }
         if (isset($this->heureD)) {
-            $this->heureD = trim($this->heureD);
+            $this->heureD = trim($this->heureD) . '00';
         }
         if (isset($this->heureA)) {
-            $this->heureA = trim($this->heureA);
+            $this->heureA = trim($this->heureA) . '00';
         }
         if (isset($this->BBC_ballons_idBBC_ballons)) {
             $this->BBC_ballons_idBBC_ballons = trim($this->BBC_ballons_idBBC_ballons);
@@ -201,7 +214,9 @@ class Bbcvols extends CommonObject
         $sql .= 'kilometers,';
         $sql .= 'cost,';
         $sql .= 'fk_receiver,';
-        $sql .= 'justif_kilometers';
+        $sql .= 'justif_kilometers,';
+        $sql .= 'date_creation,';
+        $sql .= 'date_update';
 
 
         $sql .= ') VALUES (';
@@ -222,7 +237,9 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->kilometers) || empty($this->kilometers) ? '0' : $this->kilometers) . ',';
         $sql .= ' ' . (!isset($this->cost) ? 'NULL' : "'" . $this->db->escape($this->cost) . "'") . ',';
         $sql .= ' ' . (!isset($this->fk_receiver) ? 'NULL' : $this->fk_receiver) . ',';
-        $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'");
+        $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
+        $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
+        $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . '';
 
 
         $sql .= ')';
@@ -292,7 +309,9 @@ class Bbcvols extends CommonObject
         $sql .= " t.kilometers,";
         $sql .= " t.cost,";
         $sql .= " t.fk_receiver,";
-        $sql .= " t.justif_kilometers";
+        $sql .= " t.justif_kilometers,";
+        $sql .= " t.date_creation,";
+        $sql .= " t.date_update";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -328,8 +347,11 @@ class Bbcvols extends CommonObject
                 $this->cost = $obj->cost;
                 $this->fk_receiver = $obj->fk_receiver;
                 $this->justif_kilometers = $obj->justif_kilometers;
+                $this->date_creation = $obj->date_creation;
+                $this->date_update = $obj->date_update;
 
-
+                $this->balloon = $this->fetchBalloon();
+                $this->pilot = $this->fetchUser($this->fk_pilot);
             }
             $this->db->free($resql);
 
@@ -386,7 +408,9 @@ class Bbcvols extends CommonObject
         $sql .= " t.kilometers,";
         $sql .= " t.cost,";
         $sql .= " t.fk_receiver,";
-        $sql .= " t.justif_kilometers";
+        $sql .= " t.justif_kilometers,";
+        $sql .= " t.date_creation,";
+        $sql .= " t.date_update";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -437,6 +461,8 @@ class Bbcvols extends CommonObject
                 $line->cost = $obj->cost;
                 $line->fk_receiver = $obj->fk_receiver;
                 $line->justif_kilometers = $obj->justif_kilometers;
+                $line->date_creation = $obj->date_creation;
+                $line->date_update = $obj->date_update;
 
 
                 $this->lines[$line->id] = $line;
@@ -543,8 +569,8 @@ class Bbcvols extends CommonObject
         $sql .= ' kilometers = ' . (!empty($this->kilometers) ? $this->kilometers : "0") . ',';
         $sql .= ' cost = ' . (isset($this->cost) ? "'" . $this->db->escape($this->cost) . "'" : "''") . ',';
         $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) ? $this->fk_receiver : "null") . ',';
-        $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'" : "''");
-
+        $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
+        $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "'";
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -632,53 +658,6 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * Load an object from its id and create a new one in database
-     *
-     * @param int $fromid Id of object to clone
-     *
-     * @return int New id of clone
-     */
-    public function createFromClone($fromid)
-    {
-        dol_syslog(__METHOD__, LOG_DEBUG);
-
-        global $user;
-        $error = 0;
-        $object = new Bbcvols($this->db);
-
-        $this->db->begin();
-
-        // Load source object
-        $object->fetch($fromid);
-        // Reset object
-        $object->id = 0;
-
-        // Clear fields
-        // ...
-
-        // Create clone
-        $result = $object->create($user);
-
-        // Other options
-        if ($result < 0) {
-            $error++;
-            $this->errors = $object->errors;
-            dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
-        }
-
-        // End
-        if (!$error) {
-            $this->db->commit();
-
-            return $object->id;
-        } else {
-            $this->db->rollback();
-
-            return -1;
-        }
-    }
-
-    /**
      *  Return a link to the user card (with optionaly the picto)
      *    Use this->id,this->lastname, this->firstname
      *
@@ -690,22 +669,19 @@ class Bbcvols extends CommonObject
      *
      * @return    string                        String with URL
      */
-    function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $maxlen = 24, $morecss = '')
+    public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $maxlen = 24, $morecss = '')
     {
-        global $langs, $conf, $db;
-        global $dolibarr_main_authentication, $dolibarr_main_demo;
-        global $menumanager;
+        global $langs;
 
         $result = '';
-        $companylink = '';
 
         $label = '<u>' . $langs->trans("MyModule") . '</u>';
         $label .= '<div width="100%">';
-        $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->ref.'<br>';
-        $label .= '<b>' . $langs->trans('Date') . ':</b> ' . $this->date;
+        $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->idBBC_vols . '<br>';
+        $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y');
         $label .= '</div>';
 
-        $link = '<a href="' . DOL_URL_ROOT . '/flightLog/card.php?id=' . $this->idBBC_vols . '"';
+        $link = '<a href="' . DOL_URL_ROOT . '/flightlog/card.php?id=' . $this->idBBC_vols . '"';
         $link .= ($notooltip ? '' : ' title="' . dol_escape_htmltag($label,
                 1) . '" class="classfortooltip' . ($morecss ? ' ' . $morecss : '') . '"');
         $link .= '>';
@@ -718,7 +694,7 @@ class Bbcvols extends CommonObject
                 $result .= ' ';
             }
         }
-        $result .= $link . $this->ref . $linkend;
+        $result .= $link . $this->idBBC_vols . $linkend;
         return $result;
     }
 
@@ -729,16 +705,16 @@ class Bbcvols extends CommonObject
      *
      * @return    string                   Label of status
      */
-    function getLibStatut($mode = 0)
+    public function getLibStatut($mode = 0)
     {
         return $this->LibStatut($this->is_facture, $mode);
     }
 
     /**
-     *  Renvoi le libelle d'un status donne
+     * Renvoi le libelle d'un status donne
      *
-     * @param    int $status Id status
-     * @param  int   $mode   0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
+     * @param int $status Id status
+     * @param int $mode   0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
      *
      * @return string                    Label of status
      */
@@ -746,90 +722,59 @@ class Bbcvols extends CommonObject
     {
         global $langs;
 
+        $billDone = $langs->trans('Facturé');
+        $billNotDone = $langs->trans('Ouvert');
+
         if ($mode == 0) {
-            $prefix = '';
             if ($status == 1) {
-                return $langs->trans('Enabled');
+                return $billDone;
             }
             if ($status == 0) {
-                return $langs->trans('Disabled');
+                return $billNotDone;
             }
         }
         if ($mode == 1) {
             if ($status == 1) {
-                return $langs->trans('Enabled');
+                return $billDone;
             }
             if ($status == 0) {
-                return $langs->trans('Disabled');
+                return $billNotDone;
             }
         }
         if ($mode == 2) {
             if ($status == 1) {
-                return img_picto($langs->trans('Enabled'), 'statut4') . ' ' . $langs->trans('Enabled');
+                return img_picto($billDone, 'statut4') . ' ' . $billDone;
             }
             if ($status == 0) {
-                return img_picto($langs->trans('Disabled'), 'statut5') . ' ' . $langs->trans('Disabled');
+                return img_picto($billNotDone, 'statut5') . ' ' . $billNotDone;
             }
         }
         if ($mode == 3) {
             if ($status == 1) {
-                return img_picto($langs->trans('Enabled'), 'statut4');
+                return img_picto($billDone, 'statut4');
             }
             if ($status == 0) {
-                return img_picto($langs->trans('Disabled'), 'statut5');
+                return img_picto($billNotDone, 'statut5');
             }
         }
         if ($mode == 4) {
             if ($status == 1) {
-                return img_picto($langs->trans('Enabled'), 'statut4') . ' ' . $langs->trans('Enabled');
+                return img_picto($billDone, 'statut4') . ' ' . $billDone;
             }
             if ($status == 0) {
-                return img_picto($langs->trans('Disabled'), 'statut5') . ' ' . $langs->trans('Disabled');
+                return img_picto($billNotDone, 'statut5') . ' ' . $billNotDone;
             }
         }
         if ($mode == 5) {
             if ($status == 1) {
-                return $langs->trans('Enabled') . ' ' . img_picto($langs->trans('Enabled'), 'statut4');
+                return $billDone . ' ' . img_picto($billDone, 'statut4');
             }
             if ($status == 0) {
-                return $langs->trans('Disabled') . ' ' . img_picto($langs->trans('Disabled'), 'statut5');
+                return $billNotDone . ' ' . img_picto($billNotDone, 'statut5');
             }
         }
 
         return "";
-    }
-
-
-    /**
-     * Initialise object with example values
-     * Id must be 0 if object instance is a specimen
-     *
-     * @return void
-     */
-    public function initAsSpecimen()
-    {
-        $this->id = 0;
-
-        $this->idBBC_vols = '';
-        $this->date = '';
-        $this->lieuD = '';
-        $this->lieuA = '';
-        $this->heureD = '';
-        $this->heureA = '';
-        $this->BBC_ballons_idBBC_ballons = '';
-        $this->nbrPax = '';
-        $this->remarque = '';
-        $this->incidents = '';
-        $this->fk_type = '';
-        $this->fk_pilot = '';
-        $this->fk_organisateur = '';
-        $this->is_facture = '';
-        $this->kilometers = '';
-        $this->cost = '';
-        $this->fk_receiver = '';
-        $this->justif_kilometers = '';
-
-
     }
 
     /**
@@ -856,6 +801,166 @@ class Bbcvols extends CommonObject
         return $this->statut;
     }
 
+    /**
+     * @return boolean
+     */
+    public function hasFacture()
+    {
+        return count($this->linkedObjectsIds) > 0;
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @return User
+     */
+    private function fetchUser($userId)
+    {
+        $user = new User($this->db);
+        $user->fetch($userId);
+
+        return $user;
+    }
+
+    /**
+     * @return Bbc_ballons
+     */
+    private function fetchBalloon()
+    {
+        $balloon = new Bbc_ballons($this->db);
+        $balloon->fetch($this->BBC_ballons_idBBC_ballons);
+
+        return $balloon;
+    }
+
+    /**
+     * @return Bbc_ballons
+     */
+    public function getBalloon()
+    {
+        if (!$this->balloon) {
+            $this->balloon = $this->fetchBalloon();
+        }
+
+        return $this->balloon;
+    }
+
+    /**
+     * @return User
+     */
+    public function getPilot()
+    {
+        if (!$this->pilot) {
+            $this->pilot = $this->fetchUser($this->fk_pilot);
+        }
+
+        return $this->pilot;
+    }
+
+    /**
+     * @return Bbctypes
+     */
+    public function getFlightType()
+    {
+        $flightType = new Bbctypes($this->db);
+        $flightType->fetch($this->fk_type);
+
+        return $flightType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->remarque;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIncident()
+    {
+        return $this->incidents;
+    }
+
+    /**
+     * Return true if the number of pax is greater than 0
+     *
+     * @return boolean
+     */
+    public function hasPax()
+    {
+        return (int) $this->nbrPax > 0;
+    }
+
+    /**
+     * Regarding the type of the flight give an indication if the flight must have pax to be valid.
+     *
+     * @return boolean
+     */
+    public function mustHavePax()
+    {
+        return $this->getFlightType()->isPaxRequired();
+    }
+
+    /**
+     * Returns true if the amount requested by the flight is 0.
+     *
+     * @return boolean
+     */
+    public function isFree()
+    {
+        return empty($this->cost);
+    }
+
+    /**
+     * @return int
+     */
+    public function getAmountReceived()
+    {
+        return $this->cost;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAmountPerPassenger()
+    {
+        return $this->cost / $this->nbrPax;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasReceiver()
+    {
+        return !empty($this->fk_receiver);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasKilometers()
+    {
+        return !empty($this->kilometers);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasKilometersDescription()
+    {
+        return !empty(trim($this->justif_kilometers));
+    }
+
+    /**
+     * @return int
+     */
+    public function getKilometers()
+    {
+        return (int) $this->kilometers;
+    }
 }
 
 /**
@@ -889,9 +994,6 @@ class BbcvolsLine
     public $cost;
     public $fk_receiver;
     public $justif_kilometers;
-
-    /**
-     * @var mixed Sample line property 2
-     */
-
+    public $date_creation;
+    public $date_update;
 }

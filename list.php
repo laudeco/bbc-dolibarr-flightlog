@@ -1,7 +1,7 @@
 <?php
 /**
- *    \file       flightLog/bbcvols_list.php
- *        \ingroup    flightLog
+ *    \file       flightlog/bbcvols_list.php
+ *        \ingroup    flightlog
  *        \brief      This file is an example of a php page
  *                    Initialy built by build_class_from_table on 2017-02-10 16:55
  */
@@ -15,15 +15,15 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 require_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
-dol_include_once('/flightBalloon/bbc_ballons.class.php');
-dol_include_once('/flightLog/class/bbcvols.class.php');
-dol_include_once('/flightLog/class/bbctypes.class.php');
-dol_include_once('/flightLog/lib/flightLog.lib.php');
+dol_include_once('/flightballoon/bbc_ballons.class.php');
+dol_include_once('/flightlog/class/bbcvols.class.php');
+dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once('/flightlog/lib/flightLog.lib.php');
 
 // Load traductions files requiredby by page
 global $user, $langs, $conf;
 
-$langs->load("mymodule@flightLog");
+$langs->load("mymodule@flightlog");
 $langs->load("other");
 
 $action = GETPOST('action', 'alpha');
@@ -37,7 +37,6 @@ $backtopage = GETPOST('backtopage');
 $myparam = GETPOST('myparam', 'alpha');
 
 $search_all = trim(GETPOST("sall"));
-
 $search_idBBC_vols = GETPOST('search_idBBC_vols', 'int');
 $search_date = GETPOST('search_date', 'alpha');
 $search_lieuD = GETPOST('search_lieuD', 'alpha');
@@ -51,11 +50,12 @@ $search_incidents = GETPOST('search_incidents', 'alpha');
 $search_fk_type = GETPOST('search_fk_type', 'int');
 $search_fk_pilot = GETPOST('search_fk_pilot', 'int') ?: ($user->admin ? '' : $user->id);
 $search_fk_organisateur = GETPOST('search_fk_organisateur', 'int');
-$search_is_facture = GETPOST('search_is_facture', 'int');
-$search_kilometers = GETPOST('search_kilometers', 'int');
+$search_is_facture = GETPOST('search_is_facture', 'int') === ''? -1 : (int)GETPOST('search_is_facture', 'int');
+$search_kilometers = GETPOST('search_kilometers', 'alpha');
 $search_cost = GETPOST('search_cost', 'alpha');
 $search_fk_receiver = GETPOST('search_fk_receiver', 'int');
 $search_justif_kilometers = GETPOST('search_justif_kilometers', 'alpha');
+
 
 
 $search_myfield = GETPOST('search_myfield');
@@ -94,7 +94,7 @@ $hookmanager->initHooks(array('flightLoglist'));
 $extrafields = new ExtraFields($db);
 
 // fetch optionals attributes and labels
-$extralabels = $extrafields->fetch_name_optionals_label('flightLog');
+$extralabels = $extrafields->fetch_name_optionals_label('flightlog');
 $search_array_options = $extrafields->getOptionalsFromPost($extralabels, '', 'search_');
 
 // List of fields to search into when doing a "search in all"
@@ -123,8 +123,8 @@ $arrayfields = array(
     't.fk_pilot'                  => array('label' => $langs->trans("Fieldfk_pilot"), 'checked' => 1),
     't.fk_organisateur'           => array('label' => $langs->trans("Fieldfk_organisateur"), 'checked' => 1),
     't.is_facture'                => array('label' => $langs->trans("Fieldis_facture"), 'checked' => 1),
-    //'t.kilometers'                => array('label' => $langs->trans("Fieldkilometers"), 'checked' => 1),
-    //'t.cost'                      => array('label' => $langs->trans("Fieldcost"), 'checked' => 1),
+    't.kilometers'                => array('label' => $langs->trans("Fieldkilometers"), 'checked' => 0),
+    't.cost'                      => array('label' => $langs->trans("Fieldcost"), 'checked' => 0),
     //'t.fk_receiver'               => array('label' => $langs->trans("Fieldfk_receiver"), 'checked' => 1),
     //'t.justif_kilometers'         => array('label' => $langs->trans("Fieldjustif_kilometers"), 'checked' => 1),
 
@@ -204,7 +204,7 @@ if (empty($reshook)) {
         $search_fk_type = '';
         $search_fk_pilot = '';
         $search_fk_organisateur = '';
-        $search_is_facture = '';
+        $search_is_facture = -1;
         $search_kilometers = '';
         $search_cost = '';
         $search_fk_receiver = '';
@@ -241,21 +241,6 @@ $help_url = '';
 $title = $langs->trans('MyModuleListTitle');
 
 // Put here content of your page
-
-// Example : Adding jquery code
-print '<script type="text/javascript" language="javascript">
-jQuery(document).ready(function() {
-	function init_myfunc()
-	{
-		jQuery("#myid").removeAttr(\'disabled\');
-		jQuery("#myid").attr(\'disabled\',\'disabled\');
-	}
-	init_myfunc();
-	jQuery("#mybutton").click(function() {
-		init_myfunc();
-	});
-});
-</script>';
 
 
 $sql = "SELECT";
@@ -304,6 +289,10 @@ $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as receiver on (t.fk_receiver = r
 
 $sql .= " WHERE 1 = 1";
 
+if($search_all){
+    $sql .= natural_search(["idBBC_vols",  "lieuD", "lieuA", "pilot.lastname", "pilot.firstname", "balloon.immat"], $search_all);
+}
+
 if ($search_idBBC_vols) {
     $sql .= natural_search("idBBC_vols", $search_idBBC_vols);
 }
@@ -344,7 +333,7 @@ if ($search_fk_organisateur && $search_fk_organisateur != -1) {
     $sql .= natural_search("fk_organisateur", $search_fk_organisateur);
 }
 
-if ($search_is_facture) {
+if ($search_is_facture != -1) {
     $sql .= natural_search("is_facture", $search_is_facture);
 }
 if ($search_kilometers) {
@@ -407,7 +396,7 @@ $num = $db->num_rows($resql);
 if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $search_all) {
     $obj = $db->fetch_object($resql);
     $id = $obj->idBBC_vols;
-    header("Location: " . DOL_URL_ROOT . '/bbcvols/card.php?id=' . $id);
+    header("Location: " . DOL_URL_ROOT . '/flightlog/card.php?id=' . $id);
     exit;
 }
 
@@ -422,12 +411,64 @@ if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) {
 if ($limit > 0 && $limit != $conf->liste_limit) {
     $param .= '&limit=' . $limit;
 }
-if ($search_field1 != '') {
-    $param .= '&amp;search_field1=' . urlencode($search_field1);
+if ($search_idBBC_vols  != '') {
+    $param .= '&amp;search_idBBC_vols=' . urlencode($search_idBBC_vols);
 }
-if ($search_field2 != '') {
-    $param .= '&amp;search_field2=' . urlencode($search_field2);
+if ($search_date  != '') {
+    $param .= '&amp;search_date=' . urlencode($search_date);
 }
+if ($search_lieuD  != '') {
+    $param .= '&amp;search_lieuD=' . urlencode($search_lieuD);
+}
+if ($search_lieuA  != '') {
+    $param .= '&amp;search_lieuA=' . urlencode($search_lieuA);
+}
+if ($search_heureD  != '') {
+    $param .= '&amp;search_heureD=' . urlencode($search_heureD);
+}
+if ($search_heureA  != '') {
+    $param .= '&amp;search_heureA=' . urlencode($search_heureA);
+}
+if ($search_BBC_ballons_idBBC_ballons  != '') {
+    $param .= '&amp;search_BBC_ballons_idBBC_ballons=' . urlencode($search_BBC_ballons_idBBC_ballons);
+}
+if ($search_nbrPax  != '') {
+    $param .= '&amp;search_nbrPax=' . urlencode($search_nbrPax);
+}
+if ($search_remarque  != '') {
+    $param .= '&amp;search_remarque=' . urlencode($search_remarque);
+}
+if ($search_incidents  != '') {
+    $param .= '&amp;search_incidents=' . urlencode($search_incidents);
+}
+if ($search_fk_type  != '') {
+    $param .= '&amp;search_fk_type=' . urlencode($search_fk_type);
+}
+if ($search_fk_pilot != '') {
+    $param .= '&amp;search_fk_pilot=' . urlencode($search_fk_pilot);
+}
+if ($search_fk_organisateur  != '') {
+    $param .= '&amp;search_fk_organisateur=' . urlencode($search_fk_organisateur);
+}
+if ($search_is_facture  != -1) {
+    $param .= '&amp;search_is_facture=' . urlencode($search_is_facture);
+}
+if ($search_kilometers  != '') {
+    $param .= '&amp;search_kilometers=' . urlencode($search_kilometers);
+}
+if ($search_cost  != '') {
+    $param .= '&amp;search_cost=' . urlencode($search_cost);
+}
+if ($search_fk_receiver  != '') {
+    $param .= '&amp;search_fk_receiver=' . urlencode($search_fk_receiver);
+}
+if ($search_justif_kilometers  != '') {
+    $param .= '&amp;search_justif_kilometers=' . urlencode($search_justif_kilometers);
+}
+if ($search_all != '') {
+    $param .= '&amp;sall=' . urlencode($search_all);
+}
+
 if ($optioncss != '') {
     $param .= '&optioncss=' . $optioncss;
 }
@@ -444,7 +485,7 @@ $arrayofmassactions = array(
     'presend'  => $langs->trans("SendByMail"),
     'builddoc' => $langs->trans("PDFMerge"),
 );
-if ($user->rights->flightLog->supprimer) {
+if ($user->rights->flightlog->supprimer) {
     $arrayofmassactions['delete'] = $langs->trans("Delete");
 }
 if ($massaction == 'presend') {
@@ -463,9 +504,15 @@ print '<input type="hidden" name="sortfield" value="' . $sortfield . '">';
 print '<input type="hidden" name="sortorder" value="' . $sortorder . '">';
 print '<input type="hidden" name="contextpage" value="' . $contextpage . '">';
 
-print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, '', $num, $nbtotalofrecords,
-    'title_companies', 0, '', '', $limit);
 
+$moreHtml = "";
+if($search_all !== ""){
+    $moreHtml = "<p>".$langs->trans(sprintf("La liste est en recherche globale sur : l'identifiant du vol, le nom du pilote, l'immat du ballon, le lieu de Décollage et le lieu d'atterissage : %s", $search_all))."</p>";
+}
+
+print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, '', $num, $nbtotalofrecords,
+    'title_companies', 0, "", '', $limit);
+echo $moreHtml;
 if ($sall) {
     foreach ($fieldstosearchall as $key => $val) {
         $fieldstosearchall[$key] = $langs->trans($val);
@@ -560,7 +607,7 @@ if (!empty($arrayfields['t.is_facture']['checked'])) {
     print_liste_field_titre($arrayfields['t.is_facture']['label'], $_SERVER['PHP_SELF'], 't.is_facture', '', $params,
         '', $sortfield, $sortorder);
 }
-/*if (!empty($arrayfields['t.kilometers']['checked'])) {
+if (!empty($arrayfields['t.kilometers']['checked'])) {
     print_liste_field_titre($arrayfields['t.kilometers']['label'], $_SERVER['PHP_SELF'], 't.kilometers', '', $params,
         '', $sortfield, $sortorder);
 }
@@ -568,6 +615,7 @@ if (!empty($arrayfields['t.cost']['checked'])) {
     print_liste_field_titre($arrayfields['t.cost']['label'], $_SERVER['PHP_SELF'], 't.cost', '', $params, '',
         $sortfield, $sortorder);
 }
+/*
 if (!empty($arrayfields['t.fk_receiver']['checked'])) {
     print_liste_field_titre($arrayfields['t.fk_receiver']['label'], $_SERVER['PHP_SELF'], 't.fk_receiver', '', $params,
         '', $sortfield, $sortorder);
@@ -577,8 +625,6 @@ if (!empty($arrayfields['t.justif_kilometers']['checked'])) {
         '', $params, '', $sortfield, $sortorder);
 }*/
 
-//if (! empty($arrayfields['t.field1']['checked'])) print_liste_field_titre($arrayfields['t.field1']['label'],$_SERVER['PHP_SELF'],'t.field1','',$param,'',$sortfield,$sortorder);
-//if (! empty($arrayfields['t.field2']['checked'])) print_liste_field_titre($arrayfields['t.field2']['label'],$_SERVER['PHP_SELF'],'t.field2','',$param,'',$sortfield,$sortorder);
 // Extra fields
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) {
     foreach ($extrafields->attribute_label as $key => $val) {
@@ -661,26 +707,22 @@ if (!empty($arrayfields['t.fk_organisateur']['checked'])) {
 
 if (!empty($arrayfields['t.is_facture']['checked'])) {
     print '<td class="liste_titre">';
-    print '<select name="search_is_facture"><option value=""></option><option value="1">Facturé</option><option value="0">Ouvert</option></select>';
+    print '<select name="search_is_facture"><option value="-1" '.($search_is_facture != 1 && $search_is_facture != 0 ? 'selected' : '' ).'></option><option value="1" '.($search_is_facture == 1 ? 'selected' : '' ).'>Facturé</option><option value="0" '.($search_is_facture == 0 ? 'selected' : '' ).'>Ouvert</option></select>';
     print '</td>';
 }
-/*
+
 if (!empty($arrayfields['t.kilometers']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_kilometers" value="' . $search_kilometers . '" size="10"></td>';
 }
 if (!empty($arrayfields['t.cost']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_cost" value="' . $search_cost . '" size="10"></td>';
 }
-if (!empty($arrayfields['t.fk_receiver']['checked'])) {
+/*if (!empty($arrayfields['t.fk_receiver']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_fk_receiver" value="' . $search_fk_receiver . '" size="10"></td>';
 }
 if (!empty($arrayfields['t.justif_kilometers']['checked'])) {
     print '<td class="liste_titre"><input type="text" class="flat" name="search_justif_kilometers" value="' . $search_justif_kilometers . '" size="10"></td>';
 }*/
-
-//if (! empty($arrayfields['t.field1']['checked'])) print '<td class="liste_titre"><input type="text" class="flat" name="search_field1" value="'.$search_field1.'" size="10"></td>';
-//if (! empty($arrayfields['t.field2']['checked'])) print '<td class="liste_titre"><input type="text" class="flat" name="search_field2" value="'.$search_field2.'" size="10"></td>';
-
 
 // Extra fields
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) {
@@ -747,6 +789,7 @@ while ($i < min($num, $limit)) {
         $flight->heureA = $obj->heureA;
         $flight->heureD = $obj->heureD;
         $flight->setRef($obj->idBBC_vols);
+        $flight->fk_pilot = $obj->pilot;
 
         // Show here line of result
         print '<tr ' . $bc[$var] . '>';
@@ -840,13 +883,21 @@ while ($i < min($num, $limit)) {
         }
         if (! empty($arrayfields['t.kilometers']['checked']))
         {
-            print '<td>'.$obj->kilometers.'</td>';
+            if($user->rights->flightlog->vol->financial || $user->id == $flight->fk_pilot){
+                print '<td>'.$obj->kilometers.' KM</td>';
+            }else{
+                print '<td> - Km</td>';
+            }
 
             if (! $i) $totalarray['nbfield']++;
         }
         if (! empty($arrayfields['t.cost']['checked']))
         {
-            print '<td>'.$obj->cost.'</td>';
+            if(($user->rights->flightlog->vol->financial || $user->id == $flight->fk_pilot) && $obj->cost > 0){
+                print sprintf('<td>%s - (%s/pax)</td>', price($obj->cost, 0, $langs, 0, 0, -1, $conf->currency), price($obj->cost/$obj->nbrPax, 0, $langs, -1, _1, -1, $conf->currency));
+            }else{
+                print '<td> - €</td>';
+            }
 
             if (! $i) $totalarray['nbfield']++;
         }
@@ -905,13 +956,6 @@ while ($i < min($num, $limit)) {
                 $totalarray['nbfield']++;
             }
         }
-        // Status
-        /*
-        if (! empty($arrayfields['u.statut']['checked']))
-        {
-		  $userstatic->statut=$obj->statut;
-          print '<td align="center">'.$userstatic->getLibStatut(3).'</td>';
-        }*/
 
         // Action column
         print '<td class="nowrap" align="center">';

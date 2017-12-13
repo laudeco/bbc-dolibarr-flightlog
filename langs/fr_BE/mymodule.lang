@@ -34,7 +34,7 @@ Module500000Desc = Carnet de vol
 Remboursement aux pilotes =  Remboursement aux pilotes
 Type 1 : Sponsor = Type 1 : Sponsor
 Type 2 : Baptême = Type 2 : Baptême
-Organisateur (T1/T2) = Organisateur (T1/T2)
+Organisateur_(T1/T2) = Organisateur (T1/T2)
 Total bonus = Total bonus
 Type 3 : Privé = Type 3 : Privé
 Type 4: Meeting = Type 4: Meeting
@@ -54,21 +54,25 @@ MyModuleListTitle = Liste de vols
 #
 # Card
 #
-
-FieldidBBC_vols = identifiant
+Field idBBC_vols = ID
+FieldidBBC_vols = ID
 FieldlieuD = Lieu de décollage
+Fielddate = Date du vol
+FieldDate = Date du vol
 FieldlieuA = Lieu atterissage
 FieldheureD = Heure décollage
 FieldheureA = Heure atterissage
-FieldBBC_ballons_idBBC_ballons = Id ballon
+FieldBBC_ballons_idBBC_ballons = Ballon
 FieldnbrPax = # pax
 Fieldremarque = Remarque
 Fieldincidents = Field incidents
-Fieldfk_type = Id Type
-Fieldfk_pilot = Id pilote
-Fieldfk_organisateur = Id organisateur
+Fieldfk_type = Type
+Fieldfk_pilot = Pilote
+Fieldfk_organisateur = Organisateur
 Fieldis_facture = Facturé ?
 Fieldkilometers = KM
 Fieldcost = Cout
-Fieldfk_receiver = Id percepteur d'argent
+Fieldfk_receiver = Percepteur d'argent
 Fieldjustif_kilometers = Justificatif de KM
+FieldDateCreation = Date de création dans le système
+FieldDateUpdate = Date de modification dans le système

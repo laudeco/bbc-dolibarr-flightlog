@@ -84,6 +84,9 @@ class modFlightLog extends DolibarrModules
      */
     public $export_sql_end = array();
 
+    /**
+     * @var array
+     */
     public $export_TypeFields_array = [];
 
     /**
@@ -92,72 +95,60 @@ class modFlightLog extends DolibarrModules
     public $menus;
 
     /**
+     * @var array
+     */
+    public $tabs;
+
+    /**
+     * @var array
+     */
+    public $dictionaries;
+
+    /**
      * Constructor. Define names, constants, directories, boxes, permissions
      *
      * @param DoliDB $db Database handler
      */
     public function __construct($db)
     {
-        global $langs, $conf;
+        parent::__construct($db);
 
-        $this->db = $db;
+        global $conf;
 
         // Id for module (must be unique).
         $this->numero = 500000;
         // Key text used to identify module (for permissions, menus, etc...)
-        $this->rights_class = 'flightLog';
+        $this->rights_class = 'flightlog';
 
-        // Family can be 'crm','financial','hr','projects','products','ecm','technic','interface','other'
-        // It is used to group modules by family in module setup page
         $this->family = "Belgian Balloon Club";
-        // Module position in the family
         $this->module_position = 500;
-        // Gives the possibility to the module, to provide his own family info and position of this family (Overwrite $this->family and $this->module_position. Avoid this)
-        //$this->familyinfo = array('myownfamily' => array('position' => '001', 'label' => $langs->trans("MyOwnFamily")));
-
-        // Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
         $this->name = preg_replace('/^mod/i', '', get_class($this));
         // Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
         $this->description = "Pilots flight log";
-        $this->descriptionlong = "Manage flights and flights type for the Belgian Balloon Club";
+        $this->descriptionlong = "Manage flights and flight types for the Belgian Balloon Club";
         $this->editor_name = 'De Coninck Laurent';
         $this->editor_url = 'http://www.dolibarr.org';
 
         // Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-        $this->version = '1.0';
+        $this->version = '1.1';
         // Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
         // Name of image file used for this module.
         // If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
         // If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
-        $this->picto = 'flight@flightLog';
+        $this->picto = 'flight@flightlog';
 
-        // Defined all module parts (triggers, login, substitutions, menus, css, etc...)
-        // for default path (eg: /mymodule/core/xxxxx) (0=disable, 1=enable)
-        // for specific path of parts (eg: /mymodule/core/modules/barcode)
-        // for specific css file (eg: /mymodule/css/mymodule.css.php)
-        //$this->module_parts = array(
-        //                        	'triggers' => 0,                                 	// Set this to 1 if module has its own trigger directory (core/triggers)
-        //							'login' => 0,                                    	// Set this to 1 if module has its own login method directory (core/login)
-        //							'substitutions' => 0,                            	// Set this to 1 if module has its own substitution function file (core/substitutions)
-        //							'menus' => 0,                                    	// Set this to 1 if module has its own menus handler directory (core/menus)
-        //							'theme' => 0,                                    	// Set this to 1 if module has its own theme directory (theme)
-        //                        	'tpl' => 0,                                      	// Set this to 1 if module overwrite template dir (core/tpl)
-        //							'barcode' => 0,                                  	// Set this to 1 if module has its own barcode directory (core/modules/barcode)
-        //							'models' => 0,                                   	// Set this to 1 if module has its own models directory (core/modules/xxx)
-        //							'css' => array('/mymodule/css/mymodule.css.php'),	// Set this to relative path of css file if module has its own css file
-        //							'js' => array('/mymodule/js/mymodule.js'),          // Set this to relative path of js file if module must load a js on all pages
-        //							'hooks' => array('hookcontext1','hookcontext2',...) // Set here all hooks context managed by module. You can also set hook context 'all'
-        //							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
-        //							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@mymodule')) // Set here all workflow context managed by module
-        //                        );
-        $this->module_parts = array();
+        $this->module_parts = [
+            'css' => '/flightlog/css/flightlog.css',
+        ];
 
         // Data directories to create when module is enabled.
         $this->dirs = array();
 
         // Config pages. Put here list of php page, stored into mymodule/admin directory, to use to setup module.
-        $this->config_page_url = array();
+        $this->config_page_url = [
+            "vol.php@flightlog",
+        ];
 
         // Dependencies
         $this->hidden = false;
@@ -166,15 +157,13 @@ class modFlightLog extends DolibarrModules
         $this->conflictwith = array();
         $this->phpmin = array(5, 5);
         $this->need_dolibarr_version = array(4, 0);
-        $this->langfiles = array("mymodule@flightLog");
+        $this->langfiles = array("mymodule@flightlog");
 
         // Constants
         $this->initConstants();
 
         // Array to add new pages in new tabs
-        $this->tabs = [
-            'user:+flights:Flights:mymodule@flightLog:$user->rights->flightLog->vol->access:/flightLog/list.php?search_fk_pilot=__ID__',
-        ];
+        $this->tabs = [];
 
         if (!isset($conf->flightLog) || !isset($conf->flightLog->enabled)) {
             $conf->flightLog = new stdClass();
@@ -186,95 +175,12 @@ class modFlightLog extends DolibarrModules
         $this->initDictionnaries();
         $this->initCronJobs();
         $this->initMenu();
+        $this->initHooks();
         $this->initPermissions();
+        $this->initExports();
 
-        // Exports
-        $r = 0;
-
-        $this->export_code[$r] = $this->rights_class . '_' . $r;
-        $this->export_label[$r] = 'Flights export';
-        $this->export_enabled[$r] = '1';
-        $this->export_permission[$r] = array(array("flightLog", "vol", "detail"));
-        $this->export_fields_array[$r] = array(
-            "flight.idBBC_vols"                => "Identifiant",
-            "flight.date"                      => "Date",
-            "flight.lieuD"                     => "Lieu décollage ",
-            "flight.lieuA"                     => "Lieu atterissage",
-            "flight.heureD"                    => "Heure décollage",
-            "flight.heureA"                    => "Heure atterissage",
-            "flight.BBC_ballons_idBBC_ballons" => "Identifiant ballon",
-            "flight.nbrPax"                    => "# pax",
-            "flight.remarque"                  => "Remarque",
-            "flight.incidents"                 => "Incidents",
-            "flight.fk_type"                   => "Identifiant type",
-            "flight.fk_pilot"                  => "Identifiant pilote",
-            "flight.fk_organisateur"           => "Identifiant organisateur",
-            "flight.is_facture"                => "Facture Oui/Non",
-            "flight.kilometers"                => "# Km",
-            "flight.cost"                      => "Cout",
-            "flight.fk_receiver"               => "Identifiant receveur d'argent",
-            "flight.justif_kilometers"         => "Justificatif kilomètres",
-            "balloon.immat"                    => "Immat.",
-            "pilot.login"                      => "Pilote",
-            "flightType.nom"                   => "Type de vol",
-            "organisator.login"                => "Organisateur",
-            "receiver.login"                   => "Percepteur",
-        );
-
-        $this->export_TypeFields_array[$r] = [
-            "flight.date"                      => "Date",
-            "flight.lieuD"                     => "Text",
-            "flight.lieuA"                     => "Text",
-            "flight.heureD"                    => "Text",
-            "flight.heureA"                    => "Text",
-            "flight.BBC_ballons_idBBC_ballons" => implode(":", ["List", "bbc_ballons", "immat", "rowid"]),
-            "flight.nbrPax"                    => "Numeric",
-            "flight.remarque"                  => "Text",
-            "flight.incidents"                 => "Text",
-            "flight.fk_type"                   => implode(":", ["List", "bbc_types", "nom", "idType"]),
-            "flight.fk_pilot"                  => implode(":", ["List", "user", "login", "rowid"]),
-            "flight.fk_organisateur"           => implode(":", ["List", "user", "login", "rowid"]),
-            "flight.is_facture"                => "Boolean",
-            "flight.kilometers"                => "Numeric",
-            "flight.cost"                      => "Numeric",
-            "flight.fk_receiver"               => implode(":", ["List", "user", "login", "rowid"]),
-            "flight.justif_kilometers"         => "Text",
-        ];
-
-        $this->export_entities_array[$r] = array(
-            "flight.idBBC_vols"                => "Flight",
-            "flight.date"                      => "Flight",
-            "flight.lieuD"                     => "Flight",
-            "flight.lieuA"                     => "Flight",
-            "flight.heureD"                    => "Flight",
-            "flight.heureA"                    => "Flight",
-            "flight.BBC_ballons_idBBC_ballons" => "Flight",
-            "flight.nbrPax"                    => "Flight",
-            "flight.remarque"                  => "Flight",
-            "flight.incidents"                 => "Flight",
-            "flight.fk_type"                   => "Flight",
-            "flight.fk_pilot"                  => "Flight",
-            "flight.fk_organisateur"           => "Flight",
-            "flight.is_facture"                => "Flight",
-            "flight.kilometers"                => "Flight",
-            "flight.cost"                      => "Flight",
-            "flight.fk_receiver"               => "Flight",
-            "flight.justif_kilometers"         => "Flight",
-            "balloon.immat"                    => "Balloon",
-            "pilot.login"                      => "Pilot",
-            "flightType.nom"                   => "FlightType",
-            "organisator.login"                => "Organisator",
-            "receiver.login"                   => "Percepteur",
-        );
-        $this->export_sql_start[$r] = 'SELECT DISTINCT ';
-        $this->export_sql_end[$r] = ' FROM ' . MAIN_DB_PREFIX . 'bbc_vols as flight';
-        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_ballons as balloon on (flight.BBC_ballons_idBBC_ballons = balloon.rowid)';
-        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_types as flightType on (flight.fk_type = flightType.idType)';
-        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as pilot on (flight.fk_pilot = pilot.rowid)';
-        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as organisator on (flight.fk_organisateur = organisator.rowid)';
-        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as receiver on (flight.fk_receiver = receiver.rowid)';
-        $this->export_sql_end[$r] .= ' WHERE 1 = 1';
-        $r++;
+        $this->activateTriggers();
+        $this->initWorkflows();
     }
 
     /**
@@ -290,7 +196,7 @@ class modFlightLog extends DolibarrModules
     {
         $sql = array();
 
-        $this->_load_tables('/flightLog/sql/');
+        $this->_load_tables('/flightlog/sql/');
 
         return $this->_init($sql, $options);
     }
@@ -320,43 +226,43 @@ class modFlightLog extends DolibarrModules
         $r = 0;
 
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_TOP,
             'titre'    => 'Carnet de vols',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'readFlight',
-            'url'      => '/flightLog/readFlights.php',
+            'url'      => '/flightlog/readFlights.php',
             'langs'    => 'mylangfile',
             'position' => 100,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->access',
+            'perms'    => '$user->rights->flightlog->vol->access',
             'target'   => '',
             'user'     => 0
         );
         $r++;
 
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Ajouter un vol',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'addFlight',
-            'url'      => '/flightLog/addFlight.php',
+            'url'      => '/flightlog/addFlight.php',
             'langs'    => 'mylangfile',
             'position' => 101,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->add',
+            'perms'    => '$user->rights->flightlog->vol->add',
             'target'   => '',
             'user'     => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Visualisation',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'showFlight',
-            'url'      => '/flightLog/readFlights.php',
+            'url'      => '/flightlog/readFlights.php',
             'langs'    => 'mylangfile',
             'position' => 102,
             'enabled'  => '1',
@@ -365,12 +271,12 @@ class modFlightLog extends DolibarrModules
             'user'     => 2
         );
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Les vols',
-            'mainmenu' => 'flightLog',
-            'leftmenu' => 'flightLog',
-            'url'      => '/flightLog/list.php',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'flightlog',
+            'url'      => '/flightlog/list.php',
             'langs'    => 'mylangfile',
             'position' => 105,
             'enabled'  => '1',
@@ -380,46 +286,46 @@ class modFlightLog extends DolibarrModules
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog',
+            'fk_menu'  => 'fk_mainmenu=flightlog',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Gestion',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'management',
             'url'      => '',
             'langs'    => 'mylangfile',
             'position' => 106,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->status||$user->rights->flightLog->vol->detail',
+            'perms'    => '$user->rights->flightlog->vol->status||$user->rights->flightlog->vol->detail',
             'target'   => '',
             'user'     => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=management',
+            'fk_menu'  => 'fk_mainmenu=flightlog,fk_leftmenu=management',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Payement',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'flightBilling',
-            'url'      => '/flightLog/listFact.php?view=1',
+            'url'      => '/flightlog/listFact.php?view=1',
             'langs'    => 'mylangfile',
             'position' => 107,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->financial',
+            'perms'    => '$user->rights->flightlog->vol->financial',
             'target'   => '',
             'user'     => 2
         );
         $r++;
         $this->menu[$r] = array(
-            'fk_menu'  => 'fk_mainmenu=flightLog,fk_leftmenu=management',
+            'fk_menu'  => 'fk_mainmenu=flightlog,fk_leftmenu=management',
             'type'     => self::MENU_TYPE_LEFT,
             'titre'    => 'Aviabel',
-            'mainmenu' => 'flightLog',
+            'mainmenu' => 'flightlog',
             'leftmenu' => 'flightAviabel',
-            'url'      => '/flightLog/listFact.php?view=2',
+            'url'      => '/flightlog/listFact.php?view=2',
             'langs'    => 'mylangfile',
             'position' => 108,
             'enabled'  => '1',
-            'perms'    => '$user->rights->flightLog->vol->detail',
+            'perms'    => '$user->rights->flightlog->vol->detail',
             'target'   => '',
             'user'     => 2
         );
@@ -481,14 +387,17 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][4] = 'vol';
         $this->rights[$r][5] = 'financial';
         $r++;
+
+        $this->rights[$r][0] = 10000;
+        $this->rights[$r][1] = 'Gérer des documents financiers';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'financialGenerateDocuments';
     }
 
     private function initCronJobs()
     {
-        $this->cronjobs = array();            // List of cron jobs entries to add
-        // Example: $this->cronjobs=array(0=>array('label'=>'My label', 'jobtype'=>'method', 'class'=>'/dir/class/file.class.php', 'objectname'=>'MyClass', 'method'=>'myMethod', 'parameters'=>'', 'comment'=>'Comment', 'frequency'=>2, 'unitfrequency'=>3600, 'test'=>true),
-        //                                1=>array('label'=>'My label', 'jobtype'=>'command', 'command'=>'', 'parameters'=>'', 'comment'=>'Comment', 'frequency'=>1, 'unitfrequency'=>3600*24, 'test'=>true)
-        // );
+        $this->cronjobs = array();
     }
 
     private function initDictionnaries()
@@ -508,8 +417,23 @@ class modFlightLog extends DolibarrModules
             'tabfieldvalue'  => array("numero,nom"),
             'tabfieldinsert' => array("numero,nom"),
             'tabrowid'       => array("idType"),
-            'tabcond'        => array('$conf->flightLog->enabled'),
+            'tabcond'        => array('$conf->flightlog->enabled'),
         );
+    }
+
+    /**
+     * Init hooks
+     */
+    private function initHooks()
+    {
+        if (!isset($this->module_parts["hooks"])) {
+            $this->module_parts["hooks"] = [];
+        }
+
+        $this->module_parts["hooks"][] = "searchform";
+        $this->module_parts["hooks"][] = "showLinkToObjectBlock";
+        $this->module_parts["hooks"][] = "criccar";
+
     }
 
     private function initConstants()
@@ -534,6 +458,128 @@ class modFlightLog extends DolibarrModules
                 true
             ],
         );
+    }
+
+    /**
+     * Init exports
+     */
+    private function initExports()
+    {
+        $r = 0;
+        $this->addFullFlightsExport($r);
+    }
+
+    /**
+     * @param int $r
+     */
+    private function addFullFlightsExport($r)
+    {
+        $this->export_code[$r] = $this->rights_class . '_' . $r;
+        $this->export_label[$r] = 'Flights export';
+        $this->export_enabled[$r] = '1';
+        $this->export_permission[$r] = array(array("flightlog", "vol", "detail"));
+        $this->export_fields_array[$r] = array(
+            "flight.idBBC_vols" => "Identifiant",
+            "flight.date" => "Date",
+            "flight.lieuD" => "Lieu décollage ",
+            "flight.lieuA" => "Lieu atterissage",
+            "flight.heureD" => "Heure décollage",
+            "flight.heureA" => "Heure atterissage",
+            "flight.BBC_ballons_idBBC_ballons" => "Identifiant ballon",
+            "flight.nbrPax" => "# pax",
+            "flight.remarque" => "Remarque",
+            "flight.incidents" => "Incidents",
+            "flight.fk_type" => "Identifiant type",
+            "flight.fk_pilot" => "Identifiant pilote",
+            "flight.fk_organisateur" => "Identifiant organisateur",
+            "flight.is_facture" => "Facture Oui/Non",
+            "flight.kilometers" => "# Km",
+            "flight.cost" => "Cout",
+            "flight.fk_receiver" => "Identifiant receveur d'argent",
+            "flight.justif_kilometers" => "Justificatif kilomètres",
+            "balloon.immat" => "Immat.",
+            "pilot.login" => "Pilote",
+            "flightType.nom" => "Type de vol",
+            "organisator.login" => "Organisateur",
+            "receiver.login" => "Percepteur",
+        );
+
+        $this->export_TypeFields_array[$r] = [
+            "flight.date" => "Date",
+            "flight.lieuD" => "Text",
+            "flight.lieuA" => "Text",
+            "flight.heureD" => "Text",
+            "flight.heureA" => "Text",
+            "flight.BBC_ballons_idBBC_ballons" => implode(":", ["List", "bbc_ballons", "immat", "rowid"]),
+            "flight.nbrPax" => "Numeric",
+            "flight.remarque" => "Text",
+            "flight.incidents" => "Text",
+            "flight.fk_type" => implode(":", ["List", "bbc_types", "nom", "idType"]),
+            "flight.fk_pilot" => implode(":", ["List", "user", "login", "rowid"]),
+            "flight.fk_organisateur" => implode(":", ["List", "user", "login", "rowid"]),
+            "flight.is_facture" => "Boolean",
+            "flight.kilometers" => "Numeric",
+            "flight.cost" => "Numeric",
+            "flight.fk_receiver" => implode(":", ["List", "user", "login", "rowid"]),
+            "flight.justif_kilometers" => "Text",
+        ];
+
+        $this->export_entities_array[$r] = array(
+            "flight.idBBC_vols" => "Flight",
+            "flight.date" => "Flight",
+            "flight.lieuD" => "Flight",
+            "flight.lieuA" => "Flight",
+            "flight.heureD" => "Flight",
+            "flight.heureA" => "Flight",
+            "flight.BBC_ballons_idBBC_ballons" => "Flight",
+            "flight.nbrPax" => "Flight",
+            "flight.remarque" => "Flight",
+            "flight.incidents" => "Flight",
+            "flight.fk_type" => "Flight",
+            "flight.fk_pilot" => "Flight",
+            "flight.fk_organisateur" => "Flight",
+            "flight.is_facture" => "Flight",
+            "flight.kilometers" => "Flight",
+            "flight.cost" => "Flight",
+            "flight.fk_receiver" => "Flight",
+            "flight.justif_kilometers" => "Flight",
+            "balloon.immat" => "Balloon",
+            "pilot.login" => "Pilot",
+            "flightType.nom" => "FlightType",
+            "organisator.login" => "Organisator",
+            "receiver.login" => "Percepteur",
+        );
+        $this->export_sql_start[$r] = 'SELECT DISTINCT ';
+        $this->export_sql_end[$r] = ' FROM ' . MAIN_DB_PREFIX . 'bbc_vols as flight';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_ballons as balloon on (flight.BBC_ballons_idBBC_ballons = balloon.rowid)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'bbc_types as flightType on (flight.fk_type = flightType.idType)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as pilot on (flight.fk_pilot = pilot.rowid)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as organisator on (flight.fk_organisateur = organisator.rowid)';
+        $this->export_sql_end[$r] .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'user as receiver on (flight.fk_receiver = receiver.rowid)';
+        $this->export_sql_end[$r] .= ' WHERE 1 = 1';
+    }
+
+    /**
+     * Activate triggers for this module
+     */
+    private function activateTriggers()
+    {
+        $this->module_parts['triggers'] = 1;
+    }
+
+    /**
+     * Initialize all workflows
+     */
+    private function initWorkflows()
+    {
+        $this->module_parts['workflow'] = [
+            "WORKFLOW_BBC_FLIGHTLOG_SEND_MAIL_ON_INCIDENT" => [
+                'family' => 'create',
+                'position' => 10,
+                'enabled' => '1',
+                'picto' => 'order'
+            ],
+        ];
     }
 
 }

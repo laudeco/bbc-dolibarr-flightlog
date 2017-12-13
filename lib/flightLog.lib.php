@@ -1,5 +1,7 @@
 <?php
 /**
+ * @deprecated use the BillableFlightQueryHandler for that.
+ *
  * @param DoliDb $db
  * @param string $sql
  * @param bool   $total
@@ -28,7 +30,7 @@ function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
         }
     }
 
-    //total time for pilot
+    //total orga
     $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $year . '\' AND fk_type IN (1,2) GROUP BY fk_organisateur';
     $resql = $db->query($sql);
     if ($resql && $total) {
@@ -41,6 +43,25 @@ function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
                 if ($obj) {
                     $array[$obj->rowid]['name'] = $obj->firstname . ' ' . $obj->name;
                     $array[$obj->rowid]['orga']['count'] = $obj->total;
+                }
+                $i++;
+            }
+        }
+    }
+
+    //total orga T6 - instructeur
+    $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $year . '\' AND fk_type = 6 GROUP BY fk_organisateur';
+    $resql = $db->query($sql);
+    if ($resql && $total) {
+        $num = $db->num_rows($resql);
+        $i = 0;
+        if ($num) {
+            while ($i < $num) {
+                $obj = $db->fetch_object($resql); //vol
+
+                if ($obj) {
+                    $array[$obj->rowid]['name'] = $obj->firstname . ' ' . $obj->name;
+                    $array[$obj->rowid]['orga_T6']['count'] = $obj->total;
                 }
                 $i++;
             }
@@ -86,7 +107,7 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
     print '<select class="flat" name="' . $htmlname . '">';
 
     if ($showempty) {
-        print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected = 0 || $selected == -1) ? "selected" : ""));
+        print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected == 0 || $selected == -1) ? "selected" : ""));
     }
 
     foreach ($types as $flightType) {
@@ -111,7 +132,8 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
 function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $showDeclasse = 1)
 {
 
-    global $db, $langs, $user;
+    global $db, $langs;
+
     $langs->load("trips");
     print '<!-- select_balloons in form class -->';
     print '<select class="flat" name="' . $htmlname . '">';
@@ -283,8 +305,6 @@ function bbcKilometersByQuartil($year)
  */
 function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
 {
-    global $user;
-
     print '<table class="border" width="100%">';
 
     print '<tr>';
@@ -292,9 +312,9 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
     print '<td></td>';
 
     print '<td class="liste_titre" colspan="5">Trimestre 1 (Jan - Mars)</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 2</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 3</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 4</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 2 (Avr - Juin)</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 3 (Juil - Sept)</td>';
+    print '<td class="liste_titre" colspan="5">Trimestre 4 (Oct - Dec)</td>';
     print '<td class="liste_titre" >Total</td>';
 
     print '</tr>';
@@ -331,6 +351,15 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
     print '<td class="liste_titre" > Total € </td>';
     print '</tr>';
 
+    $totalQ1 = 0;
+    $totalQ2 = 0;
+    $totalQ3 = 0;
+    $totalQ4 = 0;
+
+    $curMonth = date("m", time());
+    $curQuarter = ceil($curMonth/3);
+    $disableColor = 'style="background-color: lightyellow;" title="N/A" data-toggle="tooltip"';
+
     foreach ($kmByQuartil as $id => $rembKm) {
         $name = $rembKm["name"];
         $firstname = $rembKm["firstname"];
@@ -344,6 +373,16 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
         $flightsQ3 = isset($rembKm["quartil"]["3"]["flight"]) ? $rembKm["quartil"]["3"]["flight"] : 0;
         $flightsQ4 = isset($rembKm["quartil"]["4"]["flight"]) ? $rembKm["quartil"]["4"]["flight"] : 0;
 
+        $amoutQ1 = ($sumQ1 * $tauxRemb) + ($flightsQ1 * $unitPriceMission);
+        $amoutQ2 = ($sumQ2 * $tauxRemb) + ($flightsQ2 * $unitPriceMission);
+        $amoutQ3 = ($sumQ3 * $tauxRemb) + ($flightsQ3 * $unitPriceMission);
+        $amoutQ4 = ($sumQ4 * $tauxRemb) + ($flightsQ4 * $unitPriceMission);
+
+        $totalQ1 += $amoutQ1;
+        $totalQ2 += $amoutQ2;
+        $totalQ3 += $amoutQ3;
+        $totalQ4 += $amoutQ4;
+
         $sumKm = ($sumQ1 + $sumQ2 + $sumQ3 + $sumQ4);
         $sumFlights = ($flightsQ1 + $flightsQ2 + $flightsQ3 + $flightsQ4);
 
@@ -352,34 +391,44 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
         print '<td>' . $name . '</td>';
         print '<td>' . $firstname . '</td>';
 
-        print '<td>' . ($flightsQ1) . '</td>';
-        print '<td>' . ($flightsQ1 * $unitPriceMission) . '€</td>';
-        print '<td>' . $sumQ1 . '</td>';
-        print '<td>' . ($sumQ1 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ1 * $tauxRemb) + ($flightsQ1 * $unitPriceMission)) . '€</b></td>';
+        print '<td'.($curQuarter < 1 ? $disableColor: '').'>' . ($flightsQ1) . '</td>';
+        print '<td'.($curQuarter < 1 ? $disableColor: '').'>' . ($flightsQ1 * $unitPriceMission) . '€</td>';
+        print '<td'.($curQuarter < 1 ? $disableColor: '').'>' . $sumQ1 . '</td>';
+        print '<td'.($curQuarter < 1 ? $disableColor: '').'>' . ($sumQ1 * $tauxRemb) . '</td>';
+        print '<td'.($curQuarter < 1 ? $disableColor: '').'><b>' . $amoutQ1 . '€</b></td>';
 
-        print '<td>' . ($flightsQ2) . '</td>';
-        print '<td>' . ($flightsQ2 * $unitPriceMission) . '€</td>';
-        print '<td>' . $sumQ2 . '</td>';
-        print '<td>' . ($sumQ2 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ2 * $tauxRemb) + ($flightsQ2 * $unitPriceMission)) . '€</b></td>';
+        print '<td '.($curQuarter < 2 ? $disableColor: '').'>' . ($flightsQ2) . '</td>';
+        print '<td '.($curQuarter < 2 ? $disableColor: '').'>' . ($flightsQ2 * $unitPriceMission) . '€</td>';
+        print '<td '.($curQuarter < 2 ? $disableColor: '').'>' . $sumQ2 . '</td>';
+        print '<td '.($curQuarter < 2 ? $disableColor: '').'>' . ($sumQ2 * $tauxRemb) . '</td>';
+        print '<td '.($curQuarter < 2 ? $disableColor: '').'><b>' . $amoutQ2 . '€</b></td>';
 
-        print '<td>' . ($flightsQ3) . '</td>';
-        print '<td>' . ($flightsQ3 * $unitPriceMission) . '€</td>';
-        print '<td>' . $sumQ3 . '</td>';
-        print '<td>' . ($sumQ3 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ3 * $tauxRemb) + ($flightsQ3 * $unitPriceMission)) . '€</b></td>';
+        print '<td '.($curQuarter < 3 ? $disableColor: '').'>' . ($flightsQ3) . '</td>';
+        print '<td '.($curQuarter < 3 ? $disableColor: '').'>' . ($flightsQ3 * $unitPriceMission) . '€</td>';
+        print '<td '.($curQuarter < 3 ? $disableColor: '').'>' . $sumQ3 . '</td>';
+        print '<td '.($curQuarter < 3 ? $disableColor: '').'>' . ($sumQ3 * $tauxRemb) . '</td>';
+        print '<td '.($curQuarter < 3 ? $disableColor: '').'><b>' . $amoutQ3 . '€</b></td>';
 
-        print '<td>' . ($flightsQ4) . '</td>';
-        print '<td>' . ($flightsQ4 * $unitPriceMission) . '€</td>';
-        print '<td>' . $sumQ4 . '</td>';
-        print '<td>' . ($sumQ4 * $tauxRemb) . '</td>';
-        print '<td><b>' . (($sumQ4 * $tauxRemb) + ($flightsQ4 * $unitPriceMission)) . '€</b></td>';
+        print '<td '.($curQuarter < 4 ? $disableColor: '').'>' . ($flightsQ4) . '</td>';
+        print '<td '.($curQuarter < 4 ? $disableColor: '').'>' . ($flightsQ4 * $unitPriceMission) . '€</td>';
+        print '<td '.($curQuarter < 4 ? $disableColor: '').'>' . $sumQ4 . '</td>';
+        print '<td '.($curQuarter < 4 ? $disableColor: '').'>' . ($sumQ4 * $tauxRemb) . '</td>';
+        print '<td '.($curQuarter < 4 ? $disableColor: '').'><b>' . $amoutQ4 . '€</b></td>';
 
         print '<td>' . (($sumFlights * $unitPriceMission) + ($sumKm * $tauxRemb)) . '€</td>';
 
         print '</tr>';
     }
+
+    print "<td colspan='6'></td>";
+    print "<td>".price($totalQ1)."€</td>";
+    print "<td colspan='4'></td>";
+    print "<td>".price($totalQ2)."€</td>";
+    print "<td colspan='4'></td>";
+    print "<td>".price($totalQ3)."€</td>";
+    print "<td colspan='4'></td>";
+    print "<td>".price($totalQ4)."€</td>";
+    print "<td></td>";
 
     print '</table>';
 }

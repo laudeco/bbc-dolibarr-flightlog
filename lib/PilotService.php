@@ -36,8 +36,8 @@ class PilotService
     {
         $pilot = new User($this->db);
         $pilot->fetch($userId);
-        $pilot->getrights("flightLog");
+        $pilot->getrights("flightlog");
 
-        return isset($pilot->rights->flightLog->vol->add) && $pilot->rights->flightLog->vol->add;
+        return isset($pilot->rights->flightlog->vol->add) && $pilot->rights->flightlog->vol->add;
     }
 }

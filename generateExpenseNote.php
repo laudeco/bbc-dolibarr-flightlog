@@ -11,7 +11,7 @@ define("EXPENSE_REPORT_GENERATOR_ACTION_SELECT", "select");
 
 /**
  * \file    generateExpenseNote.php
- * \ingroup flightLog
+ * \ingroup flightlog
  * \brief   Generate expense notes for a quartil
  *
  */
@@ -22,7 +22,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 }
 
 dol_include_once('/expensereport/class/expensereport.class.php');
-dol_include_once("/flightLog/lib/flightLog.lib.php");
+dol_include_once("/flightlog/lib/flightLog.lib.php");
 
 global $db, $langs, $user, $conf;
 
@@ -57,7 +57,7 @@ $object = new ExpenseReport($db);
 $vatrate = "0.000";
 
 // Access control
-if (!$conf->expensereport->enabled || !$user->rights->flightLog->vol->status || !$user->rights->flightLog->vol->financial) {
+if (!$conf->expensereport->enabled || !$user->rights->flightlog->vol->status || !$user->rights->flightlog->vol->financialGenerateDocuments) {
     accessforbidden();
 }
 
@@ -77,7 +77,7 @@ print load_fiche_titre("Générer note de frais");
 
 if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
-    if ($year < $currentYear || ($year == $currentYear && $quarter < $currentQuarter)) {
+    if (!empty($quarter) && ($year < $currentYear || ($year == $currentYear && $quarter < $currentQuarter))) {
 
         $missions = bbcKilometersByQuartil($year);
 
@@ -189,7 +189,7 @@ $form = new Form($db);
 $tabLinks = [];
 foreach($flightYears as $currentFlightYear){
     $tabLinks[] = [
-        DOL_URL_ROOT."/flightLog/generateExpenseNote.php?year=".$currentFlightYear,
+        DOL_URL_ROOT."/flightlog/generateExpenseNote.php?year=".$currentFlightYear,
         $currentFlightYear,
         "tab_".$currentFlightYear
     ];
