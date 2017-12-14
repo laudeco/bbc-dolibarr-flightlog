@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../class/billing/monthly/MonthlyFlightBill.php';
-require_once __DIR__.'/CommandInterface.php';
+require_once __DIR__ . '/CommandInterface.php';
 
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
@@ -16,22 +16,7 @@ class CreateReceiverMonthBillCommand implements CommandInterface
     /**
      * @var int
      */
-    private $billingType;
-
-    /**
-     * @var int
-     */
     private $billType;
-
-    /**
-     * @var int
-     */
-    private $billingCondition;
-
-    /**
-     * @var int
-     */
-    private $modelDocument;
 
     /**
      * @var string
@@ -55,10 +40,7 @@ class CreateReceiverMonthBillCommand implements CommandInterface
 
     /**
      * @param MonthlyFlightBill $monthlyFlightBill
-     * @param int               $billingType
      * @param int               $billType
-     * @param int               $billingCondition
-     * @param int               $modelDocument
      * @param string            $publicNote
      * @param string            $privateNote
      * @param int               $year
@@ -66,20 +48,14 @@ class CreateReceiverMonthBillCommand implements CommandInterface
      */
     public function __construct(
         MonthlyFlightBill $monthlyFlightBill,
-        $billingType,
         $billType,
-        $billingCondition,
-        $modelDocument,
         $publicNote,
         $privateNote,
         $year,
         $month
     ) {
         $this->monthlyFlightBill = $monthlyFlightBill;
-        $this->billingType = $billingType;
         $this->billType = $billType;
-        $this->billingCondition = $billingCondition;
-        $this->modelDocument = $modelDocument;
         $this->publicNote = $publicNote;
         $this->privateNote = $privateNote;
         $this->year = $year;
@@ -114,33 +90,9 @@ class CreateReceiverMonthBillCommand implements CommandInterface
     /**
      * @return int
      */
-    public function getBillingType()
-    {
-        return $this->billingType;
-    }
-
-    /**
-     * @return int
-     */
     public function getBillType()
     {
         return $this->billType;
-    }
-
-    /**
-     * @return int
-     */
-    public function getBillingCondition()
-    {
-        return $this->billingCondition;
-    }
-
-    /**
-     * @return int
-     */
-    public function getModelDocument()
-    {
-        return $this->modelDocument;
     }
 
     /**

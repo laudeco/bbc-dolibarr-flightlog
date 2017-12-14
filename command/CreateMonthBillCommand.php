@@ -1,31 +1,17 @@
 <?php
 
-require_once __DIR__.'/CommandInterface.php';
+require_once __DIR__ . '/CommandInterface.php';
 
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
 class CreateMonthBillCommand implements CommandInterface
 {
-    /**
-     * @var int
-     */
-    private $billingType;
 
     /**
      * @var int
      */
     private $billType;
-
-    /**
-     * @var int
-     */
-    private $billingCondition;
-
-    /**
-     * @var int
-     */
-    private $modelDocument;
 
     /**
      * @var string
@@ -48,41 +34,24 @@ class CreateMonthBillCommand implements CommandInterface
     private $month;
 
     /**
-     * @param int    $billingType
      * @param int    $billType
-     * @param int    $billingCondition
-     * @param int    $modelDocument
      * @param string $publicNote
      * @param string $privateNote
      * @param int    $year
      * @param int    $month
      */
     public function __construct(
-        $billingType,
         $billType,
-        $billingCondition,
-        $modelDocument,
         $publicNote,
         $privateNote,
         $year,
         $month
     ) {
-        $this->billingType = $billingType;
         $this->billType = $billType;
-        $this->billingCondition = $billingCondition;
-        $this->modelDocument = $modelDocument;
         $this->publicNote = $publicNote;
         $this->privateNote = $privateNote;
         $this->year = $year;
         $this->month = $month;
-    }
-
-    /**
-     * @return int
-     */
-    public function getBillingType()
-    {
-        return $this->billingType;
     }
 
     /**
@@ -93,21 +62,6 @@ class CreateMonthBillCommand implements CommandInterface
         return $this->billType;
     }
 
-    /**
-     * @return int
-     */
-    public function getBillingCondition()
-    {
-        return $this->billingCondition;
-    }
-
-    /**
-     * @return int
-     */
-    public function getModelDocument()
-    {
-        return $this->modelDocument;
-    }
 
     /**
      * @return string
