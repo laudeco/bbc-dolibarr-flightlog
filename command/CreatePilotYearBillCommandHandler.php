@@ -164,7 +164,8 @@ class CreatePilotYearBillCommandHandler
         $this->addAdditionalBonusToOrder($command, $object);
 
         $object->fetch($id);
-        $object->generateDocument($command->getModelPdf(), $this->langs, $command->isDetailsHidden(), $command->isDescriptionHidden(), $command->isReferenceHidden());
+        $object->generateDocument($command->getModelPdf(), $this->langs, $command->isDetailsHidden(),
+            $command->isDescriptionHidden(), $command->isReferenceHidden());
 
         // Validate
         $object->fetch($id);
@@ -172,7 +173,8 @@ class CreatePilotYearBillCommandHandler
 
         // Generate document
         $object->fetch($id);
-        $object->generateDocument($command->getModelPdf(), $this->langs, $command->isDetailsHidden(), $command->isDescriptionHidden(), $command->isReferenceHidden());
+        $object->generateDocument($command->getModelPdf(), $this->langs, $command->isDetailsHidden(),
+            $command->isDescriptionHidden(), $command->isReferenceHidden());
     }
 
     /**
@@ -208,7 +210,7 @@ class CreatePilotYearBillCommandHandler
             $service->description,
             $pu_ht,
             $qty,
-            0,
+            $service->tva_tx,
             $this->localtax1_tx,
             $this->localtax2_tx,
             $service->id,
@@ -233,7 +235,7 @@ class CreatePilotYearBillCommandHandler
             100,
             '',
             0,
-            0
+            $pu_ht_devise
         );
     }
 
@@ -271,7 +273,7 @@ class CreatePilotYearBillCommandHandler
      */
     private function addAdditionalBonusToOrder(CreatePilotYearBillCommand $command, $object)
     {
-        if ((int)$command->getAdditionalBonus() <= 0) {
+        if ((int) $command->getAdditionalBonus() <= 0) {
             return;
         }
 
