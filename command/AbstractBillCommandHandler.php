@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/CommandHandlerInterface.php';
+require_once __DIR__ . '/CommandHandlerInterface.php';
 
 /**
  * Methods to create a bill.
@@ -27,6 +27,11 @@ abstract class AbstractBillCommandHandler implements CommandHandlerInterface
     protected $db;
 
     /**
+     * @var Client
+     */
+    private $customer;
+
+    /**
      * @param DoliDB    $db
      * @param stdClass  $conf
      * @param User      $user
@@ -38,6 +43,7 @@ abstract class AbstractBillCommandHandler implements CommandHandlerInterface
         $this->conf = $conf;
         $this->user = $user;
         $this->langs = $langs;
+        $this->customer = null;
     }
 
     /**
@@ -55,12 +61,12 @@ abstract class AbstractBillCommandHandler implements CommandHandlerInterface
     }
 
     /**
-     * @param int $receiverId
+     * @param int|null $receiverId
      *
      * @return Client
      * @throws CustomerNotFoundException
      */
-    protected function getCustomer($receiverId)
+    protected function fetchCustomer($receiverId = null)
     {
         $user = new User($this->db);
         $res = $user->fetch($receiverId);
@@ -74,12 +80,20 @@ abstract class AbstractBillCommandHandler implements CommandHandlerInterface
             throw new CustomerNotFoundException('Member not found');
         }
 
-        $customer = new Client($this->db);
-        if ($customer->fetch($member->fk_soc) <= 0) {
+        $this->customer = new Client($this->db);
+        if ($this->customer->fetch($member->fk_soc) <= 0) {
             throw new CustomerNotFoundException();
         }
 
-        return $customer;
+        return $this->customer;
+    }
+
+    /**
+     * @return Client
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
     }
 
     /**
@@ -126,15 +140,14 @@ abstract class AbstractBillCommandHandler implements CommandHandlerInterface
     }
 
     /**
-     * @param CreateReceiverMonthBillCommand $command
-     * @param Facture                        $object
-     * @param int                            $id
+     * @param Facture $object
+     * @param int     $id
      */
-    protected function generateBillDocument(CreateReceiverMonthBillCommand $command, $object, $id)
+    protected function generateBillDocument($object, $id)
     {
         $object->fetch($id);
         $object->generateDocument(
-            $command->getModelDocument(),
+            $this->getModelDocument(),
             $this->langs,
             $this->isDetailHidden(),
             $this->isDescriptionHidden(),
@@ -217,5 +230,13 @@ abstract class AbstractBillCommandHandler implements CommandHandlerInterface
     {
         $flight->is_facture = true;
         $flight->update($this->user);
+    }
+
+    /**
+     * @return int
+     */
+    protected function getModelDocument()
+    {
+        return $this->conf->FACTURE_ADDON_PDF;
     }
 }

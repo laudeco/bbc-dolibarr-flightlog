@@ -20,15 +20,15 @@ class CreateReceiverMonthBillCommandHandler extends AbstractBillCommandHandler
      */
     public function handle(CommandInterface $command)
     {
-        if(!($command instanceof CreateReceiverMonthBillCommand)){
+        if (!($command instanceof CreateReceiverMonthBillCommand)) {
             throw new \InvalidArgumentException('Command not correct');
         }
-        
+
         $object = new Facture($this->db);
         $object->fetch_thirdparty();
 
-        $object->socid = $this->getCustomer($command->getReceiverId())->id;
-        $object->type = $command->getBillingType();
+        $object->socid = $this->fetchCustomer($command->getReceiverId())->id;
+        $object->type = $command->getBillType();
         $object->number = "provisoire";
         $object->date = $this->generateBillDate($command->getYear(), $command->getMonth());
         $object->date_pointoftax = "";
@@ -36,9 +36,9 @@ class CreateReceiverMonthBillCommandHandler extends AbstractBillCommandHandler
         $object->note_private = $command->getPrivateNote();
         $object->ref_client = "";
         $object->ref_int = "";
-        $object->modelpdf = $command->getModelDocument();
-        $object->cond_reglement_id = $command->getBillingCondition();
-        $object->mode_reglement_id = $command->getBillType();
+        $object->modelpdf = $this->getModelDocument();
+        $object->cond_reglement_id = $this->getBillingCondition();
+        $object->mode_reglement_id = $this->getBillingType();
         $object->fk_account = $this->getBankAccount();
 
         $id = $object->create($this->user);
@@ -54,11 +54,11 @@ class CreateReceiverMonthBillCommandHandler extends AbstractBillCommandHandler
             $this->flagFlightAsBilled($flight);
         }
 
-        $this->generateBillDocument($command, $object, $id);
+        $this->generateBillDocument($object, $id);
 
         $this->validates($object, $id);
 
-        $this->generateBillDocument($command, $object, $id);
+        $this->generateBillDocument($object, $id);
     }
 
 
@@ -82,4 +82,42 @@ class CreateReceiverMonthBillCommandHandler extends AbstractBillCommandHandler
         $date = (new DateTime())->setDate($year, $month, $day);
         return $date->getTimestamp();
     }
+
+    /**
+     * Get the default billing condition if not set in the customer.
+     *
+     * @return int
+     */
+    private function getBillingCondition()
+    {
+        if (!empty($this->getCustomer()->cond_reglement_id)) {
+            return $this->getCustomer()->cond_reglement_id;
+        }
+
+        if (!empty($this->conf->BBC_DEFAULT_PAYMENT_TERM_ID)) {
+            return $this->conf->BBC_DEFAULT_PAYMENT_TERM_ID;
+        }
+
+        throw new \InvalidArgumentException('Billing condition / MAIN_DEFAULT_PAYMENT_TERM_ID not set');
+    }
+
+    /**
+     * Get the default billing type if not set in the customer.
+     *
+     * @return int
+     */
+    private function getBillingType()
+    {
+        if (!empty($this->getCustomer()->mode_reglement_id)) {
+            return $this->getCustomer()->mode_reglement_id;
+        }
+
+        if (!empty($this->conf->BBC_DEFAULT_PAYMENT_TYPE_ID)) {
+            return $this->conf->BBC_DEFAULT_PAYMENT_TYPE_ID;
+        }
+
+        throw new \InvalidArgumentException('Billing type / MAIN_DEFAULT_PAYMENT_TYPE_ID not set');
+    }
+
+
 }

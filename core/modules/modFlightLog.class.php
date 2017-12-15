@@ -410,7 +410,9 @@ class modFlightLog extends DolibarrModules
 
     private function initCronJobs()
     {
-        $this->cronjobs = array();
+        $this->cronjobs = [
+            0=>array('label'=>'bbcMonthlyFlightsBill', 'jobtype'=>'method', 'class'=>'flightlog/core/cron/BbcMonthlyFlightsBillCron.php', 'objectname'=>'BbcMonthlyFlightsBillCron', 'method'=>'run', 'parameters'=>'', 'comment'=>'Generate month bill.', 'frequency'=>1, 'unitfrequency'=>2592000),
+        ];
     }
 
     private function initDictionnaries()

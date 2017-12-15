@@ -42,6 +42,8 @@ if($action === ACTION_SAVE){
     dolibarr_set_const($db, 'BBC_POINTS_BONUS_ORGANISATOR', GETPOST('points_bonus_organisator'), 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'BBC_POINTS_BONUS_INSTRUCTOR', GETPOST('points_bonus_instructor'), 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'BBC_DEFAULT_BANK_ACCOUNT', GETPOST('default_bank_account'), 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'BBC_DEFAULT_PAYMENT_TERM_ID', GETPOST('bill_condition'), 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'BBC_DEFAULT_PAYMENT_TYPE_ID', GETPOST('bill_payment_type'), 'chaine', 0, '', $conf->entity);
 }
 
 /*
@@ -140,6 +142,24 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                 </td>
                 <td>
                     <?php $form->select_comptes($conf->global->BBC_DEFAULT_BANK_ACCOUNT, 'default_bank_account', 0, '', 1); ?>
+                </td>
+            </tr>
+
+            <tr class="impair">
+                <td>
+                    <?php echo $langs->trans('Condition de vente par défaut') ?>
+                </td>
+                <td>
+                    <?php $form->select_conditions_paiements($conf->global->BBC_DEFAULT_PAYMENT_TERM_ID, 'bill_condition'); ?>
+                </td>
+            </tr>
+
+            <tr class="pair">
+                <td>
+                    <?php echo $langs->trans('Type de payement par défaut') ?>
+                </td>
+                <td>
+                    <?php $form->select_types_paiements($conf->global->BBC_DEFAULT_PAYMENT_TYPE_ID, 'bill_payment_type'); ?>
                 </td>
             </tr>
 

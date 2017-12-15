@@ -94,10 +94,7 @@ class CreateMonthBillCommandHandler implements CommandHandlerInterface
     {
         $receiverCommand = new CreateReceiverMonthBillCommand(
             $currentReceiver,
-            $command->getBillingType(),
             $command->getBillType(),
-            $command->getBillingCondition(),
-            $command->getModelDocument(),
             $command->getPublicNote(),
             $command->getPrivateNote(),
             $command->getYear(),

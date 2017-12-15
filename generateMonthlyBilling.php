@@ -55,10 +55,6 @@ $month = GETPOST('month', 'int', 3) ?: $currentMonth - 1;
 $publicNote = GETPOST('public_note', 'alpha', 2);
 $privateNote = GETPOST('private_note', 'alpha', 2);
 $type = GETPOST("type", "int", 3);
-$conditionReglement = GETPOST("cond_reglement_id", "int", 3);
-$modeReglement = GETPOST("mode_reglement_id", "int", 3);
-$documentModel = GETPOST("model", "alpha", 3);
-
 
 //Query
 $queryHandler = new MonthlyBillableQueryHandler($db, $conf->global);
@@ -99,8 +95,7 @@ print '<div class="bbc-style">';
 if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
     try {
 
-        $command = new CreateMonthBillCommand($type, $modeReglement, $conditionReglement, $documentModel, $publicNote,
-            $privateNote, $year, $month);
+        $command = new CreateMonthBillCommand( $type, $publicNote, $privateNote, $year, $month);
         $handler->handle($command);
         dol_htmloutput_mesg('Génération : OK');
     } catch (Exception $e) {
@@ -195,24 +190,12 @@ $form = new Form($db);
             </table>
 
 
-            <!-- Billing type -->
+            <!-- Bill type -->
             <label><?= $langs->trans("Type de facture"); ?></label><br/>
             <input type="radio" id="radio_standard" name="type" value="0" checked="checked"/>
             <?= $form->textwithpicto($langs->trans("InvoiceStandardAsk"),
                 $langs->transnoentities("InvoiceStandardDesc"), 1,
                 'help', '', 0, 3) ?>
-            <br/>
-            <br/>
-
-            <!-- Payment mode -->
-            <label><?= $langs->trans("Mode de payement"); ?></label><br/>
-            <?php $form->select_types_paiements(0, 'mode_reglement_id', 'CRDT'); ?>
-            <br/>
-            <br/>
-
-            <!-- Payment condition -->
-            <label><?= $langs->trans("Condition de payement"); ?></label><br/>
-            <?php $form->select_conditions_paiements(0, 'cond_reglement_id'); ?>
             <br/>
             <br/>
 
@@ -225,13 +208,6 @@ $form = new Form($db);
             <!-- Private note -->
             <label><?= $langs->trans("Note privée (commune à toutes les factures)"); ?></label><br/>
             <textarea name="private_note" wrap="soft" class="quatrevingtpercent" rows="2"></textarea>
-            <br/>
-
-            <!-- model document -->
-            <label><?= $langs->trans("Model de document "); ?></label><br/>
-            <?php $liste = ModelePDFFactures::liste_modeles($db); ?>
-            <?= $form->selectarray('model', $liste, $conf->global->FACTURE_ADDON_PDF); ?>
-            <br/>
             <br/>
 
             <?php if ($queryResult->isEmpty() || $year > $currentYear || ($year == $currentYear && $month >= $currentMonth)) : ?>
