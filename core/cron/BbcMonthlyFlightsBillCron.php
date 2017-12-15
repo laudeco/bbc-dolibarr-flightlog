@@ -52,6 +52,12 @@ class BbcMonthlyFlightsBillCron
         dol_syslog('Monthly bill generation : Start');
 
         try {
+
+            if(date('d')>=15){
+                dol_syslog('Monthly bill generation : date over');
+                return -2;
+            }
+
             $command = new CreateMonthBillCommand(0, '', '', date('Y'), (date('m') - 1));
             $this->handler->handle($command);
 
