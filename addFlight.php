@@ -49,6 +49,7 @@ if (GETPOST("action") == 'add') {
         $vol->cost = $_POST['cost'];
         $vol->fk_receiver = $_POST['fk_receiver'];
         $vol->justif_kilometers = $_POST['justif_kilometers'];
+        $vol->setPassengerNames($_POST['passenger_names']);
         $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
 
         if ($validator->isValid($vol, $_REQUEST)) {
@@ -233,6 +234,14 @@ if ($msg) {
                            name="nbrPax"
                            class="flat <?php echo $validator->hasError('nbrPax') ? 'error' : '' ?>"
                            value="<?php echo $_POST['nbrPax'] ?>"/>
+                </td>
+            </tr>
+
+            <!-- passenger names -->
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans('Noms des passagers'); ?><br/>(Séparé par des ; )</td>
+                <td>
+                    <textarea name="passenger_names" class="flat <?php echo $validator->hasError('passenger_names') ? 'error' : '' ?>"><?php echo $_POST['passenger_names'] ?></textarea>
                 </td>
             </tr>
 

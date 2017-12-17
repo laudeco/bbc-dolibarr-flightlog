@@ -86,6 +86,11 @@ class Bbcvols extends CommonObject
     private $pilot;
 
     /**
+     * @var string
+     */
+    private $passengerNames;
+
+    /**
      * @return int
      */
     public function getIdBBCVols()
@@ -121,10 +126,12 @@ class Bbcvols extends CommonObject
     {
         $this->db = $db;
         $this->cost = 0;
+
+        $this->passengerNames = '';
     }
 
     /**
-     * Create object into database
+     * Create a flight
      *
      * @param  User $user      User that creates
      * @param  bool $notrigger false=launch triggers after, true=disable triggers
@@ -190,10 +197,9 @@ class Bbcvols extends CommonObject
         if (isset($this->justif_kilometers)) {
             $this->justif_kilometers = trim($this->justif_kilometers);
         }
-
-
-        // Check parameters
-        // Put here code to add control on parameters values
+        if (isset($this->passengerNames)) {
+            $this->passengerNames = trim($this->passengerNames);
+        }
 
         // Insert request
         $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . $this->table_element . '(';
@@ -216,8 +222,8 @@ class Bbcvols extends CommonObject
         $sql .= 'fk_receiver,';
         $sql .= 'justif_kilometers,';
         $sql .= 'date_creation,';
-        $sql .= 'date_update';
-
+        $sql .= 'date_update,';
+        $sql .= 'passenger_names';
 
         $sql .= ') VALUES (';
 
@@ -239,8 +245,8 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->fk_receiver) ? 'NULL' : $this->fk_receiver) . ',';
         $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
-        $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . '';
-
+        $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
+        $sql .= ' ' . "'" . $this->passengerNames . "'" . '';
 
         $sql .= ')';
 
@@ -257,13 +263,10 @@ class Bbcvols extends CommonObject
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
 
             if (!$notrigger) {
-                // Uncomment this and change MYOBJECT to your own tag if you
-                // want this action to call a trigger.
-
-                //// Call triggers
-                //$result=$this->call_trigger('MYOBJECT_CREATE',$user);
-                //if ($result < 0) $error++;
-                //// End call triggers
+                $result = $this->call_trigger('BBC_FLIGHT_CREATED', $user);
+                if ($result < 0) {
+                    $error++;
+                }
             }
         }
 
@@ -272,11 +275,10 @@ class Bbcvols extends CommonObject
             $this->db->rollback();
 
             return -1 * $error;
-        } else {
-            $this->db->commit();
-
-            return $this->id;
         }
+
+        $this->db->commit();
+        return $this->id;
     }
 
     /**
@@ -311,7 +313,8 @@ class Bbcvols extends CommonObject
         $sql .= " t.fk_receiver,";
         $sql .= " t.justif_kilometers,";
         $sql .= " t.date_creation,";
-        $sql .= " t.date_update";
+        $sql .= " t.date_update,";
+        $sql .= " t.passenger_names";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -349,6 +352,7 @@ class Bbcvols extends CommonObject
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
+                $this->passengerNames = $obj->passenger_names;
 
                 $this->balloon = $this->fetchBalloon();
                 $this->pilot = $this->fetchUser($this->fk_pilot);
@@ -360,127 +364,14 @@ class Bbcvols extends CommonObject
             } else {
                 return 0;
             }
-        } else {
-            $this->errors[] = 'Error ' . $this->db->lasterror();
-            dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
-
-            return -1;
         }
+
+        $this->errors[] = 'Error ' . $this->db->lasterror();
+        dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
+        return -1;
     }
 
     /**
-     * Load object in memory from the database
-     *
-     * @param string $sortorder  Sort Order
-     * @param string $sortfield  Sort field
-     * @param int    $limit      offset limit
-     * @param int    $offset     offset limit
-     * @param array  $filter     filter array
-     * @param string $filtermode filter mode (AND or OR)
-     *
-     * @return int <0 if KO, >0 if OK
-     */
-    public function fetchAll(
-        $sortorder = '',
-        $sortfield = '',
-        $limit = 0,
-        $offset = 0,
-        array $filter = array(),
-        $filtermode = 'AND'
-    ) {
-        dol_syslog(__METHOD__, LOG_DEBUG);
-
-        $sql = 'SELECT';
-        $sql .= " t.idBBC_vols,";
-        $sql .= " t.date,";
-        $sql .= " t.lieuD,";
-        $sql .= " t.lieuA,";
-        $sql .= " t.heureD,";
-        $sql .= " t.heureA,";
-        $sql .= " t.BBC_ballons_idBBC_ballons,";
-        $sql .= " t.nbrPax,";
-        $sql .= " t.remarque,";
-        $sql .= " t.incidents,";
-        $sql .= " t.fk_type,";
-        $sql .= " t.fk_pilot,";
-        $sql .= " t.fk_organisateur,";
-        $sql .= " t.is_facture,";
-        $sql .= " t.kilometers,";
-        $sql .= " t.cost,";
-        $sql .= " t.fk_receiver,";
-        $sql .= " t.justif_kilometers,";
-        $sql .= " t.date_creation,";
-        $sql .= " t.date_update";
-
-
-        $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
-
-        // Manage filter
-        $sqlwhere = array();
-        if (count($filter) > 0) {
-            foreach ($filter as $key => $value) {
-                $sqlwhere [] = $key . ' LIKE \'%' . $this->db->escape($value) . '%\'';
-            }
-        }
-        if (count($sqlwhere) > 0) {
-            $sql .= ' WHERE ' . implode(' ' . $filtermode . ' ', $sqlwhere);
-        }
-
-        if (!empty($sortfield)) {
-            $sql .= $this->db->order($sortfield, $sortorder);
-        }
-        if (!empty($limit)) {
-            $sql .= ' ' . $this->db->plimit($limit + 1, $offset);
-        }
-        $this->lines = array();
-
-        $resql = $this->db->query($sql);
-        if ($resql) {
-            $num = $this->db->num_rows($resql);
-
-            while ($obj = $this->db->fetch_object($resql)) {
-                $line = new BbcvolsLine();
-
-                $line->id = $obj->idBBC_vols;
-
-                $line->idBBC_vols = $obj->idBBC_vols;
-                $line->date = $this->db->jdate($obj->date);
-                $line->lieuD = $obj->lieuD;
-                $line->lieuA = $obj->lieuA;
-                $line->heureD = $obj->heureD;
-                $line->heureA = $obj->heureA;
-                $line->BBC_ballons_idBBC_ballons = $obj->BBC_ballons_idBBC_ballons;
-                $line->nbrPax = $obj->nbrPax;
-                $line->remarque = $obj->remarque;
-                $line->incidents = $obj->incidents;
-                $line->fk_type = $obj->fk_type;
-                $line->fk_pilot = $obj->fk_pilot;
-                $line->fk_organisateur = $obj->fk_organisateur;
-                $line->is_facture = $obj->is_facture;
-                $line->kilometers = $obj->kilometers;
-                $line->cost = $obj->cost;
-                $line->fk_receiver = $obj->fk_receiver;
-                $line->justif_kilometers = $obj->justif_kilometers;
-                $line->date_creation = $obj->date_creation;
-                $line->date_update = $obj->date_update;
-
-
-                $this->lines[$line->id] = $line;
-            }
-            $this->db->free($resql);
-
-            return $num;
-        } else {
-            $this->errors[] = 'Error ' . $this->db->lasterror();
-            dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
-
-            return -1;
-        }
-    }
-
-    /**
-     * Update object into database
-     *
      * @param  User $user      User that modifies
      * @param  bool $notrigger false=launch triggers after, true=disable triggers
      *
@@ -545,6 +436,9 @@ class Bbcvols extends CommonObject
         if (isset($this->justif_kilometers)) {
             $this->justif_kilometers = trim($this->justif_kilometers);
         }
+        if (isset($this->passengerNames)) {
+            $this->passengerNames = trim($this->passengerNames);
+        }
 
 
         // Check parameters
@@ -570,7 +464,8 @@ class Bbcvols extends CommonObject
         $sql .= ' cost = ' . (isset($this->cost) ? "'" . $this->db->escape($this->cost) . "'" : "''") . ',';
         $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) ? $this->fk_receiver : "null") . ',';
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
-        $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "'";
+        $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
+        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "'";
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -584,13 +479,10 @@ class Bbcvols extends CommonObject
         }
 
         if (!$error && !$notrigger) {
-            // Uncomment this and change MYOBJECT to your own tag if you
-            // want this action calls a trigger.
-
-            //// Call triggers
-            //$result=$this->call_trigger('MYOBJECT_MODIFY',$user);
-            //if ($result < 0) { $error++; //Do also what you must do to rollback action if trigger fail}
-            //// End call triggers
+            $result = $this->call_trigger('BBC_FLIGHT_UPDATED', $user);
+            if ($result < 0) {
+                $error++;
+            }
         }
 
         // Commit or rollback
@@ -598,11 +490,10 @@ class Bbcvols extends CommonObject
             $this->db->rollback();
 
             return -1 * $error;
-        } else {
-            $this->db->commit();
-
-            return 1;
         }
+
+        $this->db->commit();
+        return 1;
     }
 
     /**
@@ -623,13 +514,10 @@ class Bbcvols extends CommonObject
 
         if (!$error) {
             if (!$notrigger) {
-                // Uncomment this and change MYOBJECT to your own tag if you
-                // want this action calls a trigger.
-
-                //// Call triggers
-                //$result=$this->call_trigger('MYOBJECT_DELETE',$user);
-                //if ($result < 0) { $error++; //Do also what you must do to rollback action if trigger fail}
-                //// End call triggers
+                $result = $this->call_trigger('BBC_FLIGHT_DELETED', $user);
+                if ($result < 0) {
+                    $error++;
+                }
             }
         }
 
@@ -648,13 +536,11 @@ class Bbcvols extends CommonObject
         // Commit or rollback
         if ($error) {
             $this->db->rollback();
-
             return -1 * $error;
-        } else {
-            $this->db->commit();
-
-            return 1;
         }
+
+        $this->db->commit();
+        return 1;
     }
 
     /**
@@ -967,7 +853,42 @@ class Bbcvols extends CommonObject
      */
     public function getPlaces()
     {
-        return $this->lieuD.' -> '.$this->lieuA;
+        return $this->lieuD . ' -> ' . $this->lieuA;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->__toString() . ' - ' . $this->passengerNames;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassengerNames()
+    {
+        return $this->passengerNames;
+    }
+
+    /**
+     * @param string $passengerNames
+     *
+     * @return Bbcvols
+     */
+    public function setPassengerNames($passengerNames)
+    {
+        $this->passengerNames = $passengerNames;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNumberOfPassengers()
+    {
+        return (int) $this->nbrPax;
     }
 }
 

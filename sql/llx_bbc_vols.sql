@@ -21,5 +21,6 @@ CREATE  TABLE IF NOT EXISTS `llx_bbc_vols` (
   `kilometers` INT NULL,
   `cost` INT NULL,
   `fk_receiver` INT NULL,
+  `passenger_names` VARCHAR(255) DEFAULT '',
   PRIMARY KEY (`idBBC_vols`) )
 ENGINE = InnoDB;

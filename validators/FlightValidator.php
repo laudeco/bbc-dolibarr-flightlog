@@ -60,8 +60,23 @@ class FlightValidator extends AbstractValidator
             $this->addError('nbrPax', 'Erreur le nombre de passager est un nombre négatif.');
         }
 
-        if ($vol->mustHavePax() && !$vol->hasPax()) {
-            $this->addError('nbrPax', 'Erreur ce type de vol doit etre fait avec des passagers.');
+        if($vol->mustHavePax()){
+            if (!$vol->hasPax()) {
+                $this->addError('nbrPax', 'Erreur ce type de vol doit etre fait avec des passagers.');
+            }
+
+            if(empty(trim($vol->getPassengerNames()))){
+                $this->addError('passenger_names', 'Le nom des passagers est obligatoire.');
+            }
+
+            if(empty(trim($vol->getPassengerNames()))){
+                $this->addError('passenger_names', 'Le nom des passagers est obligatoire.');
+            }
+
+            $passengers = explode(';', $vol->getPassengerNames());
+            if(count($passengers) !== $vol->getNumberOfPassengers()){
+                $this->addError('passenger_names', 'Le nombre de noms des passagers doit être égale au nombre de passagers.');
+            }
         }
 
         // verification billing
