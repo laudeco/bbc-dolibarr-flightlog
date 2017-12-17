@@ -187,7 +187,7 @@ abstract class AbstractBillCommandHandler implements CommandHandlerInterface
         }
 
         $result = $facture->addline(
-            $flight->toString(),
+            $flight->getDescription(),
             $pu_ht,
             $flight->nbrPax,
             $flightProduct->tva_tx,
