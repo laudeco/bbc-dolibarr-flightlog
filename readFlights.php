@@ -195,12 +195,26 @@ $tableQuery = new BillableFlightQuery(true, (GETPOST("year") ?: date("Y")));
 $tableQueryHandler = new BillableFlightQueryHandler($db, $conf->global);
 
 $total = 0;
+$totalT1 = 0;
+$totalT2 = 0;
+$totalT3 = 0;
+$totalT4 = 0;
+$totalT5 = 0;
+$totalT6 = 0;
+$totalT7 = 0;
 /**
  * @var int   $key
  * @var Pilot $pilot
  */
 foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     $total += $pilot->getTotalBill()->getValue();
+    $totalT1 += $pilot->getCountForType('1')->getCount();
+    $totalT2 += $pilot->getCountForType('2')->getCount();
+    $totalT3 += $pilot->getCountForType('3')->getCount();
+    $totalT4 += $pilot->getCountForType('4')->getCount();
+    $totalT5 += $pilot->getCountForType('5')->getCount();
+    $totalT6 += $pilot->getCountForType('6')->getCount();
+    $totalT7 += $pilot->getCountForType('7')->getCount();
 
     print '<tr class="oddeven">';
     print '<td>' . $pilot->getId() . '</td>';
@@ -239,11 +253,42 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     print '</tr>';
 }
 
-print "<tr>";
-print "<td colspan='20'></td>";
-print "<td>Total à reçevoir</td>";
+print '<tr class="oddeven">';
+print '<td></td>';
+print '<td></td>';
+
+print '<td>' . $totalT1 . '</td>';
+print '<td></td>';
+
+print '<td>' . $totalT2 . '</td>';
+print '<td>' . '</td>';
+
+print '<td>' . '</td>';
+print '<td>' . '</td>';
+
+print '<td>' . '</td>';
+print '<td>' . '</td>';
+
+print '<td><b>' . '</b></td>';
+
+print '<td>' . $totalT3 . '</td>';
+print '<td></td>';
+
+print '<td>' . $totalT4. '</td>';
+print '<td></td>';
+
+print '<td>' . $totalT5 . '</td>';
+
+print '<td>' . $totalT6 . '</td>';
+print '<td></td>';
+
+print '<td>' . $totalT7 . '</td>';
+print '<td></td>';
+
+print '<td>Total à reçevoir </td>';
 print "<td>" . price($total) . "€</td>";
-print "</tr>";
+print '</tr>';
+
 
 print '</tbody>';
 print'</table>';
