@@ -153,8 +153,8 @@ class CreatePilotYearBillCommandHandler
         $this->addOrderLine($object, $this->t7->getService(), $command->getPilot()->getCountForType('7')->getCount(),
             $startYearTimestamp, $endYearTimestamp);
 
-        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('1'), $this->t1, $command->getYear());
-        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('2'), $this->t2, $command->getYear());
+        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('1'), $this->t1->getService(), $command->getYear());
+        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('2'), $this->t2->getService(), $command->getYear());
         $this->addOrderDiscount($object, $command->getPilot()->getCountForType('orga'), $this->tOrganisator,
             $command->getYear());
         $this->addOrderDiscount($object, $command->getPilot()->getCountForType('orga_T6'), $this->tInstructor,
