@@ -15,8 +15,6 @@ Module500000Desc = Carnet de vol
 # Page d'administration
 #
 
-FLightLogSetup = Configuration du module carnet de vol
-
 #
 # Page À propos
 #
@@ -36,7 +34,7 @@ FLightLogSetup = Configuration du module carnet de vol
 Remboursement aux pilotes =  Remboursement aux pilotes
 Type 1 : Sponsor = Type 1 : Sponsor
 Type 2 : Baptême = Type 2 : Baptême
-Organisateur (T1/T2) = Organisateur (T1/T2)
+Organisateur_(T1/T2) = Organisateur (T1/T2)
 Total bonus = Total bonus
 Type 3 : Privé = Type 3 : Privé
 Type 4: Meeting = Type 4: Meeting
@@ -69,8 +67,8 @@ FieldnbrPax = # pax
 Fieldremarque = Remarque
 Fieldincidents = Field incidents
 Fieldfk_type = Type
-Fieldfk_pilot = Pilote
-Fieldfk_organisateur = Organisateur
+Fieldfk_pilot = Pilote / Eleve
+Fieldfk_organisateur = Organisateur / Instructeur
 Fieldis_facture = Facturé ?
 Fieldkilometers = KM
 Fieldcost = Cout
