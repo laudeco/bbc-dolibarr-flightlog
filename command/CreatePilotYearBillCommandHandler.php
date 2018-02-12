@@ -98,9 +98,11 @@ class CreatePilotYearBillCommandHandler
 
         $this->tOrganisator = new Product($this->db);
         $this->tOrganisator->label = 'Vols dont vous êtes organisateur';
+        $this->tOrganisator->tva_tx = $this->t1->getService()->tva_tx;
 
         $this->tInstructor = new Product($this->db);
         $this->tInstructor->label = 'Vols dont vous êtes instructeur/examinateur';
+        $this->tInstructor->tva_tx = $this->t1->getService()->tva_tx;
     }
 
     /**
@@ -250,7 +252,7 @@ class CreatePilotYearBillCommandHandler
         $pu_ht = price2num($pilotFlightCount->getCost()->getValue(), 'MU');
         $desc = $year . " - " . $service->label . " - (" . $pilotFlightCount->getCount() . " * " . $pilotFlightCount->getFactor() . ")";
 
-        $discountid = $this->getCompany($order->socid)->set_remise_except($pu_ht, $this->user, $desc, 0);
+        $discountid = $this->getCompany($order->socid)->set_remise_except($pu_ht, $this->user, $desc, $service->tva_tx);
         $order->insert_discount($discountid);
     }
 

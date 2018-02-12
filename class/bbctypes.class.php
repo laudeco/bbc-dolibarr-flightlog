@@ -634,6 +634,15 @@ class Bbctypes extends CommonObject
 
         return $this->service;
     }
+
+    /**
+     * Is an instruction type
+     */
+    public function isInstruction()
+    {
+        $type = (int)$this->idType;
+        return  $type === 6 || $type === 7;
+    }
 }
 
 /**

@@ -79,6 +79,16 @@ class FlightValidator extends AbstractValidator
             }
         }
 
+        if($vol->isInstruction()){
+            if($vol->getPilotId() === $vol->getOrganisatorId()){
+                $this->addError('organisator', 'l\'organisateur d\'un vol d\'instruction doit être l\'instructeur et non le pilote');
+            }
+
+            if($this->isGroupedFlight($context)){
+                $this->addError('alone', "Le vol d'instruction est un vol à un seul ballon.");
+            }
+        }
+
         // verification billing
         if ($this->isGroupedFlight($context) && $vol->getFlightType()->isBillingRequired() && $vol->isFree()) {
             $this->addError('cost', 'Erreur ce type de vol doit être payant.');

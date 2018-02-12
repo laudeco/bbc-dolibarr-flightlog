@@ -37,6 +37,7 @@ abstract class AbstractValidator implements ValidatorInterface
     {
         $this->langs = $langs;
         $this->db = $db;
+        $this->errors = [];
     }
 
     /**
