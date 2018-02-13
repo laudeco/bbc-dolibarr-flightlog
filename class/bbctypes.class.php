@@ -256,7 +256,7 @@ class Bbctypes extends CommonObject
             }
 
             if (is_int($value)) {
-                $sqlwhere [] = $key . ' = ' . (int)$value;
+                $sqlwhere [] = $key . ' = ' . (int) $value;
                 continue;
             }
         }
@@ -599,7 +599,7 @@ class Bbctypes extends CommonObject
      */
     public function isPaxRequired()
     {
-        switch ((int)$this->idType) {
+        switch ((int) $this->idType) {
             case 1:
             case 2:
                 return true;
@@ -615,7 +615,7 @@ class Bbctypes extends CommonObject
      */
     public function isBillingRequired()
     {
-        return (int)$this->idType === 2;
+        return (int) $this->idType === 2;
     }
 
     /**
@@ -640,8 +640,8 @@ class Bbctypes extends CommonObject
      */
     public function isInstruction()
     {
-        $type = (int)$this->idType;
-        return  $type === 6 || $type === 7;
+        $type = (int) $this->idType;
+        return $type === 6 || $type === 7;
     }
 }
 

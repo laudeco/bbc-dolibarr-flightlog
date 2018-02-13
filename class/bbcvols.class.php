@@ -746,14 +746,16 @@ class Bbcvols extends CommonObject
     /**
      * @return int
      */
-    public function getPilotId(){
+    public function getPilotId()
+    {
         return (int) $this->fk_pilot;
     }
 
     /**
      * @return int
      */
-    public function getOrganisatorId(){
+    public function getOrganisatorId()
+    {
         return (int) $this->fk_organisateur;
     }
 
@@ -908,7 +910,8 @@ class Bbcvols extends CommonObject
     /**
      * Is an instruction flight (T6/T7)
      */
-    public function isInstruction(){
+    public function isInstruction()
+    {
         return $this->getFlightType()->isInstruction();
     }
 }
