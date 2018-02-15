@@ -34,7 +34,7 @@ class InstructionFlightQueryHandler
         $sql = 'SELECT flights.* FROM llx_bbc_vols as flights';
         $sql .= ' WHERE ';
         $sql .= ' flights.fk_type = 6 ';
-        $sql .= ' AND flights.fk_pilot = '. $query->getStudentId();
+        $sql .= ' AND flights.fk_pilot = ' . $query->getStudentId();
         $sql .= ' ORDER BY flights.idBBC_vols ';
 
         $resql = $this->db->query($sql);

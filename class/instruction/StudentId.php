@@ -21,11 +21,11 @@ class StudentId
      */
     public function __construct($id)
     {
-        if((int)$id <= 0 ){
+        if ((int) $id <= 0) {
             throw new InvalidArgumentException('Invalid Student ID');
         }
 
-        $this->id = (int)$id;
+        $this->id = (int) $id;
     }
 
     /**

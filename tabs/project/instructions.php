@@ -94,11 +94,11 @@ llxHeader("", $langs->trans("Vol d'instructions"));
 $head = project_prepare_head($project);
 dol_fiche_head($head, 'instruction', $langs->trans("Project"), -1, ($project->public ? 'projectpub' : 'project'));
 
-$morehtmlref='<div class="refidno">';
-$morehtmlref.=$project->title;
-$morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ';
+$morehtmlref = '<div class="refidno">';
+$morehtmlref .= $project->title;
+$morehtmlref .= '<br>' . $langs->trans('ThirdParty') . ' : ';
 $morehtmlref .= $project->thirdparty->getNomUrl(1, 'project');
-$morehtmlref.='</div>';
+$morehtmlref .= '</div>';
 
 dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
 ?>
