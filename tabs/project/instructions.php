@@ -63,11 +63,6 @@ if ($id == '' && $projectid == '' && $ref == '') {
     exit;
 }
 
-/*
- * Security
- */
-restrictedArea($user, 'projet', $id, 'projet&project');
-
 
 /*
  * Objects
@@ -91,26 +86,33 @@ if (0 > $adherent->fetch(null, null, $project->socid)) {
 $instructionFlightsHandler = new InstructionFlightQueryHandler($db);
 $instructionFlights = $instructionFlightsHandler->__invoke(new InstructionFlightQuery(new StudentId($adherent->user_id)));
 $formOther = new FormOther($db);
+
+/*
+ * Security
+ */
+restrictedArea($user, 'projet', $id, 'projet&project');
+$userWrite = $project->restrictedProjectArea($user,'write') || $project->public;
+
 /*
  * Actions
  */
 
-if($action === "save"){
+if ($action === "save") {
 
-    foreach($instructionFlights as $flight){
+    foreach ($instructionFlights as $flight) {
         /** @var Task $currentTask */
-        foreach($projectTasks as $currentTask){
+        foreach ($projectTasks as $currentTask) {
             $flight->deleteObjectLinked($currentTask->id, $currentTask->table_element);
         }
 
-        if(isset($objectives[$flight->getId()])){
-            foreach($objectives[$flight->getId()] as $currentObjectiveTaskId){
+        if (isset($objectives[$flight->getId()])) {
+            foreach ($objectives[$flight->getId()] as $currentObjectiveTaskId) {
                 $flight->add_object_linked($task->table_element, $currentObjectiveTaskId);
             }
         }
     }
 
-    foreach($progressions as $taskId => $progressionPercent){
+    foreach ($progressions as $taskId => $progressionPercent) {
         $task->fetch($taskId);
         $task->progress = $progressionPercent;
         $task->update($user);
@@ -136,8 +138,8 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
 
     <form action="instructions.php" method="POST">
 
-        <input type="hidden" value="<?php echo $id;?>" name="id"/>
-        <table>
+        <input type="hidden" value="<?php echo $id; ?>" name="id"/>
+        <table class="noborder" width="100%">
 
             <tr>
                 <td></td>
@@ -157,14 +159,40 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
                     </td>
 
                     <td class="center">
-                        <?php echo $formOther->select_percent($currentTask->progress, sprintf('progression[%s]', $currentTask->id, false , 10));?>
+                        <?php if($userWrite): ?>
+                            <?php echo $formOther->select_percent($currentTask->progress,
+                                sprintf('progression[%s]', $currentTask->id, false, 10)); ?>
+                        <?php else: ?>
+                            <span><?php echo $currentTask->progress; ?> %</span>
+                        <?php endif; ?>
+
                     </td>
 
                     <!-- Start flights checkboxes -->
                     <?php foreach ($instructionFlights as $flight): ?>
-                        <?php $flight->fetchObjectLinked(null, $task->table_element, $flight->getId(), $flight->element);?>
+
+                        <?php $flight->fetchObjectLinked(null, $task->table_element, $flight->getId(), $flight->element); ?>
+
                         <td class="center">
-                            <input type="checkbox" value="<?php echo $currentTask->id; ?>" name="objective[<?php echo $flight->getId(); ?>][]" <?php echo !empty($flight->linkedObjectsIds) && in_array($currentTask->id, $flight->linkedObjectsIds[$currentTask->table_element]) ? 'checked' : '' ?>/>
+
+                            <?php if($userWrite):?>
+                                <input type="checkbox"
+                                       value="<?php echo $currentTask->id; ?>"
+                                       name="objective[<?php echo $flight->getId(); ?>][]"
+                                    <?php echo !empty($flight->linkedObjectsIds) && in_array($currentTask->id, $flight->linkedObjectsIds[$currentTask->table_element]) ? 'checked' : '' ?>
+                                />
+                            <?php else: ?>
+
+                                <?php if(!empty($flight->linkedObjectsIds) && in_array($currentTask->id, $flight->linkedObjectsIds[$currentTask->table_element])): ?>
+                                    <span class="fa fa-check"></span>
+                                <?php else: ?>
+                                    <span class="fa fa-times"></span>
+                                <?php endif; ?>
+
+                            <?php endif; ?>
+
+
+
                         </td>
                     <?php endforeach; ?>
                 </tr>
@@ -174,7 +202,9 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
 
         <div class="tabsAction">
             <div class="inline-block divButAction">
-                <button class="butAction" type="submit" name="action" value="save">Sauver</button>
+                <?php if($userWrite): ?>
+                    <button class="butAction" type="submit" name="action" value="save">Sauver</button>
+                <?php endif; ?>
             </div>
         </div>
     </form>
