@@ -129,6 +129,7 @@ if ($action === "save") {
                 }
 
                 $task->date_start = $earliestDate;
+                $task->date_end = null; //Objective were achived but now not anymore
             }
         }
 
