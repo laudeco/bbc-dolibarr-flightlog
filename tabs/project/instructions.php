@@ -91,7 +91,7 @@ $formOther = new FormOther($db);
  * Security
  */
 restrictedArea($user, 'projet', $id, 'projet&project');
-$userWrite = $project->restrictedProjectArea($user,'write') || $project->public;
+$userWrite = $project->restrictedProjectArea($user, 'write') || $project->public;
 
 /*
  * Actions
@@ -114,7 +114,43 @@ if ($action === "save") {
 
     foreach ($progressions as $taskId => $progressionPercent) {
         $task->fetch($taskId);
-        $task->progress = $progressionPercent;
+        $task->progress = (int) $progressionPercent;
+
+        if ($task->progress <= 100) {
+            $task->fetchObjectLinked($task->id, $task->table_element, null, 'flightlog_bbcvols');
+
+            if (empty($task->linkedObjects['flightlog_bbcvols'])) {
+                setEventMessages(sprintf('la tâche %s, n\'a pas de vol associé', $task->ref), null, 'warnings');
+            } else {
+                $earliestDate = null;
+                /** @var Bbcvols $currentFlight */
+                foreach ($task->linkedObjects['flightlog_bbcvols'] as $currentFlight) {
+                    $earliestDate = null === $earliestDate || $currentFlight->date <= $earliestDate ? $currentFlight->date : $earliestDate;
+                }
+
+                $task->date_start = $earliestDate;
+            }
+        }
+
+
+        if ($task->progress === 100) {
+            $task->fetchObjectLinked($task->id, $task->table_element, null, 'flightlog_bbcvols');
+
+            if (empty($task->linkedObjects['flightlog_bbcvols'])) {
+                setEventMessages(sprintf('la tâche %s, n\'a pas de vol associé', $task->ref), null, 'warnings');
+            } else {
+                $latestDate = null;
+                /** @var Bbcvols $currentFlight */
+                foreach ($task->linkedObjects['flightlog_bbcvols'] as $currentFlight) {
+                    $latestDate = $currentFlight->date > $latestDate ? $currentFlight->date : $latestDate;
+                }
+
+                $task->date_end = $latestDate;
+            }
+
+        }
+
+
         $task->update($user);
     }
 }
@@ -135,6 +171,16 @@ $morehtmlref .= '</div>';
 
 dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
 ?>
+    <div>
+        <p>
+            Ceci est le <b>tableau de progression</b> de l'élève. Le vol doit être encodé dans le carnet de vol
+            <b>avant</b> de figurer dans la liste ci-dessous.<br/>
+            Lorsque la progression est mise à <b><=100%</b>, la date de début de la tâche est automatiquement réglée sur
+            la date du <b>premier vol</b> de cette tâche.<br/>
+            Lorsque la progression est mise à <b>100%</b>, la date de réalisation de la tâche est automatiquement réglée
+            sur la date du <b>dernier vol</b> de cette tâche.
+        </p>
+    </div>
 
     <form action="instructions.php" method="POST">
 
@@ -162,7 +208,7 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
                     </td>
 
                     <td class="center">
-                        <?php if($userWrite): ?>
+                        <?php if ($userWrite): ?>
                             <?php echo $formOther->select_percent($currentTask->progress,
                                 sprintf('progression[%s]', $currentTask->id, false, 10)); ?>
                         <?php else: ?>
@@ -174,26 +220,28 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
                     <!-- Start flights checkboxes -->
                     <?php foreach ($instructionFlights as $flight): ?>
 
-                        <?php $flight->fetchObjectLinked(null, $task->table_element, $flight->getId(), $flight->element); ?>
+                        <?php $flight->fetchObjectLinked(null, $task->table_element, $flight->getId(),
+                            $flight->element); ?>
 
                         <td class="center">
 
-                            <?php if($userWrite):?>
+                            <?php if ($userWrite): ?>
                                 <input type="checkbox"
                                        value="<?php echo $currentTask->id; ?>"
                                        name="objective[<?php echo $flight->getId(); ?>][]"
-                                    <?php echo !empty($flight->linkedObjectsIds) && in_array($currentTask->id, $flight->linkedObjectsIds[$currentTask->table_element]) ? 'checked' : '' ?>
+                                    <?php echo !empty($flight->linkedObjectsIds) && in_array($currentTask->id,
+                                        $flight->linkedObjectsIds[$currentTask->table_element]) ? 'checked' : '' ?>
                                 />
                             <?php else: ?>
 
-                                <?php if(!empty($flight->linkedObjectsIds) && in_array($currentTask->id, $flight->linkedObjectsIds[$currentTask->table_element])): ?>
+                                <?php if (!empty($flight->linkedObjectsIds) && in_array($currentTask->id,
+                                        $flight->linkedObjectsIds[$currentTask->table_element])): ?>
                                     <span class="fa fa-check"></span>
                                 <?php else: ?>
                                     <span class="fa fa-times"></span>
                                 <?php endif; ?>
 
                             <?php endif; ?>
-
 
 
                         </td>
@@ -205,7 +253,7 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
 
         <div class="tabsAction">
             <div class="inline-block divButAction">
-                <?php if($userWrite): ?>
+                <?php if ($userWrite): ?>
                     <button class="butAction" type="submit" name="action" value="save">Sauver</button>
                 <?php endif; ?>
             </div>
