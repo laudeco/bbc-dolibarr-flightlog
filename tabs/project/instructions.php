@@ -176,7 +176,7 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
         <p>
             Ceci est le <b>tableau de progression</b> de l'élève. Le vol doit être encodé dans le carnet de vol
             <b>avant</b> de figurer dans la liste ci-dessous.<br/>
-            Lorsque la progression est mise à <b><=100%</b>, la date de début de la tâche est automatiquement réglée sur
+            Lorsque la progression est mise à <b>&gt;=100%</b>, la date de début de la tâche est automatiquement réglée sur
             la date du <b>premier vol</b> de cette tâche.<br/>
             Lorsque la progression est mise à <b>100%</b>, la date de réalisation de la tâche est automatiquement réglée
             sur la date du <b>dernier vol</b> de cette tâche.
