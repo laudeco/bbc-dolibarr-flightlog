@@ -564,7 +564,9 @@ class Bbcvols extends CommonObject
         $label = '<u>' . $langs->trans("MyModule") . '</u>';
         $label .= '<div width="100%">';
         $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->idBBC_vols . '<br>';
-        $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y');
+        $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y').'<br/>';
+        $label .= '<b>' . $langs->trans('From') . ':</b> ' . $this->lieuD.'<br/>';
+        $label .= '<b>' . $langs->trans('To') . ':</b> ' . $this->lieuA.'<br/>';
         $label .= '</div>';
 
         $link = '<a href="' . DOL_URL_ROOT . '/flightlog/card.php?id=' . $this->idBBC_vols . '"';

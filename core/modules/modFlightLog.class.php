@@ -160,9 +160,6 @@ class modFlightLog extends DolibarrModules
         // Constants
         $this->initConstants();
 
-        // Array to add new pages in new tabs
-        $this->tabs = [];
-
         if (!isset($conf->flightLog) || !isset($conf->flightLog->enabled)) {
             $conf->flightLog = new stdClass();
             $conf->flightLog->enabled = 0;
@@ -170,6 +167,7 @@ class modFlightLog extends DolibarrModules
 
         $this->boxes = [];
 
+        $this->initTabs();
         $this->initDictionnaries();
         $this->initCronJobs();
         $this->initMenu();
@@ -604,6 +602,17 @@ class modFlightLog extends DolibarrModules
     {
         $this->module_parts['css'] = [
             '/flightlog/css/flightlog.css',
+        ];
+    }
+
+    /**
+     * Init tabs to inject in other modules.
+     */
+    private function initTabs()
+    {
+        $this->tabs = [];
+        $this->tabs[] = [
+            'data'=>'project:+instruction:Vol d\'instructions:mymodule@flightlog:1:/flightlog/tabs/project/instructions.php?id=__ID__'
         ];
     }
 
