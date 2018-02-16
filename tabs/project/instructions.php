@@ -39,10 +39,9 @@ dol_include_once('/flightlog/class/instruction/StudentId.php');
 dol_include_once('/flightlog/query/InstructionFlightQuery.php');
 dol_include_once('/flightlog/query/InstructionFlightQueryHandler.php');
 
-dol_include_once('/core/class/html.formprojet.class.php');
 dol_include_once('/core/lib/project.lib.php');
 dol_include_once('/core/lib/date.lib.php');
-dol_include_once('/core/class/html.formfile.class.php');
+dol_include_once('/core/class/html.formother.class.php');
 
 $langs->load("projects");
 $langs->load("companies");
@@ -57,6 +56,7 @@ global $db, $langs, $user, $conf;
 $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
 $objectives = GETPOST('objective', 'array');
+$progressions = GETPOST('progression', 'array');
 
 if ($id == '' && $projectid == '' && $ref == '') {
     dol_print_error('', 'Bad parameter');
@@ -90,7 +90,7 @@ if (0 > $adherent->fetch(null, null, $project->socid)) {
 
 $instructionFlightsHandler = new InstructionFlightQueryHandler($db);
 $instructionFlights = $instructionFlightsHandler->__invoke(new InstructionFlightQuery(new StudentId($adherent->user_id)));
-
+$formOther = new FormOther($db);
 /*
  * Actions
  */
@@ -108,6 +108,12 @@ if($action === "save"){
                 $flight->add_object_linked($task->table_element, $currentObjectiveTaskId);
             }
         }
+    }
+
+    foreach($progressions as $taskId => $progressionPercent){
+        $task->fetch($taskId);
+        $task->progress = $progressionPercent;
+        $task->update($user);
     }
 }
 
@@ -143,7 +149,7 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
             </tr>
 
             <?php /** @var Task $currentTask */ ?>
-            <?php foreach ($projectTasks as $currentTask): ?>
+            <?php foreach ($task->getTasksArray(null, null, $id) as $currentTask): ?>
 
                 <tr>
                     <td>
@@ -151,7 +157,7 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
                     </td>
 
                     <td class="center">
-                        <?php echo $currentTask->progress ?: '-'; ?>    %
+                        <?php echo $formOther->select_percent($currentTask->progress, sprintf('progression[%s]', $currentTask->id, false , 10));?>
                     </td>
 
                     <!-- Start flights checkboxes -->
