@@ -27,6 +27,10 @@
  *        \brief      Page of project referrers
  */
 
+/*
+ * Links between flights and tasks are managed by the elements_elements table, the source is the task and the destination is the flight.
+ */
+
 require '../../../main.inc.php';
 dol_include_once('/projet/class/project.class.php');
 dol_include_once('/projet/class/task.class.php');
@@ -52,6 +56,7 @@ global $db, $langs, $user, $conf;
  */
 $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
+$objectives = GETPOST('objective', 'array');
 
 if ($id == '' && $projectid == '' && $ref == '') {
     dol_print_error('', 'Bad parameter');
@@ -76,15 +81,35 @@ if ($project->restrictedProjectArea($user) < 0) {
 }
 
 $task = new Task($db);
+$projectTasks = $task->getTasksArray(null, null, $id);
 
 $adherent = new Adherent($db);
 if (0 > $adherent->fetch(null, null, $project->socid)) {
-    echo 'tg' . $adherent->error;
     return;
 }
 
 $instructionFlightsHandler = new InstructionFlightQueryHandler($db);
 $instructionFlights = $instructionFlightsHandler->__invoke(new InstructionFlightQuery(new StudentId($adherent->user_id)));
+
+/*
+ * Actions
+ */
+
+if($action === "save"){
+
+    foreach($instructionFlights as $flight){
+        /** @var Task $currentTask */
+        foreach($projectTasks as $currentTask){
+            $flight->deleteObjectLinked($currentTask->id, $currentTask->table_element);
+        }
+
+        if(isset($objectives[$flight->getId()])){
+            foreach($objectives[$flight->getId()] as $currentObjectiveTaskId){
+                $flight->add_object_linked($task->table_element, $currentObjectiveTaskId);
+            }
+        }
+    }
+}
 
 /*
  *	View
@@ -103,46 +128,50 @@ $morehtmlref .= '</div>';
 dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
 ?>
 
-    <div>
+    <form action="instructions.php" method="POST">
+
+        <input type="hidden" value="<?php echo $id;?>" name="id"/>
         <table>
 
             <tr>
                 <td></td>
-                <td></td>
-                <td>Progression</td>
+                <td class="center">Progression</td>
 
                 <?php foreach ($instructionFlights as $flight): ?>
-                    <td><?php echo $flight->getId(); ?></td>
+                    <td class="center"><?php echo $flight->getNomUrl(); ?></td>
                 <?php endforeach; ?>
             </tr>
 
             <?php /** @var Task $currentTask */ ?>
-            <?php foreach ($task->getTasksArray(null, null, $id) as $currentTask): ?>
+            <?php foreach ($projectTasks as $currentTask): ?>
 
                 <tr>
                     <td>
-                        <?php echo $currentTask->label; ?>
+                        <?php echo $currentTask->getNomUrl(1, '', 'task', 20); ?>
                     </td>
 
-                    <td>
-                        <?php echo $currentTask->getLibStatut(3); //Only picto ?>
-                    </td>
-
-                    <td>
-                        <?php echo $currentTask->progress ?: '-'; ?>
+                    <td class="center">
+                        <?php echo $currentTask->progress ?: '-'; ?>    %
                     </td>
 
                     <!-- Start flights checkboxes -->
                     <?php foreach ($instructionFlights as $flight): ?>
-                        <td>
-                            <input type="checkbox" name="hello" checked/>
+                        <?php $flight->fetchObjectLinked(null, $task->table_element, $flight->getId(), $flight->element);?>
+                        <td class="center">
+                            <input type="checkbox" value="<?php echo $currentTask->id; ?>" name="objective[<?php echo $flight->getId(); ?>][]" <?php echo !empty($flight->linkedObjectsIds) && in_array($currentTask->id, $flight->linkedObjectsIds[$currentTask->table_element]) ? 'checked' : '' ?>/>
                         </td>
                     <?php endforeach; ?>
                 </tr>
 
             <?php endforeach; ?>
         </table>
-    </div>
+
+        <div class="tabsAction">
+            <div class="inline-block divButAction">
+                <button class="butAction" type="submit" name="action" value="save">Sauver</button>
+            </div>
+        </div>
+    </form>
 
 
 <?php
