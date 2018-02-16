@@ -35,7 +35,7 @@ class InstructionFlightQueryHandler
         $sql .= ' WHERE ';
         $sql .= ' flights.fk_type = 6 ';
         $sql .= ' AND flights.fk_pilot = ' . $query->getStudentId();
-        $sql .= ' ORDER BY flights.idBBC_vols ';
+        $sql .= ' ORDER BY flights.date ';
 
         $resql = $this->db->query($sql);
         $array = [];

@@ -146,7 +146,10 @@ dol_banner_tab($project, 'ref', null, false, 'rowid', 'ref', $morehtmlref);
                 <td class="center">Progression</td>
 
                 <?php foreach ($instructionFlights as $flight): ?>
-                    <td class="center"><?php echo $flight->getNomUrl(); ?></td>
+                    <td class="center">
+                        (ID <?php echo $flight->getNomUrl(); ?>) <br/>
+                        <?php echo dol_print_date($flight->date, '%d-%m-%Y'); ?>
+                    </td>
                 <?php endforeach; ?>
             </tr>
 
