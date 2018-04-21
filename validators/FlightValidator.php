@@ -101,7 +101,7 @@ class FlightValidator extends AbstractValidator
                 'Erreur ce type de vol doit être payant, mais personne n\'a été signalé comme recepteur d\'argent.');
         }
 
-        if ($vol->getFlightType()->isBillingRequired() && ($vol->getAmountPerPassenger()) < $this->getMinPrice()) {
+        if (!$this->isGroupedFlight($context) && $vol->getFlightType()->isBillingRequired() && ($vol->getAmountPerPassenger()) < $this->getMinPrice()) {
             $this->addError('cost',
                 sprintf('Le montant demandé pour ce vol n\'est pas suffisant un minimum de %s euros est demandé',
                     $this->getMinPrice()));

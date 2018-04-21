@@ -46,7 +46,7 @@ class BbcMonthlyFlightsBillCron
      * Run the cron job.
      *
      * @return int <0 if error
-     *             
+     *
      * @throws Exception
      */
     public function run()
