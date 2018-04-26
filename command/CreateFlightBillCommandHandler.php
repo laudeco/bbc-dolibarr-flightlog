@@ -110,7 +110,7 @@ class CreateFlightBillCommandHandler
     {
         $customer = new Fournisseur($this->db);
 
-        if ($customer->fetch($this->conf->BBC_FLIGHT_DEFAULT_CUSTOMER) <= 0) {
+        if ($customer->fetch($this->conf->BBC_FLIGHT_TYPE_CUSTOMER) <= 0) {
             throw new CustomerNotFoundException();
         }
 
