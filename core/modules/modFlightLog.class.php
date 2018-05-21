@@ -130,7 +130,7 @@ class modFlightLog extends DolibarrModules
         $this->editor_url = 'http://www.dolibarr.org';
 
         // Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-        $this->version = '1.3';
+        $this->version = '1.4';
         // Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
         // Name of image file used for this module.
@@ -247,7 +247,7 @@ class modFlightLog extends DolibarrModules
             'langs' => 'mylangfile',
             'position' => 101,
             'enabled' => '1',
-            'perms' => '$user->rights->facture->creer',
+            'perms' => '$user->rights->commande->creer',
             'target' => '',
             'user' => 2
         );

@@ -98,8 +98,12 @@ if ($user->rights->flightlog->vol->financial) {
 
 print '<tr><td class="fieldrequired">' . $langs->trans("Fieldkilometers") . '</td><td>' . $object->kilometers . ' KM</td></tr>';
 print '<tr><td class="fieldrequired">' . $langs->trans("Fieldjustif_kilometers") . '</td><td>' . $object->justif_kilometers . '</td></tr>';
-print '<tr><td class="fieldrequired">' . $langs->trans("Fieldcost") . '</td><td>' . $object->cost . " " . $langs->getCurrencySymbol($conf->currency) . '</td></tr>';
-print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_receiver") . '</td><td>' . $receiver->getNomUrl(1) . '</td></tr>';
+if(!$object->isLinkedToOrder()){
+    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldcost") . '</td><td>' . $object->cost . " " . $langs->getCurrencySymbol($conf->currency) . '</td></tr>';
+    print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_receiver") . '</td><td>' . $receiver->getNomUrl(1) . '</td></tr>';
+}else{
+    print '<tr><td class="fieldrequired">' . $langs->trans("Order") . '</td><td>' . $object->getOrder()->getNomUrl(1). '</td></tr>';
+}
 print '</table>';
 
 dol_fiche_end();

@@ -7,15 +7,21 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 global $db, $langs, $user, $conf;
 
+dol_include_once('/commande/class/commande.class.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
 dol_include_once("/flightlog/validators/FlightValidator.php");
+dol_include_once("/flightlog/command/CommandInterface.php");
+dol_include_once("/flightlog/command/CommandHandlerInterface.php");
+dol_include_once("/flightlog/command/CreateFlightCommand.php");
+dol_include_once("/flightlog/command/CreateFlightCommandHandler.php");
 
 // Load translation files required by the page
 $langs->load("mymodule@flightlog");
 
 $validator = new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER);
+$createFlightHandler = new CreateFlightCommandHandler($db, $conf, $user, $langs, $validator);
 
 if (!$user->rights->flightlog->vol->add) {
     accessforbidden();
@@ -30,44 +36,43 @@ $msg = '';
 if (GETPOST("action") == 'add') {
     if (!$_POST["cancel"]) {
         $dated = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
-
-        $vol = new Bbcvols($db);
-
-        $vol->date = $dated;
-        $vol->lieuD = $_POST['lieuD'];
-        $vol->lieuA = $_POST['lieuA'];
-        $vol->heureD = $_POST['heureD'];
-        $vol->heureA = $_POST['heureA'];
-        $vol->BBC_ballons_idBBC_ballons = $_POST['ballon'];
-        $vol->nbrPax = $_POST['nbrPax'];
-        $vol->remarque = $_POST['comm'];
-        $vol->incidents = $_POST['inci'];
-        $vol->fk_type = $_POST['type'];
-        $vol->fk_pilot = $_POST['pilot'];
-        $vol->fk_organisateur = $_POST['orga'];
-        $vol->kilometers = $_POST['kilometers'];
-        $vol->cost = $_POST['cost'];
-        $vol->fk_receiver = $_POST['fk_receiver'];
-        $vol->justif_kilometers = $_POST['justif_kilometers'];
-        $vol->setPassengerNames($_POST['passenger_names']);
         $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
+        $orderId = (int) GETPOST('order_id', 'int', 2);
 
-        if ($validator->isValid($vol, $_REQUEST)) {
-            $result = $vol->create($user);
-            if ($result > 0) {
-                //creation OK
+        $volCommand = new CreateFlightCommand();
+        $volCommand->setDate($dated)
+            ->setLieuD($_POST['lieuD'])
+            ->setLieuA($_POST['lieuA'])
+            ->setHeureD($_POST['heureD'])
+            ->setHeureA($_POST['heureA'])
+            ->setBBCBallonsIdBBCBallons($_POST['ballon'])
+            ->setNbrPax($_POST['nbrPax'])
+            ->setRemarque($_POST['comm'])
+            ->setIncidents($_POST['inci'])
+            ->setFkType($_POST['type'])
+            ->setFkPilot($_POST['pilot'])
+            ->setFkOrganisateur($_POST['orga'])
+            ->setKilometers($_POST['kilometers'])
+            ->setCost($_POST['cost'])
+            ->setFkReceiver($_POST['fk_receiver'])
+            ->setJustifKilometers($_POST['justif_kilometers'])
+            ->setPassengerNames($_POST['passenger_names'])
+            ->setGroupedFlight($isGroupedFlight)
+            ->setOrderId($orderId);
 
-                include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
-                $interface = new Interfaces($db);
-                $triggerResult = $interface->run_triggers('BBC_FLIGHT_LOG_ADD_FLIGHT', $vol, $user, $langs, $conf);
+        try{
+            $vol = $createFlightHandler->handle($volCommand);
 
-                $msg = '<div class="ok">L\'ajout du vol du : ' . $_POST["reday"] . '/' . $_POST["remonth"] . '/' . $_POST["reyear"] . ' s\'est correctement effectue ! </div>';
-                Header("Location: card.php?id=" . $result);
-            } else {
-                // Creation KO
-                $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . $vol->error . '! </div>';
-            }
+            include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+            $interface = new Interfaces($db);
+            $triggerResult = $interface->run_triggers('BBC_FLIGHT_LOG_ADD_FLIGHT', $vol, $user, $langs, $conf);
+
+            $msg = '<div class="ok">L\'ajout du vol du : ' . $_POST["reday"] . '/' . $_POST["remonth"] . '/' . $_POST["reyear"] . ' s\'est correctement effectue ! </div>';
+            Header("Location: card.php?id=" . $vol->id);
+        }catch (\Exception $e){
+            $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . $vol->error . '! </div>';
         }
+
     }
 }
 
@@ -81,6 +86,7 @@ if (GETPOST("action") == 'add') {
 llxHeader('', 'Carnet de vol', '');
 
 $html = new Form($db);
+$commande = new Commande($db);
 $datec = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
 if ($msg) {
     print $msg;
@@ -215,8 +221,7 @@ if ($msg) {
 
                 <td width="25%" class="fieldrequired">Justificatif des KM </td>
                 <td>
-                    <textarea rows="2" cols="60" class="flat <?php echo($validator->hasError('justif_kilometers') ? 'error' : '') ?>" name="justif_kilometers">
-                        <?php echo $_POST['justif_kilometers'] ?>
+                    <textarea rows="2" cols="60" class="flat <?php echo($validator->hasError('justif_kilometers') ? 'error' : '') ?>" name="justif_kilometers"><?php echo $_POST['justif_kilometers'] ?>
                     </textarea>
                 </td>
             </tr>
@@ -239,14 +244,39 @@ if ($msg) {
 
             <!-- passenger names -->
             <tr>
-                <td class="fieldrequired"><?php echo $langs->trans('Noms des passagers'); ?><br/>(Séparé par des ; )</td>
+                <td width="25%" class="fieldrequired"><?php echo $langs->trans('Noms des passagers'); ?><br/>(Séparé par des ; )</td>
                 <td>
-                    <textarea name="passenger_names" class="flat <?php echo $validator->hasError('passenger_names') ? 'error' : '' ?>"><?php echo $_POST['passenger_names'] ?></textarea>
+                    <textarea name="passenger_names" cols="60" rows="2" class="flat <?php echo $validator->hasError('passenger_names') ? 'error' : '' ?>"><?php echo $_POST['passenger_names'] ?></textarea>
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- billing information -->
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Facturation') ?></h1>
+        <table class="border" width="50%">
+
+            <!-- Commande -->
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans('Commande du vol')?></td>
+                <td class="js-order">
+                    <?php
+                     echo $html->selectarray('order_id',$commande->liste_array(2),$_POST['order_id'], 1,0,0,'',0,0,0,'','minwidth200',1);
+                    ?>
+                </td>
+            </tr>
+
+            <!-- Money receiver -->
+            <tr class="js-hide-order">
+                <td class="fieldrequired"><?php echo $langs->trans('Qui a perçu l\'argent')?></td><td>
+                    <?php print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $_GET["fk_receiver"],
+                    'fk_receiver', 1); ?>
                 </td>
             </tr>
 
             <!-- Flight cost -->
-            <tr>
+            <tr class="js-hide-order">
                 <td class="fieldrequired">Montant perçu</td>
                 <td>
                     <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost'] ?> "/>
@@ -254,26 +284,19 @@ if ($msg) {
                 </td>
             </tr>
 
-            <?php
-            //Money receiver
-            print "<tr>";
-            print '<td class="fieldrequired">Qui a perçu l\'argent</td><td>';
-            print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $_GET["fk_receiver"],
-                'fk_receiver', 1);
-            print '</td></tr>';
+            <!-- commentaires -->
+            <tr class="">
+                <td class="fieldrequired"> Commentaire </td><td>
+                    <textarea rows="2" cols="60" class="flat" name="comm" placeholder="RAS"><?php print $_POST['comm']; ?></textarea>
+                </td>
+            </tr>
 
-            //commentaires
-            print "<tr>";
-            print '<td class="fieldrequired"> Commentaire </td><td>';
-            print '<textarea rows="2" cols="60" class="flat" name="comm" placeholder="RAS">' . $_POST['comm'] . '</textarea> ';
-            print '</td></tr>';
-
-            //incidents
-            print "<tr>";
-            print '<td class="fieldrequired"> incidents </td><td>';
-            print '<textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS">' . $_POST['inci'] . '</textarea> ';
-            print '</td></tr>';
-            ?>
+            <!-- incidents -->
+            <tr class="">
+                <td class="fieldrequired"> incidents </td><td>
+                    <textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS"><?php print $_POST['inci']; ?></textarea>
+                </td>
+            </tr>
         </table>
     </section>
 <?php
@@ -284,3 +307,23 @@ print '<input class="button" type="submit" name="cancel" value="' . $langs->tran
 print '</form>';
 
 $db->close();
+?>
+
+<script type="application/javascript">
+
+    function hideOrderInformation (){
+        var $this = $(this);
+
+        if($this.val() > -1){
+            $('input, select', '.js-hide-order').attr('disabled', 'disabled');
+        }else{
+            $('input, select', '.js-hide-order').removeAttr('disabled');
+        }
+    }
+
+    $(function(){
+
+        $('.js-order select').on('change', hideOrderInformation);
+        $('.js-order select').each(hideOrderInformation);
+    });
+</script>

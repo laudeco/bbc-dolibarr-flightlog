@@ -30,6 +30,7 @@
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 require_once DOL_DOCUMENT_ROOT . '/flightballoon/class/bbc_ballons.class.php';
 require_once DOL_DOCUMENT_ROOT . '/flightlog/class/bbctypes.class.php';
+require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
 
 /**
  * Class Bbcvols
@@ -48,11 +49,6 @@ class Bbcvols extends CommonObject
      * @var string Name of table without prefix where object is stored
      */
     public $table_element = 'bbc_vols';
-
-    /**
-     * @var BbcvolsLine[] Lines
-     */
-    public $lines = array();
 
     public $idBBC_vols;
     public $date = '';
@@ -89,6 +85,16 @@ class Bbcvols extends CommonObject
      * @var string
      */
     private $passengerNames;
+
+    /**
+     * @var int
+     */
+    private $orderId;
+
+    /**
+     * @var Commande
+     */
+    private $order;
 
     /**
      * @return int
@@ -137,6 +143,7 @@ class Bbcvols extends CommonObject
      * @param  bool $notrigger false=launch triggers after, true=disable triggers
      *
      * @return int <0 if KO, Id of created object if OK
+     * @throws Exception
      */
     public function create(User $user, $notrigger = false)
     {
@@ -200,6 +207,9 @@ class Bbcvols extends CommonObject
         if (isset($this->passengerNames)) {
             $this->passengerNames = trim($this->passengerNames);
         }
+        if (isset($this->orderId)) {
+            $this->orderId = trim($this->orderId);
+        }
 
         // Insert request
         $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . $this->table_element . '(';
@@ -223,7 +233,8 @@ class Bbcvols extends CommonObject
         $sql .= 'justif_kilometers,';
         $sql .= 'date_creation,';
         $sql .= 'date_update,';
-        $sql .= 'passenger_names';
+        $sql .= 'passenger_names,';
+        $sql .= 'order_id';
 
         $sql .= ') VALUES (';
 
@@ -246,7 +257,8 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
-        $sql .= ' ' . "'" . $this->passengerNames . "'" . '';
+        $sql .= ' ' . "'" . $this->passengerNames . "'" . ',';
+        $sql .= ' ' . (!isset($this->orderId) ? 'NULL' : $this->orderId) . '';
 
         $sql .= ')';
 
@@ -288,6 +300,7 @@ class Bbcvols extends CommonObject
      * @param string $ref Ref
      *
      * @return int <0 if KO, 0 if not found, >0 if OK
+     * @throws Exception
      */
     public function fetch($id, $ref = null)
     {
@@ -314,7 +327,8 @@ class Bbcvols extends CommonObject
         $sql .= " t.justif_kilometers,";
         $sql .= " t.date_creation,";
         $sql .= " t.date_update,";
-        $sql .= " t.passenger_names";
+        $sql .= " t.passenger_names,";
+        $sql .= " t.order_id";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -353,9 +367,11 @@ class Bbcvols extends CommonObject
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
                 $this->passengerNames = $obj->passenger_names;
+                $this->orderId = $obj->order_id;
 
                 $this->balloon = $this->fetchBalloon();
                 $this->pilot = $this->fetchUser($this->fk_pilot);
+                $this->fetchOrder();
             }
             $this->db->free($resql);
 
@@ -376,6 +392,7 @@ class Bbcvols extends CommonObject
      * @param  bool $notrigger false=launch triggers after, true=disable triggers
      *
      * @return int <0 if KO, >0 if OK
+     * @throws Exception
      */
     public function update(User $user, $notrigger = false)
     {
@@ -439,6 +456,9 @@ class Bbcvols extends CommonObject
         if (isset($this->passengerNames)) {
             $this->passengerNames = trim($this->passengerNames);
         }
+        if (isset($this->orderId)) {
+            $this->orderId = trim($this->orderId);
+        }
 
 
         // Check parameters
@@ -465,7 +485,8 @@ class Bbcvols extends CommonObject
         $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) ? $this->fk_receiver : "null") . ',';
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
         $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
-        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "'";
+        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "',";
+        $sql .= ' order_id = ' . "'" . (!isset($this->orderId) ? 'null' : $this->orderId ) . "'";
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -503,6 +524,7 @@ class Bbcvols extends CommonObject
      * @param bool $notrigger false=launch triggers after, true=disable triggers
      *
      * @return int <0 if KO, >0 if OK
+     * @throws Exception
      */
     public function delete(User $user, $notrigger = false)
     {
@@ -910,45 +932,60 @@ class Bbcvols extends CommonObject
     }
 
     /**
+     * @return int
+     */
+    public function getOrderId()
+    {
+        return $this->orderId;
+    }
+
+    /**
+     * @param int $orderId
+     *
+     * @return Bbcvols
+     */
+    public function setOrderId($orderId)
+    {
+        $this->orderId = $orderId;
+        return $this;
+    }
+
+    /**
      * Is an instruction flight (T6/T7)
      */
     public function isInstruction()
     {
         return $this->getFlightType()->isInstruction();
     }
-}
 
-/**
- * Class BbcvolsLine
- */
-class BbcvolsLine
-{
     /**
-     * @var int ID
+     * @return bool
      */
-    public $id;
-    /**
-     * @var mixed Sample line property 1
-     */
+    public function isLinkedToOrder(){
+        return isset($this->orderId) && $this->orderId > 0;
+    }
 
-    public $idBBC_vols;
-    public $date = '';
-    public $lieuD;
-    public $lieuA;
-    public $heureD;
-    public $heureA;
-    public $BBC_ballons_idBBC_ballons;
-    public $nbrPax;
-    public $remarque;
-    public $incidents;
-    public $fk_type;
-    public $fk_pilot;
-    public $fk_organisateur;
-    public $is_facture;
-    public $kilometers;
-    public $cost;
-    public $fk_receiver;
-    public $justif_kilometers;
-    public $date_creation;
-    public $date_update;
+    /**
+     * Fetch the order based on the order id.
+     */
+    public function fetchOrder()
+    {
+        if(!$this->isLinkedToOrder()){
+            return $this;
+        }
+
+        $this->order = new Commande($this->db);
+        $this->order->fetch($this->orderId);
+
+        return $this;
+    }
+
+    /**
+     * @return Commande
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
 }

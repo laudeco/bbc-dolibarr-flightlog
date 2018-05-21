@@ -1,0 +1,1 @@
+ALTER TABLE `llx_bbc_vols` ADD COLUMN `order_id` INT(11) NULL DEFAULT NULL;
