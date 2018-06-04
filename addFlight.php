@@ -238,7 +238,7 @@ if ($msg) {
                     <input type="number"
                            name="nbrPax"
                            class="flat <?php echo $validator->hasError('nbrPax') ? 'error' : '' ?>"
-                           value="<?php echo $_POST['nbrPax'] ?>"/>
+                           value="<?php echo $_POST['nbrPax']?: 0 ?>"/>
                 </td>
             </tr>
 
