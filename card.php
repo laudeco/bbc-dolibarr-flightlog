@@ -53,6 +53,9 @@ dol_include_once('/user/class/usergroup.class.php');
 
 global $langs, $user, $conf;
 
+const ACTION_FLAG_BILLED = 'action_flag_bill';
+const ACTION_CONFIRM_FLAG_BILLED = 'confirm_flag_bill';
+
 // Load traductions files requiredby by page
 $langs->load("mymodule@flightlog");
 $langs->load("other");
@@ -238,6 +241,24 @@ if (empty($reshook)) {
             }
         }
     }
+
+    // Action to delete
+    if ($user->rights->flightlog->vol->financial && !$object->isBilled() && $action === ACTION_CONFIRM_FLAG_BILLED) {
+        $result = $object
+            ->bill()
+            ->update($user);
+
+        if ($result > 0) {
+            setEventMessages("Facturé", null, 'mesgs');
+            $action = 'show';
+        } else {
+            if (!empty($object->errors)) {
+                setEventMessages(null, $object->errors, 'errors');
+            } else {
+                setEventMessages($object->error, null, 'errors');
+            }
+        }
+    }
 }
 
 
@@ -315,9 +336,6 @@ if (($id || $ref) && $action == 'edit') {
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
     $res = $object->fetch_optionals($object->id, $extralabels);
 
-    /*
-             * Show tabs
-             */
     $head = prepareFlightTabs($object);
 
     dol_fiche_head($head, 'general', $langs->trans("Vol"));
@@ -327,7 +345,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     if ($action == 'delete') {
         $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('DeleteMyOjbect'),
-            $langs->trans('ConfirmDeleteMyObject'), 'confirm_delete', '', 0, 1);
+            $langs->trans('êtes-vous sure de vouloir supprimer ce vol ?'), 'confirm_delete', '', 0, 1);
+        print $formconfirm;
+    }elseif ($user->rights->flightlog->vol->financial && !$object->isBilled() && $action == ACTION_FLAG_BILLED) {
+        $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('Marque comme facturé'),
+            $langs->trans('Ce vol va être marqué comme facturé, est-ce bien le cas ?'), ACTION_CONFIRM_FLAG_BILLED, '', 0, 1);
         print $formconfirm;
     }
 
@@ -370,9 +392,18 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     if($user->rights->flightlog->vol->financial && $object->fk_type == 2 && !$object->hasFacture()){
         print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/facture.php?id=' . $object->id.'">' . $langs->trans("Facturer") . '</a></div>' . "\n";
     }
+    ?>
 
-    print '</div>' . "\n";
+    <?php if($user->rights->flightlog->vol->financial && !$object->isBilled() ): ?>
+        <div class="inline-block divButAction">
+               <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s' , $_SERVER["PHP_SELF"], $object->id, ACTION_FLAG_BILLED);?>">
+                   <?php echo $langs->trans("Marqué comme facturé ") ?>
+               </a>
+        </div>
+    <?php endif; ?>
 
+    </div>
+<?php
     if($user->rights->flightlog->vol->financial){
         print '<div class="fichecenter"><div class="fichehalfleft">';
         $form->showLinkedObjectBlock($object);

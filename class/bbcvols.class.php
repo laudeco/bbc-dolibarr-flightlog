@@ -486,7 +486,7 @@ class Bbcvols extends CommonObject
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
         $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
         $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "',";
-        $sql .= ' order_id = ' . "'" . (!isset($this->orderId) ? 'null' : $this->orderId ) . "'";
+        $sql .= ' order_id = ' . "'" . (!isset($this->orderId) ? 'null' : $this->orderId) . "'";
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -586,9 +586,9 @@ class Bbcvols extends CommonObject
         $label = '<u>' . $langs->trans("MyModule") . '</u>';
         $label .= '<div width="100%">';
         $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->idBBC_vols . '<br>';
-        $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y').'<br/>';
-        $label .= '<b>' . $langs->trans('From') . ':</b> ' . $this->lieuD.'<br/>';
-        $label .= '<b>' . $langs->trans('To') . ':</b> ' . $this->lieuA.'<br/>';
+        $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y') . '<br/>';
+        $label .= '<b>' . $langs->trans('From') . ':</b> ' . $this->lieuD . '<br/>';
+        $label .= '<b>' . $langs->trans('To') . ':</b> ' . $this->lieuA . '<br/>';
         $label .= '</div>';
 
         $link = '<a href="' . DOL_URL_ROOT . '/flightlog/card.php?id=' . $this->idBBC_vols . '"';
@@ -961,7 +961,8 @@ class Bbcvols extends CommonObject
     /**
      * @return bool
      */
-    public function isLinkedToOrder(){
+    public function isLinkedToOrder()
+    {
         return isset($this->orderId) && $this->orderId > 0;
     }
 
@@ -970,7 +971,7 @@ class Bbcvols extends CommonObject
      */
     public function fetchOrder()
     {
-        if(!$this->isLinkedToOrder()){
+        if (!$this->isLinkedToOrder()) {
             return $this;
         }
 
@@ -986,6 +987,25 @@ class Bbcvols extends CommonObject
     public function getOrder()
     {
         return $this->order;
+    }
+
+    /**
+     * Flag the flight as billed
+     *
+     * @return $this
+     */
+    public function bill()
+    {
+        $this->is_facture = true;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isBilled()
+    {
+        return !empty($this->is_facture);
     }
 
 }
