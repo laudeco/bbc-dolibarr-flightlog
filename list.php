@@ -51,6 +51,9 @@ $search_fk_type = GETPOST('search_fk_type', 'int');
 $search_fk_pilot = GETPOST('search_fk_pilot', 'int') ?: ($user->admin ? '' : $user->id);
 $search_fk_organisateur = GETPOST('search_fk_organisateur', 'int');
 $search_is_facture = GETPOST('search_is_facture', 'int') === ''? -1 : (int)GETPOST('search_is_facture', 'int');
+if($search_is_facture === 0){
+    $search_is_facture = '<=0';
+}
 $search_kilometers = GETPOST('search_kilometers', 'alpha');
 $search_cost = GETPOST('search_cost', 'alpha');
 $search_fk_receiver = GETPOST('search_fk_receiver', 'int');
@@ -334,7 +337,7 @@ if ($search_fk_organisateur && $search_fk_organisateur != -1) {
 }
 
 if ($search_is_facture != -1) {
-    $sql .= natural_search("is_facture", $search_is_facture);
+    $sql .= natural_search("is_facture", $search_is_facture,1);
 }
 if ($search_kilometers) {
     $sql .= natural_search("kilometers", $search_kilometers, 1);
@@ -707,7 +710,7 @@ if (!empty($arrayfields['t.fk_organisateur']['checked'])) {
 
 if (!empty($arrayfields['t.is_facture']['checked'])) {
     print '<td class="liste_titre">';
-    print '<select name="search_is_facture"><option value="-1" '.($search_is_facture != 1 && $search_is_facture != 0 ? 'selected' : '' ).'></option><option value="1" '.($search_is_facture == 1 ? 'selected' : '' ).'>Facturé</option><option value="0" '.($search_is_facture == 0 ? 'selected' : '' ).'>Ouvert</option></select>';
+    print '<select name="search_is_facture"><option value="-1" '.($search_is_facture != 1 && $search_is_facture != 0 && $search_is_facture != '<=0'? 'selected' : '' ).'></option><option value="1" '.($search_is_facture == 1 ? 'selected' : '' ).'>Facturé</option><option value="0" '.($search_is_facture == 0 || $search_is_facture == '<=0' ? 'selected' : '' ).'>Ouvert</option></select>';
     print '</td>';
 }
 
