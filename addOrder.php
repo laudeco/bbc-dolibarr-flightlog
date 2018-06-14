@@ -326,7 +326,7 @@ if ($msg) {
     <!-- Passagers -->
     <section class="form-section">
         <h1 class="form-section-title"><?php echo $langs->trans('Données du vol') ?></h1>
-        <table class="border" width="50%">
+        <table class="border js-compute" width="50%">
 
             <!-- Nombre -->
             <tr>
@@ -345,6 +345,14 @@ if ($msg) {
                 <td>
                     <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost'] ?> "/>
                     &euro;
+                </td>
+            </tr>
+
+            <!-- Total / pax -->
+            <tr class="cadre_prix_total">
+                <td class="fieldrequired"><?php echo $langs->trans('Montant / passager') ?></td>
+                <td>
+                    <span class="js-total">0</span>&euro;
                 </td>
             </tr>
         </table>
@@ -377,6 +385,38 @@ if ($msg) {
             </tr>
         </table>
     </section>
+
+    <script type="application/javascript">
+        (function($){
+
+            var cost = $('.js-compute input[name="cost"]').val();
+            var nbrPax = $('.js-compute input[name="nbrPax"]').val();
+            compute();
+
+            $('.js-compute input[name="nbrPax"]').on('change', function(){
+                nbrPax = $(this).val();
+                compute();
+            });
+
+            $('.js-compute input[name="cost"]').on('change', function(){
+                cost = $(this).val();
+                compute();
+            });
+
+            function compute(){
+                if(isNaN(parseInt(nbrPax, 10)) || parseInt(nbrPax, 10) === 0){
+                    $('.js-compute .js-total').text(0);
+                    return;
+                }
+
+                var total = parseInt((cost / nbrPax)*100, 10    );
+                $('.js-compute .js-total').text(total/100);
+            }
+
+
+        })($);
+    </script>
+
 <?php
 
 print '<br><input class="button" type="submit" value="' . $langs->trans("Save") . '"> &nbsp; &nbsp; ';

@@ -222,3 +222,7 @@ input.error, textarea.error{
 .bbc-style .box.box-warning{
     border-left-color: #ff9800;
 }
+
+.bbc-style .cadre_prix_total{
+    border-top: grey solid 2px;
+}
