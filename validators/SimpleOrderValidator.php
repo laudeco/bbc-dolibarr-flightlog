@@ -37,7 +37,7 @@ class SimpleOrderValidator extends AbstractValidator
      * Get a value as input and validates it. If an error occurs, it returns error messages.
      *
      * @param stdClass $value
-     * @param array $context
+     * @param array    $context
      *
      * @return bool
      */
@@ -46,20 +46,22 @@ class SimpleOrderValidator extends AbstractValidator
 
         $this->valid = true;
 
-        if(empty($value->name)){
+        if (empty($value->name)) {
             $this->addError('name', 'Le nom est requis pour créer une commande');
         }
-        if(empty($value->email) && empty($value->phone)){
+        if (empty($value->email) && empty($value->phone)) {
             $this->addWarning('Soit l\'e-mail soit le téléphone n\'a pas été complété');
         }
-        if(empty($value->nbrPax) || (int)$value->nbrPax <= 0){
+        if (empty($value->nbrPax) || (int) $value->nbrPax <= 0) {
             $this->addError('nbrPax', 'Le nombre de passagers doit être plus grand que 0.');
         }
 
-        if((int)$value->nbrPax > 0){
-            $costPerPax = $value->cost / (int)$value->nbrPax;
-            if($costPerPax < $this->getMinPrice()){
-                $this->addError('cost', sprintf('Le prix demandé par passagé est trop peu élevé. Un minimum de %s est demandé', $this->getMinPrice()));
+        if ((int) $value->nbrPax > 0) {
+            $costPerPax = $value->cost / (int) $value->nbrPax;
+            if ($costPerPax < $this->getMinPrice()) {
+                $this->addError('cost',
+                    sprintf('Le prix demandé par passagé est trop peu élevé. Un minimum de %s est demandé',
+                        $this->getMinPrice()));
             }
         }
 
