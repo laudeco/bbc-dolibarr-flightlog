@@ -347,17 +347,6 @@ if ($msg) {
                     &euro;
                 </td>
             </tr>
-
-            <!-- Region où ils veulent voler -->
-            <tr>
-                <td class="fieldrequired"><?php echo $langs->trans('Où veulent ils décoller ?'); ?></td>
-                <td>
-                    <input type="text"
-                           name="region"
-                           class="flat <?php echo $validator->hasError('region') ? 'error' : '' ?>"
-                           value="<?php echo $_POST['region'] ?>"/>
-                </td>
-            </tr>
         </table>
     </section>
 

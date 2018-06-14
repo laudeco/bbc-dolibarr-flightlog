@@ -55,9 +55,6 @@ class SimpleOrderValidator extends AbstractValidator
         if(empty($value->nbrPax) || (int)$value->nbrPax <= 0){
             $this->addError('nbrPax', 'Le nombre de passagers doit être plus grand que 0.');
         }
-        if(empty($value->region)){
-            $this->addError('region', 'Le lieu de décollage doit etre configuré');
-        }
 
         if((int)$value->nbrPax > 0){
             $costPerPax = $value->cost / (int)$value->nbrPax;
