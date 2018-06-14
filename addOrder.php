@@ -222,7 +222,7 @@ if ($msg) {
 
             <!-- civility-->
             <tr>
-                <td class="fieldrequired">
+                <td class="">
                     <?php echo $langs->trans('UserTitle'); ?>
                 </td>
                 <td>
@@ -232,7 +232,7 @@ if ($msg) {
 
             <!-- Phone -->
             <tr>
-                <td class="fieldrequired">
+                <td class="">
                     <?php echo $langs->trans('Téléphone'); ?>
                 </td>
                 <td>
@@ -245,7 +245,7 @@ if ($msg) {
 
             <!-- Mail -->
             <tr>
-                <td class="fieldrequired">
+                <td class="">
                     <?php echo $langs->trans('E-mail'); ?>
                 </td>
                 <td>

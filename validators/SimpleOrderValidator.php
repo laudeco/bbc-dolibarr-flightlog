@@ -49,9 +49,6 @@ class SimpleOrderValidator extends AbstractValidator
         if(empty($value->name)){
             $this->addError('name', 'Le nom est requis pour créer une commande');
         }
-        if(empty($value->civilityId)){
-            $this->addError('civility', 'Le titre de civilite est un champ requis.');
-        }
         if(empty($value->email) && empty($value->phone)){
             $this->addWarning('Soit l\'e-mail soit le téléphone n\'a pas été complété');
         }
