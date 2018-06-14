@@ -53,7 +53,7 @@ class SimpleOrderValidator extends AbstractValidator
             $this->addError('civility', 'Le titre de civilite est un champ requis.');
         }
         if(empty($value->email) && empty($value->phone)){
-            $this->addError('email', 'Soit l\'e-mail soit le téléphone est requis');
+            $this->addWarning('Soit l\'e-mail soit le téléphone n\'a pas été complété');
         }
         if(empty($value->nbrPax) || (int)$value->nbrPax <= 0){
             $this->addError('nbrPax', 'Le nombre de passagers doit être plus grand que 0.');

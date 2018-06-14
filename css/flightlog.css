@@ -212,3 +212,13 @@ input.error, textarea.error{
 {
     color: #fff !important;
 }
+
+/* BOX */
+.bbc-style .box{
+    border-left: 5px solid;
+    border-radius: 3px;
+    padding-left: 10px;
+}
+.bbc-style .box.box-warning{
+    border-left-color: #ff9800;
+}

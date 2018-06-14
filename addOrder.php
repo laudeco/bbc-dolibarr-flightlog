@@ -114,11 +114,22 @@ if ($msg) {
 
     <!-- Success message with reference -->
     <?php if($successMessage): ?>
-        <div>
+        <div class="bbc-style">
             <p class="cadre_msg1">
                 Vous avez généré la facture et créé un tiers.<br/>
                 Merci,
             </p>
+
+            <?php if(count($validator->getWarningMessages()) > 0):?>
+                <div class="box box-warning">
+                    <p>Ceci sont des messages d'attention mais qui ne bloquent pas la création de la commande</p>
+                    <ul>
+                        <?php foreach($validator->getWarningMessages() as $warningMessage): ?>
+                            <li class="warning"><?php echo $warningMessage; ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
 
             <table class="table_resume">
 

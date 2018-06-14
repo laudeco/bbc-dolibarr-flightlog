@@ -18,6 +18,11 @@ abstract class AbstractValidator implements ValidatorInterface
     protected $errors;
 
     /**
+     * @var string[]|array
+     */
+    private $warningMessages;
+
+    /**
      * @var boolean
      */
     protected $valid;
@@ -38,6 +43,7 @@ abstract class AbstractValidator implements ValidatorInterface
         $this->langs = $langs;
         $this->db = $db;
         $this->errors = [];
+        $this->warningMessages = [];
     }
 
     /**
@@ -52,6 +58,25 @@ abstract class AbstractValidator implements ValidatorInterface
 
         $this->errors[$field][] = $message;
         $this->valid = false;
+    }
+
+    /**
+     * @param string $message
+     *
+     * @return AbstractValidator
+     */
+    protected function addWarning($message)
+    {
+        $this->warningMessages[] = $message;
+        return $this;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function getWarningMessages()
+    {
+        return $this->warningMessages;
     }
 
     /**
