@@ -341,7 +341,7 @@ if ($msg) {
 
             <!-- Flight cost -->
             <tr>
-                <td class="fieldrequired"><?php echo $langs->trans('Montant demandé') ?></td>
+                <td class="fieldrequired"><?php echo $langs->trans('Montant demandé (au total)') ?></td>
                 <td>
                     <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost'] ?> "/>
                     &euro;
@@ -357,7 +357,7 @@ if ($msg) {
 
             <!-- Comment -->
             <tr>
-                <td><?php echo $langs->trans('Le commentaire doit-il figurer sur la facture') ?></td>
+                <td><?php echo $langs->trans('Le commentaire doit-il figurer sur la commande') ?></td>
                 <td>
                     <input type="radio" id="public_comment" name="public_comment" value="1" <?php echo ($formObject->isCommentPublic == 1)?'checked="checked"' : ''; ?>/>
                     <label for="public_comment">Oui</label>
@@ -368,7 +368,7 @@ if ($msg) {
             </tr>
 
             <tr>
-                <td class="fieldrequired"> Commentaire </td>
+                <td class=""> Commentaire </td>
                 <td>
                     <?php
                         print '<textarea rows="2" cols="60" class="flat" name="comm" placeholder="">' . $_POST['comm'] . '</textarea> ';
