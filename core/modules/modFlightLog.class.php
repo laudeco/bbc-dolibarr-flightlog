@@ -256,6 +256,22 @@ class modFlightLog extends DolibarrModules
         $this->menu[$r] = array(
             'fk_menu' => 'fk_mainmenu=flightlog',
             'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Mes commandes',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'listOrder',
+            'url' => '/commande/list.php?search_sale=__USERID__',
+            'langs' => 'mylangfile',
+            'position' => 102,
+            'enabled' => '1',
+            'perms' => '$user->rights->commande->creer',
+            'target' => '',
+            'user' => 2
+        );
+        $r++;
+
+        $this->menu[$r] = array(
+            'fk_menu' => 'fk_mainmenu=flightlog',
+            'type' => self::MENU_TYPE_LEFT,
             'titre' => 'Ajouter un vol',
             'mainmenu' => 'flightlog',
             'leftmenu' => 'addFlight',
