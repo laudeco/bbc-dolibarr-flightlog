@@ -86,6 +86,10 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
             throw new Exception();
         }
 
+        if(!$vol->getFlightType()->isBillingRequired() || $vol->isLinkedToOrder()){
+            $vol->is_facture = true;
+        }
+
         $result = $vol->create($this->user);
         if($result <= 0){
             throw new Exception();
