@@ -49,7 +49,6 @@ class SimpleFormRenderer implements FormRenderer
      */
     private function renderElement(FormElementInterface $element)
     {
-
         return sprintf('<input type="%s" name="%s" value="%s" %s />', $element->getType(), $element->getName(), $element->getValue(), $this->formatOptions($element->getOptions()));
     }
 
