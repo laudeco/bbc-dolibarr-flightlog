@@ -37,7 +37,7 @@ if (GETPOST("action") == 'add') {
     if (!$_POST["cancel"]) {
         $dated = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
         $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
-        $orderId = (int) GETPOST('order_id', 'int', 2);
+        $orderIds = GETPOST('order_id', 'array', 2);
 
         $volCommand = new CreateFlightCommand();
         $volCommand->setDate($dated)
@@ -58,7 +58,7 @@ if (GETPOST("action") == 'add') {
             ->setJustifKilometers($_POST['justif_kilometers'])
             ->setPassengerNames($_POST['passenger_names'])
             ->setGroupedFlight($isGroupedFlight)
-            ->setOrderId($orderId);
+            ->setOrderIds($orderIds);
 
         try{
             $vol = $createFlightHandler->handle($volCommand);
@@ -262,7 +262,7 @@ if ($msg) {
                 <td class="fieldrequired"><?php echo $langs->trans('Commande du vol')?></td>
                 <td class="js-order">
                     <?php
-                     echo $html->selectarray('order_id',$commande->liste_array(2),$_POST['order_id'], 1,0,0,'',0,0,0,'','minwidth200',1);
+                     echo $html->selectarray('order_id',$commande->liste_array(2),$_POST['order_id'], 1,0,0,'multiple style="width:100%"',0,0,0,'','',1);
                     ?>
                 </td>
             </tr>
@@ -325,5 +325,15 @@ $db->close();
 
         $('.js-order select').on('change', hideOrderInformation);
         $('.js-order select').each(hideOrderInformation);
+
+        $('.js-order select').each(function($element){
+            if(!$(this).prop('multiple')){
+                return;
+            }
+
+            $(this).attr('name', $(this).attr('id')+'[]')
+        });
     });
+
+
 </script>

@@ -27,6 +27,10 @@ class CreateFlightCommand implements CommandInterface
     private $justif_kilometers;
     private $passengerNames;
     private $groupedFlight;
+
+    /**
+     * @var array|int[]
+     */
     private $orderId;
 
     /**
@@ -380,11 +384,11 @@ class CreateFlightCommand implements CommandInterface
     }
 
     /**
-     * @param mixed $orderId
+     * @param array|int[] $orderId
      *
      * @return CreateFlightCommand
      */
-    public function setOrderId($orderId)
+    public function setOrderIds(array $orderId)
     {
         $this->orderId = $orderId;
         return $this;
@@ -393,7 +397,8 @@ class CreateFlightCommand implements CommandInterface
     /**
      * @return bool
      */
-    public function hasOrderId(){
+    public function hasOrderId()
+    {
         return $this->orderId !== null;
     }
 }

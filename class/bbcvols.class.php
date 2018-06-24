@@ -87,14 +87,14 @@ class Bbcvols extends CommonObject
     private $passengerNames;
 
     /**
-     * @var int
+     * @var int[]|array
      */
-    private $orderId;
+    private $orderIds;
 
     /**
-     * @var Commande
+     * @var Commande[]|array
      */
-    private $order;
+    private $orders;
 
     /**
      * @return int
@@ -134,6 +134,7 @@ class Bbcvols extends CommonObject
         $this->cost = 0;
 
         $this->passengerNames = '';
+        $this->orderIds = [];
     }
 
     /**
@@ -207,9 +208,6 @@ class Bbcvols extends CommonObject
         if (isset($this->passengerNames)) {
             $this->passengerNames = trim($this->passengerNames);
         }
-        if (isset($this->orderId)) {
-            $this->orderId = trim($this->orderId);
-        }
 
         // Insert request
         $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . $this->table_element . '(';
@@ -233,8 +231,7 @@ class Bbcvols extends CommonObject
         $sql .= 'justif_kilometers,';
         $sql .= 'date_creation,';
         $sql .= 'date_update,';
-        $sql .= 'passenger_names,';
-        $sql .= 'order_id';
+        $sql .= 'passenger_names';
 
         $sql .= ') VALUES (';
 
@@ -257,8 +254,7 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
-        $sql .= ' ' . "'" . $this->passengerNames . "'" . ',';
-        $sql .= ' ' . (!isset($this->orderId) ? 'NULL' : $this->orderId) . '';
+        $sql .= ' ' . "'" . $this->passengerNames . "'" . '';
 
         $sql .= ')';
 
@@ -327,8 +323,7 @@ class Bbcvols extends CommonObject
         $sql .= " t.justif_kilometers,";
         $sql .= " t.date_creation,";
         $sql .= " t.date_update,";
-        $sql .= " t.passenger_names,";
-        $sql .= " t.order_id";
+        $sql .= " t.passenger_names";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -367,7 +362,6 @@ class Bbcvols extends CommonObject
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
                 $this->passengerNames = $obj->passenger_names;
-                $this->orderId = $obj->order_id;
 
                 $this->balloon = $this->fetchBalloon();
                 $this->pilot = $this->fetchUser($this->fk_pilot);
@@ -456,10 +450,6 @@ class Bbcvols extends CommonObject
         if (isset($this->passengerNames)) {
             $this->passengerNames = trim($this->passengerNames);
         }
-        if (isset($this->orderId)) {
-            $this->orderId = trim($this->orderId);
-        }
-
 
         // Check parameters
         // Put here code to add a control on parameters values
@@ -485,8 +475,7 @@ class Bbcvols extends CommonObject
         $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) ? $this->fk_receiver : "null") . ',';
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
         $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
-        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "',";
-        $sql .= ' order_id = ' . "'" . (!isset($this->orderId) ? 'null' : $this->orderId) . "'";
+        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "'";
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -932,21 +921,21 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return int
+     * @return int[]|array
      */
-    public function getOrderId()
+    public function getOrderIds()
     {
-        return $this->orderId;
+        return $this->orderIds;
     }
 
     /**
-     * @param int $orderId
+     * @param int[]|array $orderIds
      *
      * @return Bbcvols
      */
-    public function setOrderId($orderId)
+    public function setOrderIds($orderIds)
     {
-        $this->orderId = $orderId;
+        $this->orderIds = $orderIds;
         return $this;
     }
 
@@ -963,7 +952,7 @@ class Bbcvols extends CommonObject
      */
     public function isLinkedToOrder()
     {
-        return isset($this->orderId) && $this->orderId > 0;
+        return !empty($this->orderIds);
     }
 
     /**
@@ -975,18 +964,23 @@ class Bbcvols extends CommonObject
             return $this;
         }
 
-        $this->order = new Commande($this->db);
-        $this->order->fetch($this->orderId);
+        foreach ($this->getOrderIds() as $currentOrderId) {
+            $order = new Commande($this->db);
+            $order->fetch((int) $currentOrderId);
+
+            $this->orders[] = $order;
+        }
+
 
         return $this;
     }
 
     /**
-     * @return Commande
+     * @return Commande[]|array
      */
-    public function getOrder()
+    public function getOrders()
     {
-        return $this->order;
+        return $this->orders;
     }
 
     /**

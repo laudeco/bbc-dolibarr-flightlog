@@ -80,7 +80,7 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
         $vol->fk_receiver = $command->getFkReceiver();
         $vol->justif_kilometers = $command->getJustifKilometers();
         $vol->setPassengerNames($command->getPassengerNames());
-        $vol->setOrderId($command->getOrderId());
+        $vol->setOrderIds($command->getOrderId());
 
         if (!$this->validator->isValid($vol, $_REQUEST)) {
             throw new Exception();
@@ -115,38 +115,40 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
             return;
         }
 
-        $order = $this->getOrderFromFlight($flight);
-        $order->add_object_linked('flightlog_bbcvols', $flight->getId());
+        foreach($this->getOrderFromFlight($flight) as $order){
 
-        $order->fetch_lines();
+            $order->add_object_linked('flightlog_bbcvols', $flight->getId());
+            $order->fetch_lines();
 
-        $qtyOrder = 0;
-        /** @var OrderLine $currentOrderLine */
-        foreach($order->lines as $currentOrderLine){
-            $qtyOrder += (int)$currentOrderLine->qty;
+            $qtyOrder = 0;
+            /** @var OrderLine $currentOrderLine */
+            foreach($order->lines as $currentOrderLine){
+                $qtyOrder += (int)$currentOrderLine->qty;
+            }
+
+            $passangersCount = $this->numberOfPassengersLinkedToOrder($order->id);
+
+            if($passangersCount != $qtyOrder){
+                return;
+            }
+
+            if($order->statut == Commande::STATUS_VALIDATED){
+                $order->cloture($this->user);
+            }
         }
 
-        $passangersCount = $this->numberOfPassengersLinkedToOrder($order->id);
-
-        if($passangersCount != $qtyOrder){
-            return;
-        }
-
-        if($order->statut == Commande::STATUS_VALIDATED){
-            $order->cloture($this->user);
-        }
     }
 
     /**
      * @param Bbcvols $flight
      *
-     * @return Commande
+     * @return Commande[]|array
      * @throws Exception
      */
     private function getOrderFromFlight($flight)
     {
         $flight->fetchOrder();
-        return $flight->getOrder();
+        return $flight->getOrders();
     }
 
     /**
