@@ -262,7 +262,7 @@ if ($msg) {
                 <td class="fieldrequired"><?php echo $langs->trans('Commande du vol')?></td>
                 <td class="js-order">
                     <?php
-                     echo $html->selectarray('order_id',$commande->liste_array(2),$_POST['order_id'], 1,0,0,'multiple style="width:100%"',0,0,0,'','',1);
+                        echo $html::multiselectarray('order_id', $commande->liste_array(2),$_POST['order_id'],0,0,'',0,'100%');
                     ?>
                 </td>
             </tr>
@@ -324,14 +324,6 @@ $db->close();
 
         $('.js-order select').on('change', hideOrderInformation);
         $('.js-order select').each(hideOrderInformation);
-
-        $('.js-order select').each(function($element){
-            if(!$(this).prop('multiple')){
-                return;
-            }
-
-            $(this).attr('name', $(this).attr('id')+'[]')
-        });
     });
 
 

@@ -936,10 +936,14 @@ class Bbcvols extends CommonObject
             $sql = sprintf('SELECT id, order_id FROM %s WHERE flight_id = %s', MAIN_DB_PREFIX . 'bbc_flights_orders' ,$this->getId());
             $resql = $this->db->query($sql);
             if ($resql) {
-                $numrows = $this->db->num_rows($resql);
-                if ($numrows) {
-                    $obj = $this->db->fetch_object($resql);
-                    $this->orderIds[] = $obj->order_id;
+                $num = $this->db->num_rows($resql);
+                $i = 0;
+                if ($num) {
+                    while ($i < $num) {
+                        $obj = $this->db->fetch_object($resql);
+                        $this->orderIds[] = $obj->order_id;
+                        $i++;
+                    }
                 }
             }
         }
@@ -1048,8 +1052,6 @@ class Bbcvols extends CommonObject
                 $sql.=',';
             }
         }
-
-        $this->db->begin();
 
         $resql = $this->db->query($sql);
         if (!$resql) {

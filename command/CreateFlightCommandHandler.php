@@ -129,7 +129,7 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
             $passangersCount = $this->numberOfPassengersLinkedToOrder($order->id);
 
             if($passangersCount != $qtyOrder){
-                return;
+                continue;
             }
 
             if($order->statut == Commande::STATUS_VALIDATED){
