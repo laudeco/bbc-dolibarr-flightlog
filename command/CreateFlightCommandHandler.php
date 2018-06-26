@@ -115,7 +115,7 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
             return;
         }
 
-        foreach($this->getOrderFromFlight($flight) as $order){
+        foreach($flight->getOrders() as $order){
 
             $order->add_object_linked('flightlog_bbcvols', $flight->getId());
             $order->fetch_lines();
@@ -137,18 +137,6 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
             }
         }
 
-    }
-
-    /**
-     * @param Bbcvols $flight
-     *
-     * @return Commande[]|array
-     * @throws Exception
-     */
-    private function getOrderFromFlight($flight)
-    {
-        $flight->fetchOrder();
-        return $flight->getOrders();
     }
 
     /**

@@ -232,7 +232,6 @@ class Bbcvols extends CommonObject
         $sql .= 'date_creation,';
         $sql .= 'date_update,';
         $sql .= 'passenger_names';
-
         $sql .= ') VALUES (';
 
         $sql .= ' ' . (!isset($this->date) || dol_strlen($this->date) == 0 ? 'NULL' : "'" . $this->db->idate($this->date) . "'") . ',';
@@ -270,11 +269,19 @@ class Bbcvols extends CommonObject
         if (!$error) {
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
 
-            if (!$notrigger) {
-                $result = $this->call_trigger('BBC_FLIGHT_CREATED', $user);
-                if ($result < 0) {
-                    $error++;
+            try{
+                $this->createLinksWithOrder($this->id);
+
+                if (!$notrigger) {
+                    $result = $this->call_trigger('BBC_FLIGHT_CREATED', $user);
+                    if ($result < 0) {
+                        $error++;
+                    }
                 }
+            }catch(Exception $e){
+                $error ++;
+                $this->errors[] = 'Error ' . $e->getMessage();
+                dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
             }
         }
 
@@ -925,6 +932,18 @@ class Bbcvols extends CommonObject
      */
     public function getOrderIds()
     {
+        if(empty($this->orderIds)){
+            $sql = sprintf('SELECT id, order_id FROM %s WHERE flight_id = %s', MAIN_DB_PREFIX . 'bbc_flights_orders' ,$this->getId());
+            $resql = $this->db->query($sql);
+            if ($resql) {
+                $numrows = $this->db->num_rows($resql);
+                if ($numrows) {
+                    $obj = $this->db->fetch_object($resql);
+                    $this->orderIds[] = $obj->order_id;
+                }
+            }
+        }
+
         return $this->orderIds;
     }
 
@@ -958,12 +977,8 @@ class Bbcvols extends CommonObject
     /**
      * Fetch the order based on the order id.
      */
-    public function fetchOrder()
+    private function fetchOrder()
     {
-        if (!$this->isLinkedToOrder()) {
-            return $this;
-        }
-
         foreach ($this->getOrderIds() as $currentOrderId) {
             $order = new Commande($this->db);
             $order->fetch((int) $currentOrderId);
@@ -980,6 +995,10 @@ class Bbcvols extends CommonObject
      */
     public function getOrders()
     {
+        if(empty($this->orders)){
+            $this->fetchOrder();
+        }
+
         return $this->orders;
     }
 
@@ -1000,6 +1019,43 @@ class Bbcvols extends CommonObject
     public function isBilled()
     {
         return !empty($this->is_facture);
+    }
+
+    /**
+     * @param int $id
+     *
+     * @throws Exception
+     */
+    private function createLinksWithOrder($id)
+    {
+
+        $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . 'bbc_flights_orders' . '(';
+
+        $sql .= 'order_id,';
+        $sql .= 'flight_id';
+
+        $sql .= ') VALUES ';
+
+        $i = 0;
+        foreach ($this->orderIds as $orderId){
+            $sql .= '(';
+            $sql .= $orderId.', ';
+            $sql .= $id;
+            $sql .= ')';
+
+            $i++;
+            if(count($this->orderIds) !== $i){
+                $sql.=',';
+            }
+        }
+
+        $this->db->begin();
+
+        $resql = $this->db->query($sql);
+        if (!$resql) {
+            throw new Exception($this->db->lasterror());
+        }
+
     }
 
 }

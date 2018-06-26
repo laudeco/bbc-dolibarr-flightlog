@@ -313,8 +313,7 @@ $db->close();
 
     function hideOrderInformation (){
         var $this = $(this);
-
-        if($this.val() > -1){
+        if($this.val().length > 0){
             $('input, select', '.js-hide-order').attr('disabled', 'disabled');
         }else{
             $('input, select', '.js-hide-order').removeAttr('disabled');
