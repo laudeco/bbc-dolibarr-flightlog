@@ -188,19 +188,17 @@ if ($msg) {
     </section>
 
     <section class="form-section">
-        <h1 class="form-section-title"><?php echo $langs->trans('Fieldfk_organisateur') ?></h1>
+        <h1 class="form-section-title"><span class="js-organisator-field">Organisateur</span><span class="js-instructor-field">Instructeur</span></h1>
         <table class="border" width="50%">
-
-            <?php
-
-
-            //organisateur
-            print "<tr>";
-            print '<td class="fieldrequired">' . $langs->trans('Fieldfk_organisateur') . ' </td><td>';
-            print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $_GET["orga"], 'orga', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
-            print '</td></tr>';
-            ?>
-
+            <tr>
+                <td class="fieldrequired"><span class="js-organisator-field">Organisateur</span><span class="js-instructor-field">Instructeur</span></td>
+                <td>
+                <?php
+                    //organisateur
+                    print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $_GET["orga"], 'orga', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
+                ?>
+                </td>
+            </tr>
         </table>
     </section>
 
@@ -394,6 +392,16 @@ $db->close();
         }else{
             $('.js-form .js-expensable-field').addClass('hidden');
         }
+
+        if(flightType.id === 6){
+            //instruction flight
+            $('.js-form .js-instructor-field').removeClass('hidden');
+            $('.js-form .js-organisator-field').addClass('hidden');
+        }else{
+            $('.js-form .js-instructor-field').addClass('hidden');
+            $('.js-form .js-organisator-field').removeClass('hidden');
+        }
+
     }
 
     $(function(){
