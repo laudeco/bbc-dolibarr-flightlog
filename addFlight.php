@@ -149,7 +149,7 @@ if ($msg) {
             //Pilote
             print "<tr>";
             print '<td class="fieldrequired"> Pilote </td><td >';
-            print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $_GET["pilot"], 'pilot', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
+            print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $user->id, 'pilot', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
             print '</td></tr>';
 
             //Ballon
@@ -195,7 +195,7 @@ if ($msg) {
                 <td>
                 <?php
                     //organisateur
-                    print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $_GET["orga"], 'orga', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
+                    print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $user->id, 'orga', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
                 ?>
                 </td>
             </tr>
@@ -268,7 +268,7 @@ if ($msg) {
             <!-- Money receiver -->
             <tr class="js-hide-order js-billable-field">
                 <td class="fieldrequired"><?php echo $langs->trans('Qui a perçu l\'argent')?></td><td>
-                    <?php print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $_GET["fk_receiver"],
+                    <?php print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $user->id,
                         'fk_receiver', true, null, 0, '', '', 0,0,0,'',0,'','', true); ?>
                 </td>
             </tr>
