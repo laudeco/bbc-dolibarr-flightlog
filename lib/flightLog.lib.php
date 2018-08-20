@@ -1,75 +1,4 @@
 <?php
-/**
- * @deprecated use the BillableFlightQueryHandler for that.
- *
- * @param DoliDb $db
- * @param string $sql
- * @param bool   $total
- * @param string $year
- *
- * @return array
- */
-function sqlToArray(DoliDb $db, $sql, $total = true, $year = '')
-{
-    $resql = $db->query($sql);
-    $array = array();
-    if ($resql) {
-        $num = $db->num_rows($resql);
-        $i = 0;
-        if ($num) {
-            while ($i < $num) {
-                $obj = $db->fetch_object($resql); //vol
-                if ($obj) {
-                    $array[$obj->pilot][$obj->type]['time'] = $obj->time;
-                    $array[$obj->pilot][$obj->type]['count'] = $obj->nbr;
-                    $array[$obj->pilot]['name'] = $obj->prenom . ' ' . $obj->nom;
-                    $array[$obj->pilot]['id'] = $obj->pilot;
-                }
-                $i++;
-            }
-        }
-    }
-
-    //total orga
-    $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $year . '\' AND fk_type IN (1,2) GROUP BY fk_organisateur';
-    $resql = $db->query($sql);
-    if ($resql && $total) {
-        $num = $db->num_rows($resql);
-        $i = 0;
-        if ($num) {
-            while ($i < $num) {
-                $obj = $db->fetch_object($resql); //vol
-
-                if ($obj) {
-                    $array[$obj->rowid]['name'] = $obj->firstname . ' ' . $obj->name;
-                    $array[$obj->rowid]['orga']['count'] = $obj->total;
-                }
-                $i++;
-            }
-        }
-    }
-
-    //total orga T6 - instructeur
-    $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $year . '\' AND fk_type = 6 GROUP BY fk_organisateur';
-    $resql = $db->query($sql);
-    if ($resql && $total) {
-        $num = $db->num_rows($resql);
-        $i = 0;
-        if ($num) {
-            while ($i < $num) {
-                $obj = $db->fetch_object($resql); //vol
-
-                if ($obj) {
-                    $array[$obj->rowid]['name'] = $obj->firstname . ' ' . $obj->name;
-                    $array[$obj->rowid]['orga_T6']['count'] = $obj->total;
-                }
-                $i++;
-            }
-        }
-    }
-
-    return $array;
-}
 
 /**
  * @param int $active
@@ -145,9 +74,9 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $
     print '>&nbsp;</option>';
 
     if (!$showDeclasse) {
-        $resql = $db->query("SELECT B.immat,B.rowid FROM llx_bbc_ballons as B WHERE is_disable = false ");
+        $resql = $db->query("SELECT B.immat,B.rowid FROM llx_bbc_ballons as B WHERE is_disable = false  ORDER BY B.immat");
     } else {
-        $resql = $db->query("SELECT B.immat,B.rowid FROM llx_bbc_ballons as B");
+        $resql = $db->query("SELECT B.immat,B.rowid FROM llx_bbc_ballons as B ORDER BY B.immat");
     }
 
     if ($resql) {
@@ -460,45 +389,6 @@ function getFlightYears()
     }
 
     return $results;
-}
-
-/**
- * @param array $results
- * @param int   $year
- * @param int   $type
- * @param int   $val
- *
- * @return array
- * @throws Exception
- */
-function addValueForYear($results, $year, $type, $val)
-{
-    if (!is_array($results)) {
-        return $results;
-    }
-
-    $countResults = count($results);
-
-    for ($i = 0; $i < $countResults; $i++) {
-        $resultLine = $results[$i];
-        if (!is_array($resultLine)) {
-            throw new \Exception("not an array ");
-        }
-
-        if (in_array($year, $resultLine)) {
-            $results[$i][$type] = $val;
-            return $results;
-        }
-    }
-
-    //not found add a new entry
-    $results[] = [
-        $year,
-        $type => $val
-    ];
-
-    return $results;
-
 }
 
 /**
