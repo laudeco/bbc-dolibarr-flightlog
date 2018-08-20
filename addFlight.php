@@ -101,7 +101,7 @@ if ($msg) {
         }
         ?>
     </div>
-    <form class="flight-form" name='add' action="addFlight.php" method="post">
+    <form class="flight-form js-form" name='add' action="addFlight.php" method="post">
     <input type="hidden" name="action" value="add"/>
 
     <!-- Date et heures -->
@@ -149,7 +149,7 @@ if ($msg) {
             //Pilote
             print "<tr>";
             print '<td class="fieldrequired"> Pilote </td><td >';
-            print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $_GET["pilot"], 'pilot', $user->id);
+            print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $user->id, 'pilot', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
             print '</td></tr>';
 
             //Ballon
@@ -188,24 +188,22 @@ if ($msg) {
     </section>
 
     <section class="form-section">
-        <h1 class="form-section-title"><?php echo $langs->trans('Fieldfk_organisateur') ?></h1>
+        <h1 class="form-section-title"><span class="js-organisator-field">Organisateur</span><span class="js-instructor-field">Instructeur</span></h1>
         <table class="border" width="50%">
-
-            <?php
-
-
-            //organisateur
-            print "<tr>";
-            print '<td class="fieldrequired">' . $langs->trans('Fieldfk_organisateur') . ' </td><td>';
-            print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $_GET["orga"], 'orga', 1);
-            print '</td></tr>';
-            ?>
-
+            <tr>
+                <td class="fieldrequired"><span class="js-organisator-field">Organisateur</span><span class="js-instructor-field">Instructeur</span></td>
+                <td>
+                <?php
+                    //organisateur
+                    print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $user->id, 'orga', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
+                ?>
+                </td>
+            </tr>
         </table>
     </section>
 
 
-    <section class="form-section">
+    <section class="form-section js-expensable-field">
         <h1 class="form-section-title"><?php echo $langs->trans('Déplacements') ?></h1>
         <table class="border" width="50%">
             <!-- number of kilometers done for the flight -->
@@ -254,11 +252,11 @@ if ($msg) {
 
     <!-- billing information -->
     <section class="form-section">
-        <h1 class="form-section-title"><?php echo $langs->trans('Facturation') ?></h1>
+        <h1 class="form-section-title js-billable-field"><?php echo $langs->trans('Facturation') ?></h1>
         <table class="border" width="50%">
 
             <!-- Commande -->
-            <tr>
+            <tr class=" js-billable-field">
                 <td class="fieldrequired"><?php echo $langs->trans('Commande du vol')?></td>
                 <td class="js-order">
                     <?php
@@ -268,22 +266,28 @@ if ($msg) {
             </tr>
 
             <!-- Money receiver -->
-            <tr class="js-hide-order">
+            <tr class="js-hide-order js-billable-field">
                 <td class="fieldrequired"><?php echo $langs->trans('Qui a perçu l\'argent')?></td><td>
-                    <?php print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $_GET["fk_receiver"],
-                    'fk_receiver', 1); ?>
+                    <?php print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $user->id,
+                        'fk_receiver', true, null, 0, '', '', 0,0,0,'',0,'','', true); ?>
                 </td>
             </tr>
 
             <!-- Flight cost -->
-            <tr class="js-hide-order">
+            <tr class="js-hide-order js-billable-field">
                 <td class="fieldrequired">Montant perçu</td>
                 <td>
                     <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost'] ?> "/>
                     &euro;
                 </td>
             </tr>
+        </table>
+    </section>
 
+    <!-- comments -->
+    <section class="form-section">
+        <h1 class="form-section-title"><?php echo $langs->trans('Commentaires') ?></h1>
+        <table class="border" width="50%">
             <!-- commentaires -->
             <tr class="">
                 <td class="fieldrequired"> Commentaire </td><td>
@@ -321,9 +325,90 @@ $db->close();
         }
     }
 
-    $(function(){
+    /**
+     * get the flight type object from an id.
+     */
+    function getFlightType(flightTypeId){
+        var types = {
+            1:{
+                'billable' : 1,
+                'expensable' : 1,
+                'id' : 1
+            },
+            2:{
+                'billable' : 1,
+                'expensable' : 1,
+                'id' : 2
+            },
+            3:{
+                'billable' : 0,
+                'expensable' : 0,
+                'id' : 3
+            },
+            4:{
+                'billable' : 0,
+                'expensable' : 0,
+                'id' : 4
+            },
+            5:{
+                'billable' : 0,
+                'expensable' : 0,
+                'id' : 5
+            },
+            6:{
+                'billable' : 0,
+                'expensable' : 0,
+                'id' : 6
+            },
+            7:{
+                'billable' : 0,
+                'expensable' : 0,
+                'id' : 7
+            }
+        };
 
+        var flightTypeNull = {
+            'billable' : 0,
+            'expensable' : 0,
+            'id' : 0
+        };
+
+        return typeof types[flightTypeId] === 'undefined' ? flightTypeNull : types[flightTypeId];
+    }
+
+    function flightTypeChanged(){
+        var $this = $(this);
+        var typeId = $this.val();
+        var flightType = getFlightType(typeId);
+
+        if(flightType.billable === 1){
+            $('.js-form .js-billable-field').removeClass('hidden');
+        }else{
+            $('.js-form .js-billable-field').addClass('hidden');
+        }
+
+        if(flightType.expensable === 1){
+            $('.js-form .js-expensable-field').removeClass('hidden');
+        }else{
+            $('.js-form .js-expensable-field').addClass('hidden');
+        }
+
+        if(flightType.id === 6){
+            //instruction flight
+            $('.js-form .js-instructor-field').removeClass('hidden');
+            $('.js-form .js-organisator-field').addClass('hidden');
+        }else{
+            $('.js-form .js-instructor-field').addClass('hidden');
+            $('.js-form .js-organisator-field').removeClass('hidden');
+        }
+
+    }
+
+    $(function(){
         $('.js-order select').on('change', hideOrderInformation);
         $('.js-order select').each(hideOrderInformation);
+
+        $('.js-flight-type').on('change', flightTypeChanged);
+        $('.js-flight-type').each(flightTypeChanged);
     });
 </script>

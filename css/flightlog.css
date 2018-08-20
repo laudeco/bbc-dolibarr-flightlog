@@ -226,3 +226,7 @@ input.error, textarea.error{
 .bbc-style .cadre_prix_total{
     border-top: grey solid 2px;
 }
+
+.hidden{
+    display: none;
+}

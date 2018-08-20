@@ -104,7 +104,7 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
 
     $types = fetchBbcFlightTypes();
 
-    print '<select class="flat" name="' . $htmlname . '">';
+    print '<select class="flat js-flight-type" name="' . $htmlname . '">';
 
     if ($showempty) {
         print sprintf('<option selected="%s" value=""></option>', (($selected == "" || $selected == 0 || $selected == -1) ? "selected" : ""));
