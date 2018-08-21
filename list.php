@@ -76,7 +76,7 @@ $offset = $limit * $page;
 $pageprev = $page - 1;
 $pagenext = $page + 1;
 if (!$sortfield) {
-    $sortfield = "t.date";
+    $sortfield = "t.date, t.heureD";
 } // Set here default search field
 if (!$sortorder) {
     $sortorder = "DESC";
@@ -130,8 +130,6 @@ $arrayfields = array(
     't.cost'                      => array('label' => $langs->trans("Fieldcost"), 'checked' => 0),
     //'t.fk_receiver'               => array('label' => $langs->trans("Fieldfk_receiver"), 'checked' => 1),
     //'t.justif_kilometers'         => array('label' => $langs->trans("Fieldjustif_kilometers"), 'checked' => 1),
-
-
     //'t.entity'=>array('label'=>$langs->trans("Entity"), 'checked'=>1, 'enabled'=>(! empty($conf->multicompany->enabled) && empty($conf->multicompany->transverse_mode))),
     't.datec'                     => array('label'    => $langs->trans("DateCreationShort"),
                                            'checked'  => 0,
@@ -699,12 +697,12 @@ if (!empty($arrayfields['t.fk_type']['checked'])) {
 }
 if (!empty($arrayfields['t.fk_pilot']['checked'])) {
     print '<td class="liste_titre">';
-        print $form->select_dolusers($search_fk_pilot, "search_fk_pilot", true);
+        print $form->select_dolusers($search_fk_pilot, "search_fk_pilot", true, null, 0, '', '', 0,0,0,'',0,'','', true);
     print '</td>';
 }
 if (!empty($arrayfields['t.fk_organisateur']['checked'])) {
     print '<td class="liste_titre">';
-        print $form->select_dolusers($search_fk_organisateur, "search_fk_organisateur", true);
+        print $form->select_dolusers($search_fk_organisateur, "search_fk_organisateur", true, null, 0, '', '', 0,0,0,'',0,'','', true);
     print '</td>';
 }
 
@@ -897,7 +895,8 @@ while ($i < min($num, $limit)) {
         if (! empty($arrayfields['t.cost']['checked']))
         {
             if(($user->rights->flightlog->vol->financial || $user->id == $flight->fk_pilot) && $obj->cost > 0){
-                print sprintf('<td>%s - (%s/pax)</td>', price($obj->cost, 0, $langs, 0, 0, -1, $conf->currency), price($obj->cost/$obj->nbrPax, 0, $langs, -1, -1, -1, $conf->currency));
+                $nbrPax = $obj->nbrPax > 0 ? $obj->nbrPax : 1;
+                print sprintf('<td>%s - (%s/pax)</td>', price($obj->cost, 0, $langs, 0, 0, -1, $conf->currency), price($obj->cost/$nbrPax, 0, $langs, -1, -1, -1, $conf->currency));
             }else{
                 print '<td> - €</td>';
             }

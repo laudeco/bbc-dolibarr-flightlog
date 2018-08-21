@@ -849,11 +849,12 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getAmountPerPassenger()
     {
-        return $this->cost / $this->nbrPax;
+        $nbrPax = $this->nbrPax > 0 ? $this->nbrPax : 1 ;
+        return $this->cost / $nbrPax;
     }
 
     /**
