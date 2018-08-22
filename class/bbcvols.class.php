@@ -247,18 +247,18 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->nbrPax) ? 'NULL' : "'" . $this->db->escape($this->nbrPax) . "'") . ',';
         $sql .= ' ' . (!isset($this->remarque) ? 'NULL' : "'" . $this->db->escape($this->remarque) . "'") . ',';
         $sql .= ' ' . (!isset($this->incidents) ? 'NULL' : "'" . $this->db->escape($this->incidents) . "'") . ',';
-        $sql .= ' ' . (!isset($this->fk_type) ? 'NULL' : $this->fk_type) . ',';
-        $sql .= ' ' . (!isset($this->fk_pilot) ? 'NULL' : $this->fk_pilot) . ',';
-        $sql .= ' ' . (!isset($this->fk_organisateur) ? 'NULL' : $this->fk_organisateur) . ',';
+        $sql .= ' ' . (!isset($this->fk_type) || (int)$this->fk_type === -1 ? 'NULL' : $this->fk_type) . ',';
+        $sql .= ' ' . (!isset($this->fk_pilot) || (int)$this->fk_pilot === -1 ? 'NULL' : $this->fk_pilot) . ',';
+        $sql .= ' ' . (!isset($this->fk_organisateur) || (int)$this->fk_organisateur === -1 ? 'NULL' : $this->fk_organisateur) . ',';
         $sql .= ' ' . (!isset($this->is_facture) ? '0' : $this->is_facture) . ',';
         $sql .= ' ' . (!isset($this->kilometers) || empty($this->kilometers) ? '0' : $this->kilometers) . ',';
         $sql .= ' ' . (!isset($this->cost) ? 'NULL' : "'" . $this->db->escape($this->cost) . "'") . ',';
-        $sql .= ' ' . (!isset($this->fk_receiver) ? 'NULL' : $this->fk_receiver) . ',';
+        $sql .= ' ' . (!isset($this->fk_receiver) || (int)$this->fk_receiver === -1 ? 'NULL' : $this->fk_receiver) . ',';
         $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
         $sql .= ' ' . "'" . $this->passengerNames . "'" . ',';
-        $sql .= ' ' . (!isset($this->orderId) ? 'NULL' : $this->orderId) . '';
+        $sql .= ' ' . (!isset($this->orderId) || (int)$this->orderId === -1 ? 'NULL' : $this->orderId) . '';
 
         $sql .= ')';
 
@@ -346,28 +346,28 @@ class Bbcvols extends CommonObject
 
                 $this->id = $obj->idBBC_vols;
 
-                $this->idBBC_vols = $obj->idBBC_vols;
+                $this->idBBC_vols = (int)$obj->idBBC_vols;
                 $this->date = $this->db->jdate($obj->date);
                 $this->lieuD = $obj->lieuD;
                 $this->lieuA = $obj->lieuA;
                 $this->heureD = $obj->heureD;
                 $this->heureA = $obj->heureA;
-                $this->BBC_ballons_idBBC_ballons = $obj->BBC_ballons_idBBC_ballons;
+                $this->BBC_ballons_idBBC_ballons = (int)$obj->BBC_ballons_idBBC_ballons;
                 $this->nbrPax = $obj->nbrPax;
                 $this->remarque = $obj->remarque;
                 $this->incidents = $obj->incidents;
-                $this->fk_type = $obj->fk_type;
-                $this->fk_pilot = $obj->fk_pilot;
-                $this->fk_organisateur = $obj->fk_organisateur;
-                $this->is_facture = $obj->is_facture;
+                $this->fk_type = (int)$obj->fk_type;
+                $this->fk_pilot = (int)$obj->fk_pilot;
+                $this->fk_organisateur = (int)$obj->fk_organisateur;
+                $this->is_facture = (int)$obj->is_facture;
                 $this->kilometers = $obj->kilometers;
                 $this->cost = $obj->cost;
-                $this->fk_receiver = $obj->fk_receiver;
+                $this->fk_receiver = (int)$obj->fk_receiver;
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
                 $this->passengerNames = $obj->passenger_names;
-                $this->orderId = $obj->order_id;
+                $this->orderId = (int)$obj->order_id;
 
                 $this->balloon = $this->fetchBalloon();
                 $this->pilot = $this->fetchUser($this->fk_pilot);
@@ -476,17 +476,17 @@ class Bbcvols extends CommonObject
         $sql .= ' nbrPax = ' . (isset($this->nbrPax) ? "'" . $this->db->escape($this->nbrPax) . "'" : "null") . ',';
         $sql .= ' remarque = ' . (isset($this->remarque) ? "'" . $this->db->escape($this->remarque) . "'" : "null") . ',';
         $sql .= ' incidents = ' . (isset($this->incidents) ? "'" . $this->db->escape($this->incidents) . "'" : "null") . ',';
-        $sql .= ' fk_type = ' . (isset($this->fk_type) ? $this->fk_type : "null") . ',';
-        $sql .= ' fk_pilot = ' . (isset($this->fk_pilot) ? $this->fk_pilot : "null") . ',';
-        $sql .= ' fk_organisateur = ' . (isset($this->fk_organisateur) ? $this->fk_organisateur : "null") . ',';
+        $sql .= ' fk_type = ' . (isset($this->fk_type) && (int)$this->fk_type > 0 ? $this->fk_type : "null") . ',';
+        $sql .= ' fk_pilot = ' . (isset($this->fk_pilot) && (int)$this->fk_pilot > 0 ? $this->fk_pilot : "null") . ',';
+        $sql .= ' fk_organisateur = ' . (isset($this->fk_organisateur) && (int)$this->fk_organisateur > 0 ? $this->fk_organisateur : "null") . ',';
         $sql .= ' is_facture = ' . (isset($this->is_facture) ? $this->is_facture : "0") . ',';
         $sql .= ' kilometers = ' . (!empty($this->kilometers) ? $this->kilometers : "0") . ',';
         $sql .= ' cost = ' . (isset($this->cost) ? "'" . $this->db->escape($this->cost) . "'" : "''") . ',';
-        $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) ? $this->fk_receiver : "null") . ',';
+        $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) && (int)$this->fk_receiver > 0 ? $this->fk_receiver : "null") . ',';
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
         $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
         $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "',";
-        $sql .= ' order_id = ' . "'" . (!isset($this->orderId) ? 'null' : $this->orderId) . "'";
+        $sql .= ' order_id = ' .  (!isset($this->orderId) || (int)$this->orderId === -1 ? 'null' : $this->orderId);
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -849,11 +849,12 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getAmountPerPassenger()
     {
-        return $this->cost / $this->nbrPax;
+        $nbrPax = $this->nbrPax > 0 ? $this->nbrPax : 1 ;
+        return $this->cost / $nbrPax;
     }
 
     /**

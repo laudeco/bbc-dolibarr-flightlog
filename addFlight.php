@@ -255,7 +255,7 @@ if ($msg) {
         <h1 class="form-section-title js-billable-field"><?php echo $langs->trans('Facturation') ?></h1>
         <table class="border" width="50%">
 
-            <!-- Commande -->
+            <!-- Order -->
             <tr class=" js-billable-field">
                 <td class="fieldrequired"><?php echo $langs->trans('Commande du vol')?></td>
                 <td class="js-order">

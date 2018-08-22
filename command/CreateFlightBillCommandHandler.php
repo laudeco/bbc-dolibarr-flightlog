@@ -74,7 +74,7 @@ class CreateFlightBillCommandHandler
             throw new \InvalidArgumentException('Error during bill creation');
         }
 
-        $this->addOrderLine($object, $flightProduct, $flight);
+        $this->addOrderLine($object, $flightProduct, $flight, $command->getNbrPax());
 
         $this->addLinks($object, $flight);
         $this->addContacts($object, $flight);
@@ -238,7 +238,7 @@ class CreateFlightBillCommandHandler
      * @param Product $flightProduct
      * @param Bbcvols $flight
      */
-    private function addOrderLine($object, $flightProduct, $flight)
+    private function addOrderLine($object, $flightProduct, $flight, $nbrPax)
     {
         $localtax1_tx = get_localtax(0, 1, $object->thirdparty);
         $localtax2_tx = get_localtax(0, 2, $object->thirdparty);
@@ -252,7 +252,7 @@ class CreateFlightBillCommandHandler
         $result = $object->addline(
             $flightProduct->description,
             $pu_ht,
-            $flight->nbrPax,
+            $nbrPax,
             $flightProduct->tva_tx,
             $localtax1_tx,
             $localtax2_tx,
