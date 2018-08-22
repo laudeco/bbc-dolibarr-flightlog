@@ -346,28 +346,28 @@ class Bbcvols extends CommonObject
 
                 $this->id = $obj->idBBC_vols;
 
-                $this->idBBC_vols = $obj->idBBC_vols;
+                $this->idBBC_vols = (int)$obj->idBBC_vols;
                 $this->date = $this->db->jdate($obj->date);
                 $this->lieuD = $obj->lieuD;
                 $this->lieuA = $obj->lieuA;
                 $this->heureD = $obj->heureD;
                 $this->heureA = $obj->heureA;
-                $this->BBC_ballons_idBBC_ballons = $obj->BBC_ballons_idBBC_ballons;
+                $this->BBC_ballons_idBBC_ballons = (int)$obj->BBC_ballons_idBBC_ballons;
                 $this->nbrPax = $obj->nbrPax;
                 $this->remarque = $obj->remarque;
                 $this->incidents = $obj->incidents;
-                $this->fk_type = $obj->fk_type;
-                $this->fk_pilot = $obj->fk_pilot;
-                $this->fk_organisateur = $obj->fk_organisateur;
-                $this->is_facture = $obj->is_facture;
+                $this->fk_type = (int)$obj->fk_type;
+                $this->fk_pilot = (int)$obj->fk_pilot;
+                $this->fk_organisateur = (int)$obj->fk_organisateur;
+                $this->is_facture = (int)$obj->is_facture;
                 $this->kilometers = $obj->kilometers;
                 $this->cost = $obj->cost;
-                $this->fk_receiver = $obj->fk_receiver;
+                $this->fk_receiver = (int)$obj->fk_receiver;
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
                 $this->passengerNames = $obj->passenger_names;
-                $this->orderId = $obj->order_id;
+                $this->orderId = (int)$obj->order_id;
 
                 $this->balloon = $this->fetchBalloon();
                 $this->pilot = $this->fetchUser($this->fk_pilot);

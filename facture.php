@@ -65,7 +65,7 @@ $flightProduct->fetch($conf->global->BBC_FLIGHT_TYPE_CUSTOMER);
 
 $flight = new Bbcvols($db);
 $flight->fetch($id);
-$puFlight = $flight->cost / $flight->nbrPax;
+$puFlight = $flight->getAmountPerPassenger();
 
 $organisator = new User($db);
 $organisator->fetch($flight->fk_organisateur);
@@ -93,8 +93,8 @@ $hidedetails = (GETPOST('hidedetails', 'int') ? GETPOST('hidedetails',
     'int') : (!empty($conf->global->MAIN_GENERATE_DOCUMENTS_HIDE_DETAILS) ? 1 : 0));
 $hidedesc = (GETPOST('hidedesc', 'int') ? GETPOST('hidedesc',
     'int') : (!empty($conf->global->MAIN_GENERATE_DOCUMENTS_HIDE_DESC) ? 1 : 0));
-$hideref = (GETPOST('hideref', 'int') ? GETPOST('hideref',
-    'int') : (!empty($conf->global->MAIN_GENERATE_DOCUMENTS_HIDE_REF) ? 1 : 0));
+$hideref = (GETPOST('hideref', 'int') ? GETPOST('hideref', 'int') : (!empty($conf->global->MAIN_GENERATE_DOCUMENTS_HIDE_REF) ? 1 : 0));
+$nbrPax = (GETPOST('nbr_pax', 'int') ? GETPOST('nbr_pax', 'int') : null);
 
 $object = new Facture($db);
 $vatrate = "0.000";
@@ -108,9 +108,6 @@ if (!$conf->facture->enabled || !$user->rights->flightlog->vol->financial || !$u
 if (empty($action)) {
     $action = EXPENSE_REPORT_GENERATOR_ACTION_CREATE;
 }
-
-
-
 
 
 /*
@@ -128,7 +125,7 @@ llxHeader('', $langs->trans('Generate billing'), '');
  */
 if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
     try{
-        $command = new CreateFlightBillCommand($flight->getId(), $modeReglement, $conditionReglement, $documentModel, $type, $publicNote, $privateNote,$bankAccount);
+        $command = new CreateFlightBillCommand($flight->getId(), $modeReglement, $conditionReglement, $documentModel, $type, $publicNote, $privateNote,$bankAccount, $nbrPax);
         $handler->handle($command);
         Header("Location: card.php?id=" . $flight->getId());
     }catch (\Exception $e){
@@ -153,65 +150,70 @@ if ($pilot->id != $receiver->id || $pilot->id != $organisator->id) {
     dol_htmloutput_mesg("L'organisateur / la personne ayant reçu l'argent n'est pas le pilote.", '',
         'warning');
 }
+if (!$flight->hasReceiver()) {
+    dol_htmloutput_mesg("Personne n'aurait touché l'argent.", '',
+        'error');
+}
 
 ?>
 
-    <table class="border centpercent">
-
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("FieldidBBC_vols") ?> </td>
-            <td> <?php echo $flight->idBBC_vols ?> </td>
-        </tr>
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("Fielddate") ?> </td>
-            <td> <?php echo dol_print_date($flight->date) ?> </td>
-        </tr>
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("FieldBBC_ballons_idBBC_ballons") ?> </td>
-            <td> <?php echo $balloon->immat ?> </td>
-        </tr>
-
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("Fieldfk_pilot") ?> </td>
-            <td> <?php echo $pilot->getNomUrl() ?> </td>
-        </tr>
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("Fieldfk_organisateur") ?> </td>
-            <td> <?php echo $organisator->getNomUrl() ?> </td>
-        </tr>
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("Fieldfk_receiver") ?> </td>
-            <td> <?php echo $receiver->getNomUrl() ?> </td>
-        </tr>
-
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("FieldnbrPax") ?> </td>
-            <td> <?php echo $flight->nbrPax ?> </td>
-        </tr>
-
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("Fieldis_facture") ?> </td>
-            <td> <?php echo $flight->getLibStatut(5) ?> </td>
-        </tr>
-
-        <tr>
-            <td class="fieldrequired">Prix standard</td>
-            <td> <?php echo $flightProduct->price_ttc . " " . $langs->getCurrencySymbol($conf->currency) ?> </td>
-        </tr>
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("Fieldcost") ?> </td>
-            <td> <?php echo $flight->cost . " " . $langs->getCurrencySymbol($conf->currency) ?> </td>
-        </tr>
-        <tr>
-            <td class="fieldrequired"><?php echo $langs->trans("UnitPrice") ?> </td>
-            <td> <?php echo $puFlight . " " . $langs->getCurrencySymbol($conf->currency) ?> </td>
-        </tr>
-    </table>
-
-    <br/>
-    <br/>
-
     <form method="POST">
+        <table class="border centpercent">
+
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("FieldidBBC_vols") ?> </td>
+                <td> <?php echo $flight->idBBC_vols ?> </td>
+            </tr>
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("Fielddate") ?> </td>
+                <td> <?php echo dol_print_date($flight->date) ?> </td>
+            </tr>
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("FieldBBC_ballons_idBBC_ballons") ?> </td>
+                <td> <?php echo $balloon->immat ?> </td>
+            </tr>
+
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("Fieldfk_pilot") ?> </td>
+                <td> <?php echo $pilot->getNomUrl() ?> </td>
+            </tr>
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("Fieldfk_organisateur") ?> </td>
+                <td> <?php echo $organisator->getNomUrl() ?> </td>
+            </tr>
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("Fieldfk_receiver") ?> </td>
+                <td> <?php echo $receiver->getNomUrl() ?> </td>
+            </tr>
+
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("FieldnbrPax") ?> </td>
+                <td>
+                    <input type="number" name="nbr_pax" value="<?php echo $flight->nbrPax ?>" />
+                </td>
+            </tr>
+
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("Fieldis_facture") ?> </td>
+                <td> <?php echo $flight->getLibStatut(5) ?> </td>
+            </tr>
+
+            <tr>
+                <td class="fieldrequired">Prix standard</td>
+                <td> <?php echo $flightProduct->price_ttc . " " . $langs->getCurrencySymbol($conf->currency) ?> </td>
+            </tr>
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("Fieldcost") ?> </td>
+                <td> <?php echo $flight->cost . " " . $langs->getCurrencySymbol($conf->currency) ?> </td>
+            </tr>
+            <tr>
+                <td class="fieldrequired"><?php echo $langs->trans("UnitPrice") ?> </td>
+                <td> <?php echo $puFlight . " " . $langs->getCurrencySymbol($conf->currency) ?> </td>
+            </tr>
+        </table>
+
+        <br>
+        <br>
 
         <!-- action -->
         <input type="hidden" name="action" value="<?= EXPENSE_REPORT_GENERATOR_ACTION_GENERATE ?>">
@@ -265,7 +267,7 @@ if ($pilot->id != $receiver->id || $pilot->id != $organisator->id) {
         <br/>
         <br/>
 
-        <?php if (!$flightProduct) : ?>
+        <?php if (!$flightProduct || !$flight->hasReceiver()) : ?>
             <a class="butActionRefused" href="#">Générer</a>
         <?php else: ?>
             <button class="butAction" type="submit">Générer</button>

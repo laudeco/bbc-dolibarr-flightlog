@@ -49,6 +49,11 @@ class CreateFlightBillCommand
     private $bankAccount;
 
     /**
+     * @var int
+     */
+    private $nbrPax;
+
+    /**
      * @param int    $flightId
      * @param int    $billingType
      * @param int    $billingCondition
@@ -57,6 +62,7 @@ class CreateFlightBillCommand
      * @param string $publicNote
      * @param string $privateNote
      * @param int    $bankAccount
+     * @param int    $nbrPax
      */
     public function __construct(
         $flightId,
@@ -66,7 +72,8 @@ class CreateFlightBillCommand
         $billType,
         $publicNote,
         $privateNote,
-        $bankAccount
+        $bankAccount,
+        $nbrPax
     ) {
         if (empty($flightId)) {
             throw new \InvalidArgumentException('Flight id is missing');
@@ -84,6 +91,10 @@ class CreateFlightBillCommand
             throw new \InvalidArgumentException('Model document is missing');
         }
 
+        if(!isset($nbrPax) || !is_numeric($nbrPax) || !is_integer($nbrPax)){
+            throw new \InvalidArgumentException('The number of pax is not correct, an integer is expected');
+        }
+
         $this->flightId = $flightId;
         $this->billingType = $billingType;
         $this->billingCondition = $billingCondition;
@@ -92,6 +103,7 @@ class CreateFlightBillCommand
         $this->publicNote = $publicNote;
         $this->privateNote = $privateNote;
         $this->bankAccount = $bankAccount;
+        $this->nbrPax = $nbrPax;
     }
 
     /**
@@ -158,5 +170,12 @@ class CreateFlightBillCommand
         return $this->bankAccount;
     }
 
+    /**
+     * @return int
+     */
+    public function getNbrPax()
+    {
+        return $this->nbrPax;
+    }
 
 }
