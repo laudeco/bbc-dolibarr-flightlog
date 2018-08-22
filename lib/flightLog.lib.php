@@ -211,8 +211,6 @@ function bbcKilometersByQuartil($year)
                     $quartil = $obj->quartil;
 
                     $kmByQuartil[$rowId]["name"] = $name;
-                    $kmByQuartil[$rowId]["name"] = $name;
-                    $kmByQuartil[$rowId]["name"] = $name;
                     $kmByQuartil[$rowId]["firstname"] = $firstname;
 
                     $kmByQuartil[$rowId]["quartil"][$quartil]["km"] = $sum;
