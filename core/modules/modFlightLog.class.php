@@ -150,7 +150,7 @@ class modFlightLog extends DolibarrModules
 
         // Dependencies
         $this->hidden = false;
-        $this->depends = array('modFlightBalloon');
+        $this->depends = [];
         $this->requiredby = array();
         $this->conflictwith = array();
         $this->phpmin = array(5, 5);
