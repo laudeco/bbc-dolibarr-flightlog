@@ -718,7 +718,9 @@ class Bbcvols extends CommonObject
      */
     public function hasFacture()
     {
-        return count($this->linkedObjectsIds) > 0;
+        $this->fetchObjectLinked($this->id, $this->element);
+
+        return isset($this->linkedObjectsIds['facture']) && count($this->linkedObjectsIds['facture']) > 0;
     }
 
     /**
