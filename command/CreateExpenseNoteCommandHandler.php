@@ -95,7 +95,7 @@ class CreateExpenseNoteCommandHandler
         $missions = $this->getMissionsQueryHandler->__invoke(new GetPilotsWithMissionsQuery($command->getYear(),
             $command->getQuartile()));
 
-        if(!$missions->hasMission()){
+        if (!$missions->hasMission()) {
             throw new NoMissionException();
         }
 
@@ -117,7 +117,7 @@ class CreateExpenseNoteCommandHandler
                 $isFlightInError = $this->addFlight($currentFlightForQuarter, $expenseNote) || $isFlightInError;
             }
 
-            if(!$isFlightInError){
+            if (!$isFlightInError) {
                 $expenseNote->fetch($expenseNoteId);
                 $expenseNote->setValidate($this->user);
                 $expenseNote->setApproved($this->user);
@@ -126,7 +126,7 @@ class CreateExpenseNoteCommandHandler
                 $expenseNote->setDocModel($this->user, "standard");
                 $error = $expenseNote->generateDocument($expenseNote->modelpdf, $this->langs) <= 0;
 
-                if(!$error){
+                if (!$error) {
                     dol_htmloutput_mesg(sprintf("Notes de frais crée pour %s", $currentMission->getPilotName()));
                     continue;
                 }
@@ -200,7 +200,7 @@ class CreateExpenseNoteCommandHandler
 
         $isError = $object_ligne->insert() <= 0;
 
-        if(!$isError){
+        if (!$isError) {
             $expenseReport->add_object_linked(self::FLIGHT_ELEMENT, $currentFlightForQuarter->getId());
         }
 

@@ -39,9 +39,9 @@ class FlightForQuarterAndPilotQuery
         Assert::integerish($quarter);
         Assert::integerish($year);
 
-        $this->pilotId = (int)$pilotId;
-        $this->quarter = (int)$quarter;
-        $this->year = (int)$year;
+        $this->pilotId = (int) $pilotId;
+        $this->quarter = (int) $quarter;
+        $this->year = (int) $year;
     }
 
     /**

@@ -52,7 +52,8 @@ class GetPilotsWithMissionsQueryHandler
                         $pilotLastname = $obj->lastname;
                         $pilotFirstname = $obj->firstname;
 
-                        $result->addMission($obj->quartil, $pilotId, $pilotFirstname, $pilotLastname, $obj->number_flights, $obj->total_kilometers);
+                        $result->addMission($obj->quartil, $pilotId, $pilotFirstname, $pilotLastname,
+                            $obj->number_flights, $obj->total_kilometers);
 
                     }
                     $i++;
