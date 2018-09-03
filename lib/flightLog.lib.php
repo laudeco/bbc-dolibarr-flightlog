@@ -152,40 +152,6 @@ function generateQuarterQuery($year = null, $pilotId = null, $quarter = null, $g
 }
 
 /**
- * @deprecated
- *
- * @param int $pilotId
- * @param int $year
- * @param int $quarter
- *
- * @return array
- */
-function findFlightByPilotAndQuarter($pilotId, $year, $quarter)
-{
-    global $db;
-
-    $sql = generateQuarterQuery($year, $pilotId, $quarter, false);
-    $flights = [];
-    $resql = $db->query($sql);
-    if ($resql) {
-        $num = $db->num_rows($resql);
-        $i = 0;
-        if ($num) {
-            while ($i < $num) {
-                $flight = $db->fetch_object($resql);
-                if ($flight) {
-                    $flights[] = $flight;
-                }
-                $i++;
-            }
-        }
-    }
-
-
-    return $flights;
-}
-
-/**
  * @param int $year
  *
  * @return array
