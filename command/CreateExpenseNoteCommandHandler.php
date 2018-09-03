@@ -9,6 +9,7 @@ use DoliDB;
 use Exception;
 use ExpenseReport;
 use ExpenseReportLine;
+use flightlog\exceptions\NoMissionException;
 use flightlog\model\missions\FlightMission;
 use flightlog\query\FlightForQuarterAndPilotQuery;
 use flightlog\query\FlightForQuarterAndPilotQueryHandler;
@@ -93,6 +94,11 @@ class CreateExpenseNoteCommandHandler
     {
         $missions = $this->getMissionsQueryHandler->__invoke(new GetPilotsWithMissionsQuery($command->getYear(),
             $command->getQuartile()));
+
+        if(!$missions->hasMission()){
+            throw new NoMissionException();
+        }
+
         /** @var PilotMissions $currentMission */
         foreach ($missions as $currentMission) {
             $expenseNote = $this->createExpenseNote($command);
@@ -211,8 +217,8 @@ class CreateExpenseNoteCommandHandler
     {
         $error = false;
 
-        $error &= $this->addKilometersLine($currentFlightForQuarter, $expenseNote->id);
-        $error &= $this->addMissionLine($currentFlightForQuarter, $expenseNote);
+        $error = $this->addKilometersLine($currentFlightForQuarter, $expenseNote->id) && $error;
+        $error = $this->addMissionLine($currentFlightForQuarter, $expenseNote) && $error;
 
         return $error;
     }

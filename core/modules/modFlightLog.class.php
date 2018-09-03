@@ -372,6 +372,21 @@ class modFlightLog extends DolibarrModules
             'target' => '',
             'user' => 2
         );
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu' => 'fk_mainmenu=flightlog,fk_leftmenu=management',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Notes de frais',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'expensenotes',
+            'url' => '/flightlog/generateExpenseNote.php',
+            'langs' => 'mylangfile',
+            'position' => 109,
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->financial',
+            'target' => '',
+            'user' => 2
+        );
     }
 
     /**

@@ -60,4 +60,12 @@ class QuarterPilotMissionCollection implements IteratorAggregate
     {
         return new ArrayIterator($this->items);
     }
+
+    /**
+     * @return boolean
+     */
+    public function hasMission()
+    {
+        return !empty($this->items);
+    }
 }
