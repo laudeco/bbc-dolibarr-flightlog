@@ -27,6 +27,7 @@ use Webmozart\Assert\Assert;
  */
 class CreateExpenseNoteCommandHandler
 {
+    const FLIGHT_ELEMENT = 'flightlog_bbcvols';
 
     /**
      * @var stdClass
@@ -107,7 +108,7 @@ class CreateExpenseNoteCommandHandler
             $isFlightInError = false;
             /** @var FlightMission $currentFlightForQuarter */
             foreach ($flightsForQuarter as $currentFlightForQuarter) {
-                $isFlightInError = $this->addFlight($currentFlightForQuarter, $expenseNoteId) || $isFlightInError;
+                $isFlightInError = $this->addFlight($currentFlightForQuarter, $expenseNote) || $isFlightInError;
             }
 
             if(!$isFlightInError){
@@ -164,11 +165,11 @@ class CreateExpenseNoteCommandHandler
 
     /**
      * @param FlightMission $currentFlightForQuarter
-     * @param int           $expenseNoteId
+     * @param ExpenseReport $expenseReport
      *
      * @return bool
      */
-    private function addMissionLine(FlightMission $currentFlightForQuarter, $expenseNoteId)
+    private function addMissionLine(FlightMission $currentFlightForQuarter, ExpenseReport $expenseReport)
     {
         $object_ligne = new ExpenseReportLine($this->db);
         $object_ligne->comments = sprintf("Vol (id: %d) %s à %s", $currentFlightForQuarter->getId(),
@@ -179,7 +180,7 @@ class CreateExpenseNoteCommandHandler
         $object_ligne->date = $currentFlightForQuarter->getDate()->format('Y-m-d');
 
         $object_ligne->fk_c_type_fees = 8;
-        $object_ligne->fk_expensereport = $expenseNoteId;
+        $object_ligne->fk_expensereport = $expenseReport->id;
         $object_ligne->fk_projet = '';
 
         $object_ligne->vatrate = price2num($this->getVatRate());
@@ -191,21 +192,27 @@ class CreateExpenseNoteCommandHandler
         $object_ligne->total_ht = $tmp[0];
         $object_ligne->total_tva = $tmp[1];
 
-        return $object_ligne->insert() > 0;
+        $isError = $object_ligne->insert() <= 0;
+
+        if(!$isError){
+            $expenseReport->add_object_linked(self::FLIGHT_ELEMENT, $currentFlightForQuarter->getId());
+        }
+
+        return !$isError;
     }
 
     /**
      * @param FlightMission $currentFlightForQuarter
-     * @param               $expenseNoteId
+     * @param ExpenseReport $expenseNote
      *
      * @return boolean
      */
-    private function addFlight(FlightMission $currentFlightForQuarter, $expenseNoteId)
+    private function addFlight(FlightMission $currentFlightForQuarter, ExpenseReport $expenseNote)
     {
         $error = false;
 
-        $error &= $this->addKilometersLine($currentFlightForQuarter, $expenseNoteId);
-        $error &= $this->addMissionLine($currentFlightForQuarter, $expenseNoteId);
+        $error &= $this->addKilometersLine($currentFlightForQuarter, $expenseNote->id);
+        $error &= $this->addMissionLine($currentFlightForQuarter, $expenseNote);
 
         return $error;
     }

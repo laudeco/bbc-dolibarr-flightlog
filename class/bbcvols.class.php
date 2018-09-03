@@ -41,10 +41,12 @@ require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
  */
 class Bbcvols extends CommonObject
 {
+
     /**
      * @var string Id to identify managed objects
      */
     public $element = 'flightlog_bbcvols';
+
     /**
      * @var string Name of table without prefix where object is stored
      */
