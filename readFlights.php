@@ -15,18 +15,10 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 global $db, $langs, $user, $conf;
 
 dol_include_once('/core/class/dolgraph.class.php');
-dol_include_once('/flightlog/class/bbcvols.class.php');
-dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once('/flightlog/class/GraphicalData.php');
-dol_include_once('/flightlog/class/GraphicalType.php');
-dol_include_once('/flightlog/class/GraphicalValue.php');
-dol_include_once('/flightlog/class/GraphicalValueType.php');
-dol_include_once('/flightlog/class/YearGraphicalData.php');
-dol_include_once('/flightlog/query/BillableFlightQuery.php');
-dol_include_once('/flightlog/query/BillableFlightQueryHandler.php');
+dol_include_once("/flightlog/flightlog.inc.php");
 
-dol_include_once("/flightlog/lib/flightLog.lib.php");
-
+use flightlog\query\GetPilotsWithMissionsQuery;
+use flightlog\query\GetPilotsWithMissionsQueryHandler;
 
 $langs->load("mymodule@flightlog");
 
@@ -300,10 +292,14 @@ print '<h3>' . $langs->trans("Remboursement aux pilotes") . '</h3>';
 //table km
 $tauxRemb = isset($conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
 $year = GETPOST("year", 'int');
+if(empty($year)){
+    $year = date('Y');
+}
 
-$kmByQuartil = bbcKilometersByQuartil($year);
+$queryHandler = new GetPilotsWithMissionsQueryHandler($db);
+$query = new GetPilotsWithMissionsQuery($year);
 
-printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission);
+printBbcKilometersByQuartil($queryHandler->__invoke($query), $tauxRemb, $unitPriceMission);
 
 print '</div>';
 

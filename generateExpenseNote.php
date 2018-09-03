@@ -2,6 +2,13 @@
 /**
  * When a user generates the expense report for all pilots
  */
+
+use flightlog\command\CreateExpenseNoteCommand;
+use flightlog\command\CreateExpenseNoteCommandHandler;
+use flightlog\exceptions\PeriodNotFinishedException;
+use flightlog\query\GetPilotsWithMissionsQuery;
+use flightlog\query\GetPilotsWithMissionsQueryHandler;
+
 define("EXPENSE_REPORT_GENERATOR_ACTION_GENERATE", "generate");
 
 /**
@@ -23,6 +30,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 dol_include_once('/expensereport/class/expensereport.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
+dol_include_once("/flightlog/flightLog.inc.php");
 
 global $db, $langs, $user, $conf;
 
@@ -37,7 +45,10 @@ $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
 $year = GETPOST('year', 'int', 3);
 $quarter = GETPOST('quarter', 'int');
-
+$userValidatorId = GETPOST('fk_user_validator', 'int');
+$userValidatorId = GETPOST('fk_user_validator', 'int');
+$privateNote = GETPOST('private_note');
+$publicNote = GETPOST('public_note');
 
 $currentYear = date('Y');
 $currentQuarter = floor((date('n') - 1) / 3) + 1;
@@ -49,6 +60,8 @@ $flightYears = getFlightYears();
 
 $object = new ExpenseReport($db);
 $vatrate = "0.000";
+
+$commandHandler = new CreateExpenseNoteCommandHandler($db, $conf, $user, $langs, new \flightlog\query\GetPilotsWithMissionsQueryHandler($db), new \flightlog\query\FlightForQuarterAndPilotQueryHandler($db));
 
 // Access control
 if (!$conf->expensereport->enabled || !$user->rights->flightlog->vol->status || !$user->rights->flightlog->vol->financialGenerateDocuments) {
@@ -71,14 +84,14 @@ print load_fiche_titre("Générer note de frais");
 
 if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
-    //TODO call the command instead.
-
-    try{
-        $command = new CreateExpenseNoteCommand($year, $quarter);
-
-
-    }catch(PeriodNotFinished $e){
+    try {
+        $command = new CreateExpenseNoteCommand($year, $quarter, $userValidatorId, $privateNote, $publicNote);
+        $commandHandler->__invoke($command);
+    } catch(PeriodNotFinishedException $e){
         dol_htmloutput_errors("Le quadri n'est pas encore fini !");
+    } catch(\Exception $e){
+        dol_syslog($e->getMessage(), LOG_ERR);
+        dol_htmloutput_errors('Error : ' . $e->getMessage());
     }
 }
 
@@ -108,7 +121,12 @@ dol_fiche_head($tabLinks, "tab_".$year);
         <!-- action -->
         <input type="hidden" name="action" value="<?= EXPENSE_REPORT_GENERATOR_ACTION_GENERATE ?>">
 
-        <?php printBbcKilometersByQuartil(bbcKilometersByQuartil($year), $tauxRemb, $unitPriceMission); ?>
+        <?php
+            $queryHandler = new GetPilotsWithMissionsQueryHandler($db);
+            $query = new GetPilotsWithMissionsQuery($year);
+
+            printBbcKilometersByQuartil($queryHandler->__invoke($query), $tauxRemb, $unitPriceMission);
+        ?>
 
         <!-- Quarter -->
         <label for="field_quarter">Q : </label>
