@@ -1,3 +1,11 @@
+ALTER TABLE `llx_bbc_vols`
+  CHANGE `fk_organisateur` `fk_organisateur` INT(11) NULL DEFAULT NULL,
+  CHANGE `fk_receiver` `fk_receiver` INT(11) NULL DEFAULT NULL,
+  CHANGE `order_id` `order_id` INT(11) NULL DEFAULT NULL,
+  CHANGE `fk_pilot` `fk_pilot` INT(11) NULL DEFAULT NULL,
+  CHANGE `fk_type` `fk_type` INT(11) NULL DEFAULT NULL,
+  CHANGE `BBC_ballons_idBBC_ballons` `BBC_ballons_idBBC_ballons` INT(11) NULL DEFAULT NULL;
+
 -- normalized data
 UPDATE
 	llx_bbc_vols

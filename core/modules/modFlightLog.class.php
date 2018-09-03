@@ -150,7 +150,7 @@ class modFlightLog extends DolibarrModules
 
         // Dependencies
         $this->hidden = false;
-        $this->depends = array('modFlightBalloon');
+        $this->depends = [];
         $this->requiredby = array();
         $this->conflictwith = array();
         $this->phpmin = array(5, 5);
@@ -367,6 +367,21 @@ class modFlightLog extends DolibarrModules
             'url' => '/flightlog/generateMonthlyBilling.php',
             'langs' => 'mylangfile',
             'position' => 108,
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->financial',
+            'target' => '',
+            'user' => 2
+        );
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu' => 'fk_mainmenu=flightlog,fk_leftmenu=management',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Notes de frais',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'expensenotes',
+            'url' => '/flightlog/generateExpenseNote.php',
+            'langs' => 'mylangfile',
+            'position' => 109,
             'enabled' => '1',
             'perms' => '$user->rights->flightlog->vol->financial',
             'target' => '',

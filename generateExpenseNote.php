@@ -2,6 +2,13 @@
 /**
  * When a user generates the expense report for all pilots
  */
+
+use flightlog\command\CreateExpenseNoteCommand;
+use flightlog\command\CreateExpenseNoteCommandHandler;
+use flightlog\exceptions\PeriodNotFinishedException;
+use flightlog\query\GetPilotsWithMissionsQuery;
+use flightlog\query\GetPilotsWithMissionsQueryHandler;
+
 define("EXPENSE_REPORT_GENERATOR_ACTION_GENERATE", "generate");
 
 /**
@@ -23,6 +30,7 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 dol_include_once('/expensereport/class/expensereport.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
+dol_include_once("/flightlog/flightLog.inc.php");
 
 global $db, $langs, $user, $conf;
 
@@ -37,13 +45,10 @@ $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
 $year = GETPOST('year', 'int', 3);
 $quarter = GETPOST('quarter', 'int');
-
-$startDate = new \DateTime();
-$startDate->setDate($year, (($quarter - 1) * 3) + 1, 1);
-
-$endDate = new \DateTime();
-$endDate->setDate($year, $quarter * 3, 1);
-$endDate->add(new \DateInterval("P1M"))->sub(new \DateInterval("P1D"));
+$userValidatorId = GETPOST('fk_user_validator', 'int');
+$userValidatorId = GETPOST('fk_user_validator', 'int');
+$privateNote = GETPOST('private_note');
+$publicNote = GETPOST('public_note');
 
 $currentYear = date('Y');
 $currentQuarter = floor((date('n') - 1) / 3) + 1;
@@ -55,6 +60,8 @@ $flightYears = getFlightYears();
 
 $object = new ExpenseReport($db);
 $vatrate = "0.000";
+
+$commandHandler = new CreateExpenseNoteCommandHandler($db, $conf, $user, $langs, new \flightlog\query\GetPilotsWithMissionsQueryHandler($db), new \flightlog\query\FlightForQuarterAndPilotQueryHandler($db));
 
 // Access control
 if (!$conf->expensereport->enabled || !$user->rights->flightlog->vol->status || !$user->rights->flightlog->vol->financialGenerateDocuments) {
@@ -77,103 +84,14 @@ print load_fiche_titre("Générer note de frais");
 
 if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
 
-    if (!empty($quarter) && ($year < $currentYear || ($year == $currentYear && $quarter < $currentQuarter))) {
-
-        $missions = bbcKilometersByQuartil($year);
-
-        foreach($missions as $currentMissionUserId => $currentMission){
-
-            if($currentMission["quartil"][$quarter]["km"] == 0 && $currentMission["quartil"][$quarter]["flight"] == 0){
-                continue;
-            }
-
-            $expenseNoteUser = new User($db);
-            $expenseNoteUser->id = $currentMissionUserId;
-
-            $object = new ExpenseReport($db);
-            $object->date_debut = $startDate->format("Y-m-d");
-            $object->date_fin = $endDate->format("Y-m-d");
-
-            $object->fk_statut = 1;
-            $object->fk_user_validator = GETPOST("fk_user_validator", 'int');
-            $object->note_public = GETPOST('public_note', 'alpha');
-            $object->note_private = GETPOST('private_note','alpha');
-
-            $expenseNoteId = $object->create($expenseNoteUser);
-            if($expenseNoteId < 0){
-                dol_htmloutput_errors("Erreur lors de la création de la note de frais" , $object->errors);
-                continue;
-            }
-
-
-            $flightsForQuarter = findFlightByPilotAndQuarter($currentMissionUserId, $year, $quarter);
-
-            foreach($flightsForQuarter as $currentFlightForQuarter) {
-
-                // Kilometers
-                $object_ligne = new ExpenseReportLine($db);
-                $object_ligne->comments = $langs->trans(sprintf("Vol (id: %d) %s à %s  détail: %s", $currentFlightForQuarter->idBBC_vols, $currentFlightForQuarter->lieuD, $currentFlightForQuarter->lieuA, $currentFlightForQuarter->justif_kilometers));
-                $object_ligne->qty = $currentFlightForQuarter->kilometers;
-                $object_ligne->value_unit = $tauxRemb;
-
-                $object_ligne->date = $currentFlightForQuarter->date;
-
-                $object_ligne->fk_c_type_fees = 2;
-                $object_ligne->fk_expensereport = $expenseNoteId;
-                $object_ligne->fk_projet = '';
-
-                $object_ligne->vatrate = price2num($vatrate);
-
-                $tmp = calcul_price_total($object_ligne->qty, $object_ligne->value_unit, 0, $vatrate, 0, 0, 0, 'TTC', 0,
-                    0, '');
-                $object_ligne->total_ttc = $tmp[2];
-                $object_ligne->total_ht = $tmp[0];
-                $object_ligne->total_tva = $tmp[1];
-
-                $resultLine = $object_ligne->insert();
-
-                // Missions
-                $object_ligne = new ExpenseReportLine($db);
-                $object_ligne->comments = sprintf("Vol (id: %d) %s à %s", $currentFlightForQuarter->idBBC_vols, $currentFlightForQuarter->lieuD, $currentFlightForQuarter->lieuA);
-                $object_ligne->qty = 1;
-                $object_ligne->value_unit = $unitPriceMission;
-
-                $object_ligne->date = $currentFlightForQuarter->date;
-
-                $object_ligne->fk_c_type_fees = 8;
-                $object_ligne->fk_expensereport = $expenseNoteId;
-                $object_ligne->fk_projet = '';
-
-                $object_ligne->vatrate = price2num($vatrate);
-
-                $tmp = calcul_price_total($object_ligne->qty, $object_ligne->value_unit, 0, $vatrate, 0, 0, 0, 'TTC', 0,
-                    0, '');
-                $object_ligne->total_ttc = $tmp[2];
-                $object_ligne->total_ht = $tmp[0];
-                $object_ligne->total_tva = $tmp[1];
-
-                $resultLine = $object_ligne->insert();
-            }
-
-            $object->fetch($expenseNoteId);
-            $object->setValidate($user);
-            $object->setApproved($user);
-
-            $object->fetch($expenseNoteId);
-            $object->setDocModel($user, "standard");
-            $result = $object->generateDocument($object->modelpdf, $langs);
-
-        }
-
-
-        if ($result > 0) {
-            dol_htmloutput_mesg("Notes de frais créées");
-        }else{
-            dol_htmloutput_errors("Note de frais non créée");
-        }
-    } else {
-        //Quarter not yet finished
-        dol_htmloutput_errors("Le quartil n'est pas encore fini !");
+    try {
+        $command = new CreateExpenseNoteCommand($year, $quarter, $userValidatorId, $privateNote, $publicNote);
+        $commandHandler->__invoke($command);
+    } catch(PeriodNotFinishedException $e){
+        dol_htmloutput_errors("Le quadri n'est pas encore fini !");
+    } catch(\Exception $e){
+        dol_syslog($e->getMessage(), LOG_ERR);
+        dol_htmloutput_errors('Error : ' . $e->getMessage());
     }
 }
 
@@ -203,7 +121,12 @@ dol_fiche_head($tabLinks, "tab_".$year);
         <!-- action -->
         <input type="hidden" name="action" value="<?= EXPENSE_REPORT_GENERATOR_ACTION_GENERATE ?>">
 
-        <?php printBbcKilometersByQuartil(bbcKilometersByQuartil($year), $tauxRemb, $unitPriceMission); ?>
+        <?php
+            $queryHandler = new GetPilotsWithMissionsQueryHandler($db);
+            $query = new GetPilotsWithMissionsQuery($year);
+
+            printBbcKilometersByQuartil($queryHandler->__invoke($query), $tauxRemb, $unitPriceMission);
+        ?>
 
         <!-- Quarter -->
         <label for="field_quarter">Q : </label>
