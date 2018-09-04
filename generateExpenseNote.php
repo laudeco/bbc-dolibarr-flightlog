@@ -3,12 +3,6 @@
  * When a user generates the expense report for all pilots
  */
 
-use flightlog\command\CreateExpenseNoteCommand;
-use flightlog\command\CreateExpenseNoteCommandHandler;
-use flightlog\exceptions\PeriodNotFinishedException;
-use flightlog\query\GetPilotsWithMissionsQuery;
-use flightlog\query\GetPilotsWithMissionsQueryHandler;
-
 define("EXPENSE_REPORT_GENERATOR_ACTION_GENERATE", "generate");
 
 /**
@@ -28,11 +22,16 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
     require '../../documents/custom/main.inc.php'; // From "custom" directory
 }
 
-dol_include_once('/expensereport/class/expensereport.class.php');
-dol_include_once("/flightlog/lib/flightLog.lib.php");
-dol_include_once("/flightlog/flightLog.inc.php");
-
 global $db, $langs, $user, $conf;
+
+dol_include_once('/expensereport/class/expensereport.class.php');
+dol_include_once("/flightlog/flightlog.inc.php");
+
+use flightlog\command\CreateExpenseNoteCommand;
+use flightlog\command\CreateExpenseNoteCommandHandler;
+use flightlog\exceptions\PeriodNotFinishedException;
+use flightlog\query\GetPilotsWithMissionsQuery;
+use flightlog\query\GetPilotsWithMissionsQueryHandler;
 
 // Load translation files required by the page
 $langs->load("mymodule@mymodule");
@@ -57,7 +56,6 @@ $tauxRemb = isset($conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $conf->global->B
 $unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
 
 $flightYears = getFlightYears();
-
 $object = new ExpenseReport($db);
 $vatrate = "0.000";
 

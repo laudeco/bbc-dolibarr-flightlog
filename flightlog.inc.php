@@ -28,4 +28,3 @@
 
     dol_include_once('/flightlog/command/CreateExpenseNoteCommandHandler.php');
     dol_include_once('/flightlog/command/CreateExpenseNoteCommand.php');
-?>
