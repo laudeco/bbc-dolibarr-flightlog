@@ -5,6 +5,9 @@
 
 namespace flightlog\form;
 
+use ValidatorInterface;
+use Webmozart\Assert\Assert;
+
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
@@ -83,10 +86,7 @@ abstract class Form implements FormInterface
      */
     public function add(FormElementInterface $element)
     {
-        if(key_exists($element->getName(), $this->elements)){
-            return;
-        }
-
+        Assert::keyNotExists($this->elements, $element->getName(), 'Element already exists');
         $this->elements[$element->getName()] = $element;
     }
 
@@ -107,6 +107,18 @@ abstract class Form implements FormInterface
     }
 
     /**
+     * @param null|\ValidatorInterface $validator
+     *
+     * @return Form
+     */
+    protected function setValidator(ValidatorInterface $validator)
+    {
+        $this->validator = $validator;
+        return $this;
+    }
+
+
+    /**
      * @inheritDoc
      */
     public function bind($object)
@@ -115,7 +127,7 @@ abstract class Form implements FormInterface
             $name = $element->getName();
 
             if(!property_exists($object, $name)){
-                throw new \InvalidArgumentException(sprintf('Property %s not found in the object ', $name));
+                continue;
             }
 
             $element->setValue($object->{$name});

@@ -290,46 +290,11 @@ jQuery(document).ready(function() {
 
 
 // Part to edit record
-if (($id || $ref) && $action == 'edit') {
-    print load_fiche_titre($langs->trans("MyModule"));
+if (($id || $ref) && $action == 'edit'): ?>
+    <?php print load_fiche_titre($langs->trans("MyModule")); ?>
 
-    print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-    print '<input type="hidden" name="action" value="update">';
-    print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
-    print '<input type="hidden" name="idBBC_vols" value="' . $object->id . '">';
-
-    dol_fiche_head();
-
-    print '<table class="border centpercent">' . "\n";
-
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldlieuD") . "</td><td><input class=\"flat\" type=\"text\" name=\"lieuD\" value=\"" . $object->lieuD . "\"></td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldlieuA") . "</td><td><input class=\"flat\" type=\"text\" name=\"lieuA\" value=\"" . $object->lieuA . "\"></td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldheureD") . "</td><td><input class=\"flat\" min=\"0\" max=\"23\" type=\"number\" name=\"heureD_h\" value=\"" . explode(":",
-            $object->heureD)[0] . "\">h<input class=\"flat\" type=\"number\" min=\"0\" max=\"59\" name=\"heureD_m\" value=\"" . explode(":",
-            $object->heureD)[1] . "\"></td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldheureA") . "</td><td><input class=\"flat\" type=\"number\" min=\"0\" max=\"23\" name=\"heureA_h\" value=\"" . explode(":",
-            $object->heureA)[0] . "\">h<input class=\"flat\" type=\"number\" min=\"0\" max=\"59\" name=\"heureA_m\" value=\"" . explode(":",
-            $object->heureA)[1] . "\"></td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("FieldBBC_ballons_idBBC_ballons") . "</td><td>";
-    select_balloons($object->BBC_ballons_idBBC_ballons, "BBC_ballons_idBBC_ballons");
-    print "</td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldremarque") . "</td><td><textarea class=\"flat\" name=\"remarque\">" . $object->remarque . "</textarea></td></tr>";
-    print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldincidents") . "</td><td><textarea class=\"flat\" name=\"incidents\">" . $object->incidents . "</textarea></td></tr>";
-
-    if ($user->rights->flightlog->vol->financial || $user->id == $object->fk_pilot) {
-        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldkilometers") . "</td><td><input class=\"flat\" type=\"number\" name=\"kilometers\" value=\"" . $object->kilometers . "\"></td></tr>";
-        print "<tr><td class=\"fieldrequired\">" . $langs->trans("Fieldjustif_kilometers") . "</td><td><textarea class=\"flat\" name=\"justif_kilometers\">" . $object->justif_kilometers . "</textarea></td></tr>";
-    }
-    print '</table>';
-
-    dol_fiche_end();
-
-    print '<div class="center"><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
-    print ' &nbsp; <input type="submit" class="button" name="cancel" value="' . $langs->trans("Cancel") . '">';
-    print '</div>';
-
-    print '</form>';
-}
+    
+<?php endif;
 
 
 // Part to show record

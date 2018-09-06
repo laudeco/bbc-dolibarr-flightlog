@@ -11,6 +11,16 @@ namespace flightlog\form;
 interface FormElementInterface
 {
 
+    const TYPE_TEXT = 'text';
+
+    const TYPE_TEXTAREA = 'textarea';
+
+    const TYPE_HIDDEN = 'hidden';
+
+    const TYPE_SELECT = 'select';
+
+    const TYPE_NUMBER = 'number';
+
     /**
      * @return string
      */

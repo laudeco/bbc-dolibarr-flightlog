@@ -21,10 +21,13 @@ abstract class BaseInput implements FormElementInterface
     private $options;
 
     /**
-     * @var mixed
+     * @var string|int
      */
     private $value;
 
+    /**
+     * @var string
+     */
     private $type;
 
     /**
@@ -81,6 +84,30 @@ abstract class BaseInput implements FormElementInterface
     public function setValue($value)
     {
         $this->value = $value;
+    }
+
+    /**
+     * @param string     $name
+     * @param int|string $value
+     *
+     * @return $this
+     */
+    public function setAttribute($name, $value)
+    {
+        $this->options['attr'][$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param boolean $isRequired
+     *
+     * @return $this
+     */
+    public function setRequired($isRequired){
+        $this->options['attr']['required'] = $isRequired ? 'required' : '';
+
+        return $this;
     }
 
 }
