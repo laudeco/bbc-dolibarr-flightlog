@@ -13,9 +13,11 @@ namespace flightlog\form;
 class FlightForm extends Form
 {
     /**
-     * @inheritDoc
+     * @param \ValidatorInterface $validator
+     * @param \Bbcvols            $baseObject
+     * @param \DoliDB             $db
      */
-    public function __construct(\ValidatorInterface $validator, $baseObject)
+    public function __construct(\ValidatorInterface $validator, $baseObject, \DoliDB $db)
     {
         parent::__construct('flight_form', FormInterface::METHOD_POST, []);
 

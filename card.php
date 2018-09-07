@@ -314,11 +314,11 @@ if (($id || $ref) && $action == 'edit'): ?>
         <!-- Date et heures -->
         <section class="form-section">
             <h1 class="form-section-title"><?php echo $langs->trans('Date & heures'); ?></h1>
-            <table class="border" width="100%">
+            <table class="border" width="50%">
 
                 <tr>
-                    <td class="fieldrequired"> Type du vol</td>
-                    <td colspan="3"><?php echo $renderer->render($formFlight->getElement('fk_type')); ?></td>
+                    <td class="fieldrequired" width="25%"> Type du vol</td>
+                    <td ><?php echo $renderer->render($formFlight->getElement('fk_type')); ?></td>
                 </tr>
             </table>
         </section>
