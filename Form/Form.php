@@ -56,6 +56,7 @@ abstract class Form implements FormInterface
         $this->name = $name;
         $this->method = $method;
         $this->options = $options;
+        $this->elements = [];
     }
 
     /**
@@ -88,6 +89,8 @@ abstract class Form implements FormInterface
     {
         Assert::keyNotExists($this->elements, $element->getName(), 'Element already exists');
         $this->elements[$element->getName()] = $element;
+
+        return $this;
     }
 
     /**
@@ -103,7 +106,7 @@ abstract class Form implements FormInterface
             throw new \InvalidArgumentException('Object not bind');
         }
 
-        return $this->validator->isValid($this->object);
+        return $this->validator->isValid($this->object, $_REQUEST);
     }
 
     /**
@@ -124,13 +127,13 @@ abstract class Form implements FormInterface
     public function bind($object)
     {
         foreach($this->elements as $element){
-            $name = $element->getName();
-
-            if(!property_exists($object, $name)){
+            $name = $this->camelCase($element->getName());
+            $methodName = 'get'.$name;
+            if(!method_exists($object, $methodName)){
                 continue;
             }
 
-            $element->setValue($object->{$name});
+            $element->setValue($object->{$methodName}());
         }
 
         $this->object = $object;
@@ -150,7 +153,8 @@ abstract class Form implements FormInterface
 
             $this->elements[$fieldName]->setValue($currentData);
 
-            if(null === $this->object || !property_exists($this->object, $fieldName)){
+            $methodName = 'set'.$this->camelCase($fieldName);
+            if(null === $this->object || !method_exists($this->object, $methodName)){
                 continue;
             }
 
@@ -178,6 +182,17 @@ abstract class Form implements FormInterface
         }
 
         return $this->elements[$elementName];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     */
+    private function camelCase($name)
+    {
+        $str = str_replace('_', '', ucwords($name, '-'));
+        return  lcfirst($str);
     }
 
 }

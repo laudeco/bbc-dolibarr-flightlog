@@ -100,13 +100,19 @@ abstract class BaseInput implements FormElementInterface
     }
 
     /**
-     * @param boolean $isRequired
-     *
      * @return $this
      */
-    public function setRequired($isRequired){
-        $this->options['attr']['required'] = $isRequired ? 'required' : '';
+    public function required(){
+        $this->options['attr']['required'] = 'required';
 
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function disable(){
+        $this->options['attr']['disabled'] = 'disabled';
         return $this;
     }
 

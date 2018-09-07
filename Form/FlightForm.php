@@ -30,15 +30,13 @@ class FlightForm extends Form
             ->add(new Number('nbrPax'))
             ->add(new InputTextarea('remarque'))
             ->add(new InputTextarea('incidents'))
+            ->add(new InputTextarea('passengerNames'))
             ->add(new Select('fk_type'))
             ->add(new Select('fk_pilot'))
             ->add(new Select('fk_organisateur'))
             ->add(new Number('kilometers'))
             ->add(new Number('cost'))
             ->add(new Select('fk_receiver'))
-            ->add(new Number('cost'))
             ->add(new InputTextarea('justif_kilometers'));
     }
-
-
 }

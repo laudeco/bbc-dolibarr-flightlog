@@ -23,6 +23,7 @@ class Select extends BaseInput
     public function __construct($name, $options = [])
     {
         parent::__construct($name, FormElementInterface::TYPE_SELECT, $options);
+        $this->valueOptions = [];
     }
 
     /**
@@ -43,5 +44,15 @@ class Select extends BaseInput
         $this->valueOptions = $valueOptions;
         return $this;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function setValue($value)
+    {
+        parent::setValue($value);
+        $this->valueOptions[$value] = $value;
+    }
+
 
 }

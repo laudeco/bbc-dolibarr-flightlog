@@ -1013,4 +1013,309 @@ class Bbcvols extends CommonObject
         return !empty($this->is_facture);
     }
 
+    /**
+     * @return string
+     */
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    /**
+     * @param string $date
+     *
+     * @return Bbcvols
+     */
+    public function setDate($date)
+    {
+        $this->date = $date;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLieuD()
+    {
+        return $this->lieuD;
+    }
+
+    /**
+     * @param mixed $lieuD
+     *
+     * @return Bbcvols
+     */
+    public function setLieuD($lieuD)
+    {
+        $this->lieuD = $lieuD;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLieuA()
+    {
+        return $this->lieuA;
+    }
+
+    /**
+     * @param mixed $lieuA
+     *
+     * @return Bbcvols
+     */
+    public function setLieuA($lieuA)
+    {
+        $this->lieuA = $lieuA;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHeureD()
+    {
+        return $this->heureD;
+    }
+
+    /**
+     * @param mixed $heureD
+     *
+     * @return Bbcvols
+     */
+    public function setHeureD($heureD)
+    {
+        $this->heureD = $heureD;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHeureA()
+    {
+        return $this->heureA;
+    }
+
+    /**
+     * @param mixed $heureA
+     *
+     * @return Bbcvols
+     */
+    public function setHeureA($heureA)
+    {
+        $this->heureA = $heureA;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBBCBallonsIdBBCBallons()
+    {
+        return $this->BBC_ballons_idBBC_ballons;
+    }
+
+    /**
+     * @param mixed $BBC_ballons_idBBC_ballons
+     *
+     * @return Bbcvols
+     */
+    public function setBBCBallonsIdBBCBallons($BBC_ballons_idBBC_ballons)
+    {
+        $this->BBC_ballons_idBBC_ballons = $BBC_ballons_idBBC_ballons;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNbrPax()
+    {
+        return $this->nbrPax;
+    }
+
+    /**
+     * @param mixed $nbrPax
+     *
+     * @return Bbcvols
+     */
+    public function setNbrPax($nbrPax)
+    {
+        $this->nbrPax = $nbrPax;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRemarque()
+    {
+        return $this->remarque;
+    }
+
+    /**
+     * @param mixed $remarque
+     *
+     * @return Bbcvols
+     */
+    public function setRemarque($remarque)
+    {
+        $this->remarque = $remarque;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIncidents()
+    {
+        return $this->incidents;
+    }
+
+    /**
+     * @param mixed $incidents
+     *
+     * @return Bbcvols
+     */
+    public function setIncidents($incidents)
+    {
+        $this->incidents = $incidents;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFkType()
+    {
+        return $this->fk_type;
+    }
+
+    /**
+     * @param mixed $fk_type
+     *
+     * @return Bbcvols
+     */
+    public function setFkType($fk_type)
+    {
+        $this->fk_type = $fk_type;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFkPilot()
+    {
+        return $this->fk_pilot;
+    }
+
+    /**
+     * @param mixed $fk_pilot
+     *
+     * @return Bbcvols
+     */
+    public function setFkPilot($fk_pilot)
+    {
+        $this->fk_pilot = $fk_pilot;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFkOrganisateur()
+    {
+        return $this->fk_organisateur;
+    }
+
+    /**
+     * @param mixed $fk_organisateur
+     *
+     * @return Bbcvols
+     */
+    public function setFkOrganisateur($fk_organisateur)
+    {
+        $this->fk_organisateur = $fk_organisateur;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getisFacture()
+    {
+        return $this->is_facture;
+    }
+
+    /**
+     * @param mixed $is_facture
+     *
+     * @return Bbcvols
+     */
+    public function setIsFacture($is_facture)
+    {
+        $this->is_facture = $is_facture;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCost()
+    {
+        return $this->cost;
+    }
+
+    /**
+     * @param int $cost
+     *
+     * @return Bbcvols
+     */
+    public function setCost($cost)
+    {
+        $this->cost = $cost;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFkReceiver()
+    {
+        return $this->fk_receiver;
+    }
+
+    /**
+     * @param mixed $fk_receiver
+     *
+     * @return Bbcvols
+     */
+    public function setFkReceiver($fk_receiver)
+    {
+        $this->fk_receiver = $fk_receiver;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getJustifKilometers()
+    {
+        return $this->justif_kilometers;
+    }
+
+    /**
+     * @param mixed $justif_kilometers
+     *
+     * @return Bbcvols
+     */
+    public function setJustifKilometers($justif_kilometers)
+    {
+        $this->justif_kilometers = $justif_kilometers;
+        return $this;
+    }
+
+
 }
