@@ -127,7 +127,6 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
     try{
         $command = new CreateFlightBillCommand($flight->getId(), $modeReglement, $conditionReglement, $documentModel, $type, $publicNote, $privateNote,$bankAccount, $nbrPax);
         $handler->handle($command);
-        Header("Location: card.php?id=" . $flight->getId());
     }catch (\Exception $e){
         dol_syslog($e->getMessage(),LOG_ERR);
         dol_htmloutput_mesg("Facture non créée", '', 'error');

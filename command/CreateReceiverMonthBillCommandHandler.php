@@ -30,7 +30,7 @@ class CreateReceiverMonthBillCommandHandler extends AbstractBillCommandHandler
         $object->socid = $this->fetchCustomer($command->getReceiverId())->id;
         $object->type = $command->getBillType();
         $object->number = "provisoire";
-        $object->date = $this->generateBillDate($command->getYear(), $command->getMonth());
+        $object->date = (new DateTime())->getTimestamp();
         $object->date_pointoftax = "";
         $object->note_public = $command->getPublicNote();
         $object->note_private = $command->getPrivateNote();
@@ -56,11 +56,8 @@ class CreateReceiverMonthBillCommandHandler extends AbstractBillCommandHandler
 
         $this->generateBillDocument($object, $id);
 
-        $this->validates($object, $id);
-
         $this->generateBillDocument($object, $id);
     }
-
 
     /**
      * @return int
@@ -68,19 +65,6 @@ class CreateReceiverMonthBillCommandHandler extends AbstractBillCommandHandler
     private function getBankAccount()
     {
         return $this->conf->BBC_DEFAULT_BANK_ACCOUNT;
-    }
-
-    /**
-     * @param int $year
-     * @param int $month
-     *
-     * @return int
-     */
-    private function generateBillDate($year, $month)
-    {
-        $day = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-        $date = (new DateTime())->setDate($year, $month, $day);
-        return $date->getTimestamp();
     }
 
     /**

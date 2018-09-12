@@ -91,7 +91,7 @@ class CreateFlightBillCommand
             throw new \InvalidArgumentException('Model document is missing');
         }
 
-        if(!isset($nbrPax) || !is_numeric($nbrPax) || !is_integer($nbrPax)){
+        if(!isset($nbrPax) || !is_numeric($nbrPax) || $nbrPax != (int) $nbrPax){
             throw new \InvalidArgumentException('The number of pax is not correct, an integer is expected');
         }
 

@@ -54,10 +54,10 @@ class CreateFlightBillCommandHandler
         $object = new Facture($this->db);
         $object->fetch_thirdparty();
 
-        $object->socid = $this->getCustomer()->id;
+        $object->socid = $this->getCustomer($flight)->id;
         $object->type = $command->getBillType();
         $object->number = "provisoire";
-        $object->date = $flight->date;
+        $object->date = (new DateTime())->getTimestamp();
         $object->date_pointoftax = "";
         $object->note_public = $command->getPublicNote();
         $object->note_private = $command->getPrivateNote();
@@ -102,15 +102,48 @@ class CreateFlightBillCommandHandler
     }
 
     /**
-     * @return Fournisseur
+     * @param Bbcvols $flight
+     *
+     * @return Client
      *
      * @throws CustomerNotFoundException
      */
-    private function getCustomer()
+    private function getCustomer(Bbcvols $flight)
     {
-        $customer = new Fournisseur($this->db);
+        $customer = new Client($this->db);
+
+        if($flight->fk_receiver) {
+            return $this->fetchCustomerFromFlight($flight);
+        }
 
         if ($customer->fetch($this->conf->BBC_FLIGHT_TYPE_CUSTOMER) <= 0) {
+            throw new CustomerNotFoundException();
+        }
+
+        return $customer;
+    }
+
+    /**
+     * @param Bbcvols $flight
+     *
+     * @return Client
+     */
+    private function fetchCustomerFromFlight($flight)
+    {
+        $user = new User($this->db);
+        $res = $user->fetch($flight->fk_receiver);
+        if ($res <= 0) {
+            throw new CustomerNotFoundException('User not found');
+        }
+
+        $member = new Adherent($this->db);
+        $res = $member->fetch($user->fk_member);
+        if ($res <= 0) {
+            throw new CustomerNotFoundException('Member not found');
+        }
+
+        $customer = new Client($this->db);
+        if ($customer->fetch($member->fk_soc) <= 0) {
             throw new CustomerNotFoundException();
         }
 
