@@ -488,7 +488,7 @@ class Bbcvols extends CommonObject
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
         $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
         $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "',";
-        $sql .= ' order_id = ' .  (!isset($this->orderId) || (int)$this->orderId === -1 ? 'null' : $this->orderId);
+        $sql .= ' order_id = ' .  (!isset($this->orderId) || (int)$this->orderId === -1 || (int)$this->orderId === 0 ? 'null' : $this->orderId);
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
