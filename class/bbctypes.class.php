@@ -643,6 +643,14 @@ class Bbctypes extends CommonObject
         $type = (int) $this->idType;
         return $type === 6 || $type === 7;
     }
+
+    /**
+     * @return array|BbctypesLine[]
+     */
+    public function getLines()
+    {
+        return $this->lines;
+    }
 }
 
 /**
@@ -651,13 +659,89 @@ class Bbctypes extends CommonObject
 class BbctypesLine
 {
     /**
-     * @var int ID
+     * @var int
      */
     public $id;
 
+    /**
+     * @var int
+     */
     public $idType;
+
+    /**
+     * @var int
+     */
     public $numero;
+
+    /**
+     * @var string
+     */
     public $nom;
+
+    /**
+     * @var int
+     */
     public $fkService;
+
+    /**
+     * @var boolean
+     */
     public $active;
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getIdType()
+    {
+        return $this->idType;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNumero()
+    {
+        return $this->numero;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNom()
+    {
+        return $this->nom;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFkService()
+    {
+        return $this->fkService;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getActive()
+    {
+        return (boolean)$this->active;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel()
+    {
+        return "T" . $this->numero . '-' . $this->nom;
+    }
+
 }

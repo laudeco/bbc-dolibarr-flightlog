@@ -19,6 +19,8 @@ function fetchBbcFlightTypes($active = 1)
 }
 
 /**
+ * @deprecated should use the form instead.
+ *
  * Return list of flight type
  *
  * @param   mixed $selected  Preselected type

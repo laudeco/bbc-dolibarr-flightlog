@@ -46,12 +46,26 @@ class Select extends BaseInput
     }
 
     /**
+     * @param mixed $key
+     * @param mixed $value
+     *
+     * @return $this
+     */
+    public function addValueOption($key, $value){
+        $this->valueOptions[$key] = $value;
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      */
     public function setValue($value)
     {
         parent::setValue($value);
-        $this->valueOptions[$value] = $value;
+
+        if(!isset($this->valueOptions[$value])){
+            $this->valueOptions[$value] = $value;
+        }
     }
 
 

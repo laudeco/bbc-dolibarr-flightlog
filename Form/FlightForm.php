@@ -17,9 +17,10 @@ class FlightForm extends Form
      * @param \Bbcvols            $baseObject
      * @param \DoliDB             $db
      */
-    public function __construct(\ValidatorInterface $validator, $baseObject, \DoliDB $db)
+    public function __construct(\ValidatorInterface $validator, $baseObject, \DoliDB $db, $options)
     {
-        parent::__construct('flight_form', FormInterface::METHOD_POST, []);
+
+        parent::__construct('flight_form', FormInterface::METHOD_POST, $this->buildOptionsfromConfiguration($options));
 
         $this->setValidator($validator)
             ->bind($baseObject);
@@ -33,12 +34,29 @@ class FlightForm extends Form
             ->add(new InputTextarea('remarque'))
             ->add(new InputTextarea('incidents'))
             ->add(new InputTextarea('passengerNames'))
-            ->add(new Select('fk_type'))
-            ->add(new Select('fk_pilot'))
-            ->add(new Select('fk_organisateur'))
+            ->add((new FlightTypeSelect('fk_type', [], $db)))
+            ->add(new UserSelect('fk_pilot', $this->getOptions(), $db))
+            ->add(new UserSelect('fk_organisateur', $this->getOptions(), $db))
+            ->add(new UserSelect('fk_receiver', $this->getOptions(), $db))
             ->add(new Number('kilometers'))
             ->add(new Number('cost'))
-            ->add(new Select('fk_receiver'))
             ->add(new InputTextarea('justif_kilometers'));
+    }
+
+    /**
+     * @param \stdClass $options
+     *
+     * @return array
+     */
+    private function buildOptionsfromConfiguration($options)
+    {
+        $values = [];
+
+        foreach ($options as $value){
+            $values[] = $value;
+        }
+
+        return $values;
+
     }
 }

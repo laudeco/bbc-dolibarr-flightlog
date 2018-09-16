@@ -116,4 +116,17 @@ abstract class BaseInput implements FormElementInterface
         return $this;
     }
 
+    /**
+     * @param string $option
+     *
+     * @return string|int|boolean|null
+     */
+    public function getOption($option){
+        if(!isset($this->options[$option])){
+            return null;
+        }
+
+        return $this->options[$option];
+    }
+
 }

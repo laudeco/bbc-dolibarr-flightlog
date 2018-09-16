@@ -293,7 +293,7 @@ jQuery(document).ready(function() {
 if (($id || $ref) && $action == 'edit'): ?>
 
     <?php
-        $formFlight = new \flightlog\form\FlightForm(new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER), $object);
+        $formFlight = new \flightlog\form\FlightForm(new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER), $object, $db, $conf->global);
         $formFlight->bind($object);
     ?>
 
