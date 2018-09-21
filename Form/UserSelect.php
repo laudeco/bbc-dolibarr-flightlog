@@ -26,7 +26,6 @@ class UserSelect extends Select
         parent::__construct($name, $options);
         $this->db = $db;
         $this->buildOptions();
-
     }
 
     /**

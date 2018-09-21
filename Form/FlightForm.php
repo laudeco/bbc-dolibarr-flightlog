@@ -27,9 +27,9 @@ class FlightForm extends Form
 
         $this
             ->add(new Hidden('idBBC_vols'))
-            ->add(new Input('lieuD'))
-            ->add(new Input('lieuA'))
-            ->add(new Select('BBC_ballons_idBBC_ballons'))
+            ->add((new Input('lieuD'))->required())
+            ->add((new Input('lieuA'))->required())
+            ->add((new BalloonSelect('BBC_ballons_idBBC_ballons', $db))->required())
             ->add(new Number('nbrPax'))
             ->add(new InputTextarea('remarque'))
             ->add(new InputTextarea('incidents'))

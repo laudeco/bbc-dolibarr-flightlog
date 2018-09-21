@@ -92,7 +92,7 @@ abstract class BaseInput implements FormElementInterface
      *
      * @return $this
      */
-    public function setAttribute($name, $value)
+    protected function setAttribute($name, $value)
     {
         $this->options['attr'][$name] = $value;
 
