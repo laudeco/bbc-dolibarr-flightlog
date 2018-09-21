@@ -79,9 +79,11 @@ class SimpleFormRenderer
             default:
                 return sprintf('<input type="%s" class="%s" name="%s" value="%s" %s />',
                     $element->getType(),
-                    ' flat '.$element->hasError() ? 'error' : '',
+                    ' flat '.($element->hasError() ? 'error' : ''),
                     $element->getName(),
-                    $element->getValue(), $this->formatOptions($element->getOptions()));
+                    $element->getValue(),
+                    $this->formatOptions($element->getOptions())
+                );
         }
     }
 

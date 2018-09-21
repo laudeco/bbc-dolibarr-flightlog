@@ -257,7 +257,7 @@ if (($id || $ref) && $action == 'edit'): ?>
 
     <div class="errors error-messages">
         <?php
-        foreach ([] as $errorMessage) {
+        foreach ($formFlight->getErrorMessages() as $errorMessage) {
             print sprintf('<div class="error"><span>%s</span></div>', $errorMessage);
         }
         ?>
