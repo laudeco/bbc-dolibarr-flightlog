@@ -58,8 +58,12 @@ class SimpleFormRenderer
     {
         switch ($element->getType()) {
             case FormElementInterface::TYPE_TEXTAREA:
-                return sprintf('<textarea name="%s" %s>%s</textarea>', $element->getName(),
-                    $this->formatOptions($element->getOptions()), $element->getValue());
+                return sprintf('<textarea name="%s" class="%s" %s>%s</textarea>',
+                    $element->getName(),
+                    $element->hasError() ? 'error' : '',
+                    $this->formatOptions($element->getOptions()),
+                    $element->getValue()
+                );
 
             case FormElementInterface::TYPE_SELECT:
                 /** @var Select $select */
@@ -73,7 +77,10 @@ class SimpleFormRenderer
                 return $html;
 
             default:
-                return sprintf('<input type="%s" name="%s" value="%s" %s />', $element->getType(), $element->getName(),
+                return sprintf('<input type="%s" class="%s" name="%s" value="%s" %s />',
+                    $element->getType(),
+                    ' flat '.$element->hasError() ? 'error' : '',
+                    $element->getName(),
                     $element->getValue(), $this->formatOptions($element->getOptions()));
         }
     }
@@ -110,7 +117,7 @@ class SimpleFormRenderer
      */
     private function renderSelectElement(Select $element)
     {
-        $selectElement = sprintf('<select id="%s" name="%s" >', $element->getId(), $element->getName());
+        $selectElement = sprintf('<select id="%s" class="%s" name="%s" >', $element->getId(),$element->hasError() ? 'error' : '', $element->getName());
 
         if ($element->getValueOptions()) {
             foreach ($element->getValueOptions() as $optionValue => $optionLabel) {
