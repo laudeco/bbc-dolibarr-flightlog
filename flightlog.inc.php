@@ -48,3 +48,5 @@ dol_include_once('/flightlog/Form/UserSelect.php');
 dol_include_once('/flightlog/Form/BalloonSelect.php');
 dol_include_once('/flightlog/Form/SimpleFormRenderer.php');
 dol_include_once('/flightlog/Form/FlightForm.php');
+
+dol_include_once('/core/lib/ajax.lib.php');

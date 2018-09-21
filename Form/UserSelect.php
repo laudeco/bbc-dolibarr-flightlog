@@ -46,9 +46,7 @@ class UserSelect extends Select
         $sql = "SELECT DISTINCT u.rowid, u.lastname as lastname, u.firstname, u.statut, u.login, u.admin, u.entity";
         $sql .= " FROM " . MAIN_DB_PREFIX . "user as u";
         $sql .= " WHERE u.entity IN (0,1)";
-        if (!empty($this->getOption('USER_HIDE_INACTIVE_IN_COMBOBOX'))) {
-            $sql .= " AND u.statut <> 0";
-        }
+        $sql .= " AND u.statut <> 0";
 
         if (empty($this->getOption('MAIN_FIRSTNAME_NAME_POSITION'))) {
             $sql .= " ORDER BY u.firstname ASC";
@@ -70,12 +68,7 @@ class UserSelect extends Select
                     $userstatic->lastname = $obj->lastname;
                     $userstatic->firstname = $obj->firstname;
 
-                    $fullNameMode = 0; //Lastname + firstname
-                    if (empty($this->getOption('MAIN_FIRSTNAME_NAME_POSITION'))) {
-                        $fullNameMode = 1; //firstname + lastname
-                    }
-
-                    $this->addValueOption($obj->rowid, $userstatic->getFullName(null, $fullNameMode));
+                    $this->addValueOption($obj->rowid, $userstatic->getFullName(null));
                     $i++;
                 }
             }

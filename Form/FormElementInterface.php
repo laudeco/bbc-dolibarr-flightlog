@@ -27,6 +27,11 @@ interface FormElementInterface
     public function getName();
 
     /**
+     * @return string
+     */
+    public function getId();
+
+    /**
      * @return mixed
      */
     public function getValue();

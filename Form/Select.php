@@ -64,7 +64,7 @@ class Select extends BaseInput
         parent::setValue($value);
 
         if(!isset($this->valueOptions[$value])){
-            $this->valueOptions[$value] = empty($value) ? '' : $value;
+            $this->valueOptions[$value] = empty($value) ? ' ' : $value;
         }
     }
 

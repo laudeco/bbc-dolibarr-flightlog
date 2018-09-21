@@ -49,8 +49,6 @@ class BalloonSelect extends Select
                     $i++;
                 }
             }
-
-
         }
     }
 }

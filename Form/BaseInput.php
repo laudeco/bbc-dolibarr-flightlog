@@ -71,6 +71,13 @@ abstract class BaseInput implements FormElementInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getId(){
+        return $this->getOption('id') ?: $this->getName();
+    }
+
+    /**
      * @inheritDoc
      */
     public function getValue()

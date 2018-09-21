@@ -329,7 +329,7 @@ if (($id || $ref) && $action == 'edit'): ?>
 
                 <tr>
                     <td class="fieldrequired"> Pilote </td>
-                    <td><?php echo $renderer->render($formFlight->getElement('fk_pilot')); ?></td>
+                    <td><?php echo $renderer->render($formFlight->getElement('fk_pilot'),['ajax' => true]); ?></td>
                 </tr>
 
                 <tr>
@@ -375,7 +375,7 @@ if (($id || $ref) && $action == 'edit'): ?>
                     <td>
                         <?php
                         //organisateur
-                        print $renderer->render($formFlight->getElement('fk_organisateur'));
+                        print $renderer->render($formFlight->getElement('fk_organisateur'),['ajax' => true]);
                         ?>
                     </td>
                 </tr>
@@ -438,7 +438,7 @@ if (($id || $ref) && $action == 'edit'): ?>
                 <tr class="js-hide-order js-billable-field">
                     <td class="fieldrequired"><?php echo $langs->trans('Qui a perçu l\'argent') ?></td>
                     <td>
-                        <?php print $renderer->render($formFlight->getElement('fk_receiver')); ?>
+                        <?php print $renderer->render($formFlight->getElement('fk_receiver'),['ajax' => true]); ?>
                     </td>
                 </tr>
 
@@ -474,6 +474,8 @@ if (($id || $ref) && $action == 'edit'): ?>
                 </tr>
             </table>
         </section>
+
+        <button class="button" type="submit">Modifier</button>
     </form>
 
 <?php endif;

@@ -11,16 +11,19 @@ namespace flightlog\form;
 class SimpleFormRenderer
 {
     /**
-     * @inheritDoc
+     * @param FormInterface|FormElementInterface $element
+     * @param array                              $options
+     *
+     * @return string
      */
-    public function render($element)
+    public function render($element, $options = [])
     {
         if ($element instanceof FormInterface) {
             return $this->openingForm($element);
         }
 
         if ($element instanceof FormElementInterface) {
-            return $this->renderElement($element);
+            return $this->renderElement($element, $options);
         }
 
         throw new \InvalidArgumentException('unsupported type');
@@ -47,19 +50,31 @@ class SimpleFormRenderer
     /**
      * @param FormElementInterface $element
      *
+     * @param array                $options
+     *
      * @return string
      */
-    private function renderElement(FormElementInterface $element)
+    private function renderElement(FormElementInterface $element, $options)
     {
-        switch($element->getType()){
+        switch ($element->getType()) {
             case FormElementInterface::TYPE_TEXTAREA:
-                return sprintf('<textarea name="%s" %s>%s</textarea>', $element->getName(), $this->formatOptions($element->getOptions()), $element->getValue());
+                return sprintf('<textarea name="%s" %s>%s</textarea>', $element->getName(),
+                    $this->formatOptions($element->getOptions()), $element->getValue());
 
             case FormElementInterface::TYPE_SELECT:
-                return $this->renderSelectElement($element);
+                /** @var Select $select */
+                $select = $element;
+                $html = $this->renderSelectElement($select);
+
+                if(isset($options['ajax']) && $options['ajax']){
+                    $html .= ajax_combobox($element->getName());
+                }
+
+                return $html;
 
             default:
-                return sprintf('<input type="%s" name="%s" value="%s" %s />', $element->getType(), $element->getName(), $element->getValue(), $this->formatOptions($element->getOptions()));
+                return sprintf('<input type="%s" name="%s" value="%s" %s />', $element->getType(), $element->getName(),
+                    $element->getValue(), $this->formatOptions($element->getOptions()));
         }
     }
 
@@ -95,16 +110,17 @@ class SimpleFormRenderer
      */
     private function renderSelectElement(Select $element)
     {
-        $selectElement = sprintf('<select name="%s" >', $element->getName());
+        $selectElement = sprintf('<select id="%s" name="%s" >', $element->getId(), $element->getName());
 
-        if($element->getValueOptions()){
-            foreach($element->getValueOptions() as $optionValue => $optionLabel){
+        if ($element->getValueOptions()) {
+            foreach ($element->getValueOptions() as $optionValue => $optionLabel) {
                 $selectedAttribute = $optionValue === $element->getValue() ? 'selected' : '';
-                $selectElement .= sprintf('<option value="%s" %s >%s</option>', $optionValue, $selectedAttribute, $optionLabel);
+                $selectElement .= sprintf('<option value="%s" %s >%s</option>', $optionValue, $selectedAttribute,
+                    $optionLabel);
             }
         }
 
-        $selectElement.='</select>';
+        $selectElement .= '</select>';
 
         return $selectElement;
     }
