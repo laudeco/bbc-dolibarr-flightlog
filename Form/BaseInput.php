@@ -31,6 +31,11 @@ abstract class BaseInput implements FormElementInterface
     private $type;
 
     /**
+     * @var string[]|array
+     */
+    private $errors;
+
+    /**
      * @param string $name
      * @param string $type
      * @param array  $options
@@ -44,6 +49,7 @@ abstract class BaseInput implements FormElementInterface
         $this->name = $name;
         $this->options = $options;
         $this->type = $type;
+        $this->errors = [];
     }
 
     /**
@@ -124,6 +130,13 @@ abstract class BaseInput implements FormElementInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function isDisabled(){
+        return isset($this->options['attr']['disabled']);
+    }
+
+    /**
      * @param string $option
      *
      * @return string|int|boolean|null
@@ -134,6 +147,22 @@ abstract class BaseInput implements FormElementInterface
         }
 
         return $this->options[$option];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setErrors($errors = [])
+    {
+        $this->errors = $errors;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasError()
+    {
+        return !empty($this->errors);
     }
 
 }

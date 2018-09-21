@@ -53,4 +53,23 @@ interface FormElementInterface
      */
     public function getOptions();
 
+    /**
+     * @return boolean
+     */
+    public function isDisabled();
+
+    /**
+     * @return boolean
+     */
+    public function hasError();
+
+    /**
+     * Set the error messages.
+     *
+     * @param array|string[] $errors
+     *
+     * @return $this
+     */
+    public function setErrors($errors = []);
+
 }

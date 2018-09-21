@@ -128,6 +128,9 @@ $organisator->fetch($object->fk_organisateur);
 $flightType->fetch($object->fk_type);
 $balloon->fetch($object->BBC_ballons_idBBC_ballons);
 
+$formFlight = new \flightlog\form\FlightForm(new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER), $object, $db, $conf->global);
+$formFlight->bind($object);
+
 
 if (($action == "update" || $action == "edit") && !($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id))) {
     setEventMessage("Ceci n'est pas un de tes vols tu ne peux l'editer ! ", 'errors');
@@ -151,55 +154,13 @@ if (empty($reshook)) {
 
     // Action to update record
     if ($action == 'update') {
-        $error = 0;
 
-        $object->idBBC_vols = GETPOST('idBBC_vols', 'int');
-        $object->id = $object->idBBC_vols;
-
-        $object->lieuD = GETPOST('lieuD', 'alpha');
-        $object->lieuA = GETPOST('lieuA', 'alpha');
-        $object->heureD = GETPOST('heureD_h', 'int') . ":" . GETPOST('heureD_m', 'int') . ":00";
-        $object->heureA = GETPOST('heureA_h', 'int') . ":" . GETPOST('heureA_m', 'int') . ":00";
-        $object->BBC_ballons_idBBC_ballons = GETPOST('BBC_ballons_idBBC_ballons', 'int');
-
-        $object->remarque = GETPOST('remarque', 'alpha');
-        $object->incidents = GETPOST('incidents', 'alpha');
-        $object->kilometers = GETPOST('kilometers', 'int') ?: $object->kilometers;
-        $object->justif_kilometers = GETPOST('justif_kilometers', 'alpha') ?: $object->justif_kilometers;
-
-
-        //validation
-        if (empty($object->idBBC_vols)) {
-            $error++;
-            setEventMessages($langs->transnoentitiesnoconv("ErrorFieldRequired",
-                $langs->transnoentitiesnoconv("idBBC_vols")),
-                null, 'errors');
-        }
-
-        if (!dol_validElement($object->lieuD)) {
-            $error++;
-            setEventMessage("Erreur le champ : lieu de décollage", 'errors');
-        }
-
-        if (!dol_validElement($object->lieuA)) {
-            $error++;
-            setEventMessage("Erreur le champ : lieu d'atterissage", 'errors');
-        }
-
-        $dateD = date_create_from_format("H:i:s", $object->heureD);
-        $dateA = date_create_from_format("H:i:s", $object->heureA);
-        if ($dateA <= $dateD) {
-            $error++;
-            setEventMessage("Erreur avec les heures de vol", 'errors');
-        }
-
-        if (!is_numeric($object->nbrPax) || $object->nbrPax < 0) {
-            $error++;
-            setEventMessage("Erreur le champ : nombre de passagers", 'errors');
-        }
+        $formFlight->setData($_POST);
 
         // action : edit
-        if (!$error) {
+        if ($formFlight->validate()) {
+            /** @var Bbcvols $object */
+            $object = $formFlight->getObject();
             $result = $object->update($user);
             if ($result > 0) {
                 $action = 'view';
@@ -292,12 +253,6 @@ jQuery(document).ready(function() {
 // Part to edit record
 if (($id || $ref) && $action == 'edit'): ?>
 
-    <?php
-        $formFlight = new \flightlog\form\FlightForm(new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER), $object, $db, $conf->global);
-        $formFlight->bind($object);
-    ?>
-
-
     <?php $renderer = new \flightlog\form\SimpleFormRenderer(); ?>
 
     <div class="errors error-messages">
@@ -308,8 +263,10 @@ if (($id || $ref) && $action == 'edit'): ?>
         ?>
     </div>
 
-    <form class="flight-form js-form" name='add' action="addFlight.php" method="post">
+    <form class="flight-form js-form" name='add' action="card.php" method="POST">
         <input type="hidden" name="action" value="update"/>
+
+        <?php echo $renderer->render($formFlight->getElement('idBBC_vols')); ?>
 
         <!-- Date et heures -->
         <section class="form-section">

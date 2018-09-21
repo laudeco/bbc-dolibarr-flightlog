@@ -103,10 +103,18 @@ abstract class Form implements FormInterface
         }
 
         if(null === $this->object){
-            throw new \InvalidArgumentException('Object not bind');
+            throw new \InvalidArgumentException('Object not bound');
         }
 
-        return $this->validator->isValid($this->object, $_REQUEST);
+        $validation = $this->validator->isValid($this->object, $_REQUEST);
+        
+        if(!$validation){
+            foreach($this->elements as $fieldName => $field){
+                $field->setErrors($this->validator->getError($fieldName));
+            }
+        }
+
+        return $validation;
     }
 
     /**
@@ -147,18 +155,26 @@ abstract class Form implements FormInterface
     public function setData(array $data)
     {
         foreach($data as $fieldName => $currentData){
-            if(!key_exists($fieldName, $this->elements)){
+            if(!key_exists($fieldName, $this->elements) || $this->elements[$fieldName]->isDisabled()){
                 continue;
             }
 
             $this->elements[$fieldName]->setValue($currentData);
 
             $methodName = 'set'.$this->camelCase($fieldName);
-            if(null === $this->object || !method_exists($this->object, $methodName)){
+            if(null === $this->object){
                 continue;
             }
 
-            $this->object->{$fieldName} = $currentData;
+            if(method_exists($this->object, $methodName)){
+                $this->object->{$methodName}($currentData);
+                continue;
+            }
+
+            if(property_exists($this->object, $fieldName)){
+                $this->object->{$fieldName} = $currentData;
+                continue;
+            }
         }
 
         return $this;
