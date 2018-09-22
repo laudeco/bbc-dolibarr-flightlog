@@ -70,7 +70,7 @@ class SimpleFormRenderer
                 $select = $element;
                 $html = $this->renderSelectElement($select);
 
-                if(isset($options['ajax']) && $options['ajax']){
+                if (isset($options['ajax']) && $options['ajax']) {
                     $html .= ajax_combobox($element->getName());
                 }
 
@@ -79,7 +79,7 @@ class SimpleFormRenderer
             default:
                 return sprintf('<input type="%s" class="%s" name="%s" value="%s" %s />',
                     $element->getType(),
-                    ' flat '.($element->hasError() ? 'error' : ''),
+                    ' flat ' . ($element->hasError() ? 'error' : ''),
                     $element->getName(),
                     $element->getValue(),
                     $this->formatOptions($element->getOptions())
@@ -119,7 +119,8 @@ class SimpleFormRenderer
      */
     private function renderSelectElement(Select $element)
     {
-        $selectElement = sprintf('<select id="%s" class="%s" name="%s" >', $element->getId(),$element->hasError() ? 'error' : '', $element->getName());
+        $selectElement = sprintf('<select id="%s" class="%s" name="%s" >', $element->getId(),
+            $element->hasError() ? 'error' : '', $element->getName());
 
         if ($element->getValueOptions()) {
             foreach ($element->getValueOptions() as $optionValue => $optionLabel) {

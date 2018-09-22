@@ -79,7 +79,8 @@ abstract class BaseInput implements FormElementInterface
     /**
      * @inheritdoc
      */
-    public function getId(){
+    public function getId()
+    {
         return $this->getOption('id') ?: $this->getName();
     }
 
@@ -115,7 +116,8 @@ abstract class BaseInput implements FormElementInterface
     /**
      * @return $this
      */
-    public function required(){
+    public function required()
+    {
         $this->options['attr']['required'] = 'required';
 
         return $this;
@@ -124,7 +126,8 @@ abstract class BaseInput implements FormElementInterface
     /**
      * @return $this
      */
-    public function disable(){
+    public function disable()
+    {
         $this->options['attr']['disabled'] = 'disabled';
         return $this;
     }
@@ -132,7 +135,8 @@ abstract class BaseInput implements FormElementInterface
     /**
      * @inheritdoc
      */
-    public function isDisabled(){
+    public function isDisabled()
+    {
         return isset($this->options['attr']['disabled']);
     }
 
@@ -141,8 +145,9 @@ abstract class BaseInput implements FormElementInterface
      *
      * @return string|int|boolean|null
      */
-    public function getOption($option){
-        if(!isset($this->options[$option])){
+    public function getOption($option)
+    {
+        if (!isset($this->options[$option])) {
             return null;
         }
 

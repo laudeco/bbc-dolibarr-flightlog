@@ -78,7 +78,8 @@ abstract class Form implements FormInterface
     /**
      * @inheritDoc
      */
-    public function getOptions(){
+    public function getOptions()
+    {
         return $this->options;
     }
 
@@ -115,18 +116,18 @@ abstract class Form implements FormInterface
      */
     public function validate()
     {
-        if(!$this->validator){
+        if (!$this->validator) {
             return true;
         }
 
-        if(null === $this->object){
+        if (null === $this->object) {
             throw new \InvalidArgumentException('Object not bound');
         }
 
         $validation = $this->validator->isValid($this->object, $_REQUEST);
-        
-        if(!$validation){
-            foreach($this->elements as $fieldName => $field){
+
+        if (!$validation) {
+            foreach ($this->elements as $fieldName => $field) {
                 $field->setErrors($this->validator->getError($fieldName));
             }
         }
@@ -137,7 +138,8 @@ abstract class Form implements FormInterface
     /**
      * @return array|string[]
      */
-    public function getErrorMessages(){
+    public function getErrorMessages()
+    {
         return $this->validator->getErrors();
     }
 
@@ -158,10 +160,10 @@ abstract class Form implements FormInterface
      */
     public function bind($object)
     {
-        foreach($this->elements as $element){
+        foreach ($this->elements as $element) {
             $name = $this->camelCase($element->getName());
-            $methodName = 'get'.$name;
-            if(!method_exists($object, $methodName)){
+            $methodName = 'get' . $name;
+            if (!method_exists($object, $methodName)) {
                 continue;
             }
 
@@ -178,24 +180,24 @@ abstract class Form implements FormInterface
      */
     public function setData(array $data)
     {
-        foreach($data as $fieldName => $currentData){
-            if(!key_exists($fieldName, $this->elements) || $this->elements[$fieldName]->isDisabled()){
+        foreach ($data as $fieldName => $currentData) {
+            if (!key_exists($fieldName, $this->elements) || $this->elements[$fieldName]->isDisabled()) {
                 continue;
             }
 
             $this->elements[$fieldName]->setValue($currentData);
 
-            $methodName = 'set'.$this->camelCase($fieldName);
-            if(null === $this->object){
+            $methodName = 'set' . $this->camelCase($fieldName);
+            if (null === $this->object) {
                 continue;
             }
 
-            if(method_exists($this->object, $methodName)){
+            if (method_exists($this->object, $methodName)) {
                 $this->object->{$methodName}($currentData);
                 continue;
             }
 
-            if(property_exists($this->object, $fieldName)){
+            if (property_exists($this->object, $fieldName)) {
                 $this->object->{$fieldName} = $currentData;
                 continue;
             }
@@ -217,7 +219,7 @@ abstract class Form implements FormInterface
      */
     public function getElement($elementName)
     {
-        if(!key_exists($elementName, $this->elements)){
+        if (!key_exists($elementName, $this->elements)) {
             throw new \InvalidArgumentException(sprintf('Element %s not found ', $elementName));
         }
 
@@ -232,7 +234,7 @@ abstract class Form implements FormInterface
     private function camelCase($name)
     {
         $str = str_replace('_', '', ucwords($name, '-'));
-        return  lcfirst($str);
+        return lcfirst($str);
     }
 
 }

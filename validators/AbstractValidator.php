@@ -109,8 +109,9 @@ abstract class AbstractValidator implements ValidatorInterface
      *
      * @return array|string[]
      */
-    public function getError($field){
-        if(!$this->hasError($field)){
+    public function getError($field)
+    {
+        if (!$this->hasError($field)) {
             return [];
         }
 

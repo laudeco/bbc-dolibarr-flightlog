@@ -43,7 +43,7 @@ class FlightTypeSelect extends Select
      */
     private function buildOptions()
     {
-        foreach($this->flightType->getLines() as $currentFlightType){
+        foreach ($this->flightType->getLines() as $currentFlightType) {
             $this->addValueOption($currentFlightType->getId(), $currentFlightType->getLabel());
         }
     }

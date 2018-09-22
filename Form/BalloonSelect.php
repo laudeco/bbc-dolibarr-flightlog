@@ -31,12 +31,12 @@ class BalloonSelect extends Select
     private function buildOptions()
     {
         $sql = "SELECT";
-        $sql.= " t.rowid,";
-        $sql.= " t.immat,";
-        $sql.= " t.is_disable";
-        $sql.= " FROM llx_bbc_ballons as t";
-        $sql.= " WHERE t.is_disable = 0";
-        $sql.= " ORDER BY t.immat";
+        $sql .= " t.rowid,";
+        $sql .= " t.immat,";
+        $sql .= " t.is_disable";
+        $sql .= " FROM llx_bbc_ballons as t";
+        $sql .= " WHERE t.is_disable = 0";
+        $sql .= " ORDER BY t.immat";
 
         $resql = $this->db->query($sql);
         if ($resql) {

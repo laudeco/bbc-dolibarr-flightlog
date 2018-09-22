@@ -95,7 +95,7 @@ class FlightValidator extends AbstractValidator
      */
     private function checkBillingInformation($vol, $context)
     {
-        if($vol->isLinkedToOrder()){
+        if ($vol->isLinkedToOrder()) {
             return $this;
         }
 
@@ -119,7 +119,7 @@ class FlightValidator extends AbstractValidator
 
     /**
      * @param Bbcvols $vol
-     * @param array $context
+     * @param array   $context
      *
      * @return $this
      */
