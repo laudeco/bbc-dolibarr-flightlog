@@ -104,4 +104,18 @@ abstract class AbstractValidator implements ValidatorInterface
         return isset($this->errors[$field]) && !empty($field);
     }
 
+    /**
+     * @param string $field
+     *
+     * @return array|string[]
+     */
+    public function getError($field)
+    {
+        if (!$this->hasError($field)) {
+            return [];
+        }
+
+        return $this->errors[$field];
+    }
+
 }

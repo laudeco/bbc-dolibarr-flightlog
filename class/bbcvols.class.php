@@ -249,18 +249,18 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->nbrPax) ? 'NULL' : "'" . $this->db->escape($this->nbrPax) . "'") . ',';
         $sql .= ' ' . (!isset($this->remarque) ? 'NULL' : "'" . $this->db->escape($this->remarque) . "'") . ',';
         $sql .= ' ' . (!isset($this->incidents) ? 'NULL' : "'" . $this->db->escape($this->incidents) . "'") . ',';
-        $sql .= ' ' . (!isset($this->fk_type) || (int)$this->fk_type === -1 ? 'NULL' : $this->fk_type) . ',';
-        $sql .= ' ' . (!isset($this->fk_pilot) || (int)$this->fk_pilot === -1 ? 'NULL' : $this->fk_pilot) . ',';
-        $sql .= ' ' . (!isset($this->fk_organisateur) || (int)$this->fk_organisateur === -1 ? 'NULL' : $this->fk_organisateur) . ',';
+        $sql .= ' ' . (!isset($this->fk_type) || (int) $this->fk_type === -1 ? 'NULL' : $this->fk_type) . ',';
+        $sql .= ' ' . (!isset($this->fk_pilot) || (int) $this->fk_pilot === -1 ? 'NULL' : $this->fk_pilot) . ',';
+        $sql .= ' ' . (!isset($this->fk_organisateur) || (int) $this->fk_organisateur === -1 ? 'NULL' : $this->fk_organisateur) . ',';
         $sql .= ' ' . (!isset($this->is_facture) ? '0' : $this->is_facture) . ',';
         $sql .= ' ' . (!isset($this->kilometers) || empty($this->kilometers) ? '0' : $this->kilometers) . ',';
         $sql .= ' ' . (!isset($this->cost) ? 'NULL' : "'" . $this->db->escape($this->cost) . "'") . ',';
-        $sql .= ' ' . (!isset($this->fk_receiver) || (int)$this->fk_receiver === -1 ? 'NULL' : $this->fk_receiver) . ',';
+        $sql .= ' ' . (!isset($this->fk_receiver) || (int) $this->fk_receiver === -1 ? 'NULL' : $this->fk_receiver) . ',';
         $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
         $sql .= ' ' . "'" . $this->passengerNames . "'" . ',';
-        $sql .= ' ' . (!isset($this->orderId) || (int)$this->orderId === -1 ? 'NULL' : $this->orderId) . '';
+        $sql .= ' ' . (!isset($this->orderId) || (int) $this->orderId === -1 ? 'NULL' : $this->orderId) . '';
 
         $sql .= ')';
 
@@ -348,28 +348,28 @@ class Bbcvols extends CommonObject
 
                 $this->id = $obj->idBBC_vols;
 
-                $this->idBBC_vols = (int)$obj->idBBC_vols;
+                $this->idBBC_vols = (int) $obj->idBBC_vols;
                 $this->date = $this->db->jdate($obj->date);
                 $this->lieuD = $obj->lieuD;
                 $this->lieuA = $obj->lieuA;
                 $this->heureD = $obj->heureD;
                 $this->heureA = $obj->heureA;
-                $this->BBC_ballons_idBBC_ballons = (int)$obj->BBC_ballons_idBBC_ballons;
+                $this->BBC_ballons_idBBC_ballons = (int) $obj->BBC_ballons_idBBC_ballons;
                 $this->nbrPax = $obj->nbrPax;
                 $this->remarque = $obj->remarque;
                 $this->incidents = $obj->incidents;
-                $this->fk_type = (int)$obj->fk_type;
-                $this->fk_pilot = (int)$obj->fk_pilot;
-                $this->fk_organisateur = (int)$obj->fk_organisateur;
-                $this->is_facture = (int)$obj->is_facture;
+                $this->fk_type = (int) $obj->fk_type;
+                $this->fk_pilot = (int) $obj->fk_pilot;
+                $this->fk_organisateur = (int) $obj->fk_organisateur;
+                $this->is_facture = (int) $obj->is_facture;
                 $this->kilometers = $obj->kilometers;
                 $this->cost = $obj->cost;
-                $this->fk_receiver = (int)$obj->fk_receiver;
+                $this->fk_receiver = (int) $obj->fk_receiver;
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
                 $this->passengerNames = $obj->passenger_names;
-                $this->orderId = (int)$obj->order_id;
+                $this->orderId = (int) $obj->order_id;
 
                 $this->balloon = $this->fetchBalloon();
                 $this->pilot = $this->fetchUser($this->fk_pilot);
@@ -478,17 +478,17 @@ class Bbcvols extends CommonObject
         $sql .= ' nbrPax = ' . (isset($this->nbrPax) ? "'" . $this->db->escape($this->nbrPax) . "'" : "null") . ',';
         $sql .= ' remarque = ' . (isset($this->remarque) ? "'" . $this->db->escape($this->remarque) . "'" : "null") . ',';
         $sql .= ' incidents = ' . (isset($this->incidents) ? "'" . $this->db->escape($this->incidents) . "'" : "null") . ',';
-        $sql .= ' fk_type = ' . (isset($this->fk_type) && (int)$this->fk_type > 0 ? $this->fk_type : "null") . ',';
-        $sql .= ' fk_pilot = ' . (isset($this->fk_pilot) && (int)$this->fk_pilot > 0 ? $this->fk_pilot : "null") . ',';
-        $sql .= ' fk_organisateur = ' . (isset($this->fk_organisateur) && (int)$this->fk_organisateur > 0 ? $this->fk_organisateur : "null") . ',';
+        $sql .= ' fk_type = ' . (isset($this->fk_type) && (int) $this->fk_type > 0 ? $this->fk_type : "null") . ',';
+        $sql .= ' fk_pilot = ' . (isset($this->fk_pilot) && (int) $this->fk_pilot > 0 ? $this->fk_pilot : "null") . ',';
+        $sql .= ' fk_organisateur = ' . (isset($this->fk_organisateur) && (int) $this->fk_organisateur > 0 ? $this->fk_organisateur : "null") . ',';
         $sql .= ' is_facture = ' . (isset($this->is_facture) ? $this->is_facture : "0") . ',';
         $sql .= ' kilometers = ' . (!empty($this->kilometers) ? $this->kilometers : "0") . ',';
         $sql .= ' cost = ' . (isset($this->cost) ? "'" . $this->db->escape($this->cost) . "'" : "''") . ',';
-        $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) && (int)$this->fk_receiver > 0 ? $this->fk_receiver : "null") . ',';
+        $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) && (int) $this->fk_receiver > 0 ? $this->fk_receiver : "null") . ',';
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
         $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
         $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "',";
-        $sql .= ' order_id = ' .  (!isset($this->orderId) || (int)$this->orderId === -1 ? 'null' : $this->orderId);
+        $sql .= ' order_id = ' . (!isset($this->orderId) || (int) $this->orderId === -1 || (int) $this->orderId === 0 ? 'null' : $this->orderId);
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -857,7 +857,7 @@ class Bbcvols extends CommonObject
      */
     public function getAmountPerPassenger()
     {
-        $nbrPax = $this->nbrPax > 0 ? $this->nbrPax : 1 ;
+        $nbrPax = $this->nbrPax > 0 ? $this->nbrPax : 1;
         return $this->cost / $nbrPax;
     }
 
@@ -1012,5 +1012,310 @@ class Bbcvols extends CommonObject
     {
         return !empty($this->is_facture);
     }
+
+    /**
+     * @return DateTime
+     */
+    public function getDate()
+    {
+        return (new DateTime())->setTimestamp($this->date);
+    }
+
+    /**
+     * @param string $date
+     *
+     * @return Bbcvols
+     */
+    public function setDate($date)
+    {
+        $this->date = $date;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLieuD()
+    {
+        return $this->lieuD;
+    }
+
+    /**
+     * @param mixed $lieuD
+     *
+     * @return Bbcvols
+     */
+    public function setLieuD($lieuD)
+    {
+        $this->lieuD = $lieuD;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLieuA()
+    {
+        return $this->lieuA;
+    }
+
+    /**
+     * @param mixed $lieuA
+     *
+     * @return Bbcvols
+     */
+    public function setLieuA($lieuA)
+    {
+        $this->lieuA = $lieuA;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHeureD()
+    {
+        return $this->heureD;
+    }
+
+    /**
+     * @param mixed $heureD
+     *
+     * @return Bbcvols
+     */
+    public function setHeureD($heureD)
+    {
+        $this->heureD = $heureD;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHeureA()
+    {
+        return $this->heureA;
+    }
+
+    /**
+     * @param mixed $heureA
+     *
+     * @return Bbcvols
+     */
+    public function setHeureA($heureA)
+    {
+        $this->heureA = $heureA;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBBCBallonsIdBBCBallons()
+    {
+        return $this->BBC_ballons_idBBC_ballons;
+    }
+
+    /**
+     * @param mixed $BBC_ballons_idBBC_ballons
+     *
+     * @return Bbcvols
+     */
+    public function setBBCBallonsIdBBCBallons($BBC_ballons_idBBC_ballons)
+    {
+        $this->BBC_ballons_idBBC_ballons = $BBC_ballons_idBBC_ballons;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNbrPax()
+    {
+        return $this->nbrPax;
+    }
+
+    /**
+     * @param mixed $nbrPax
+     *
+     * @return Bbcvols
+     */
+    public function setNbrPax($nbrPax)
+    {
+        $this->nbrPax = $nbrPax;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRemarque()
+    {
+        return $this->remarque;
+    }
+
+    /**
+     * @param mixed $remarque
+     *
+     * @return Bbcvols
+     */
+    public function setRemarque($remarque)
+    {
+        $this->remarque = $remarque;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIncidents()
+    {
+        return $this->incidents;
+    }
+
+    /**
+     * @param mixed $incidents
+     *
+     * @return Bbcvols
+     */
+    public function setIncidents($incidents)
+    {
+        $this->incidents = $incidents;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFkType()
+    {
+        return $this->fk_type;
+    }
+
+    /**
+     * @param mixed $fk_type
+     *
+     * @return Bbcvols
+     */
+    public function setFkType($fk_type)
+    {
+        $this->fk_type = $fk_type;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFkPilot()
+    {
+        return $this->fk_pilot;
+    }
+
+    /**
+     * @param mixed $fk_pilot
+     *
+     * @return Bbcvols
+     */
+    public function setFkPilot($fk_pilot)
+    {
+        $this->fk_pilot = $fk_pilot;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFkOrganisateur()
+    {
+        return $this->fk_organisateur;
+    }
+
+    /**
+     * @param mixed $fk_organisateur
+     *
+     * @return Bbcvols
+     */
+    public function setFkOrganisateur($fk_organisateur)
+    {
+        $this->fk_organisateur = $fk_organisateur;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getisFacture()
+    {
+        return $this->is_facture;
+    }
+
+    /**
+     * @param mixed $is_facture
+     *
+     * @return Bbcvols
+     */
+    public function setIsFacture($is_facture)
+    {
+        $this->is_facture = $is_facture;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCost()
+    {
+        return $this->cost;
+    }
+
+    /**
+     * @param int $cost
+     *
+     * @return Bbcvols
+     */
+    public function setCost($cost)
+    {
+        $this->cost = $cost;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFkReceiver()
+    {
+        return $this->fk_receiver;
+    }
+
+    /**
+     * @param mixed $fk_receiver
+     *
+     * @return Bbcvols
+     */
+    public function setFkReceiver($fk_receiver)
+    {
+        $this->fk_receiver = $fk_receiver;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getJustifKilometers()
+    {
+        return $this->justif_kilometers;
+    }
+
+    /**
+     * @param mixed $justif_kilometers
+     *
+     * @return Bbcvols
+     */
+    public function setJustifKilometers($justif_kilometers)
+    {
+        $this->justif_kilometers = $justif_kilometers;
+        return $this;
+    }
+
 
 }

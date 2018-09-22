@@ -61,8 +61,8 @@ class FlightValidator extends AbstractValidator
      */
     private function isHourValid($hour)
     {
-        $patern = '#[0-9]{4}#';
-        return !(preg_match($patern, $hour) == 0 || strlen($hour) != 4);
+        $patern = '(([0-9]{4})|([0-9]{2}:[0-9]{2}(:[0-9]{2})?))';
+        return !(preg_match($patern, $hour) == 0 || (strlen($hour) != 4 && strlen($hour) != 8));
     }
 
     /**
@@ -95,7 +95,7 @@ class FlightValidator extends AbstractValidator
      */
     private function checkBillingInformation($vol, $context)
     {
-        if($vol->isLinkedToOrder()){
+        if ($vol->isLinkedToOrder()) {
             return $this;
         }
 
@@ -119,7 +119,7 @@ class FlightValidator extends AbstractValidator
 
     /**
      * @param Bbcvols $vol
-     * @param array $context
+     * @param array   $context
      *
      * @return $this
      */

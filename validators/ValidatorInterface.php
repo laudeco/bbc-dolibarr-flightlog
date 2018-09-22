@@ -21,4 +21,11 @@ interface ValidatorInterface
      */
     public function getErrors();
 
+    /**
+     * @param string $field
+     *
+     * @return array|string[]
+     */
+    public function getError($field);
+
 }
