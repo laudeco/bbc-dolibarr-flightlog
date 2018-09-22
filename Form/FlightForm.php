@@ -52,7 +52,7 @@ class FlightForm extends Form
     {
         $values = [];
 
-        foreach ($options as $value){
+        foreach ($options as $value) {
             $values[] = $value;
         }
 
@@ -67,7 +67,7 @@ class FlightForm extends Form
         /** @var \Bbcvols $flight */
         $flight = $object;
 
-        if($flight->isBilled()){
+        if ($flight->isBilled()) {
             $this
                 ->remove('fk_receiver')
                 ->remove('cost')
@@ -76,7 +76,7 @@ class FlightForm extends Form
         }
 
         $endOfYearDate = $flight->getDate()->setDate($flight->getDate()->format('Y'), 12, 31);
-        if(new \DateTime() >= $endOfYearDate){
+        if (new \DateTime() >= $endOfYearDate) {
             $this
                 ->remove('fk_receiver')
                 ->remove('cost')
