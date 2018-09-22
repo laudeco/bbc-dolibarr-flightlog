@@ -43,7 +43,7 @@ if (!$res) {
 // Change this following line to use the correct relative path from htdocs
 include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 
-dol_include_once('/flightlog/flightLog.inc.php');
+dol_include_once('/flightlog/flightlog.inc.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once('/flightlog/lib/card.lib.php');
