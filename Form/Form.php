@@ -96,6 +96,23 @@ abstract class Form implements FormInterface
     /**
      * @inheritDoc
      */
+    public function remove($fieldName)
+    {
+        unset($this->elements[$fieldName]);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function has($fieldName)
+    {
+        return isset($this->elements[$fieldName]);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function validate()
     {
         if(!$this->validator){

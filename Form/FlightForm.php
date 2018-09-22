@@ -57,6 +57,41 @@ class FlightForm extends Form
         }
 
         return $values;
-
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function bind($object)
+    {
+        /** @var \Bbcvols $flight */
+        $flight = $object;
+
+        if($flight->isBilled()){
+            $this
+                ->remove('fk_receiver')
+                ->remove('cost')
+                ->remove('nbrPax')
+                ->remove('passengerNames');
+        }
+
+        $endOfYearDate = $flight->getDate()->setDate($flight->getDate()->format('Y'), 12, 31);
+        if(new \DateTime() >= $endOfYearDate){
+            $this
+                ->remove('fk_receiver')
+                ->remove('cost')
+                ->remove('BBC_ballons_idBBC_ballons')
+                ->remove('nbrPax')
+                ->remove('passengerNames')
+                ->remove('fk_type')
+                ->remove('fk_pilot')
+                ->remove('fk_organisateur')
+                ->remove('kilometers')
+                ->remove('justif_kilometers');
+        }
+
+        return parent::bind($object);
+    }
+
+
 }

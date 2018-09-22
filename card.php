@@ -153,7 +153,7 @@ if ($reshook < 0) {
 if (empty($reshook)) {
 
     // Action to update record
-    if ($action == 'update') {
+    if (($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) && $action == 'update') {
 
         $formFlight->setData($_POST);
 
@@ -251,7 +251,7 @@ jQuery(document).ready(function() {
 
 
 // Part to edit record
-if (($id || $ref) && $action == 'edit'): ?>
+if (($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id )) && ($id || $ref) && $action == 'edit'): ?>
 
     <?php $renderer = new \flightlog\form\SimpleFormRenderer(); ?>
 
@@ -263,14 +263,15 @@ if (($id || $ref) && $action == 'edit'): ?>
         ?>
     </div>
 
-    <form class="flight-form js-form" name='add' action="card.php" method="POST">
+    <form class="flight-form js-form" name='add' action="card.php?rowid=<?php echo $object->getId(); ?>" method="POST">
         <input type="hidden" name="action" value="update"/>
 
         <?php echo $renderer->render($formFlight->getElement('idBBC_vols')); ?>
 
         <!-- Date et heures -->
+        <?php if($formFlight->has('fk_type')): ?>
         <section class="form-section">
-            <h1 class="form-section-title"><?php echo $langs->trans('Date & heures'); ?></h1>
+            <h1 class="form-section-title"><?php echo $langs->trans('Type de vol'); ?></h1>
             <table class="border" width="50%">
 
                 <tr>
@@ -279,20 +280,25 @@ if (($id || $ref) && $action == 'edit'): ?>
                 </tr>
             </table>
         </section>
+        <?php endif; ?>
 
         <section class="form-section">
             <h1 class="form-section-title"><?php echo $langs->trans('Pilote & ballon') ?></h1>
             <table class="border" width="50%">
 
+                <?php if($formFlight->has('fk_pilot')): ?>
                 <tr>
                     <td class="fieldrequired"> Pilote </td>
                     <td><?php echo $renderer->render($formFlight->getElement('fk_pilot'),['ajax' => true]); ?></td>
                 </tr>
+                <?php endif; ?>
 
+                <?php if($formFlight->has('BBC_ballons_idBBC_ballons')): ?>
                 <tr>
                     <td width="25%" class="fieldrequired">Ballon</td>
                     <td><?php echo $renderer->render($formFlight->getElement('BBC_ballons_idBBC_ballons')); ?></td>
                 </tr>
+                <?php endif; ?>
 
                 <tr>
                     <td>Il y'avait-il plusieurs ballons ?</td>
@@ -322,44 +328,48 @@ if (($id || $ref) && $action == 'edit'): ?>
             </table>
         </section>
 
-        <section class="form-section">
-            <h1 class="form-section-title"><span class="js-organisator-field">Organisateur</span><span
-                        class="js-instructor-field">Instructeur</span></h1>
-            <table class="border" width="50%">
-                <tr>
-                    <td class="fieldrequired"><span class="js-organisator-field">Organisateur</span><span
-                                class="js-instructor-field">Instructeur</span></td>
-                    <td>
-                        <?php
-                        //organisateur
-                        print $renderer->render($formFlight->getElement('fk_organisateur'),['ajax' => true]);
-                        ?>
-                    </td>
-                </tr>
-            </table>
-        </section>
+        <?php if($formFlight->has('fk_organisateur')): ?>
+            <section class="form-section">
+                <h1 class="form-section-title"><span class="js-organisator-field">Organisateur</span></h1>
+                <table class="border" width="50%">
+                    <tr>
+                        <td class="fieldrequired"><span class="js-organisator-field">Organisateur</span></td>
+                        <td>
+                            <?php
+                            //organisateur
+                            print $renderer->render($formFlight->getElement('fk_organisateur'),['ajax' => true]);
+                            ?>
+                        </td>
+                    </tr>
+                </table>
+            </section>
+        <?php endif; ?>
 
 
         <section class="form-section js-expensable-field">
             <h1 class="form-section-title"><?php echo $langs->trans('Déplacements') ?></h1>
             <table class="border" width="50%">
-                <!-- number of kilometers done for the flight -->
-                <tr>
-                    <td class="fieldrequired">Nombre de kilometres effectués pour le vol</td>
-                    <td>
-                        <?php print $renderer->render($formFlight->getElement('kilometers')); ?>
-                    </td>
-                </tr>
+                <?php if($formFlight->has('kilometers')): ?>
+                    <!-- number of kilometers done for the flight -->
+                    <tr>
+                        <td class="fieldrequired">Nombre de kilometres effectués pour le vol</td>
+                        <td>
+                            <?php print $renderer->render($formFlight->getElement('kilometers')); ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
 
-                <!-- Justif Kilometers -->
-                <tr>
+                <?php if($formFlight->has('justif_kilometers')): ?>
+                    <!-- Justif Kilometers -->
+                    <tr>
 
-                    <td width="25%" class="fieldrequired">Justificatif des KM</td>
-                    <td>
-                        <?php print $renderer->render($formFlight->getElement('justif_kilometers')); ?>
-                    </textarea>
-                    </td>
-                </tr>
+                        <td width="25%" class="fieldrequired">Justificatif des KM</td>
+                        <td>
+                            <?php print $renderer->render($formFlight->getElement('justif_kilometers')); ?>
+                        </textarea>
+                        </td>
+                    </tr>
+                <?php endif; ?>
             </table>
         </section>
 
@@ -367,22 +377,26 @@ if (($id || $ref) && $action == 'edit'): ?>
         <section class="form-section">
             <h1 class="form-section-title"><?php echo $langs->trans('Passager') ?></h1>
             <table class="border" width="50%">
-                <tr>
-                    <td class="fieldrequired"><?php echo $langs->trans('Nombre de passagers'); ?></td>
-                    <td>
-                        <?php print $renderer->render($formFlight->getElement('nbrPax')); ?>
-                    </td>
-                </tr>
+                <?php if($formFlight->has('nbrPax')): ?>
+                    <tr>
+                        <td class="fieldrequired"><?php echo $langs->trans('Nombre de passagers'); ?></td>
+                        <td>
+                            <?php print $renderer->render($formFlight->getElement('nbrPax')); ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
 
-                <!-- passenger names -->
-                <tr>
-                    <td width="25%" class="fieldrequired"><?php echo $langs->trans('Noms des passagers'); ?><br/>(Séparé
-                        par des ; )
-                    </td>
-                    <td>
-                        <?php print $renderer->render($formFlight->getElement('passengerNames')); ?>
-                    </td>
-                </tr>
+                <?php if($formFlight->has('passengerNames')): ?>
+                    <!-- passenger names -->
+                    <tr>
+                        <td width="25%" class="fieldrequired"><?php echo $langs->trans('Noms des passagers'); ?><br/>(Séparé
+                            par des ; )
+                        </td>
+                        <td>
+                            <?php print $renderer->render($formFlight->getElement('passengerNames')); ?>
+                        </td>
+                    </tr>
+                <?php endif;?>
             </table>
         </section>
 
@@ -391,22 +405,26 @@ if (($id || $ref) && $action == 'edit'): ?>
             <h1 class="form-section-title js-billable-field"><?php echo $langs->trans('Facturation') ?></h1>
             <table class="border" width="50%">
 
-                <!-- Money receiver -->
-                <tr class="js-hide-order js-billable-field">
-                    <td class="fieldrequired"><?php echo $langs->trans('Qui a perçu l\'argent') ?></td>
-                    <td>
-                        <?php print $renderer->render($formFlight->getElement('fk_receiver'),['ajax' => true]); ?>
-                    </td>
-                </tr>
+                <?php if($formFlight->has('fk_receiver')): ?>
+                    <!-- Money receiver -->
+                    <tr class="js-hide-order js-billable-field">
+                        <td class="fieldrequired"><?php echo $langs->trans('Qui a perçu l\'argent') ?></td>
+                        <td>
+                            <?php print $renderer->render($formFlight->getElement('fk_receiver'),['ajax' => true]); ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
 
-                <!-- Flight cost -->
-                <tr class="js-hide-order js-billable-field">
-                    <td class="fieldrequired">Montant perçu</td>
-                    <td>
-                        <?php print $renderer->render($formFlight->getElement('cost')); ?>
-                        &euro;
-                    </td>
-                </tr>
+                <?php if($formFlight->has('cost')): ?>
+                    <!-- Flight cost -->
+                    <tr class="js-hide-order js-billable-field">
+                        <td class="fieldrequired">Montant perçu</td>
+                        <td>
+                            <?php print $renderer->render($formFlight->getElement('cost')); ?>
+                            &euro;
+                        </td>
+                    </tr>
+                <?php endif; ?>
             </table>
         </section>
 
@@ -414,25 +432,31 @@ if (($id || $ref) && $action == 'edit'): ?>
         <section class="form-section">
             <h1 class="form-section-title"><?php echo $langs->trans('Commentaires') ?></h1>
             <table class="border" width="50%">
-                <!-- commentaires -->
-                <tr class="">
-                    <td class="fieldrequired"> Commentaire</td>
-                    <td>
-                        <?php print $renderer->render($formFlight->getElement('remarque')); ?>
-                    </td>
-                </tr>
 
-                <!-- incidents -->
-                <tr class="">
-                    <td class="fieldrequired"> incidents</td>
-                    <td>
-                        <?php print $renderer->render($formFlight->getElement('incidents')); ?>
-                    </td>
-                </tr>
+                <?php if($formFlight->has('remarque')): ?>
+                    <!-- commentaires -->
+                    <tr class="">
+                        <td class="fieldrequired"> Commentaire</td>
+                        <td>
+                            <?php print $renderer->render($formFlight->getElement('remarque')); ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+
+                <?php if($formFlight->has('incidents')): ?>
+                    <!-- incidents -->
+                    <tr class="">
+                        <td class="fieldrequired"> incidents</td>
+                        <td>
+                            <?php print $renderer->render($formFlight->getElement('incidents')); ?>
+                        </td>
+                    </tr>
+                <?php endif; ?>
             </table>
         </section>
 
         <button class="button" type="submit">Modifier</button>
+        <a href="card.php?id=<?php echo $object->getId(); ?>" class="btn button button-a">Annuler</a>
     </form>
 
 <?php endif;
@@ -453,7 +477,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('DeleteMyOjbect'),
             $langs->trans('êtes-vous sure de vouloir supprimer ce vol ?'), 'confirm_delete', '', 0, 1);
         print $formconfirm;
-    } elseif ($user->rights->flightlog->vol->financial && !$object->isBilled() && $action == ACTION_FLAG_BILLED) {
+    } elseif ($user->rights->flightlog->vol->financial  && $action == ACTION_FLAG_BILLED) {
         $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id,
             $langs->trans('Marque comme facturé'),
             $langs->trans('Ce vol va être marqué comme facturé, est-ce bien le cas ?'), ACTION_CONFIRM_FLAG_BILLED, '',
@@ -490,7 +514,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
     }
 
-    if ($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id && !$object->isBilled())) {
+    if ($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) {
         print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=edit">' . $langs->trans("Modify") . '</a></div>' . "\n";
     }
 

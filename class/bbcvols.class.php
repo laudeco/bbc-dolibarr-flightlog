@@ -1014,11 +1014,11 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return string
+     * @return DateTime
      */
     public function getDate()
     {
-        return $this->date;
+        return (new DateTime())->setTimestamp($this->date);
     }
 
     /**
