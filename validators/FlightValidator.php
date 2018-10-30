@@ -95,7 +95,7 @@ class FlightValidator extends AbstractValidator
      */
     private function checkBillingInformation($vol, $context)
     {
-        if ($vol->isLinkedToOrder()) {
+        if ($vol->isLinkedToOrder() || $vol->isBilled()) {
             return $this;
         }
 
