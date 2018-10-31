@@ -124,7 +124,7 @@ class SimpleFormRenderer
 
         if ($element->getValueOptions()) {
             foreach ($element->getValueOptions() as $optionValue => $optionLabel) {
-                $selectedAttribute = ''.$optionValue === ''.$element->getValue() ? 'selected' : '';
+                $selectedAttribute = '' . $optionValue === '' . $element->getValue() ? 'selected' : '';
                 $selectElement .= sprintf('<option value="%s" %s >%s</option>', $optionValue, $selectedAttribute,
                     $optionLabel);
             }
