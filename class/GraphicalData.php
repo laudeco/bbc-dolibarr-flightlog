@@ -40,7 +40,7 @@ class GraphicalData
      */
     public function addValue($year, GraphicalValue $value)
     {
-        if(!isset($this->data[$year])){
+        if (!isset($this->data[$year])) {
             throw new \Exception("Year is not defined");
         }
 
@@ -54,7 +54,7 @@ class GraphicalData
     {
         $result = [];
 
-        foreach($this->data as $year){
+        foreach ($this->data as $year) {
             $result[] = $year->export();
         }
 

@@ -61,8 +61,8 @@ $datef = dol_mktime(-1, -1, -1, $_GET["p2month"], $_GET["p2day"], $_GET["p2year"
 $form = new Form($db);
 print '<!-- debut cartouche rapport -->
 	<div class="tabs">
-	    <a  id="'.($viewSelection == 1 ? 'active' : '').'" class="tab" href="listFact.php?view=1">Facturation</a>
-	    <a  id="'.($viewSelection == 2 ? 'active' : '').'" class="tab" href="listFact.php?view=2">AVIABEL</a>
+	    <a  id="'.($viewSelection == 1 ? 'active' : '') . '" class="tab" href="listFact.php?view=1">Facturation</a>
+	    <a  id="'.($viewSelection == 2 ? 'active' : '') . '" class="tab" href="listFact.php?view=2">AVIABEL</a>
 	</div>';
 print '<div class="tabBar">';
 print "<form name='listFact' action=\"listFact.php\" method=\"get\">\n";

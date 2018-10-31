@@ -36,14 +36,14 @@ class GraphicalValueType
     /**
      * @param GraphicalValue $value
      */
-    public function addValue(GraphicalValue $value){
+    public function addValue(GraphicalValue $value) {
         $this->counter = $this->counter->add($value);
     }
 
     /**
      * @return int
      */
-    public function getValue(){
+    public function getValue() {
         return $this->counter->getValue();
     }
 

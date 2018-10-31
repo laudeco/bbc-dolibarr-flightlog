@@ -42,7 +42,7 @@ $langs->load("other");
 
 $id = GETPOST('id', 'int') ?: GETPOST('idBBC_vols', 'int');
 $action = GETPOST('action', 'alpha');
-$permissiondellink=$user->rights->flightlog->vol->financial;
+$permissiondellink = $user->rights->flightlog->vol->financial;
 
 $object = new Bbcvols($db);
 $extrafields = new ExtraFields($db);
@@ -61,8 +61,8 @@ $balloon = new Bbc_ballons($db);
 $extralabels = $extrafields->fetch_name_optionals_label($object->table_element);
 
 // Load object
-include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php';  // Must be include, not include_once  // Must be include, not include_once. Include fetch and fetch_thirdparty but not fetch_optionals
-include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
+include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be include, not include_once  // Must be include, not include_once. Include fetch and fetch_thirdparty but not fetch_optionals
+include DOL_DOCUMENT_ROOT . '/core/actions_dellink.inc.php';
 
 // Initialize technical object to manage hooks of modules. Note that conf->hooks_modules contains array array
 $hookmanager->initHooks(array('bbcvols'));
@@ -97,7 +97,7 @@ dol_fiche_end();
 print '<div class="tabsAction">' . "\n";
 print '</div>' . "\n";
 
-if($user->rights->flightlog->vol->financial){
+if ($user->rights->flightlog->vol->financial) {
     print '<div class="fichecenter"><div class="fichehalfleft">';
     $form->showLinkedObjectBlock($object);
     print '</div></div>';
