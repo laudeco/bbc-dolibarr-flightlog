@@ -52,8 +52,12 @@ class GetPilotsWithMissionsQueryHandler
                         $pilotLastname = $obj->lastname;
                         $pilotFirstname = $obj->firstname;
 
-                        $result->addMission($obj->quartil, $pilotId, $pilotFirstname, $pilotLastname,
-                            $obj->number_flights, $obj->total_kilometers);
+                        if($query->isPilotsOnly()){
+                            $result->addPilot($pilotId, $pilotFirstname, $pilotLastname);
+                        }else{
+                            $result->addMission($obj->quartil, $pilotId, $pilotFirstname, $pilotLastname,
+                                $obj->number_flights, $obj->total_kilometers);
+                        }
 
                     }
                     $i++;
@@ -71,9 +75,14 @@ class GetPilotsWithMissionsQueryHandler
      */
     private function generateSql(GetPilotsWithMissionsQuery $query)
     {
-        $sql = "SELECT USR.rowid, USR.lastname, USR.firstname, QUARTER(VOL.date) as quartil ";
-        $sql .= " , SUM(VOL.kilometers) as total_kilometers";
+        $sql = "SELECT USR.rowid, USR.lastname, USR.firstname ";
+        $sql .= " , SUM(VOL.kilometers) as total_kilometers ";
         $sql .= " , COUNT(VOL.idBBC_vols) as number_flights";
+
+        if(!$query->isPilotsOnly()){
+            $sql .= " , QUARTER(VOL.date) as quartil ";
+        }
+
         $sql .= " FROM llx_bbc_vols as VOL";
         $sql .= " LEFT JOIN llx_user AS USR ON VOL.fk_pilot = USR.rowid";
         $sql .= " WHERE ";

@@ -92,8 +92,7 @@ class CreateExpenseNoteCommandHandler
      */
     public function __invoke(CreateExpenseNoteCommand $command)
     {
-        $missions = $this->getMissionsQueryHandler->__invoke(new GetPilotsWithMissionsQuery($command->getYear(),
-            $command->getQuartile()));
+        $missions = $this->getMissionsQueryHandler->__invoke(new GetPilotsWithMissionsQuery($command->getYear(), $command->getQuartile()));
 
         if (!$missions->hasMission()) {
             throw new NoMissionException();
@@ -102,34 +101,38 @@ class CreateExpenseNoteCommandHandler
         /** @var PilotMissions $currentMission */
         foreach ($missions as $currentMission) {
             $expenseNote = $this->createExpenseNote($command);
-            $expenseNoteId = $this->saveExpenseNote($currentMission->getPilotId(), $expenseNote);
-            if ($expenseNoteId < 0) {
-                dol_htmloutput_errors("Erreur lors de la création de la note de frais", $expenseNote->errors);
-                continue;
-            }
 
             $flightsForQuarter = $this->flightForQuarterAndPilotHandler->__invoke(new FlightForQuarterAndPilotQuery($currentMission->getPilotId(),
                 $command->getQuartile(), $command->getYear()));
 
-            $isFlightInError = false;
             /** @var FlightMission $currentFlightForQuarter */
             foreach ($flightsForQuarter as $currentFlightForQuarter) {
-                $isFlightInError = $this->addFlight($currentFlightForQuarter, $expenseNote) || $isFlightInError;
+                $expenseNote = $this->addKilometersLine($currentFlightForQuarter, $expenseNote);
+                $expenseNote = $this->addMissionLine($currentFlightForQuarter, $expenseNote);
             }
 
-            if (!$isFlightInError) {
-                $expenseNote->fetch($expenseNoteId);
-                $expenseNote->setValidate($this->user);
-                $expenseNote->setApproved($this->user);
+            $expenseNote = $this->saveExpenseNote($currentMission->getPilotId(), $expenseNote);
+            if (null === $expenseNote) {
+                dol_htmloutput_errors("Erreur lors de la création de la note de frais", $expenseNote->errors);
+                continue;
+            }
 
-                $expenseNote->fetch($expenseNoteId);
-                $expenseNote->setDocModel($this->user, "standard");
-                $error = $expenseNote->generateDocument($expenseNote->modelpdf, $this->langs) <= 0;
+            /** @var FlightMission $currentFlightForQuarter */
+            foreach ($flightsForQuarter as $currentFlightForQuarter) {
+                $expenseNote->add_object_linked(self::FLIGHT_ELEMENT, $currentFlightForQuarter->getId());
+            }
 
-                if (!$error) {
-                    dol_htmloutput_mesg(sprintf("Notes de frais crée pour %s", $currentMission->getPilotName()));
-                    continue;
-                }
+            $expenseNote->fetch($expenseNote->id);
+            $expenseNote->setValidate($this->user);
+            $expenseNote->setApproved($this->user);
+            $expenseNote->setDocModel($this->user, "standard");
+
+            $error = false;
+            //$error = $expenseNote->generateDocument($expenseNote->modelpdf, $this->langs) <= 0;
+
+            if (!$error) {
+                dol_htmloutput_mesg(sprintf("Notes de frais crée pour %s", $currentMission->getPilotName()));
+                continue;
             }
 
             dol_htmloutput_errors(sprintf("Notes de frais non crée pour %s", $currentMission->getPilotName()));
@@ -138,11 +141,11 @@ class CreateExpenseNoteCommandHandler
 
     /**
      * @param FlightMission $currentFlightForQuarter
-     * @param int           $expenseNoteId
+     * @param ExpenseReport $expenseNote
      *
-     * @return boolean
+     * @return ExpenseReport
      */
-    private function addKilometersLine(FlightMission $currentFlightForQuarter, $expenseNoteId)
+    private function addKilometersLine(FlightMission $currentFlightForQuarter, $expenseNote)
     {
         $object_ligne = new ExpenseReportLine($this->db);
         $object_ligne->comments = $this->langs->trans(sprintf("Vol (id: %d) %s à %s  détail: %s",
@@ -154,7 +157,6 @@ class CreateExpenseNoteCommandHandler
         $object_ligne->date = $currentFlightForQuarter->getDate()->format('Y-m-d');
 
         $object_ligne->fk_c_type_fees = 2;
-        $object_ligne->fk_expensereport = $expenseNoteId;
         $object_ligne->fk_projet = '';
 
         $object_ligne->vatrate = price2num($this->getVatRate());
@@ -166,14 +168,16 @@ class CreateExpenseNoteCommandHandler
         $object_ligne->total_ht = $tmp[0];
         $object_ligne->total_tva = $tmp[1];
 
-        return $object_ligne->insert() > 0;
+        $expenseNote->lines[] = $object_ligne;
+
+        return $expenseNote;
     }
 
     /**
      * @param FlightMission $currentFlightForQuarter
      * @param ExpenseReport $expenseReport
      *
-     * @return bool
+     * @return ExpenseReport
      */
     private function addMissionLine(FlightMission $currentFlightForQuarter, ExpenseReport $expenseReport)
     {
@@ -186,7 +190,6 @@ class CreateExpenseNoteCommandHandler
         $object_ligne->date = $currentFlightForQuarter->getDate()->format('Y-m-d');
 
         $object_ligne->fk_c_type_fees = 8;
-        $object_ligne->fk_expensereport = $expenseReport->id;
         $object_ligne->fk_projet = '';
 
         $object_ligne->vatrate = price2num($this->getVatRate());
@@ -198,29 +201,9 @@ class CreateExpenseNoteCommandHandler
         $object_ligne->total_ht = $tmp[0];
         $object_ligne->total_tva = $tmp[1];
 
-        $isError = $object_ligne->insert() <= 0;
+        $expenseReport->lines[] = $object_ligne;
 
-        if (!$isError) {
-            $expenseReport->add_object_linked(self::FLIGHT_ELEMENT, $currentFlightForQuarter->getId());
-        }
-
-        return !$isError;
-    }
-
-    /**
-     * @param FlightMission $currentFlightForQuarter
-     * @param ExpenseReport $expenseNote
-     *
-     * @return boolean
-     */
-    private function addFlight(FlightMission $currentFlightForQuarter, ExpenseReport $expenseNote)
-    {
-        $error = false;
-
-        $error = $this->addKilometersLine($currentFlightForQuarter, $expenseNote->id) && $error;
-        $error = $this->addMissionLine($currentFlightForQuarter, $expenseNote) && $error;
-
-        return $error;
+        return $expenseReport;
     }
 
     /**
@@ -280,7 +263,7 @@ class CreateExpenseNoteCommandHandler
      * @param int           $currentMissionUserId
      * @param ExpenseReport $expenseNote
      *
-     * @return mixed
+     * @return ExpenseReport
      */
     private function saveExpenseNote($currentMissionUserId, ExpenseReport $expenseNote)
     {
@@ -288,7 +271,12 @@ class CreateExpenseNoteCommandHandler
 
         $expenseNoteUser = new User($this->db);
         $expenseNoteUser->id = $currentMissionUserId;
-        return $expenseNote->create($expenseNoteUser);
+        $id = $expenseNote->create($expenseNoteUser);
+        if($id < 0){
+            return null;
+        }
+
+        return $expenseNote;
     }
 
 }

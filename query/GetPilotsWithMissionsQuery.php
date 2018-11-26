@@ -66,4 +66,12 @@ class GetPilotsWithMissionsQuery
     {
         return !empty($this->quarter);
     }
+
+    /**
+     * @return bool
+     */
+    public function isPilotsOnly()
+    {
+        return $this->hasQuarter();
+    }
 }

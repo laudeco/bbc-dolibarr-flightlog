@@ -27,12 +27,12 @@ class QuarterPilotMissionCollection implements IteratorAggregate
     }
 
     /**
-     * @param $quarter
-     * @param $pilotId
-     * @param $pilotFirstname
-     * @param $pilotLastname
-     * @param $numberOfFlights
-     * @param $numberOfKilometers
+     * @param int $quarter
+     * @param int $pilotId
+     * @param string $pilotFirstname
+     * @param string $pilotLastname
+     * @param int $numberOfFlights
+     * @param int $numberOfKilometers
      */
     public function addMission(
         $quarter,
@@ -41,15 +41,33 @@ class QuarterPilotMissionCollection implements IteratorAggregate
         $pilotLastname,
         $numberOfFlights,
         $numberOfKilometers
-    ) {
+    )
+    {
         Assert::integerish($pilotId);
-        $pilotId = (int) $pilotId;
+        $pilotId = (int)$pilotId;
 
         if (!isset($this->items[$pilotId])) {
             $this->items[$pilotId] = new PilotMissions($pilotId, $pilotFirstname, $pilotLastname);
         }
 
         $this->items[$pilotId]->addQuarter($quarter, $numberOfFlights, $numberOfKilometers);
+    }
+
+    /**
+     * @param int $pilotId
+     * @param string $pilotFirstname
+     * @param string $pilotLastname
+     */
+    public function addPilot($pilotId, $pilotFirstname, $pilotLastname)
+    {
+        Assert::integerish($pilotId);
+        $pilotId = (int)$pilotId;
+
+        if (isset($this->items[$pilotId])) {
+            return;
+        }
+
+        $this->items[$pilotId] = new PilotMissions($pilotId, $pilotFirstname, $pilotLastname);
     }
 
 
