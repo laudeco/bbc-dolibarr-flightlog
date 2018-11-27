@@ -219,8 +219,7 @@ if ($msg) {
 
                 <td width="25%" class="fieldrequired">Justificatif des KM </td>
                 <td>
-                    <textarea rows="2" cols="60" class="flat <?php echo($validator->hasError('justif_kilometers') ? 'error' : '') ?>" name="justif_kilometers"><?php echo $_POST['justif_kilometers'] ?>
-                    </textarea>
+                    <textarea name="justif_kilometers" rows="2" cols="60" class="flat <?php echo($validator->hasError('justif_kilometers') ? 'error' : '') ?>"><?php echo $_POST['justif_kilometers'] ?></textarea>
                 </td>
             </tr>
         </table>
