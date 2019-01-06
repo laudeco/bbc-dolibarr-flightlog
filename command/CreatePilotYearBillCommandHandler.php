@@ -116,7 +116,7 @@ class CreatePilotYearBillCommandHandler
         $object->socid = $this->getCompanyIdFromPilot($command->getPilot());
         $object->type = $command->getBillType();
         $object->number = "provisoire";
-        $object->date = (new DateTime())->getTimestamp();
+        $object->date = (new \DateTime())->setDate($command->getYear(), 12, 31)->getTimestamp();
         $object->date_pointoftax = "";
         $object->note_public = $command->getPublicNote();
         $object->note_private = $command->getPrivateNote();
