@@ -5,6 +5,8 @@
 
 namespace flightlog\form;
 
+use User;
+
 /**
  * FlightForm class
  *
@@ -12,15 +14,25 @@ namespace flightlog\form;
  */
 class FlightForm extends Form
 {
+
+    /**
+     * @var User
+     */
+    private $user;
+
     /**
      * @param \ValidatorInterface $validator
-     * @param \Bbcvols            $baseObject
-     * @param \DoliDB             $db
+     * @param \Bbcvols $baseObject
+     * @param \DoliDB $db
+     * @param array $options
+     * @param \User $user
      */
-    public function __construct(\ValidatorInterface $validator, $baseObject, \DoliDB $db, $options)
+    public function __construct(\ValidatorInterface $validator, $baseObject, \DoliDB $db, $options,\User $user)
     {
 
         parent::__construct('flight_form', FormInterface::METHOD_POST, $this->buildOptionsfromConfiguration($options));
+
+        $this->user = $user;
 
         $this->setValidator($validator)
             ->bind($baseObject);
@@ -66,6 +78,11 @@ class FlightForm extends Form
     {
         /** @var \Bbcvols $flight */
         $flight = $object;
+
+        // Quick fix - Fixme by a factory on this form.
+        if($this->user->rights->flightlog->vol->advanced){
+            return parent::bind($object);
+        }
 
         if ($flight->isBilled()) {
             $this
