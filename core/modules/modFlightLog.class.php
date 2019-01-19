@@ -453,7 +453,7 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][5] = 'financialGenerateDocuments';
         $r++;
 
-        $this->rights[$r][0] = 10001;
+        $this->rights[$r][0] = 9992;
         $this->rights[$r][1] = 'Peut tout editer des vols';
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'vol';
