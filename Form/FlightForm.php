@@ -107,6 +107,7 @@ class FlightForm extends Form
                 ->remove('fk_pilot')
                 ->remove('fk_organisateur')
                 ->remove('kilometers')
+                ->remove('date')
                 ->remove('heureD')
                 ->remove('heureA')
                 ->remove('kilometers')
