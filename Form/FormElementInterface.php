@@ -23,6 +23,8 @@ interface FormElementInterface
 
     const TYPE_TIME = 'time';
 
+    const TYPE_DATE = 'date';
+
     /**
      * @return string
      */

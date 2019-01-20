@@ -282,6 +282,18 @@ if (($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add 
         <?php endif; ?>
 
         <!-- Date et heures -->
+        <?php if($formFlight->has('date')): ?>
+            <section class="form-section">
+                <h1 class="form-section-title"><?php echo $langs->trans('Date'); ?></h1>
+                <table class="border" width="50%">
+                    <tr>
+                        <td class="fieldrequired" width="25%">Date du vol</td>
+                        <td ><?php echo $renderer->render($formFlight->getElement('date')); ?></td>
+                    </tr>
+                </table>
+            </section>
+        <?php endif; ?>
+
         <?php if($formFlight->has('heureD') && $formFlight->has('heureA')): ?>
             <section class="form-section">
                 <h1 class="form-section-title"><?php echo $langs->trans('Heures'); ?></h1>

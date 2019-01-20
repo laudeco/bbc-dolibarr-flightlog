@@ -39,6 +39,7 @@ class FlightForm extends Form
 
         $this
             ->add(new Hidden('idBBC_vols'))
+            ->add((new InputDate('date'))->required())
             ->add((new Input('lieuD'))->required())
             ->add((new Input('lieuA'))->required())
             ->add((new InputTime('heureD'))->required())
