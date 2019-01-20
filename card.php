@@ -67,7 +67,7 @@ $cancel = GETPOST('cancel');
 $backtopage = GETPOST('backtopage');
 $myparam = GETPOST('myparam', 'alpha');
 
-$isAllowedEdit = ($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id));
+$isAllowedEdit = ($user->rights->flightlog->vol->advanced || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id));
 $isAllowedDelete = ($user->rights->flightlog->vol->delete || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id && !$object->is_facture));
 $permissiondellink = $user->rights->flightlog->vol->financial;
 
@@ -132,7 +132,7 @@ $formFlight = new \flightlog\form\FlightForm(new FlightValidator($langs, $db, $c
 $formFlight->bind($object);
 
 
-if (($action == "update" || $action == "edit") && !($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id))) {
+if (($action == "update" || $action == "edit") && !($user->rights->flightlog->vol->advanced || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id))) {
     setEventMessage("Ceci n'est pas un de tes vols tu ne peux l'editer ! ", 'errors');
     $action = 'view';
 }
@@ -153,7 +153,7 @@ if ($reshook < 0) {
 if (empty($reshook)) {
 
     // Action to update record
-    if (($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) && $action == 'update') {
+    if (($user->rights->flightlog->vol->advanced || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) && $action == 'update') {
 
         $formFlight->setData($_POST);
 
@@ -530,7 +530,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
     }
 
-    if ($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) {
+    if ($user->rights->flightlog->vol->advanced || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) {
         print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=edit">' . $langs->trans("Modify") . '</a></div>' . "\n";
     }
 
