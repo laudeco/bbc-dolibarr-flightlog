@@ -21,6 +21,8 @@ interface FormElementInterface
 
     const TYPE_NUMBER = 'number';
 
+    const TYPE_TIME = 'time';
+
     /**
      * @return string
      */

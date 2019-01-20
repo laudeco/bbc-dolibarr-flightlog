@@ -268,7 +268,6 @@ if (($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add 
 
         <?php echo $renderer->render($formFlight->getElement('idBBC_vols')); ?>
 
-        <!-- Date et heures -->
         <?php if($formFlight->has('fk_type')): ?>
         <section class="form-section">
             <h1 class="form-section-title"><?php echo $langs->trans('Type de vol'); ?></h1>
@@ -280,6 +279,23 @@ if (($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add 
                 </tr>
             </table>
         </section>
+        <?php endif; ?>
+
+        <!-- Date et heures -->
+        <?php if($formFlight->has('heureD') && $formFlight->has('heureA')): ?>
+            <section class="form-section">
+                <h1 class="form-section-title"><?php echo $langs->trans('Heures'); ?></h1>
+                <table class="border" width="50%">
+                    <tr>
+                        <td class="fieldrequired" width="25%">Heure du décollage</td>
+                        <td ><?php echo $renderer->render($formFlight->getElement('heureD')); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="fieldrequired" width="25%">Heure de l'atterrissage</td>
+                        <td ><?php echo $renderer->render($formFlight->getElement('heureA')); ?></td>
+                    </tr>
+                </table>
+            </section>
         <?php endif; ?>
 
         <section class="form-section">

@@ -41,6 +41,8 @@ class FlightForm extends Form
             ->add(new Hidden('idBBC_vols'))
             ->add((new Input('lieuD'))->required())
             ->add((new Input('lieuA'))->required())
+            ->add((new InputTime('heureD'))->required())
+            ->add((new InputTime('heureA'))->required())
             ->add((new BalloonSelect('BBC_ballons_idBBC_ballons', $db))->required())
             ->add(new Number('nbrPax'))
             ->add(new InputTextarea('remarque'))
@@ -103,6 +105,9 @@ class FlightForm extends Form
                 ->remove('fk_type')
                 ->remove('fk_pilot')
                 ->remove('fk_organisateur')
+                ->remove('kilometers')
+                ->remove('heureD')
+                ->remove('heureA')
                 ->remove('kilometers')
                 ->remove('justif_kilometers');
         }

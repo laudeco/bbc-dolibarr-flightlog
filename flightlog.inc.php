@@ -40,6 +40,7 @@ dol_include_once('/flightlog/Form/BaseInput.php');
 dol_include_once('/flightlog/Form/Form.php');
 dol_include_once('/flightlog/Form/Hidden.php');
 dol_include_once('/flightlog/Form/Input.php');
+dol_include_once('/flightlog/Form/InputTime.php');
 dol_include_once('/flightlog/Form/InputTextarea.php');
 dol_include_once('/flightlog/Form/Number.php');
 dol_include_once('/flightlog/Form/Select.php');
