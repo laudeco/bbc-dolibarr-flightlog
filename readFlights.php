@@ -22,7 +22,7 @@ use flightlog\query\GetPilotsWithMissionsQueryHandler;
 
 $langs->load("mymodule@flightlog");
 
-// Get parametersI
+// Get parameters
 //TODO get all parameters from here
 $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');

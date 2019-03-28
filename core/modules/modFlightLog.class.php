@@ -138,6 +138,8 @@ class modFlightLog extends DolibarrModules
         // If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
         $this->picto = 'flight@flightlog';
 
+        $this->module_parts['moduleforexternal'] = 1;
+
         $this->configureCss();
 
         // Data directories to create when module is enabled.
@@ -233,7 +235,7 @@ class modFlightLog extends DolibarrModules
             'enabled' => '1',
             'perms' => '$user->rights->flightlog->vol->access',
             'target' => '',
-            'user' => 0
+            'user' => 2
         );
         $r++;
 
