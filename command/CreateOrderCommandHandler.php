@@ -131,8 +131,8 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
         $this->societe = new Societe($this->db);
         $name = $command->getName() . ' ' . $command->getFirstname();
 
-        $existingCustomers = $this->societe->searchByName($name);
-        if(count($existingCustomers) > 0){
+        $existingCustomers = $this->societe->fetch(null, $name);
+        if($existingCustomers > 0){
             $this->societe = $existingCustomers[0];
             return $this->societe;
         }
