@@ -263,6 +263,8 @@ $sql .= " t.kilometers,";
 $sql .= " t.cost,";
 $sql .= " t.fk_receiver,";
 $sql .= " t.justif_kilometers, ";
+$sql .= " t.date_creation, ";
+$sql .= " t.date_update, ";
 $sql .= " balloon.immat as bal, ";
 $sql .= " CONCAT_WS(' ', 'T', flightType.numero,'-', flightType.nom) as flight_type, ";
 $sql .= " CONCAT_WS(' ', pilot.firstname, pilot.lastname) as pilot, ";
@@ -943,7 +945,7 @@ while ($i < min($num, $limit)) {
         // Date creation
         if (!empty($arrayfields['t.datec']['checked'])) {
             print '<td align="center">';
-            print dol_print_date($db->jdate($obj->date_creation), 'dayhour');
+            print dol_print_date($db->jdate($obj->date_creation), 'day');
             print '</td>';
             if (!$i) {
                 $totalarray['nbfield']++;
@@ -952,7 +954,7 @@ while ($i < min($num, $limit)) {
         // Date modification
         if (!empty($arrayfields['t.tms']['checked'])) {
             print '<td align="center">';
-            print dol_print_date($db->jdate($obj->date_update), 'dayhour');
+            print dol_print_date($db->jdate($obj->date_update), 'day');
             print '</td>';
             if (!$i) {
                 $totalarray['nbfield']++;
