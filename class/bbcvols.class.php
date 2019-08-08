@@ -841,7 +841,7 @@ class Bbcvols extends CommonObject
      */
     public function isFree()
     {
-        return empty($this->cost);
+        return empty($this->cost) || intval($this->cost) === 0;
     }
 
     /**

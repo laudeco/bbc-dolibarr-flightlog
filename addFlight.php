@@ -276,7 +276,7 @@ if ($msg) {
             <tr class="js-hide-order js-billable-field">
                 <td class="fieldrequired">Montant perçu</td>
                 <td>
-                    <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost'] ?> "/>
+                    <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost']?:0 ?> "/>
                     &euro;
                 </td>
             </tr>

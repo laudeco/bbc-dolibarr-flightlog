@@ -99,7 +99,7 @@ class FlightValidator extends AbstractValidator
             return $this;
         }
 
-        if ($this->isGroupedFlight($context) && $vol->getFlightType()->isBillingRequired() && $vol->isFree()) {
+        if ((!$this->isGroupedFlight($context) || $vol->getPilotId() === $vol->getFkReceiver()) && $vol->getFlightType()->isBillingRequired() && $vol->isFree()) {
             $this->addError('cost', 'Erreur ce type de vol doit être payant.');
         }
 
