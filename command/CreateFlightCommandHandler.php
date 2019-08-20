@@ -80,7 +80,9 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
         $vol->fk_receiver = $command->getFkReceiver();
         $vol->justif_kilometers = $command->getJustifKilometers();
         $vol->setPassengerNames($command->getPassengerNames());
-        $vol->setOrderId($command->getOrderId());
+        foreach($command->getOrderIds() as $orderId => $nbrPassengers){
+            $vol->addOrderId($orderId, $nbrPassengers);
+        }
 
         if (!$this->validator->isValid($vol, $_REQUEST)) {
             throw new Exception();
@@ -115,38 +117,26 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
             return;
         }
 
-        $order = $this->getOrderFromFlight($flight);
-        $order->add_object_linked('flightlog_bbcvols', $flight->getId());
+        foreach($flight->getOrders() as $currentOrder){
+            $currentOrder->add_object_linked('flightlog_bbcvols', $flight->getId());
+            $currentOrder->fetch_lines();
 
-        $order->fetch_lines();
+            $qtyOrder = 0;
+            /** @var OrderLine $currentOrderLine */
+            foreach($currentOrder->lines as $currentOrderLine){
+                $qtyOrder += (int)$currentOrderLine->qty;
+            }
 
-        $qtyOrder = 0;
-        /** @var OrderLine $currentOrderLine */
-        foreach($order->lines as $currentOrderLine){
-            $qtyOrder += (int)$currentOrderLine->qty;
+            $passangersCount = $this->numberOfPassengersLinkedToOrder($currentOrder->id);
+
+            if($passangersCount < $qtyOrder){
+                continue;
+            }
+
+            if($currentOrder->statut == Commande::STATUS_VALIDATED){
+                $currentOrder->cloture($this->user);
+            }
         }
-
-        $passangersCount = $this->numberOfPassengersLinkedToOrder($order->id);
-
-        if($passangersCount != $qtyOrder){
-            return;
-        }
-
-        if($order->statut == Commande::STATUS_VALIDATED){
-            $order->cloture($this->user);
-        }
-    }
-
-    /**
-     * @param Bbcvols $flight
-     *
-     * @return Commande
-     * @throws Exception
-     */
-    private function getOrderFromFlight($flight)
-    {
-        $flight->fetchOrder();
-        return $flight->getOrder();
     }
 
     /**
@@ -156,7 +146,7 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
      */
     private function numberOfPassengersLinkedToOrder($orderId)
     {
-        $sql = sprintf('SELECT SUM(nbrPax) as total FROM `llx_bbc_vols` WHERE order_id = %s', $orderId);
+        $sql = sprintf('SELECT SUM(nbrPax) as total FROM `llx_bbc_vols_orders` WHERE order_id = %s', $orderId);
 
         $resql = $this->db->query($sql);
 

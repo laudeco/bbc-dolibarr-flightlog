@@ -37,7 +37,8 @@ if (GETPOST("action") == 'add') {
     if (!$_POST["cancel"]) {
         $dated = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
         $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
-        $orderId = (int) GETPOST('order_id', 'int', 2);
+        $orderIds = GETPOST('order_id', 'array', 2);
+        $orderPassengersCount = GETPOST('order_passengers_count', 'array', 2);
 
         $volCommand = new CreateFlightCommand();
         $volCommand->setDate($dated)
@@ -58,7 +59,7 @@ if (GETPOST("action") == 'add') {
             ->setJustifKilometers($_POST['justif_kilometers'])
             ->setPassengerNames($_POST['passenger_names'])
             ->setGroupedFlight($isGroupedFlight)
-            ->setOrderId($orderId);
+            ->setOrderIds($orderPassengersCount);
 
         try{
             $vol = $createFlightHandler->handle($volCommand);
@@ -255,11 +256,11 @@ if ($msg) {
         <table class="border" width="50%">
 
             <!-- Order -->
-            <tr class=" js-billable-field">
+            <tr id="list_order" class=" js-billable-field">
                 <td class="fieldrequired"><?php echo $langs->trans('Commande du vol')?></td>
                 <td class="js-order">
                     <?php
-                     echo $html->selectarray('order_id',$commande->liste_array(2),$_POST['order_id'], 1,0,0,'',0,0,0,'','minwidth200',1);
+                        echo $html::multiselectarray('order_id', $commande->liste_array(2),$_POST['order_id'],0,0,'',0,'100%');
                     ?>
                 </td>
             </tr>
@@ -312,16 +313,51 @@ print '</form>';
 $db->close();
 ?>
 
+<script type="text/html" id="orderRow">
+    <tr class="js-detail-order">
+        <td class="js-order-ref"></td>
+        <td class="js-order-passenger">
+            <input type="text" name="order_passengers_count[]" class="flat" value="1"/> Passager(s)
+        </td>
+    </tr>
+</script>
+
 <script type="application/javascript">
+
+    <?php if(!empty(GETPOST('order_passengers_count', 'array', 2))): ?>
+        var orders = {};
+        <?php foreach( GETPOST('order_passengers_count', 'array', 2) as $currentOrderId=>$nbrPaxForOrder): ?>
+        orders[<?php echo $currentOrderId; ?>] = <?php echo $nbrPaxForOrder; ?>;
+        <?php endforeach; ?>
+    <?php endif; ?>
 
     function hideOrderInformation (){
         var $this = $(this);
 
-        if($this.val() > -1){
-            $('input, select', '.js-hide-order').attr('disabled', 'disabled');
+        // Hide - unhide
+        if($this.val().length > 0){
+            $('.js-hide-order').hide();
         }else{
-            $('input, select', '.js-hide-order').removeAttr('disabled');
+            $('.js-hide-order').show();
         }
+
+        $('tr.js-detail-order').remove();
+
+        //Multi orders
+        $this.find('option:selected').each(function(){
+            var $option = $(this);
+            var $addingElement = $($('#orderRow').html());
+            var $input = $addingElement.find('.js-order-passenger input');
+
+            $addingElement.find('.js-order-ref').html($option.html());
+
+            $input.attr('name' , 'order_passengers_count['+$option.val()+']');
+            if(typeof orders !== "undefined" && typeof orders[$option.val()] !== 'undefined'){
+                $input.val(orders[$option.val()]);
+            }
+
+            $addingElement.insertAfter($('#list_order'));
+        });
     }
 
     /**

@@ -39,7 +39,8 @@ class FlightValidator extends AbstractValidator
             ->checkPassengersInformation($vol)
             ->checkInstructionInformation($vol, $context)
             ->checkBillingInformation($vol, $context)
-            ->checkKilometers($vol);
+            ->checkKilometers($vol)
+            ->checkOrderInformation($vol);
 
         return $this->valid;
     }
@@ -150,21 +151,22 @@ class FlightValidator extends AbstractValidator
             $this->addError('nbrPax', 'Erreur le nombre de passager est un nombre négatif.');
         }
 
-        if ($vol->mustHavePax()) {
-            if (!$vol->hasPax()) {
-                $this->addError('nbrPax', 'Erreur ce type de vol doit etre fait avec des passagers.');
-            }
+        if (!$vol->mustHavePax()) {
+            return $this;
+        }
 
-            if (empty(trim($vol->getPassengerNames()))) {
-                $this->addError('passenger_names', 'Le nom des passagers est obligatoire.');
-            }
+        if (!$vol->hasPax()) {
+            $this->addError('nbrPax', 'Erreur ce type de vol doit etre fait avec des passagers.');
+        }
 
-            $passengers = explode(';', $vol->getPassengerNames());
-            if (count($passengers) !== $vol->getNumberOfPassengers()) {
-                $this->addError('passenger_names',
-                    'Le nombre de noms des passagers doit être égale au nombre de passagers.');
-            }
+        if (empty(trim($vol->getPassengerNames()))) {
+            $this->addError('passenger_names', 'Le nom des passagers est obligatoire.');
+        }
 
+        $passengers = explode(';', $vol->getPassengerNames());
+        if (count($passengers) !== $vol->getNumberOfPassengers()) {
+            $this->addError('passenger_names',
+                'Le nombre de noms des passagers doit être égale au nombre de passagers.');
         }
 
         return $this;
@@ -215,6 +217,28 @@ class FlightValidator extends AbstractValidator
 
         if (empty($vol->lieuA)) {
             $this->addError('lieuA', 'Le lieu d\'arrivée est vide');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Bbcvols $vol
+     * @return $this|void
+     */
+    private function checkOrderInformation(Bbcvols $vol)
+    {
+        if(!$vol->isLinkedToOrder()){
+            return;
+        }
+
+        $totalPassenegrs = 0;
+        foreach($vol->getOrderIds() as $orderId => $nbrPassengers){
+            $totalPassenegrs+=(int)$nbrPassengers;
+        }
+
+        if($totalPassenegrs !== (int)$vol->getNumberOfPassengers()){
+            $this->addError('nbrPax', 'Le nombre de passagers ne correspond pas au nombre entré sur les commandes');
         }
 
         return $this;

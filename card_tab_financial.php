@@ -102,7 +102,11 @@ if(!$object->isLinkedToOrder()){
     print '<tr><td class="fieldrequired">' . $langs->trans("Fieldcost") . '</td><td>' . $object->cost . " " . $langs->getCurrencySymbol($conf->currency) . '</td></tr>';
     print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_receiver") . '</td><td>' . $receiver->getNomUrl(1) . '</td></tr>';
 }else{
-    print '<tr><td class="fieldrequired">' . $langs->trans("Order") . '</td><td>' . $object->getOrder()->getNomUrl(1). '</td></tr>';
+    print '<tr><td class="fieldrequired">' . $langs->trans("Order") . '</td><td><ul>';
+    foreach($object->getOrders() as $currentOrder){
+        print '<li>'.$currentOrder->getNomUrl(1).'</li>';
+    }
+    print '</ul></td></tr>';
 }
 print '</table>';
 
