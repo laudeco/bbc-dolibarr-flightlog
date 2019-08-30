@@ -224,12 +224,13 @@ class FlightValidator extends AbstractValidator
 
     /**
      * @param Bbcvols $vol
-     * @return $this|void
+     * 
+     * @return $this
      */
     private function checkOrderInformation(Bbcvols $vol)
     {
         if(!$vol->isLinkedToOrder()){
-            return;
+            return $this;
         }
 
         $totalPassenegrs = 0;
