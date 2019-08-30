@@ -230,3 +230,8 @@ input.error, textarea.error{
 .hidden{
     display: none;
 }
+
+.text-muted{
+    color:grey;
+    font-style: italic;
+}
