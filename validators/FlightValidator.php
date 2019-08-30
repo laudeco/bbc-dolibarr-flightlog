@@ -234,6 +234,10 @@ class FlightValidator extends AbstractValidator
 
         $totalPassenegrs = 0;
         foreach($vol->getOrderIds() as $orderId => $nbrPassengers){
+            if($nbrPassengers <= 0){
+                $this->addError('order_id', 'Le nombre de passager par commande doit être >= 0.');
+            }
+
             $totalPassenegrs+=(int)$nbrPassengers;
         }
 

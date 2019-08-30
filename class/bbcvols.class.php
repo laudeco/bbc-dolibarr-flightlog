@@ -1016,10 +1016,6 @@ class Bbcvols extends CommonObject
      * @param int $nbrPassengers
      */
     public function addOrderId($orderId, $nbrPassengers){
-        if($nbrPassengers <= 0){
-            throw new InvalidArgumentException('Nbr of passenger must be positive number');
-        }
-
         if(!isset($this->orderIds)){
             $this->orderIds = [];
         }

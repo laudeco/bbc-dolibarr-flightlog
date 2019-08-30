@@ -71,7 +71,7 @@ if (GETPOST("action") == 'add') {
             $msg = '<div class="ok">L\'ajout du vol du : ' . $_POST["reday"] . '/' . $_POST["remonth"] . '/' . $_POST["reyear"] . ' s\'est correctement effectue ! </div>';
             Header("Location: card.php?id=" . $vol->id);
         }catch (\Exception $e){
-            $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . $vol->error . '! </div>';
+            $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . ($vol->error?:$e->getMessage()) . '! </div>';
         }
 
     }
@@ -259,8 +259,9 @@ if ($msg) {
             <tr id="list_order" class=" js-billable-field">
                 <td class="fieldrequired"><?php echo $langs->trans('Commande du vol')?></td>
                 <td class="js-order">
+                    <p class="text-muted">Pour retirer une commande merci de la retirer de la liste ci-dessous.</p>
                     <?php
-                        echo $html::multiselectarray('order_id', $commande->liste_array(2),$_POST['order_id'],0,0,'',0,'100%');
+                        echo $html::multiselectarray('order_id', $commande->liste_array(2),$_POST['order_id'],0,0, $validator->hasError('order_id') ? 'error' : '',0,'100%');
                     ?>
                 </td>
             </tr>
@@ -290,14 +291,14 @@ if ($msg) {
         <table class="border" width="50%">
             <!-- commentaires -->
             <tr class="">
-                <td class="fieldrequired"> Commentaire </td><td>
+                <td class="fieldrequired"> Note sur le vol </td><td>
                     <textarea rows="2" cols="60" class="flat" name="comm" placeholder="RAS"><?php print $_POST['comm']; ?></textarea>
                 </td>
             </tr>
 
             <!-- incidents -->
             <tr class="">
-                <td class="fieldrequired"> incidents </td><td>
+                <td class="fieldrequired"> Incidents, Brulure, ...</td><td>
                     <textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS"><?php print $_POST['inci']; ?></textarea>
                 </td>
             </tr>
