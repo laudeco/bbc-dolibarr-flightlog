@@ -11,6 +11,9 @@
 class ActionsFlightlog
 {
 
+    /**
+     * @var array|string[]
+     */
     public $results = [];
 
     /**
@@ -67,5 +70,25 @@ class ActionsFlightlog
         $sql .= " ORDER BY date DESC";
 
         return $sql;
+    }
+
+    public function completeListOfReferent($parameter, $object, $action){
+        dol_include_once('/flightlog/class/bbcvols.class.php');
+
+        $this->results['flightlog'] = [
+            'name'=>"Vols",
+            'title'=>"Vols",
+            'class'=>'bbcvols',
+            'table'=>'bbc_vols',
+            'datefieldname'=>'datev',
+            'margin'=>'minus',
+            'disableamount'=>0,
+            'urlnew'=>'',
+            'lang'=>'flightlog',
+            'buttonnew'=>'Ajouter un vol',
+            'testnew'=>true,
+            'test'=>true,
+            'project_field' => 'fk_project',
+        ];
     }
 }

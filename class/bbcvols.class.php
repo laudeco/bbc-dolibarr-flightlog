@@ -431,9 +431,9 @@ class Bbcvols extends CommonObject
                 $this->fk_type = (int) $obj->fk_type;
                 $this->fk_pilot = (int) $obj->fk_pilot;
                 $this->fk_organisateur = (int) $obj->fk_organisateur;
-                $this->is_facture = (int) $obj->is_facture;
+                $this->statut = $this->is_facture = (int) $obj->is_facture;
                 $this->kilometers = $obj->kilometers;
-                $this->cost = $obj->cost;
+                $this->total_ttc = $this->cost = $obj->cost;
                 $this->fk_receiver = (int) $obj->fk_receiver;
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
@@ -441,7 +441,7 @@ class Bbcvols extends CommonObject
                 $this->passengerNames = $obj->passenger_names;
 
                 $this->balloon = $this->fetchBalloon();
-                $this->pilot = $this->fetchUser($this->fk_pilot);
+                $this->thirdparty = $this->pilot = $this->fetchUser($this->fk_pilot);
                 $this->fetchOrder();
             }
             $this->db->free($resql);
@@ -656,8 +656,9 @@ class Bbcvols extends CommonObject
         $label .= '<div width="100%">';
         $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->idBBC_vols . '<br>';
         $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y') . '<br/>';
-        $label .= '<b>' . $langs->trans('From') . ':</b> ' . $this->lieuD . '<br/>';
-        $label .= '<b>' . $langs->trans('To') . ':</b> ' . $this->lieuA . '<br/>';
+        $label .= '<b>' . $langs->trans('T') . '</b> ' . $this->fk_type . '<br/>';
+        $label .= '<b>' . $langs->trans('De') . ':</b> ' . $this->lieuD . '<br/>';
+        $label .= '<b>' . $langs->trans('à') . ':</b> ' . $this->lieuA . '<br/>';
         $label .= '</div>';
 
         $link = '<a href="' . DOL_URL_ROOT . '/flightlog/card.php?id=' . $this->idBBC_vols . '"';
