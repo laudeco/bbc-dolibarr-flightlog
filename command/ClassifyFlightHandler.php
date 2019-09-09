@@ -59,12 +59,13 @@ final class ClassifyFlightHandler implements CommandHandlerInterface
     public function handle(CommandInterface $command)
     {
         $projectId = 'NULL';
-        if(!empty($command->getProjectId())){
+        if (!empty($command->getProjectId())) {
             $projectId = $command->getProjectId();
         }
 
-        $result = $this->db->query(sprintf('UPDATE %s%s SET fk_project=%s WHERE rowid=%s',MAIN_DB_PREFIX, Bbcvols::$table, $projectId, $command->getFlightId()));
-        if(!$result){
+        $result = $this->db->query(sprintf('UPDATE %s%s SET fk_project=%s WHERE rowid=%s', MAIN_DB_PREFIX,
+            Bbcvols::$table, $projectId, $command->getFlightId()));
+        if (!$result) {
             throw new \Exception($this->db->error());
         }
     }
