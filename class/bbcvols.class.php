@@ -155,8 +155,6 @@ class Bbcvols extends CommonObject
 
         $error = 0;
 
-        // Clean parameters
-
         if (isset($this->idBBC_vols)) {
             $this->idBBC_vols = trim($this->idBBC_vols);
         }
@@ -212,9 +210,13 @@ class Bbcvols extends CommonObject
             $this->passengerNames = trim($this->passengerNames);
         }
 
+        $nextId = $this->getNextId();
+
         // Insert request
         $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . $this->table_element . '(';
-
+        $sql .= 'idBBC_vols,';
+        $sql .= 'ref,';
+        $sql .= 'rowid,';
         $sql .= 'date,';
         $sql .= 'lieuD,';
         $sql .= 'lieuA,';
@@ -237,6 +239,7 @@ class Bbcvols extends CommonObject
         $sql .= 'passenger_names';
         $sql .= ') VALUES (';
 
+        $sql .= sprintf('%s, %s, %s,', $nextId, $nextId, $nextId);
         $sql .= ' ' . (!isset($this->date) || dol_strlen($this->date) == 0 ? 'NULL' : "'" . $this->db->idate($this->date) . "'") . ',';
         $sql .= ' ' . (!isset($this->lieuD) ? 'NULL' : "'" . $this->db->escape($this->lieuD) . "'") . ',';
         $sql .= ' ' . (!isset($this->lieuA) ? 'NULL' : "'" . $this->db->escape($this->lieuA) . "'") . ',';
@@ -1416,6 +1419,23 @@ class Bbcvols extends CommonObject
     public function hasProject()
     {
         return $this->fk_project !== null;
+    }
+
+    /**
+     * @return string|int
+     */
+    private function getNextId()
+    {
+        /** @var mysqli_result $result */
+        $result = $this->db->query("SELECT
+        auto_increment
+    FROM
+        information_schema.tables
+    WHERE
+        table_name = 'llx_bbc_vols'
+        and table_schema = database();");
+
+        return $result->fetch_assoc()['auto_increment'];
     }
 
 
