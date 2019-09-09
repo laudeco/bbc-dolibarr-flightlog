@@ -90,7 +90,7 @@ print '</form>';
 if ($viewSelection == 2) {
     //Count per balloon
     //query
-    $sql = "SELECT BAL.immat, count(rowid) as count ";
+    $sql = "SELECT BAL.immat, count(llx_bbc_vols.rowid) as count ";
     $sql .= " FROM llx_bbc_vols,llx_bbc_ballons as BAL ";
     $sql .= " WHERE `BBC_ballons_idBBC_ballons` = BAL.rowid ";
     if ($datep) {
