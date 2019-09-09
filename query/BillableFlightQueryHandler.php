@@ -75,7 +75,7 @@ class BillableFlightQueryHandler
         }
 
         //total orga
-        $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON rowid = fk_organisateur WHERE YEAR(date) = \'' . $query->getFiscalYear() . '\' AND fk_type IN (1,2) GROUP BY fk_organisateur';
+        $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON llx_user.rowid = llx_bbc_vols.fk_organisateur WHERE YEAR(date) = \'' . $query->getFiscalYear() . '\' AND fk_type IN (1,2) GROUP BY fk_organisateur';
         $resql = $this->db->query($sql);
         if ($resql) {
             $num = $this->db->num_rows($resql);
