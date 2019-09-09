@@ -46,6 +46,7 @@ class Bbcvols extends CommonObject
      * @var string Id to identify managed objects
      */
     public $element = 'flightlog_bbcvols';
+    public static $table = 'bbc_vols';
 
     /**
      * @var string Name of table without prefix where object is stored
@@ -400,7 +401,8 @@ class Bbcvols extends CommonObject
         $sql .= " t.justif_kilometers,";
         $sql .= " t.date_creation,";
         $sql .= " t.date_update,";
-        $sql .= " t.passenger_names";
+        $sql .= " t.passenger_names,";
+        $sql .= " t.fk_project";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -439,6 +441,7 @@ class Bbcvols extends CommonObject
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
                 $this->passengerNames = $obj->passenger_names;
+                $this->fk_project = $obj->fk_project;
 
                 $this->balloon = $this->fetchBalloon();
                 $this->thirdparty = $this->pilot = $this->fetchUser($this->fk_pilot);
@@ -1405,6 +1408,14 @@ class Bbcvols extends CommonObject
     {
         $this->justif_kilometers = $justif_kilometers;
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasProject()
+    {
+        return $this->fk_project !== null;
     }
 
 

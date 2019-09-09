@@ -50,15 +50,26 @@ dol_include_once('/flightlog/lib/card.lib.php');
 dol_include_once('/flightlog/lib/PilotService.php');
 dol_include_once('/flightballoon/class/bbc_ballons.class.php');
 dol_include_once('/user/class/usergroup.class.php');
+if (!empty($conf->projet->enabled)) {
+    dol_include_once('/projet/class/project.class.php');
+    dol_include_once('/core/class/html.formprojet.class.php');
+}
 
 global $langs, $user, $conf;
 
 const ACTION_FLAG_BILLED = 'action_flag_bill';
 const ACTION_CONFIRM_FLAG_BILLED = 'confirm_flag_bill';
+const ACTION_CLASSIFY = 'classify';
+const ACTION_CLASSIN = 'classin';
 
 // Load traductions files requiredby by page
 $langs->load("mymodule@flightlog");
 $langs->load("other");
+if (!empty($conf->projet->enabled)) {
+    $langs->load("projects");
+    $formproject = new FormProjets($db);
+}
+
 
 // Get parameters
 $id = GETPOST('id', 'int') ?: GETPOST('idBBC_vols', 'int');
@@ -203,7 +214,7 @@ if (empty($reshook)) {
         }
     }
 
-    // Action to delete
+    // Action to confirm bill
     if ($user->rights->flightlog->vol->financial && !$object->isBilled() && $action === ACTION_CONFIRM_FLAG_BILLED) {
         $result = $object
             ->bill()
@@ -220,13 +231,23 @@ if (empty($reshook)) {
             }
         }
     }
+
+    // Action to classify in a project
+    if (!empty($conf->projet->enabled) && $user->rights->projet->creer && $action === ACTION_CLASSIN) {
+        try{
+            $handler = new \flightlog\command\ClassifyFlightHandler($db, $conf, $langs, $user);
+            $handler->handle(new \flightlog\command\ClassifyFlight($id, GETPOST('projectid')));
+            $object->fetch($id);
+            $action = 'show';
+        }catch(Exception $e){
+            setEventMessages($e->getMessage(), null, 'errors');
+        }
+    }
 }
 
 
 /***************************************************
  * VIEW
- *
- * Put here all code to build page
  ****************************************************/
 
 llxHeader('', $pageTitle, '');
@@ -528,6 +549,35 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_type") . '</td><td>' . $object->fk_type . '</td></tr>';
     print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_pilot") . '</td><td>' . $pilot->getNomUrl(1) . '</td></tr>';
     print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_organisateur") . '</td><td>' . $organisator->getNomUrl(1) . '</td></tr>';
+
+    if (! empty($conf->projet->enabled))
+    {
+        print '<tr><td class="fieldrequired">' . $langs->trans("Project") . '</td><td>';
+        $morehtmlref = '';
+        if ($user->rights->projet->creer)
+        {
+            if ($action !== ACTION_CLASSIFY) {
+                $morehtmlref .= '<a href="' . $_SERVER['PHP_SELF'] . '?action='.ACTION_CLASSIFY.'&amp;id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a> ';
+            }
+            if ($action === ACTION_CLASSIFY) {
+                $morehtmlref.='<form method="post" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
+                $morehtmlref.='<input type="hidden" name="action" value="'.ACTION_CLASSIN.'">';
+                $morehtmlref.='<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+                $morehtmlref.=$formproject->select_projects((empty($conf->global->PROJECT_CAN_ALWAYS_LINK_TO_ALL_SUPPLIERS)?$object->socid:-1), $object->fk_project, 'projectid', 80, 0, 1, 0, 1, 0, 0, '', 1);
+                $morehtmlref.='<input type="submit" class="button valignmiddle" value="'.$langs->trans("Modify").'">';
+                $morehtmlref.='</form>';
+            }
+        }
+
+        if ($object->hasProject()) {
+            $proj = new Project($db);
+            $proj->fetch($object->fk_project);
+            $morehtmlref.=$proj->getNomUrl(1);
+        }
+        print $morehtmlref . '</td>';
+    }
+
+
 
     print '</table>';
 
