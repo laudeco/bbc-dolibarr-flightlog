@@ -8,24 +8,4 @@ ALTER TABLE `llx_bbc_vols`
     ADD `fk_soc` INT NULL COMMENT 'Not used but must be there for the project',
     ADD INDEX `balloon_rowid` (`rowid`);
 
-UPDATE llx_bbc_vols SET rowid = idBBC_vols, ref = idBBC_vols WHERE 1=1;
-
-DELIMITER $$
-CREATE TRIGGER `fill_flight_rowid` BEFORE INSERT ON `llx_bbc_vols`
-FOR EACH ROW BEGIN
-
-    declare next_id int default 0;
-
-    select
-        auto_increment into next_id
-    from
-        information_schema.tables
-    where
-        table_name = 'llx_bbc_vols'
-        and table_schema = database();
-
-    SET NEW.rowid = next_id;
-    SET NEW.idBBC_vols = next_id;
-    SET NEW.ref = next_id;
-
-END $$
+UPDATE llx_bbc_vols SET rowid = idBBC_vols, ref = idBBC_vols;
