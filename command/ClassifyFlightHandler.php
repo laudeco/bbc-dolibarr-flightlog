@@ -23,7 +23,7 @@ final class ClassifyFlightHandler implements CommandHandlerInterface
     private $db;
 
     /**
-     * @var stdClass
+     * @var Conf
      */
     private $conf;
 
@@ -58,6 +58,8 @@ final class ClassifyFlightHandler implements CommandHandlerInterface
      */
     public function handle(CommandInterface $command)
     {
+        /** @var ClassifyFlight $command */
+        
         $projectId = 'NULL';
         if (!empty($command->getProjectId())) {
             $projectId = $command->getProjectId();

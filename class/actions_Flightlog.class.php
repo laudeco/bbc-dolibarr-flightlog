@@ -41,7 +41,7 @@ class ActionsFlightlog
      * @param $object
      * @param $action
      */
-    public function showLinkToObjectBlock($parameter, $object, $action)
+    public function showLinkToObjectBlock()
     {
         $this->results["flightlog_bbcvols"] = [
             'enabled' => 1,
@@ -72,7 +72,7 @@ class ActionsFlightlog
         return $sql;
     }
 
-    public function completeListOfReferent($parameter, $object, $action){
+    public function completeListOfReferent(){
         dol_include_once('/flightlog/class/bbcvols.class.php');
 
         $this->results['flightlog'] = [
