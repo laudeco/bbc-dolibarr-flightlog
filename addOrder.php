@@ -46,6 +46,9 @@ $modCodeFournisseur = new $module;
 $langs->load("mymodule@flightlog");
 
 $validator = new SimpleOrderValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER);
+
+$customer = new Societe($db);
+
 $successMessage = false;
 
 /* * *****************************************************************
@@ -54,10 +57,19 @@ $successMessage = false;
  * Put here all code to do according to value of "action" parameter
  * ****************************************************************** */
 $msg = '';
+$socid = null;
+
+if (GETPOST('socid', 'int') > 0){
+    $socid = GETPOST('socid', 'int');
+    $customer->fetch($socid);
+}
+
+
 if (GETPOST("action") == 'add') {
     if (!$_POST["cancel"]) {
 
         $formObject = new stdClass();
+        $formObject->socid = $socid;
         $formObject->name = GETPOST('name','alpha');
         $formObject->firstname = GETPOST('firstname','alpha');
         $formObject->zip = GETPOST('zipcode','alpha');
@@ -182,7 +194,7 @@ if ($msg) {
     <div>
         <p>
             Cette page vous permettra de créer une commande. La commande est <b>obligatoire</b> si vous désirez faire payer les passagers directement sur le compte du club.<br>
-            Si vous avre un doute sur la manière d'encoder la commande, veuillez me contacter.<br/>
+            Si vous avez un doute sur la manière d'encoder la commande, veuillez me contacter AVANT de soumettre le dit formulaire.<br/>
             Si vous avez <b>déjà</b> encodé une commande, et que vous voulez la retrouver veuillez vous rendre sur : <a href="<?php echo sprintf(DOL_URL_ROOT.'/commande/list.php?search_sale=%s', $user->id); ?>">mes commandes.</a>
         </p>
     </div>
@@ -194,131 +206,154 @@ if ($msg) {
         <h1 class="form-section-title"><?php echo $langs->trans('Commanditaire') ?></h1>
         <table class="border" width="100%">
 
-            <!-- Nom -->
-            <tr>
-                <td class="fieldrequired">
-                    <?php echo $langs->trans('Nom'); ?>
-                </td>
-                <td>
-                    <input type="text"
-                           name="name"
-                           class="flat <?php echo $validator->hasError('name') ? 'error' : '' ?>"
-                           value="<?php echo $formObject->name ?>"/>
-                </td>
-            </tr>
-
-            <!-- Firstname -->
             <tr>
                 <td class="">
-                    <?php echo $langs->trans('Prénom'); ?>
+                    <?php echo $langs->trans('Commanditaire'); ?>
                 </td>
+
                 <td>
-                    <input type="text"
-                           name="firstname"
-                           class="flat <?php echo $validator->hasError('firstname') ? 'error' : '' ?>"
-                           value="<?php echo $formObject->firstname ?>"/>
+                    <?php print $form->select_company($customer->id, 'socid', '((s.client = 1 OR s.client = 3) AND s.status=1)', 'SelectThirdParty', 0, 0, null, 0, 'minwidth300'); ?>
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            $("#socid").change(function() {
+                                var socid = $(this).val();
+                                window.location.href = "<?php echo $_SERVER["PHP_SELF"].'?socid="+socid' ?>
+                            });
+                        });
+                    </script>
                 </td>
+
             </tr>
 
-            <!-- civility-->
-            <tr>
-                <td class="">
-                    <?php echo $langs->trans('UserTitle'); ?>
-                </td>
-                <td>
-                    <?php echo $formcompany->select_civility($formObject->civilityId, 'civility'); ?>
-                </td>
-            </tr>
 
-            <!-- Phone -->
-            <tr>
-                <td class="">
-                    <?php echo $langs->trans('Téléphone'); ?>
-                </td>
-                <td>
-                    <input type="text"
-                           name="phone"
-                           class="flat <?php echo $validator->hasError('phone') ? 'error' : '' ?>"
-                           value="<?php echo $formObject->phone ?>"/>
-                </td>
-            </tr>
+            <?php if($socid === null): ?>
+                <!-- Nom -->
+                <tr>
+                    <td class="fieldrequired">
+                        <?php echo $langs->trans('Nom'); ?>
+                    </td>
+                    <td>
+                        <input type="text"
+                               name="name"
+                               class="flat <?php echo $validator->hasError('name') ? 'error' : '' ?>"
+                               value="<?php echo $formObject->name ?>"/>
+                    </td>
+                </tr>
 
-            <!-- Mail -->
-            <tr>
-                <td class="">
-                    <?php echo $langs->trans('E-mail'); ?>
-                </td>
-                <td>
-                    <input type="text"
-                           name="mail"
-                           class="flat <?php echo $validator->hasError('email') ? 'error' : '' ?>"
-                           value="<?php echo $formObject->email; ?>"/>
-                </td>
-            </tr>
+                <!-- Firstname -->
+                <tr>
+                    <td class="">
+                        <?php echo $langs->trans('Prénom'); ?>
+                    </td>
+                    <td>
+                        <input type="text"
+                               name="firstname"
+                               class="flat <?php echo $validator->hasError('firstname') ? 'error' : '' ?>"
+                               value="<?php echo $formObject->firstname ?>"/>
+                    </td>
+                </tr>
 
-            <!-- Language -->
-            <tr>
-                <td class="fieldrequired">
-                    <?php echo $langs->trans('DefaultLang'); ?>
-                </td>
-                <td>
-                    <?php echo $formAdmin->select_language($conf->global->MAIN_LANG_DEFAULT,'default_lang',0,0,1,0,0,'maxwidth200onsmartphone'); ?>
-                </td>
-            </tr>
+                <!-- civility-->
+                <tr>
+                    <td class="">
+                        <?php echo $langs->trans('UserTitle'); ?>
+                    </td>
+                    <td>
+                        <?php echo $formcompany->select_civility($formObject->civilityId, 'civility'); ?>
+                    </td>
+                </tr>
 
-            <!-- Region -->
-            <tr>
-                <td class="">
-                    <?php echo $langs->trans('Region'); ?>
-                </td>
-                <td>
-                    <?php print $formcompany->select_state($formObject->state,'BE'); ?>
-                </td>
-            </tr>
+                <!-- Phone -->
+                <tr>
+                    <td class="">
+                        <?php echo $langs->trans('Téléphone'); ?>
+                    </td>
+                    <td>
+                        <input type="text"
+                               name="phone"
+                               class="flat <?php echo $validator->hasError('phone') ? 'error' : '' ?>"
+                               value="<?php echo $formObject->phone ?>"/>
+                    </td>
+                </tr>
 
-            <?php
-            // Zip / Town
-            print '<tr><td>'.fieldLabel('Zip','zipcode').'</td><td>';
-                    print $formcompany->select_ziptown($formObject->town,'zipcode',array('town','selectcountry_id','state_id'), 0, 0, '', 'maxwidth100 quatrevingtpercent');
-                    print '</td><td>'.fieldLabel('Town','town').'</td><td>';
-                    print $formcompany->select_ziptown($formObject->zip,'town',array('zipcode','selectcountry_id','state_id'), 0, 0, '', 'maxwidth100 quatrevingtpercent');
-                    print '</td></tr>';
-            ?>
+                <!-- Mail -->
+                <tr>
+                    <td class="">
+                        <?php echo $langs->trans('E-mail'); ?>
+                    </td>
+                    <td>
+                        <input type="text"
+                               name="mail"
+                               class="flat <?php echo $validator->hasError('email') ? 'error' : '' ?>"
+                               value="<?php echo $formObject->email; ?>"/>
+                    </td>
+                </tr>
 
-            <!-- origine -->
-            <tr>
-                <td class="">
-                    <?php echo $langs->trans('Origine'); ?>
-                </td>
-                <td>
-                    <?php $html->selectInputReason($formObject->origine, 'origine', 1); ?>
-                </td>
-            </tr>
+                <!-- Language -->
+                <tr>
+                    <td class="fieldrequired">
+                        <?php echo $langs->trans('DefaultLang'); ?>
+                    </td>
+                    <td>
+                        <?php echo $formAdmin->select_language($conf->global->MAIN_LANG_DEFAULT,'default_lang',0,0,1,0,0,'maxwidth200onsmartphone'); ?>
+                    </td>
+                </tr>
 
-            <!-- TVA -->
-            <tr>
-                <td class="">
-                    Numéro de TVA
-                </td>
-                <td>
-                    <input type="text" class="flat" name="tva_intra" id="intra_vat" maxlength="20" value="<?php echo $_POST['tva_intra']; ?>">
-                    <?php
-                    if (empty($conf->global->MAIN_DISABLEVATCHECK)): ?>
+                <!-- Region -->
+                <tr>
+                    <td class="">
+                        <?php echo $langs->trans('Region'); ?>
+                    </td>
+                    <td>
+                        <?php print $formcompany->select_state($formObject->state,'BE'); ?>
+                    </td>
+                </tr>
 
-                        <?php if (! empty($conf->use_javascript_ajax)): ?>
-                            <script language="JavaScript" type="text/javascript">
-                            function CheckVAT(a) {
-                                <?php print "newpopup('".DOL_URL_ROOT."/societe/checkvat/checkVatPopup.php?vatNumber='+a,'".dol_escape_js($langs->trans("VATIntraCheckableOnEUSite"))."',500,300);"; ?>
-                            }
-                            </script>
-                            <a href="#" class="hideonsmartphone" onclick="javascript: CheckVAT(document.add.tva_intra.value);"><?php echo $langs->trans("VATIntraCheck"); ?></a>
-                            <?php echo $html->textwithpicto($s,$langs->trans("VATIntraCheckDesc",$langs->trans("VATIntraCheck")),1); ?>
-                        <?php else: ?>
-                            <a href="<?php echo $langs->transcountry("VATIntraCheckURL",$object->country_id); ?>" target="_blank"><?php echo img_picto($langs->trans("VATIntraCheckableOnEUSite"),'help'); ?></a>
-                        <?php endif; ?>
-                   <?php endif; ?>
-                </td>
-            </tr>
+                <?php
+                // Zip / Town
+                print '<tr><td>'.fieldLabel('Zip','zipcode').'</td><td>';
+                        print $formcompany->select_ziptown($formObject->town,'zipcode',array('town','selectcountry_id','state_id'), 0, 0, '', 'maxwidth100 quatrevingtpercent');
+                        print '</td><td>'.fieldLabel('Town','town').'</td><td>';
+                        print $formcompany->select_ziptown($formObject->zip,'town',array('zipcode','selectcountry_id','state_id'), 0, 0, '', 'maxwidth100 quatrevingtpercent');
+                        print '</td></tr>';
+                ?>
+
+                <!-- origine -->
+                <tr>
+                    <td class="">
+                        <?php echo $langs->trans('Origine'); ?>
+                    </td>
+                    <td>
+                        <?php $html->selectInputReason($formObject->origine, 'origine', 1); ?>
+                    </td>
+                </tr>
+
+                <!-- TVA -->
+                <tr>
+                    <td class="">
+                        Numéro de TVA
+                    </td>
+                    <td>
+                        <input type="text" class="flat" name="tva_intra" id="intra_vat" maxlength="20" value="<?php echo $_POST['tva_intra']; ?>">
+                        <?php
+                        if (empty($conf->global->MAIN_DISABLEVATCHECK)): ?>
+
+                            <?php if (! empty($conf->use_javascript_ajax)): ?>
+                                <script language="JavaScript" type="text/javascript">
+                                function CheckVAT(a) {
+                                    <?php print "newpopup('".DOL_URL_ROOT."/societe/checkvat/checkVatPopup.php?vatNumber='+a,'".dol_escape_js($langs->trans("VATIntraCheckableOnEUSite"))."',500,300);"; ?>
+                                }
+                                </script>
+                                <a href="#" class="hideonsmartphone" onclick="javascript: CheckVAT(document.add.tva_intra.value);"><?php echo $langs->trans("VATIntraCheck"); ?></a>
+                                <?php echo $html->textwithpicto($s,$langs->trans("VATIntraCheckDesc",$langs->trans("VATIntraCheck")),1); ?>
+                            <?php else: ?>
+                                <a href="<?php echo $langs->transcountry("VATIntraCheckURL",$object->country_id); ?>" target="_blank"><?php echo img_picto($langs->trans("VATIntraCheckableOnEUSite"),'help'); ?></a>
+                            <?php endif; ?>
+                       <?php endif; ?>
+                    </td>
+                </tr>
+
+            <?php endif; ?>
 
         </table>
     </section>

@@ -55,10 +55,10 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
     private $order;
 
     /**
-     * @param DoliDB               $db
-     * @param stdClass             $conf
-     * @param User                 $user
-     * @param Translate            $langs
+     * @param DoliDB $db
+     * @param stdClass $conf
+     * @param User $user
+     * @param Translate $langs
      * @param ModeleThirdPartyCode $codeClientGenerator
      * @param ModeleThirdPartyCode $codeFounrisseurGenerator
      */
@@ -110,7 +110,7 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
     }
 
     /**
-     * @param Product   $flightProduct
+     * @param Product $flightProduct
      * @param float|int $pricePerPax
      *
      * @return float|int
@@ -129,10 +129,15 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
     private function createCustomer(CommandInterface $command)
     {
         $this->societe = new Societe($this->db);
+        if ($command->hasSocId()) {
+            $this->societe->fetch($command->getSocid());
+            return $this->societe;
+        }
+
         $name = $command->getName() . ' ' . $command->getFirstname();
 
         $existingCustomers = $this->societe->fetch(null, $name);
-        if($existingCustomers > 0){
+        if ($existingCustomers > 0) {
             $this->societe = $existingCustomers[0];
             return $this->societe;
         }
@@ -195,7 +200,7 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
 
     /**
      * @param CommandInterface|CreateOrderCommand $command
-     * @param int                                 $customerId
+     * @param int $customerId
      *
      * @return $this
      * @throws Exception
