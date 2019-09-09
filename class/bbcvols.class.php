@@ -46,6 +46,7 @@ class Bbcvols extends CommonObject
      * @var string Id to identify managed objects
      */
     public $element = 'flightlog_bbcvols';
+    public static $table = 'bbc_vols';
 
     /**
      * @var string Name of table without prefix where object is stored
@@ -400,7 +401,8 @@ class Bbcvols extends CommonObject
         $sql .= " t.justif_kilometers,";
         $sql .= " t.date_creation,";
         $sql .= " t.date_update,";
-        $sql .= " t.passenger_names";
+        $sql .= " t.passenger_names,";
+        $sql .= " t.fk_project";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -431,17 +433,18 @@ class Bbcvols extends CommonObject
                 $this->fk_type = (int) $obj->fk_type;
                 $this->fk_pilot = (int) $obj->fk_pilot;
                 $this->fk_organisateur = (int) $obj->fk_organisateur;
-                $this->is_facture = (int) $obj->is_facture;
+                $this->statut = $this->is_facture = (int) $obj->is_facture;
                 $this->kilometers = $obj->kilometers;
-                $this->cost = $obj->cost;
+                $this->total_ttc = $this->cost = $obj->cost;
                 $this->fk_receiver = (int) $obj->fk_receiver;
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
                 $this->passengerNames = $obj->passenger_names;
+                $this->fk_project = $obj->fk_project;
 
                 $this->balloon = $this->fetchBalloon();
-                $this->pilot = $this->fetchUser($this->fk_pilot);
+                $this->thirdparty = $this->pilot = $this->fetchUser($this->fk_pilot);
                 $this->fetchOrder();
             }
             $this->db->free($resql);
@@ -656,8 +659,9 @@ class Bbcvols extends CommonObject
         $label .= '<div width="100%">';
         $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->idBBC_vols . '<br>';
         $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y') . '<br/>';
-        $label .= '<b>' . $langs->trans('From') . ':</b> ' . $this->lieuD . '<br/>';
-        $label .= '<b>' . $langs->trans('To') . ':</b> ' . $this->lieuA . '<br/>';
+        $label .= '<b>' . $langs->trans('T') . '</b> ' . $this->fk_type . '<br/>';
+        $label .= '<b>' . $langs->trans('De') . ':</b> ' . $this->lieuD . '<br/>';
+        $label .= '<b>' . $langs->trans('à') . ':</b> ' . $this->lieuA . '<br/>';
         $label .= '</div>';
 
         $link = '<a href="' . DOL_URL_ROOT . '/flightlog/card.php?id=' . $this->idBBC_vols . '"';
@@ -1404,6 +1408,14 @@ class Bbcvols extends CommonObject
     {
         $this->justif_kilometers = $justif_kilometers;
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasProject()
+    {
+        return $this->fk_project !== null;
     }
 
 

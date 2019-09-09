@@ -26,8 +26,12 @@ dol_include_once('/flightlog/query/GetPilotsWithMissionsQuery.php');
 dol_include_once('/flightlog/query/FlightForQuarterAndPilotQuery.php');
 dol_include_once('/flightlog/query/FlightForQuarterAndPilotQueryHandler.php');
 
+dol_include_once('/flightlog/command/CommandHandlerInterface.php');
+dol_include_once('/flightlog/command/CommandInterface.php');
 dol_include_once('/flightlog/command/CreateExpenseNoteCommandHandler.php');
 dol_include_once('/flightlog/command/CreateExpenseNoteCommand.php');
+dol_include_once('/flightlog/command/ClassifyFlightHandler.php');
+dol_include_once('/flightlog/command/ClassifyFlight.php');
 
 dol_include_once('/flightlog/validators/ValidatorInterface.php');
 dol_include_once('/flightlog/validators/AbstractValidator.php');
