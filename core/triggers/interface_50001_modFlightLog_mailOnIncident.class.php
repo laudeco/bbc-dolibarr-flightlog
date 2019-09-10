@@ -90,7 +90,7 @@ class InterfaceMailOnIncident extends DolibarrTriggers
             return 0;
         }
 
-        if(empty(trim($object->incidents)) && empty(trim($object->remarque))){
+        if(!$object->hasIncidents() && !$object->hasComment()){
             return 0;
         }
 
