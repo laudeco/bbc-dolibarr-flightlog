@@ -109,34 +109,40 @@ if ($msg) {
     <section class="form-section">
         <h1 class="form-section-title"><?php echo $langs->trans('Date & heures'); ?></h1>
         <table class="border" width="100%">
-            <?php
-            //type du vol
-            print "<tr>";
-            print '<td class="fieldrequired"> Type du vol</td><td colspan="3">';
-            select_flight_type($_POST['type']);
-            print '</td></tr>';
+            <tr>
+                <td class="fieldrequired"> Type du vol</td>
+                <td colspan="3">
+                    <?php
+                        //type du vol
+                        select_flight_type($_POST['type']);
+                    ?>
+                </td>
+            </tr>
 
-            //date du vol
-            print "<tr>";
-            print '<td class="fieldrequired"> Date du vol</td><td>';
-            print $html->select_date($datec ? $datec : -1, '', '', '', '', 'add', 1, 1);
-            print '</td></tr>';
+            <tr>
+                <td class="fieldrequired"> Date du vol</td>
+                <td>
+                    <?php
+                        print $html->select_date($datec ? $datec : -1, '', '', '', '', 'add', 1, 1);
+                    ?>
+                </td>
+            </tr>
 
-            //Hour start
-            print '<tr><td class="fieldrequired">Heure de d&#233;part (format autorise XXXX)</td><td width="25%" >'; ?>
-            <input type="text"
-                   name="heureD"
-                   class="flat <?php echo($validator->hasError('heureD') ? 'error' : '') ?>"
-                   value="<?php echo $_POST['heureD'] ?>"/>
-            </td>
+            <tr>
+                <td class="fieldrequired">Heure de d&#233;part (format autorise XXXX)</td>
+                <td width="25%" >
+                    <input type="text"
+                           name="heureD"
+                           class="flat <?php echo($validator->hasError('heureD') ? 'error' : '') ?>"
+                           value="<?php echo $_POST['heureD'] ?>"/>
+                </td>
 
-            <?php
-            //Hour end
-            print '<td class="fieldrequired">Heure d\'arriv&#233;e (format autorise XXXX)</td><td>'; ?>
-            <input type="text"
-                   name="heureA"
-                   class="flat <?php echo($validator->hasError('heureA') ? 'error' : '') ?>"
-                   value="<?php echo $_POST['heureA'] ?>"/>
+            <td class="fieldrequired">Heure d\'arriv&#233;e (format autorise XXXX)</td>
+            <td>
+                <input type="text"
+                       name="heureA"
+                       class="flat <?php echo($validator->hasError('heureA') ? 'error' : '') ?>"
+                       value="<?php echo $_POST['heureA'] ?>"/>
             </td>
             </tr>
 

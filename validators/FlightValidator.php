@@ -27,20 +27,22 @@ class FlightValidator extends AbstractValidator
     /**
      * {@inheritdoc}
      */
-    public function isValid($vol, $context = [])
+    public function isValid($flight, $context = [])
     {
-        if (!($vol instanceof Bbcvols)) {
+        if (!($flight instanceof Bbcvols)) {
             throw new \InvalidArgumentException('Flight validator only accepts a flight');
         }
 
         $this->valid = true;
 
-        $this->checkFlightInformation($vol)
-            ->checkPassengersInformation($vol)
-            ->checkInstructionInformation($vol, $context)
-            ->checkBillingInformation($vol, $context)
-            ->checkKilometers($vol)
-            ->checkOrderInformation($vol);
+        $this
+            ->checkFlightDate($flight)
+            ->checkFlightInformation($flight)
+            ->checkPassengersInformation($flight)
+            ->checkInstructionInformation($flight, $context)
+            ->checkBillingInformation($flight, $context)
+            ->checkKilometers($flight)
+            ->checkOrderInformation($flight);
 
         return $this->valid;
     }
@@ -90,7 +92,7 @@ class FlightValidator extends AbstractValidator
 
     /**
      * @param Bbcvols $vol
-     * @param array   $context
+     * @param array $context
      *
      * @return $this
      */
@@ -120,7 +122,7 @@ class FlightValidator extends AbstractValidator
 
     /**
      * @param Bbcvols $vol
-     * @param array   $context
+     * @param array $context
      *
      * @return $this
      */
@@ -147,7 +149,7 @@ class FlightValidator extends AbstractValidator
      */
     private function checkPassengersInformation($vol)
     {
-        if (!is_numeric($vol->nbrPax) || (int) $vol->nbrPax < 0) {
+        if (!is_numeric($vol->nbrPax) || (int)$vol->nbrPax < 0) {
             $this->addError('nbrPax', 'Erreur le nombre de passager est un nombre négatif.');
         }
 
@@ -224,26 +226,40 @@ class FlightValidator extends AbstractValidator
 
     /**
      * @param Bbcvols $vol
-     * 
+     *
      * @return $this
      */
     private function checkOrderInformation(Bbcvols $vol)
     {
-        if(!$vol->isLinkedToOrder()){
+        if (!$vol->isLinkedToOrder()) {
             return $this;
         }
 
         $totalPassenegrs = 0;
-        foreach($vol->getOrderIds() as $orderId => $nbrPassengers){
-            if($nbrPassengers <= 0){
+        foreach ($vol->getOrderIds() as $orderId => $nbrPassengers) {
+            if ($nbrPassengers <= 0) {
                 $this->addError('order_id', 'Le nombre de passager par commande doit être >= 0.');
             }
 
-            $totalPassenegrs+=(int)$nbrPassengers;
+            $totalPassenegrs += (int)$nbrPassengers;
         }
 
-        if($totalPassenegrs !== (int)$vol->getNumberOfPassengers()){
+        if ($totalPassenegrs !== (int)$vol->getNumberOfPassengers()) {
             $this->addError('nbrPax', 'Le nombre de passagers ne correspond pas au nombre entré sur les commandes');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Bbcvols $flight
+     *
+     * @return $this
+     */
+    private function checkFlightDate(Bbcvols $flight)
+    {
+        if($flight->getDate() > new DateTimeImmutable()){
+            $this->addError('date', 'La date est plus grande que la date d\'aujourd\'hui');
         }
 
         return $this;
