@@ -1438,5 +1438,15 @@ class Bbcvols extends CommonObject
         return $result->fetch_assoc()['auto_increment'];
     }
 
+    public function hasComment()
+    {
+        return !empty(trim($this->remarque)) || strtolower(trim($this->remarque)) === 'ras';
+    }
+
+    public function hasIncidents()
+    {
+        return !empty(trim($this->incidents)) || strtolower(trim($this->incidents)) === 'ras';
+    }
+
 
 }
