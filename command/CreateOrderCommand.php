@@ -96,6 +96,11 @@ class CreateOrderCommand implements CommandInterface
     private $publicComment;
 
     /**
+     * @var int
+     */
+    private $socid;
+
+    /**
      * Construct the command from the form dto
      *
      * @param stdClass $form
@@ -119,6 +124,7 @@ class CreateOrderCommand implements CommandInterface
         $this->language = $form->language;
         $this->userId = $userId;
         $this->publicComment = $form->isCommentPublic == 1;
+        $this->socid = (int)$form->socid;
     }
 
     /**
@@ -228,7 +234,8 @@ class CreateOrderCommand implements CommandInterface
     /**
      * @return boolean
      */
-    public function hasTVA(){
+    public function hasTVA()
+    {
         return !empty($this->tva);
     }
 
@@ -259,9 +266,24 @@ class CreateOrderCommand implements CommandInterface
     /**
      * @return bool
      */
-    public function isCommentPublic(){
+    public function isCommentPublic()
+    {
         return $this->publicComment;
     }
 
+    /**
+     * @return int
+     */
+    public function getSocid()
+    {
+        return $this->socid;
+    }
 
+    /**
+     * @return bool
+     */
+    public function hasSocId()
+    {
+        return $this->socid !== null && $this->socid > 0;
+    }
 }
