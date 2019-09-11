@@ -559,7 +559,7 @@ class Bbcvols extends CommonObject
         $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) && (int) $this->fk_receiver > 0 ? $this->fk_receiver : "null") . ',';
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
         $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
-        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames);
+        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames)."'";
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
