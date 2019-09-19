@@ -3,8 +3,6 @@
  *
  */
 
-use Webmozart\Assert\Assert;
-
 /**
  * QuarterPilotMissionCollection class
  *
@@ -43,7 +41,6 @@ class QuarterPilotMissionCollection implements IteratorAggregate
         $numberOfKilometers
     )
     {
-        Assert::integerish($pilotId);
         $pilotId = (int)$pilotId;
 
         if (!isset($this->items[$pilotId])) {
@@ -60,7 +57,6 @@ class QuarterPilotMissionCollection implements IteratorAggregate
      */
     public function addPilot($pilotId, $pilotFirstname, $pilotLastname)
     {
-        Assert::integerish($pilotId);
         $pilotId = (int)$pilotId;
 
         if (isset($this->items[$pilotId])) {

@@ -6,7 +6,6 @@
 namespace flightlog\command;
 
 use flightlog\exceptions\PeriodNotFinishedException;
-use Webmozart\Assert\Assert;
 
 /**
  * CreateExpenseNoteCommand class
@@ -54,17 +53,6 @@ class CreateExpenseNoteCommand
     {
         $currentYear = date('Y');
         $currentQuarter = floor((date('n') - 1) / 3) + 1;
-
-        Assert::integerish($year);
-        Assert::greaterThan($year, 0);
-
-        Assert::notNull($quartile);
-        Assert::integerish($quartile);
-        Assert::greaterThan($quartile, 0);
-        Assert::lessThanEq($quartile, 4);
-
-        Assert::integerish($userValidatorId);
-        Assert::greaterThan($userValidatorId, 0);
 
         if (!($year < $currentYear || ($year == $currentYear && $quartile < $currentQuarter))) {
             throw new PeriodNotFinishedException('');

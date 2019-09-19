@@ -3,8 +3,6 @@
  *
  */
 
-use Webmozart\Assert\Assert;
-
 /**
  * PilotMissions class
  *
@@ -40,12 +38,6 @@ class PilotMissions
      */
     public function __construct($pilotId, $pilotFirstname, $pilotLastname)
     {
-        Assert::integerish($pilotId);
-        Assert::greaterThan($pilotId, 0);
-
-        Assert::nullOrString($pilotLastname);
-        Assert::nullOrString($pilotFirstname);
-
         $this->pilotId = (int)$pilotId;
         $this->pilotFirstname = $pilotFirstname;
         $this->pilotLastname = $pilotLastname;
@@ -60,11 +52,7 @@ class PilotMissions
      * @param int $numberOfKilometers
      */
     public function addQuarter($quarter, $numberOfFlights, $numberOfKilometers){
-        Assert::integerish($quarter);
         $quarter = (int)$quarter;
-
-        Assert::keyNotExists($this->quarterMissions, $quarter);
-
         $this->quarterMissions[$quarter] = new QuarterMission($quarter, $numberOfFlights, $numberOfKilometers);
     }
 
@@ -120,10 +108,6 @@ class PilotMissions
      * @return QuarterMission
      */
     private function getQuarterMission($quarter){
-        Assert::integer($quarter);
-        Assert::greaterThan($quarter, 0);
-        Assert::lessThanEq($quarter, 4);
-
         if(!isset($this->quarterMissions[$quarter])){
             return new QuarterMission($quarter,0,0);
         }

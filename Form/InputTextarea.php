@@ -5,8 +5,6 @@
 
 namespace flightlog\form;
 
-use Webmozart\Assert\Assert;
-
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
@@ -28,8 +26,6 @@ class InputTextarea extends BaseInput
      */
     public function col($number)
     {
-        Assert::integer($number);
-
         $this->setAttribute('cols', $number);
 
         return $this;
@@ -42,8 +38,6 @@ class InputTextarea extends BaseInput
      */
     public function row($number)
     {
-        Assert::integer($number);
-
         $this->setAttribute('rows', $number);
 
         return $this;

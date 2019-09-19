@@ -19,7 +19,6 @@ use PilotMissions;
 use stdClass;
 use Translate;
 use User;
-use Webmozart\Assert\Assert;
 
 /**
  * Create the expense not for flights.
@@ -267,8 +266,6 @@ class CreateExpenseNoteCommandHandler
      */
     private function saveExpenseNote($currentMissionUserId, ExpenseReport $expenseNote)
     {
-        Assert::integerish($currentMissionUserId);
-
         $expenseNoteUser = new User($this->db);
         $expenseNoteUser->id = $currentMissionUserId;
         $id = $expenseNote->create($expenseNoteUser);

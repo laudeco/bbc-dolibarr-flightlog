@@ -5,8 +5,6 @@
 
 namespace flightlog\query;
 
-use Webmozart\Assert\Assert;
-
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
@@ -29,16 +27,6 @@ class GetPilotsWithMissionsQuery
      */
     public function __construct($year, $quarter = null)
     {
-        Assert::integerish($year);
-        Assert::greaterThan($year, 0);
-
-        Assert::nullOrIntegerish($quarter);
-        if ($quarter !== null) {
-            Assert::greaterThan($quarter, 0);
-            Assert::lessThanEq($quarter, 4);
-
-        }
-
         $this->quarter = (int) $quarter;
         $this->year = (int) $year;
     }

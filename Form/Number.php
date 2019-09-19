@@ -5,8 +5,6 @@
 
 namespace flightlog\form;
 
-use Webmozart\Assert\Assert;
-
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
@@ -29,8 +27,6 @@ class Number extends BaseInput
      */
     public function setStep($step)
     {
-        Assert::stringNotEmpty($step);
-
         return $this->setAttribute('step', $step);
     }
 }

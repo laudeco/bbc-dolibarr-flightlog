@@ -5,8 +5,6 @@
 
 namespace flightlog\query;
 
-use Webmozart\Assert\Assert;
-
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
@@ -35,10 +33,6 @@ class FlightForQuarterAndPilotQuery
      */
     public function __construct($pilotId, $quarter, $year)
     {
-        Assert::integerish($pilotId);
-        Assert::integerish($quarter);
-        Assert::integerish($year);
-
         $this->pilotId = (int) $pilotId;
         $this->quarter = (int) $quarter;
         $this->year = (int) $year;
