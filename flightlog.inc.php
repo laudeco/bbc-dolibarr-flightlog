@@ -32,6 +32,8 @@ dol_include_once('/flightlog/command/CreateExpenseNoteCommandHandler.php');
 dol_include_once('/flightlog/command/CreateExpenseNoteCommand.php');
 dol_include_once('/flightlog/command/ClassifyFlightHandler.php');
 dol_include_once('/flightlog/command/ClassifyFlight.php');
+dol_include_once('/flightlog/command/CreateFlightBillCommand.php');
+dol_include_once('/flightlog/command/CreateFlightBillCommandHandlerFactory.php');
 
 dol_include_once('/flightlog/validators/ValidatorInterface.php');
 dol_include_once('/flightlog/validators/AbstractValidator.php');

@@ -21,17 +21,13 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
     require '../../documents/custom/main.inc.php'; // From "custom" directory
 }
 
-dol_include_once('/compta/facture/class/facture.class.php');
+dol_include_once('/core/modules/facture/modules_facture.php');
 dol_include_once('/adherents/class/adherent.class.php');
-dol_include_once("/flightlog/lib/flightLog.lib.php");
-dol_include_once("/flightlog/class/bbctypes.class.php");
-dol_include_once("/flightlog/class/bbcvols.class.php");
+dol_include_once('/compta/facture/class/facture.class.php');
 dol_include_once('/flightballoon/bbc_ballons.class.php');
 dol_include_once("/product/class/product.class.php");
-dol_include_once('/core/modules/facture/modules_facture.php');
 dol_include_once('/fourn/class/fournisseur.class.php');
-dol_include_once('/flightlog/command/CreateFlightBillCommand.php');
-dol_include_once('/flightlog/command/CreateFlightBillCommandHandlerFactory.php');
+dol_include_once("/flightlog/flightlog.inc.php");
 
 global $db, $langs, $user, $conf;
 
