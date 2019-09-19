@@ -6,7 +6,6 @@
 namespace flightlog\form;
 
 use ValidatorInterface;
-use Webmozart\Assert\Assert;
 
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
@@ -88,7 +87,9 @@ abstract class Form implements FormInterface
      */
     public function add(FormElementInterface $element)
     {
-        Assert::keyNotExists($this->elements, $element->getName(), 'Element already exists');
+        if(array_key_exists($element->getName(), $this->elements)){
+            throw new \InvalidArgumentException('Element already exists');
+        }
         $this->elements[$element->getName()] = $element;
 
         return $this;

@@ -3,8 +3,6 @@
  *
  */
 
-use Webmozart\Assert\Assert;
-
 /**
  * QuarterMission class
  *
@@ -37,13 +35,6 @@ class QuarterMission
      */
     public function __construct($quarter, $numberOfFlights, $numberOfKilometers)
     {
-        Assert::integerish($quarter);
-        Assert::greaterThan($quarter, 0);
-        Assert::lessThanEq($quarter, 4);
-
-        Assert::integerish($numberOfFlights);
-        Assert::integerish($numberOfKilometers);
-
         $this->quarter = (int) $quarter;
         $this->numberOfFlights = (int) $numberOfFlights;
         $this->numberOfKilometers = (int) $numberOfKilometers;

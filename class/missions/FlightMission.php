@@ -6,7 +6,6 @@
 namespace flightlog\model\missions;
 
 use DateTime;
-use Webmozart\Assert\Assert;
 
 /**
  * Mission of type flight.
@@ -58,12 +57,6 @@ class FlightMission
      */
     public function __construct($id, $startPoint, $endPoint, $kilometersComment, $numberOfKilometers, DateTime $date)
     {
-        Assert::integerish($id);
-        Assert::stringNotEmpty($startPoint);
-        Assert::stringNotEmpty($endPoint);
-        Assert::string($kilometersComment);
-        Assert::integerish($numberOfKilometers);
-
         $this->id = (int)$id;
         $this->startPoint = $startPoint;
         $this->endPoint = $endPoint;
