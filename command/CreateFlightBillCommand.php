@@ -54,6 +54,11 @@ class CreateFlightBillCommand
     private $nbrPax;
 
     /**
+     * @var int
+     */
+    private $customerId;
+
+    /**
      * @param int    $flightId
      * @param int    $billingType
      * @param int    $billingCondition
@@ -73,7 +78,8 @@ class CreateFlightBillCommand
         $publicNote,
         $privateNote,
         $bankAccount,
-        $nbrPax
+        $nbrPax,
+        $customerId
     ) {
         if (empty($flightId)) {
             throw new \InvalidArgumentException('Flight id is missing');
@@ -104,6 +110,7 @@ class CreateFlightBillCommand
         $this->privateNote = $privateNote;
         $this->bankAccount = $bankAccount;
         $this->nbrPax = $nbrPax;
+        $this->customerId = $customerId;
     }
 
     /**
@@ -176,6 +183,14 @@ class CreateFlightBillCommand
     public function getNbrPax()
     {
         return $this->nbrPax;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
     }
 
 }

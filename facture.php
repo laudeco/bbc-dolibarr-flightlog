@@ -43,6 +43,7 @@ $action = GETPOST('action', 'alpha');
 $year = GETPOST('year', 'int', 3);
 
 //post parameters
+$customerId = GETPOST('customerid', 'int');
 $additionalBonus = GETPOST('additional_bonus', 'array', 2);
 $pilotIds = GETPOST('pilot', 'array', 2);
 $amouts = GETPOST('amout', 'array', 2);
@@ -68,6 +69,8 @@ $organisator->fetch($flight->fk_organisateur);
 
 $receiver = new User($db);
 $receiver->fetch($flight->fk_receiver);
+$memberReceiver = new Adherent($db);
+$memberReceiver->fetch($receiver->fk_member);
 
 $pilot = new User($db);
 $pilot->fetch($flight->fk_pilot);
@@ -121,7 +124,7 @@ llxHeader('', $langs->trans('Generate billing'), '');
  */
 if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
     try{
-        $command = new CreateFlightBillCommand($flight->getId(), $modeReglement, $conditionReglement, $documentModel, $type, $publicNote, $privateNote,$bankAccount, $nbrPax);
+        $command = new CreateFlightBillCommand($flight->getId(), $modeReglement, $conditionReglement, $documentModel, $type, $publicNote, $privateNote,$bankAccount, $nbrPax, $customerId);
         $handler->handle($command);
     }catch (\Exception $e){
         dol_syslog($e->getMessage(),LOG_ERR);
@@ -214,53 +217,97 @@ if (!$flight->hasReceiver()) {
         <input type="hidden" name="action" value="<?= EXPENSE_REPORT_GENERATOR_ACTION_GENERATE ?>">
         <input type="hidden" name="id" value="<?= $id ?>">
 
-        <!-- Billing type -->
-        <label><?= $langs->trans("Type de facture"); ?></label><br/>
-        <input type="radio" id="radio_standard" name="type" value="0" checked="checked"/>
-        <?= $form->textwithpicto($langs->trans("InvoiceStandardAsk"), $langs->transnoentities("InvoiceStandardDesc"), 1,
-            'help', '', 0, 3) ?>
-        <br/>
-        <br/>
+        <table>
+            <tr>
+                <td class="">
+                    <?php echo $langs->trans('Commanditaire'); ?>
+                </td>
 
-        <!-- Payment mode -->
-        <label><?= $langs->trans("Mode de payement"); ?></label><br/>
-        <?php $form->select_types_paiements($customer->mode_reglement_id, 'mode_reglement_id', 'CRDT'); ?>
-        <br/>
-        <br/>
+                <td>
+                    <?php print $form->select_company($memberReceiver->fk_soc, 'customerid', '((s.client = 1 OR s.client = 3) AND s.status=1)', 'SelectThirdParty', 0, 0, null, 0, 'minwidth300'); ?>
+                </td>
 
-        <!-- Payment condition -->
-        <label><?= $langs->trans("Condition de payement"); ?></label><br/>
-        <?php $form->select_conditions_paiements($customer->cond_reglement_id, 'cond_reglement_id'); ?>
-        <br/>
-        <br/>
+            </tr>
 
-        <!-- bank account -->
-        <label><?= $langs->trans("Compte en banque"); ?></label><br/>
-        <?php $form->select_comptes($customer->fk_account, 'fk_account', 0, '', 1); ?>
-        <br/>
-        <br/>
+            <!-- Billing type -->
+            <tr>
+                <td><label for="type"><?= $langs->trans("Type de facture"); ?></label></td>
 
-        <!-- Public note -->
-        <label><?= $langs->trans("Note publique"); ?></label><br/>
-        <textarea name="public_note" wrap="soft" class="quatrevingtpercent" rows="2">
-        Vol (identifiant : <?php echo $flight->getId(); ?>) de <?php echo $flight->lieuD; ?>
-            à <?php echo $flight->lieuA; ?> avec <?php echo $pilot->getFullName($langs); ?>
-        </textarea>
-        <br/>
-        <br/>
+                <td><input type="radio" id="radio_standard" name="type" value="0" checked="checked"/>
+                    <?php echo $form->textwithpicto($langs->trans("InvoiceStandardAsk"), $langs->transnoentities("InvoiceStandardDesc"), 1,
+                        'help', '', 0, 3) ?>
+                </td>
+            </tr>
 
-        <!-- Private note -->
-        <label><?= $langs->trans("Note privée"); ?></label><br/>
-        <textarea name="private_note" wrap="soft" class="quatrevingtpercent" rows="2">
-        </textarea>
-        <br/>
+            <!-- Payment mode -->
+            <tr>
+                <td><label><?php echo $langs->trans("Mode de payement"); ?></label></td>
+                <td><?php $form->select_types_paiements($customer->mode_reglement_id, 'mode_reglement_id', 'CRDT'); ?></td>
+            </tr>
 
-        <!-- model document -->
-        <label><?= $langs->trans("Model de document "); ?></label><br/>
-        <?php $liste = ModelePDFFactures::liste_modeles($db); ?>
-        <?= $form->selectarray('model', $liste, $conf->global->FACTURE_ADDON_PDF); ?>
-        <br/>
-        <br/>
+            <!-- Payment condition -->
+            <tr>
+                <td>
+                    <label><?= $langs->trans("Condition de payement"); ?></label>
+                </td>
+                <td>
+                    <?php $form->select_conditions_paiements($customer->cond_reglement_id, 'cond_reglement_id'); ?>
+                </td>
+            </tr>
+
+            <!-- bank account -->
+            <tr>
+                <td>
+                    <label><?php echo $langs->trans("Compte en banque"); ?></label>
+                </td>
+
+                <td>
+                    <?php $form->select_comptes($customer->fk_account, 'fk_account', 0, '', 1); ?>
+                </td>
+
+            </tr>
+
+
+            <!-- Public note -->
+            <tr>
+                <td>
+                    <label><?= $langs->trans("Note publique"); ?></label>
+                </td>
+
+                <td>
+                <textarea name="public_note" wrap="soft" class="quatrevingtpercent" rows="2">
+                    Vol (identifiant : <?php echo $flight->getId(); ?>) de <?php echo $flight->lieuD; ?>
+                    à <?php echo $flight->lieuA; ?> avec <?php echo $pilot->getFullName($langs); ?>
+                </textarea>
+                </td>
+
+
+            </tr>
+
+            <!-- Private note -->
+            <tr>
+                <td>
+                    <label><?= $langs->trans("Note privée"); ?></label>
+                </td>
+
+                <td>
+                    <textarea name="private_note" wrap="soft" class="quatrevingtpercent" rows="2"></textarea>
+                </td>
+            </tr>
+
+            <!-- model document -->
+            <tr>
+                <td>
+                    <label><?= $langs->trans("Model de document "); ?></label>
+                </td>
+                <td>
+                    <?php $liste = ModelePDFFactures::liste_modeles($db); ?>
+                    <?= $form->selectarray('model', $liste, $conf->global->FACTURE_ADDON_PDF); ?>
+                </td>
+            </tr>
+
+        </table>
+
 
         <?php if (!$flightProduct || !$flight->hasReceiver()) : ?>
             <a class="butActionRefused" href="#">Générer</a>
