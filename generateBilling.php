@@ -157,7 +157,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                     $bankAccount,
                     $year,
                     GETPOST("additional_message", 3),
-                    $additionalBonus
+                    $addBonus
                 );
                 $billHandler->__invoke($command);
 
