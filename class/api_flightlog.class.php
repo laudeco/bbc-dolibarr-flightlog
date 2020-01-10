@@ -22,7 +22,7 @@ final class Flightlog extends DolibarrApi
     /**
      * @url GET /flightlogs/
      *
-     * @return Flight
+     * @return array
      *
      * @throws RestException
      */
