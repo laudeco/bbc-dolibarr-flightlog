@@ -20,6 +20,7 @@ define("EXPENSE_REPORT_GENERATOR_ACTION_SELECT", "select");
 if (false === (@include '../main.inc.php')) {  // From htdocs directory
     require '../../documents/custom/main.inc.php'; // From "custom" directory
 }
+dol_include_once('/flightlog/flightlog.inc.php');
 dol_include_once('/compta/facture/class/facture.class.php');
 dol_include_once('/adherents/class/adherent.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");

@@ -12,6 +12,11 @@ dol_include_once('/flightlog/class/GraphicalValue.php');
 dol_include_once('/flightlog/class/GraphicalValueType.php');
 dol_include_once('/flightlog/class/YearGraphicalData.php');
 
+dol_include_once('/flightlog/class/flight/FlightBonus.php');
+dol_include_once('/flightlog/class/flight/FlightPoints.php');
+dol_include_once('/flightlog/class/flight/FlightTypeCount.php');
+dol_include_once('/flightlog/class/flight/Pilot.php');
+
 dol_include_once('/flightlog/class/missions/PilotMissions.php');
 dol_include_once('/flightlog/class/missions/FlightMission.php');
 dol_include_once('/flightlog/class/missions/QuarterMission.php');
