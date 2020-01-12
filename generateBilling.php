@@ -139,12 +139,11 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
                     continue;
                 }
 
-                if (!$value->isBillable()) {
+                if (!$value->isBillable(FlightBonus::zero()->addPoints(FlightPoints::create($addBonus)))) {
                     dol_htmloutput_mesg("Facture ignorée car à 0.00 €" . $value->getName(), '',
                         'warning');
                     continue;
                 }
-
 
                 $command = new CreatePilotYearBillCommand(
                     $value,

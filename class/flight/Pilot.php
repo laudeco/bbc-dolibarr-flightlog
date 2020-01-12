@@ -156,11 +156,13 @@ class Pilot
     }
 
     /**
+     * @param FlightBonus $extraBonus
+     *
      * @return boolean
      */
-    public function isBillable()
+    public function isBillable(FlightBonus $extraBonus)
     {
-        return $this->getTotalBill()->getValue() > 0;
+        return $this->getTotalBill()->minBonus($extraBonus)->getValue() > 0
     }
 
     /**
