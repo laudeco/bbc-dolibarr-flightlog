@@ -3,7 +3,7 @@
 use Luracast\Restler\RestException;
 include_once 'View/Rest/Flight.php';
 
-final class Flightlog extends DolibarrApi
+final class Flights extends DolibarrApi
 {
     /**
      * @var DoliDB
@@ -20,7 +20,7 @@ final class Flightlog extends DolibarrApi
 
 
     /**
-     * @url GET /flightlogs/
+     * @url GET /
      *
      * @return array
      *
