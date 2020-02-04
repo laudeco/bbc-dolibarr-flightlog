@@ -20,5 +20,6 @@ class Hidden extends BaseInput
     public function __construct($name, array $options = [])
     {
         parent::__construct($name, FormElementInterface::TYPE_HIDDEN, $options);
+        $this->required();
     }
 }

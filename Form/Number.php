@@ -29,4 +29,24 @@ class Number extends BaseInput
     {
         return $this->setAttribute('step', $step);
     }
+
+    /**
+     * @param int $min
+     *
+     * @return $this
+     */
+    public function setMin($min)
+    {
+        return $this->setAttribute('min', $min);
+    }
+
+    /**
+     * @param int $max
+     *
+     * @return $this
+     */
+    public function setMax($max)
+    {
+        return $this->setAttribute('max', $max);
+    }
 }
