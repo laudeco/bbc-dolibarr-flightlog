@@ -54,7 +54,7 @@ final class AddFlightDamageController extends WebController
             }
 
 
-            $this->redirect($_SERVER["PHP_SELF"]);
+            $this->redirect($_SERVER["PHP_SELF"].'?id='.$id);
             exit;
         }
 

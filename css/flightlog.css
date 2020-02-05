@@ -235,3 +235,7 @@ input.error, textarea.error{
     color:grey;
     font-style: italic;
 }
+
+.border-top{
+    border-top: solid 1px black ;
+}

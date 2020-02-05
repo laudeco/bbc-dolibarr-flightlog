@@ -22,11 +22,13 @@ final class FlightDamageRepository extends AbstractDomainRepository
      *
      * @throws \Exception
      */
-    public function save(FlightDamage $flightDamage){
+    public function save(FlightDamage $flightDamage)
+    {
         $this->write([
             'flight_id' => $flightDamage->getFlightId()->getId(),
             'billed' => $flightDamage->isBilled(),
             'amount' => $flightDamage->amount()->getValue(),
+            'author_id' => $flightDamage->getAuthor()->getId()
         ]);
     }
 

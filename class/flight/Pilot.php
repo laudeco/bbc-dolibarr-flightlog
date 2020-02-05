@@ -137,6 +137,7 @@ class Pilot
         $flightsCost = $flightsCost->addCost($this->getFlightCost('4'));
         $flightsCost = $flightsCost->addCost($this->getFlightCost('6'));
         $flightsCost = $flightsCost->addCost($this->getFlightCost('7'));
+        $flightsCost = $flightsCost->addCost($this->getFlightCost('damage'));
 
         return $flightsCost;
     }

@@ -4,22 +4,24 @@
 namespace FlightLog\Http\Web\Controller;
 
 
+use FlightLog\Application\Damage\Query\GetDamagesForFlightQueryRepositoryInterface;
+use FlightLog\Infrastructure\Damage\Query\Repository\GetDamagesForFlightQueryRepository;
+
 final class FlightDamageController extends WebController
 {
 
+    /**
+     * @return GetDamagesForFlightQueryRepositoryInterface
+     */
+    private function getDamagesRepository(){
+        return new GetDamagesForFlightQueryRepository($this->db);
+    }
+
     public function view(){
-        $id = GETPOST('id', 'int') ?: GETPOST('idBBC_vols', 'int');
-
-        $obj = new \Bbcvols($this->db);
-        $obj->fetch($id);
-
-        $receiver = new \User($this->db);
-        $receiver->fetch($obj->fk_receiver);
-
+        $flightId = $this->request->getParam('id');
 
         return $this->render('flight_damage/view.php', [
-            'object' => $obj,
-            'receiver' => $receiver,
+            'damages' => $this->getDamagesRepository()->__invoke($flightId)
         ]);
     }
 }

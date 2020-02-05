@@ -144,6 +144,7 @@ print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 4: Meeting") 
 print '<td class="liste_titre" colspan="1">' . $langs->trans("Type 5: Chambley") . '</td>';
 print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 6: instruction") . '</td>';
 print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 7: vols < 50 ") . '</td>';
+print '<td class="liste_titre" colspan="2">' . $langs->trans("Dommages") . '</td>';
 print '<td class="liste_titre" colspan="1">' . $langs->trans("Facture") . '</td>';
 print '<td class="liste_titre" colspan="1">' . $langs->trans("A payer") . '</td>';
 print '<tr>';
@@ -176,6 +177,11 @@ print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> € </td>';
 
+// T7
+print '<td class="liste_titre"> #</td>';
+print '<td class="liste_titre"> €</td>';
+
+// Damage
 print '<td class="liste_titre"> #</td>';
 print '<td class="liste_titre"> €</td>';
 
@@ -239,6 +245,9 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
 
     print '<td>' . $pilot->getCountForType('7')->getCount() . '</td>';
     print '<td>' . price($pilot->getCountForType('7')->getCost()->getValue()) . '€</td>';
+
+    print '<td> - </td>';
+    print '<td>' . price($pilot->getCountForType('damage')->getCost()->getValue()) . '€</td>';
 
     print '<td>' . price($pilot->getFlightsCost()->getValue()) . '€ </td>';
     print '<td><b>' . price($pilot->getTotalBill()->getValue()) . '€</b></td>';
