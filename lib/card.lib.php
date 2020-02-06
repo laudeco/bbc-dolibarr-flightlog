@@ -32,7 +32,7 @@ function prepareFlightTabs(Bbcvols $flight)
     $tabTitle = [
         'Vol',
         'Finances',
-        'Dommages',
+        'Dégâts',
         'Remarques',
         'Suivis',
     ];
