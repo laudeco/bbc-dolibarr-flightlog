@@ -164,7 +164,7 @@ print '<td class="liste_titre"> Pts </td>';
 print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> Pts </td>';
 
-print '<td class="liste_titre"> Bonus</td>';
+print '<td class="liste_titre"> Pts</td>';
 
 print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> € </td>';
