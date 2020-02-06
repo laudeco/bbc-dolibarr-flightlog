@@ -118,7 +118,7 @@ input.error, textarea.error{
     width: 50%;
 }
 
-.bbc-style ._alignCenter
+._alignCenter
 {
     text-align: center;
 }
@@ -234,6 +234,10 @@ input.error, textarea.error{
 .text-muted{
     color:grey;
     font-style: italic;
+}
+
+.text-bold{
+    font-weight: bold;
 }
 
 .border-top{

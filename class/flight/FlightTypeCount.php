@@ -3,6 +3,8 @@
 require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/billing/FlightCost.php');
 
 /**
+ * Counter for one flight type.
+ *
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
 class FlightTypeCount

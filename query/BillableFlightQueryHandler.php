@@ -146,17 +146,23 @@ class BillableFlightQueryHandler
         //Total damages
         $damages = $this->pilotDamageQueryRepository->query($query->getFiscalYear());
         foreach($damages as $currentDamage){
+
+            //Pilot doesn't exist
             if (!isset($pilots[$currentDamage->getAuthorId()])) {
                 $pilots[$currentDamage->getAuthorId()] = Pilot::create($currentDamage->getAuthorName(), $currentDamage->getAuthorId());
             }
 
+            // Add all damage
             $pilots[$currentDamage->getAuthorId()] = $pilots[$currentDamage->getAuthorId()]->addCount(
-                new FlightTypeCount(
-                    'damage',
-                    $currentDamage->getTotalAmount(),
-                    1
-                )
+                new FlightTypeCount('damage', $currentDamage->getAmount(), 1)
             );
+
+            // The damage is already invoiced. So not take into account.
+            if($currentDamage->isInvoiced()){
+                $pilots[$currentDamage->getAuthorId()] = $pilots[$currentDamage->getAuthorId()]->addCount(
+                    new FlightTypeCount('invoiced_damage', $currentDamage->getAmount(), -1)
+                );
+            }
         }
 
         return $pilots;

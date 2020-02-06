@@ -6,11 +6,12 @@ require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightTypeCount.php');
 require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/billing/FlightCost.php');
 
 /**
- * Pilot class
+ * All financial information for one pilot.
+ * This class is immutable.
  *
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
-class Pilot
+final class Pilot
 {
 
     /**
@@ -123,7 +124,9 @@ class Pilot
         $bonus = $bonus->addPoints($this->getFlightPoints('1'));
         $bonus = $bonus->addPoints($this->getFlightPoints('2'));
         $bonus = $bonus->addPoints($this->getFlightPoints('orga'));
-        return $bonus->addPoints($this->getFlightPoints('orga_T6'));
+        $bonus = $bonus->addPoints($this->getFlightPoints('orga_T6'));
+
+        return $bonus;
     }
 
     /**
@@ -138,6 +141,7 @@ class Pilot
         $flightsCost = $flightsCost->addCost($this->getFlightCost('6'));
         $flightsCost = $flightsCost->addCost($this->getFlightCost('7'));
         $flightsCost = $flightsCost->addCost($this->getFlightCost('damage'));
+        $flightsCost = $flightsCost->addCost($this->getFlightCost('invoiced_damage'));
 
         return $flightsCost;
     }
@@ -147,7 +151,6 @@ class Pilot
      */
     public function getTotalBill()
     {
-
         $totalBill = $this->getFlightsCost()->minBonus($this->getFlightBonus());
         if ($totalBill->getValue() < 0) {
             return FlightCost::zero();
@@ -177,7 +180,7 @@ class Pilot
     }
 
     /**
-     * Get the flight cost for a type
+     * Get the flight cost for a type.
      *
      * @param string $type
      *

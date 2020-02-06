@@ -12,7 +12,7 @@ final class TotalDamage extends ViewModel
     /**
      * @var float
      */
-    private $totalAmount;
+    private $amount;
 
     /**
      * @var int
@@ -20,13 +20,27 @@ final class TotalDamage extends ViewModel
     private $authorId;
 
     /**
-     * @param float $totalAmount
-     * @param int $authorId
+     * @var string
      */
-    public function __construct($totalAmount, $authorId)
+    private $authorName;
+
+    /**
+     * @var bool
+     */
+    private $invoiced;
+
+    /**
+     * @param float $amount
+     * @param int $authorId
+     * @param string $authorName
+     * @param bool $invoiced
+     */
+    public function __construct($amount, $authorId, $authorName, $invoiced)
     {
-        $this->totalAmount = $totalAmount;
+        $this->amount = $amount;
         $this->authorId = $authorId;
+        $this->authorName = $authorName;
+        $this->invoiced = $invoiced;
     }
 
     /**
@@ -36,15 +50,15 @@ final class TotalDamage extends ViewModel
      */
     public static function fromArray(array $values)
     {
-        return new self($values['total_amount'], $values['author']);
+        return new self($values['amount'], $values['author'], $values['author_name'], $values['billed']);
     }
 
     /**
      * @return float
      */
-    public function getTotalAmount()
+    public function getAmount()
     {
-        return $this->totalAmount;
+        return $this->amount;
     }
 
     /**
@@ -55,5 +69,20 @@ final class TotalDamage extends ViewModel
         return $this->authorId;
     }
 
+    /**
+     * @return bool
+     */
+    public function isInvoiced()
+    {
+        return $this->invoiced;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthorName()
+    {
+        return $this->authorName;
+    }
 
 }

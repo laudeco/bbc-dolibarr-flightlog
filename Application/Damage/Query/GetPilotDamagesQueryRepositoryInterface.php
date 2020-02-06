@@ -11,7 +11,7 @@ interface GetPilotDamagesQueryRepositoryInterface
     /**
      * @param int $year
      *
-     * @return TotalDamage[]|array
+     * @return TotalDamage[]|\Generator
      */
     public function query($year);
 }
