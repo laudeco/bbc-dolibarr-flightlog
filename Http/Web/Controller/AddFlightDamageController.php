@@ -87,18 +87,4 @@ final class AddFlightDamageController extends WebController
         return new FlightDamageRepository($this->db);
     }
 
-    /**
-     * @param string $location
-     */
-    protected function redirect($location)
-    {
-        if (headers_sent()) {
-            echo("<script>location.href='$location'</script>");
-            return;
-        }
-
-        header("Location: $location");
-        exit;
-    }
-
 }

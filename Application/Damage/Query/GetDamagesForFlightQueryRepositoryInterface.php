@@ -12,7 +12,7 @@ interface GetDamagesForFlightQueryRepositoryInterface
     /**
      * @param int $flightId
      *
-     * @return Damage[]|array
+     * @return Damage[]|\Generator
      */
     public function __invoke($flightId);
 }

@@ -35,12 +35,18 @@ $renderer = new \flightlog\form\SimpleFormRenderer();
 
                 <tr>
                     <td class="fieldrequired" width="25%">Autheur des dégâts</td>
-                    <td ><?php echo $renderer->render($form->getElement('author_id')); ?><br/> Par défaut ces dégats seront attribués au pilote.</td>
+                    <td>
+                        <?php echo $renderer->render($form->getElement('author_id')); ?>
+                        <br/> <span class="text-muted">Par défaut ces dégats seront attribués au pilote.</span>
+                    </td>
                 </tr>
 
                 <tr>
                     <td class="" width="25%">Facture fournisseur</td>
-                    <td ><?php echo $renderer->render($form->getElement('bill_id')); ?></td>
+                    <td>
+                        <?php echo $renderer->render($form->getElement('bill_id')); ?>
+                        <br/> <span class="text-muted">Pas obligatoire, mais dans un soucis de transparance il est toujours bon de lier la facture.</span>
+                    </td>
                 </tr>
 
             </table>

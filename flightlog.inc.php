@@ -31,6 +31,7 @@ dol_include_once('/flightlog/class/missions/QuarterPilotMissionCollection.php');
 dol_include_once('/flightlog/class/Damage/DamageAmount.php');
 dol_include_once('/flightlog/class/Damage/FlightDamage.php');
 dol_include_once('/flightlog/class/Damage/FlightId.php');
+dol_include_once('/flightlog/class/Damage/DamageId.php');
 dol_include_once('/flightlog/class/Damage/AuthorId.php');
 
 dol_include_once('/flightlog/exceptions/NoMissionException.php');
@@ -56,10 +57,11 @@ dol_include_once('/flightlog/command/CreateFlightBillCommand.php');
 dol_include_once('/flightlog/command/CreateFlightBillCommandHandlerFactory.php');
 dol_include_once('/flightlog/Application/Damage/Command/CreateDamageCommand.php');
 dol_include_once('/flightlog/Application/Damage/Command/CreateDamageCommandHandler.php');
+dol_include_once('/flightlog/Application/Damage/Command/InvoiceDamageCommand.php');
+dol_include_once('/flightlog/Application/Damage/Command/InvoiceDamageCommandHandler.php');
 dol_include_once('/flightlog/Application/Common/ViewModel/ViewModel.php');
 dol_include_once('/flightlog/Application/Damage/ViewModel/Damage.php');
 dol_include_once('/flightlog/Application/Damage/ViewModel/TotalDamage.php');
-
 
 dol_include_once('/flightlog/validators/ValidatorInterface.php');
 dol_include_once('/flightlog/validators/AbstractValidator.php');

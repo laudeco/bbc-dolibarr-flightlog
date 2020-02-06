@@ -30,9 +30,7 @@ if (!$res) {
 // Change this following line to use the correct relative path from htdocs
 include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 
-dol_include_once('/flightlog/class/bbcvols.class.php');
-dol_include_once('/flightlog/class/bbctypes.class.php');
-dol_include_once('/flightlog/lib/flightLog.lib.php');
+dol_include_once('/flightlog/flightlog.inc.php');
 dol_include_once('/flightlog/lib/card.lib.php');
 dol_include_once('/flightlog/lib/PilotService.php');
 dol_include_once('/flightballoon/bbc_ballons.class.php');
@@ -42,6 +40,8 @@ global $langs, $user;
 
 const FLIGHTLOG_ACTION_ADD_DAMAGE = 'add_damage';
 const FLIGHTLOG_ACTION_HANDLE_ADD_DAMAGE = 'handle_add_damage';
+const FLIGHTLOG_ACTION_BILL_DAMAGE = 'bill_damage';
+const FLIGHTLOG_ACTION_CONFIRM_BILL_DAMAGE = 'confirm_bill_damage';
 
 // Load traductions files requiredby by page
 $langs->load("mymodule@flightlog");
@@ -83,6 +83,8 @@ print $form->showrefnav($object, "idBBC_vols", $linkback, true, "idBBC_vols");
         '' => [FlightDamageController::class, 'view'],
         FLIGHTLOG_ACTION_ADD_DAMAGE => [AddFlightDamageController::class, 'view'],
         FLIGHTLOG_ACTION_HANDLE_ADD_DAMAGE => [AddFlightDamageController::class, 'view'],
+        FLIGHTLOG_ACTION_BILL_DAMAGE => [FlightDamageController::class, 'bill'],
+        FLIGHTLOG_ACTION_CONFIRM_BILL_DAMAGE => [FlightDamageController::class, 'handleInvoice'],
     ];
 
     if(isset($routes[$action])){
@@ -102,8 +104,8 @@ dol_fiche_end();
 // Buttons
 print '<div class="tabsAction">' . "\n";
 
-if($user->rights->flightlog->vol->financial && $object->fk_type == 2 && !$object->hasFacture()){
-    print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/facture.php?id=' . $object->id.'">' . $langs->trans("Facturer") . '</a></div>' . "\n";
+if($user->rights->flightlog->vol->financial){
+    print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/card_tab_damage.php?id=' . $object->id.'&action='.FLIGHTLOG_ACTION_ADD_DAMAGE.'">' . $langs->trans("Ajouter") . '</a></div>' . "\n";
 }
 
 print '</div>' . "\n";

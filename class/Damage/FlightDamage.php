@@ -6,6 +6,11 @@ namespace FlightLog\Domain\Damage;
 final class FlightDamage
 {
     /**
+     * @var DamageId|null
+     */
+    private $id;
+
+    /**
      * @var FlightId
      */
     private $flight;
@@ -30,13 +35,28 @@ final class FlightDamage
      * @param DamageAmount $amount
      * @param $billed
      * @param AuthorId $authorId
+     * @param DamageId|null $id
      */
-    private function __construct(FlightId $flightId, DamageAmount $amount, $billed, AuthorId $authorId)
+    private function __construct(FlightId $flightId, DamageAmount $amount, $billed, AuthorId $authorId, DamageId $id = null)
     {
        $this->flight = $flightId;
        $this->amount = $amount;
        $this->billed = $billed;
        $this->author = $authorId;
+       $this->id = $id;
+    }
+
+    /**
+     * @param FlightId $flightId
+     * @param DamageAmount $amount
+     * @param $billed
+     * @param AuthorId $authorId
+     * @param DamageId|null $id
+     *
+     * @return FlightDamage
+     */
+    public static function load(FlightId $flightId, DamageAmount $amount, $billed, AuthorId $authorId, DamageId $id = null){
+        return new self($flightId, $amount, $billed, $authorId, $id);
     }
 
     /**
@@ -78,6 +98,23 @@ final class FlightDamage
     public function getAuthor()
     {
         return $this->author;
+    }
+
+    /**
+     * Invoice the damage.
+     *
+     * @return FlightDamage
+     */
+    public function invoice(){
+        return new self($this->flight, $this->amount, true, $this->author, $this->id);
+    }
+
+    /**
+     * @return DamageId|null
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
 }

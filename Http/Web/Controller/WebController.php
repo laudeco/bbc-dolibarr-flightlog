@@ -24,13 +24,34 @@ abstract class WebController
         $this->request = new Request();
     }
 
-    protected function render($view, array $variables = []){
+    protected function render($template, array $variables = []){
 
         foreach($variables as $variableName => $variableValue){
             $GLOBALS[$variableName] = $variableValue;
         }
 
-        return include __DIR__.'/../templates/'.$view;
+        return include __DIR__.'/../templates/'.$template;
+    }
+
+    /**
+     * @param string $html
+     */
+    protected function renderHtml($html){
+        print $html;
+    }
+
+    /**
+     * @param string $location
+     */
+    protected function redirect($location)
+    {
+        if (headers_sent()) {
+            echo("<script>location.href='$location'</script>");
+            return;
+        }
+
+        header("Location: $location");
+        exit;
     }
 
 }

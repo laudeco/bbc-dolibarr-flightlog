@@ -3,7 +3,11 @@
 
 namespace FlightLog\Infrastructure\Damage\Repository;
 
+use FlightLog\Domain\Damage\AuthorId;
+use FlightLog\Domain\Damage\DamageAmount;
+use FlightLog\Domain\Damage\DamageId;
 use FlightLog\Domain\Damage\FlightDamage;
+use FlightLog\Domain\Damage\FlightId;
 use FlightLog\Infrastructure\Common\Repository\AbstractDomainRepository;
 
 final class FlightDamageRepository extends AbstractDomainRepository
@@ -24,12 +28,41 @@ final class FlightDamageRepository extends AbstractDomainRepository
      */
     public function save(FlightDamage $flightDamage)
     {
-        $this->write([
+        $fields = [
             'flight_id' => $flightDamage->getFlightId()->getId(),
             'billed' => $flightDamage->isBilled(),
             'amount' => $flightDamage->amount()->getValue(),
             'author_id' => $flightDamage->getAuthor()->getId()
-        ]);
+        ];
+
+        if($flightDamage->getId()){
+            $this->update($flightDamage->getId()->getId(), $fields);
+            return;
+        }
+
+        $this->write($fields);
     }
 
+    /**
+     * @param DamageId $id
+     *
+     * @return FlightDamage
+     *
+     * @throws \Exception
+     */
+    public function getById(DamageId $id){
+        $damage = $this->get($id->getId());
+
+        if(null === $damage){
+            throw new \Exception('Damage not found');
+        }
+
+        return FlightDamage::load(
+            FlightId::create($damage['flight_id']),
+            new DamageAmount($damage['amount']),
+            $damage['billed'],
+            AuthorId::create($damage['author_id']),
+            DamageId::create($damage['rowid'])
+        );
+    }
 }
