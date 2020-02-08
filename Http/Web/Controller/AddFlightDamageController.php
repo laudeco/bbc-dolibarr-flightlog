@@ -33,7 +33,9 @@ final class AddFlightDamageController extends WebController
             return;
         }
 
-        $command = new CreateDamageCommand($flight->getId(), $flight->getPilotId());
+        $command = new CreateDamageCommand($flight->getPilotId());
+        $command->setFlightId($flight->getId());
+
         $form = new DamageCreationForm('damage_creation', $this->db);
         $form->bind($command);
 

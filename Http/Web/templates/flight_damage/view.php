@@ -27,9 +27,7 @@ global $langs, $user, $damages, $receiver, $flightId;
                 <?php endif; ?>
             </td>
             <td>
-                <?php if(!$currentDamage->isInvoiced()): ?>
-                    <a href="<?php print sprintf('%s/flightlog/card_tab_damage.php?id=%s&action=%s&damage=%s', DOL_URL_ROOT, $flightId, 'bill_damage', $currentDamage->getId());?>"><i class="fas fa-file-invoice"></i></a>
-                <?php endif; ?>
+                <a href="<?php print sprintf('%s/flightlog/index.php?r=get_one_damage&id=%s', DOL_URL_ROOT, $currentDamage->getId());?>"><i class="fas fa-link"></i></a>
             </td>
         </tr>
     <?php endforeach; ?>

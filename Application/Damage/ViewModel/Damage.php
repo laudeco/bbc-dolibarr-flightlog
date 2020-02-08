@@ -20,12 +20,17 @@ final class Damage
     /**
      * @var int
      */
-    private $id;
+    public $id;
 
     /**
      * @var bool
      */
     private $invoiced;
+
+    /**
+     * @var array
+     */
+    public $linkedObjects;
 
     /**
      * @param string $authorName
@@ -39,6 +44,7 @@ final class Damage
         $this->amount = $amount;
         $this->id = $id;
         $this->invoiced = $invoiced;
+        $this->linkedObjects = [];
     }
 
     /**
@@ -85,5 +91,18 @@ final class Damage
     public function isInvoiced()
     {
         return $this->invoiced;
+    }
+
+    public function __call($name, $arguments)
+    {}
+
+    /**
+     * @param int $elementId
+     * @param string $elementType
+     * @param \CommonObject $element
+     */
+    public function addLink($elementId, $elementType, $element)
+    {
+        $this->linkedObjects[$elementType][$elementId] = $element;
     }
 }

@@ -44,8 +44,6 @@ dol_include_once('/flightlog/query/FlightForQuarterAndPilotQuery.php');
 dol_include_once('/flightlog/query/FlightForQuarterAndPilotQueryHandler.php');
 dol_include_once('/flightlog/Application/Damage/Query/GetDamagesForFlightQueryRepositoryInterface.php');
 dol_include_once('/flightlog/Application/Damage/Query/GetPilotDamagesQueryRepositoryInterface.php');
-dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetDamagesForFlightQueryRepository.php');
-dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetPilotDamagesQueryRepository.php');
 
 dol_include_once('/flightlog/command/CommandHandlerInterface.php');
 dol_include_once('/flightlog/command/CommandInterface.php');
@@ -88,6 +86,7 @@ dol_include_once('/flightlog/Form/FlightForm.php');
 dol_include_once('/flightlog/Http/Web/Controller/WebController.php');
 dol_include_once('/flightlog/Http/Web/Controller/AddFlightDamageController.php');
 dol_include_once('/flightlog/Http/Web/Controller/FlightDamageController.php');
+dol_include_once('/flightlog/Http/Web/Controller/DamageController.php');
 
 dol_include_once('/flightlog/Http/Web/Requests/Request.php');
 
@@ -96,6 +95,14 @@ dol_include_once('/flightlog/Http/Web/Form/SupplierBillSelect.php');
 
 dol_include_once('/flightlog/Infrastructure/Common/Repository/AbstractDomainRepository.php');
 dol_include_once('/flightlog/Infrastructure/Damage/Repository/FlightDamageRepository.php');
+dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetDamageQueryRepository.php');
+dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetDamagesForFlightQueryRepository.php');
+dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetPilotDamagesQueryRepository.php');
+dol_include_once('/flightlog/Infrastructure/Common/Routes/Route.php');
+dol_include_once('/flightlog/Infrastructure/Common/Routes/RouteManager.php');
 
 dol_include_once('/core/lib/ajax.lib.php');
 dol_include_once('/core/lib/price.lib.php');
+
+
+dol_include_once('/fourn/class/fournisseur.facture.class.php');

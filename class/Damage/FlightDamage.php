@@ -37,7 +37,7 @@ final class FlightDamage
      * @param AuthorId $authorId
      * @param DamageId|null $id
      */
-    private function __construct(FlightId $flightId, DamageAmount $amount, $billed, AuthorId $authorId, DamageId $id = null)
+    private function __construct(DamageAmount $amount, $billed, AuthorId $authorId, FlightId $flightId = null, DamageId $id = null)
     {
        $this->flight = $flightId;
        $this->amount = $amount;
@@ -56,7 +56,7 @@ final class FlightDamage
      * @return FlightDamage
      */
     public static function load(FlightId $flightId, DamageAmount $amount, $billed, AuthorId $authorId, DamageId $id = null){
-        return new self($flightId, $amount, $billed, $authorId, $id);
+        return new self($amount, $billed, $authorId, $flightId, $id);
     }
 
     /**
@@ -67,7 +67,17 @@ final class FlightDamage
      * @return FlightDamage
      */
     public static function damage(FlightId $flightId, DamageAmount $amount, AuthorId $authorId){
-        return new self($flightId, $amount, false, $authorId);
+        return new self($amount, false, $authorId, $flightId);
+    }
+
+    /**
+     * @param DamageAmount $amount
+     * @param AuthorId $authorId
+     *
+     * @return FlightDamage
+     */
+    public static function waiting(DamageAmount $amount, AuthorId $authorId){
+        return new self($amount, false, $authorId);
     }
 
     /**

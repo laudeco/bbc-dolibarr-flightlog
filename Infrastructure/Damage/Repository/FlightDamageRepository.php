@@ -37,10 +37,10 @@ final class FlightDamageRepository extends AbstractDomainRepository
 
         if($flightDamage->getId()){
             $this->update($flightDamage->getId()->getId(), $fields);
-            return;
+            return $flightDamage->getId()->getId();
         }
 
-        $this->write($fields);
+        return $this->write($fields);
     }
 
     /**

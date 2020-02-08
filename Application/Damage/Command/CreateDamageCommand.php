@@ -8,7 +8,7 @@ final class CreateDamageCommand
 {
 
     /**
-     * @var int
+     * @var int|null
      */
     private $flightId;
 
@@ -27,9 +27,8 @@ final class CreateDamageCommand
      */
     private $billId;
 
-    public function __construct($flightId, $authorId)
+    public function __construct($authorId)
     {
-        $this->flightId = $flightId;
         $this->authorId = $authorId;
 
         $this->billId = -1;

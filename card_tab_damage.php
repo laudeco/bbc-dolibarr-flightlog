@@ -83,8 +83,6 @@ print $form->showrefnav($object, "idBBC_vols", $linkback, true, "idBBC_vols");
         '' => [FlightDamageController::class, 'view'],
         FLIGHTLOG_ACTION_ADD_DAMAGE => [AddFlightDamageController::class, 'view'],
         FLIGHTLOG_ACTION_HANDLE_ADD_DAMAGE => [AddFlightDamageController::class, 'view'],
-        FLIGHTLOG_ACTION_BILL_DAMAGE => [FlightDamageController::class, 'bill'],
-        FLIGHTLOG_ACTION_CONFIRM_BILL_DAMAGE => [FlightDamageController::class, 'handleInvoice'],
     ];
 
     if(isset($routes[$action])){
