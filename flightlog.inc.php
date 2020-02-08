@@ -87,6 +87,7 @@ dol_include_once('/flightlog/Http/Web/Controller/WebController.php');
 dol_include_once('/flightlog/Http/Web/Controller/AddFlightDamageController.php');
 dol_include_once('/flightlog/Http/Web/Controller/FlightDamageController.php');
 dol_include_once('/flightlog/Http/Web/Controller/DamageController.php');
+dol_include_once('/flightlog/Http/Web/Controller/FlightController.php');
 
 dol_include_once('/flightlog/Http/Web/Requests/Request.php');
 

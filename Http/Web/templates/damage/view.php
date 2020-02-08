@@ -4,8 +4,9 @@ use FlightLog\Application\Damage\ViewModel\Damage;
 
 /**
  * @var Damage $damage
+ * @var Bbcvols $flight
  */
-global $damage, $langs, $form;
+global $damage, $langs, $form, $flight;
 
 function prepareTabsDamage(Damage $damage)
 {
@@ -55,6 +56,12 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/flightlog/index.php?r=get_list_damage
     <tr><td class="fieldrequired">Auteur</td><td><?php echo $damage->getAuthorName();?></td></tr>
     <tr><td class="fieldrequired">Montant</td><td><?php echo $damage->getAmount();?>€</td></tr>
     <tr><td class="fieldrequired">Facturé</td><td><?php echo $damage->isInvoiced()? 'Oui' : 'Non';?></td></tr>
+    <tr>
+        <td class="fieldrequired">Vol</td>
+        <td>
+            <?php print $flight->getNomUrl(); ?>
+        </td>
+    </tr>
 </table>
 
 <div class="fichecenter">

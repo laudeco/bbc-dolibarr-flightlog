@@ -23,12 +23,25 @@ final class DamageController extends WebController
         try{
             $damage = $this->getDamageRepository()->query($damageId);
 
+            $flight = new \Bbcvols($this->db);
+            $flight->fetch($damage->getFlightId());
+
             $this->render('damage/view.php', [
                 'damage' => $damage,
                 'form' => new Form($this->db),
+                'flight' => $flight
             ]);
         }catch (\Exception $e){
             echo $e->getMessage();
         }
+    }
+
+    public function invoice(){
+        $damageId = $this->request->getParam('id');
+
+
+
+        $this->redirect($_SERVER["PHP_SELF"].'?id='.$damageId);
+        exit;
     }
 }

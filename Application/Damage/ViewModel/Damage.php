@@ -33,18 +33,25 @@ final class Damage
     public $linkedObjects;
 
     /**
+     * @var int|null
+     */
+    private $flightId;
+
+    /**
      * @param string $authorName
      * @param float $amount
      * @param int $id
      * @param bool $invoiced
+     * @param int $flightId
      */
-    public function __construct($authorName, $amount, $id, $invoiced)
+    public function __construct($authorName, $amount, $id, $invoiced, $flightId)
     {
         $this->authorName = $authorName;
         $this->amount = $amount;
         $this->id = $id;
         $this->invoiced = $invoiced;
         $this->linkedObjects = [];
+        $this->flightId = $flightId;
     }
 
     /**
@@ -56,9 +63,10 @@ final class Damage
         $author = $properties['author_name'];
         $amount = $properties['amount'];
         $id = $properties['id'];
+        $flightId = isset($properties['flight_id']) ? $properties['flight_id'] : null;
         $invoiced = (bool)$properties['invoiced'];
 
-        return new self($author, $amount, $id, $invoiced);
+        return new self($author, $amount, $id, $invoiced, $flightId);
     }
 
     /**
@@ -104,5 +112,13 @@ final class Damage
     public function addLink($elementId, $elementType, $element)
     {
         $this->linkedObjects[$elementType][$elementId] = $element;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getFlightId()
+    {
+        return $this->flightId;
     }
 }
