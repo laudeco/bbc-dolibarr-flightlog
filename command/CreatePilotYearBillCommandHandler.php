@@ -250,7 +250,8 @@ class CreatePilotYearBillCommandHandler
      */
     private function addOrderDiscount($order, $pilotFlightCount, $service, $year)
     {
-        $pu_ht = price2num($pilotFlightCount->getCost()->getValue(), 'MU');
+        $price = $pilotFlightCount->getCost()->getValue()/(1+$service->tva_tx/100);
+        $pu_ht = price2num($price, 'MU');
         $desc = $year . " - " . $service->label . " - (" . $pilotFlightCount->getCount() . " * " . $pilotFlightCount->getFactor() . ")";
 
         $discountid = $this->getCompany($order->socid)->set_remise_except($pu_ht, $this->user, $desc, $service->tva_tx);
@@ -306,6 +307,7 @@ class CreatePilotYearBillCommandHandler
 
         $tDamage = new Product($this->db);
         $tDamage->label = 'Réparations';
+        $tDamage->description = 'Remboursement des dégâts effectués aux ballons.';
         $tDamage->tva_tx = 21;
         $tDamage->price_ttc = $price;
         $tDamage->price = $tDamage->price_ttc / (1 + $tDamage->tva_tx / 100);
