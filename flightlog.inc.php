@@ -90,6 +90,8 @@ dol_include_once('/flightlog/Http/Web/Controller/DamageController.php');
 dol_include_once('/flightlog/Http/Web/Controller/FlightController.php');
 
 dol_include_once('/flightlog/Http/Web/Requests/Request.php');
+dol_include_once('/flightlog/Http/Web/Response/Response.php');
+dol_include_once('/flightlog/Http/Web/Response/Redirect.php');
 
 dol_include_once('/flightlog/Http/Web/Form/DamageCreationForm.php');
 dol_include_once('/flightlog/Http/Web/Form/SupplierBillSelect.php');
@@ -101,6 +103,7 @@ dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetDamagesFo
 dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetPilotDamagesQueryRepository.php');
 dol_include_once('/flightlog/Infrastructure/Common/Routes/Route.php');
 dol_include_once('/flightlog/Infrastructure/Common/Routes/RouteManager.php');
+dol_include_once('/flightlog/Infrastructure/Common/Routes/Guard.php');
 
 dol_include_once('/core/lib/ajax.lib.php');
 dol_include_once('/core/lib/price.lib.php');

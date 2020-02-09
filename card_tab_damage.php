@@ -89,7 +89,19 @@ print $form->showrefnav($object, "idBBC_vols", $linkback, true, "idBBC_vols");
         $controllerName = $routes[$action][0];
         $actionName = $routes[$action][1];
 
-        call_user_func([new $controllerName($db), $actionName]);
+        $response = call_user_func([new $controllerName($db), $actionName]);
+
+        if($response instanceof \FlightLog\Http\Web\Response\Redirect){
+            if (headers_sent()) {
+                echo(sprintf("<script>location.href='%s'</script>", $response->getUrl()));
+                exit;
+            }
+
+            header(sprintf("Location: %s", $response->getUrl()));
+            exit;
+        }
+
+        include $response->getTemplate();
     }else{
         echo 'Route non trouvée.';
     }

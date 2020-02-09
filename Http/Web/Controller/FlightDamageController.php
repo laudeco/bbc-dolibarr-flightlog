@@ -22,7 +22,7 @@ final class FlightDamageController extends WebController
     {
         $flightId = $this->request->getParam('id');
 
-        $this->render('flight_damage/view.php', [
+        return $this->render('flight_damage/view.php', [
             'damages' => $this->getDamagesRepository()->__invoke($flightId),
             'flightId' => $flightId,
         ]);

@@ -56,8 +56,7 @@ final class AddFlightDamageController extends WebController
             }
 
 
-            $this->redirect($_SERVER["PHP_SELF"].'?id='.$id);
-            exit;
+            return $this->redirect($_SERVER["PHP_SELF"].'?id='.$id);
         }
 
         return $this->render('flight_damage/form.php', [

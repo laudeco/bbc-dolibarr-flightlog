@@ -5,6 +5,8 @@ namespace FlightLog\Http\Web\Controller;
 
 
 use FlightLog\Http\Web\Requests\Request;
+use FlightLog\Http\Web\Response\Redirect;
+use FlightLog\Http\Web\Response\Response;
 
 abstract class WebController
 {
@@ -24,13 +26,19 @@ abstract class WebController
         $this->request = new Request();
     }
 
+    /**
+     * @param string $template
+     * @param array $variables
+     *
+     * @return Response
+     */
     protected function render($template, array $variables = []){
 
         foreach($variables as $variableName => $variableValue){
             $GLOBALS[$variableName] = $variableValue;
         }
 
-        return include __DIR__.'/../templates/'.$template;
+        return new Response(__DIR__.'/../templates/'.$template);
     }
 
     /**
@@ -42,16 +50,12 @@ abstract class WebController
 
     /**
      * @param string $location
+     *
+     * @return Redirect
      */
     protected function redirect($location)
     {
-        if (headers_sent()) {
-            echo("<script>location.href='$location'</script>");
-            return;
-        }
-
-        header("Location: $location");
-        exit;
+        return Redirect::create($location);
     }
 
 }

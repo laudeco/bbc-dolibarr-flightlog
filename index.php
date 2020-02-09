@@ -47,23 +47,39 @@ dol_include_once('/flightlog/flightlog.inc.php');
 $langs->load("mymodule@flightlog");
 $langs->load("other");
 
-llxHeader('', 'Carnet de vol', '');
-
-global $db;
+global $db, $user;
 
 $routes = require './Infrastructure/Common/Routes/routes.conf.php';
+$routesGuards = require './Infrastructure/Common/Routes/guards.conf.php';
 
+$response = null;
 try{
     $routeName = GETPOST('r');
 
     $routeManager = new \FlightLog\Infrastructure\Common\Routes\RouteManager($db);
     $routeManager->load($routes);
+    $routeManager->loadGuards($routesGuards);
 
-    $routeManager->__invoke($routeName);
+    $response = $routeManager->__invoke($routeName, $user);
+
+    if($response instanceof \FlightLog\Http\Web\Response\Redirect){
+        if (headers_sent()) {
+            echo(sprintf("<script>location.href='%s'</script>", $response->getUrl()));
+            exit;
+        }
+
+        header(sprintf("Location: %s", $response->getUrl()));
+        exit;
+    }
+
 }catch (\Exception $e){
     dol_syslog($e->getMessage(), LOG_ERR);
-    echo $e->getMessage();
+    $response = new \FlightLog\Http\Web\Response\Response($e->getMessage());
 }
+
+llxHeader('', 'Carnet de vol', '');
+
+include $response->getTemplate();
 
 // End of page
 llxFooter();
