@@ -21,6 +21,11 @@ class BillableFlightQueryHandler
     private $conf;
 
     /**
+     * @var \FlightLog\Application\Damage\Query\GetPilotDamagesQueryRepositoryInterface
+     */
+    private $pilotDamageQueryRepository;
+
+    /**
      * @param DoliDb   $db
      * @param stdClass $conf
      */
@@ -28,6 +33,7 @@ class BillableFlightQueryHandler
     {
         $this->db = $db;
         $this->conf = $conf;
+        $this->pilotDamageQueryRepository = new \FlightLog\Infrastructure\Damage\Query\Repository\GetPilotDamagesQueryRepository($db);
     }
 
     /**
@@ -43,35 +49,37 @@ class BillableFlightQueryHandler
         $sql .= " GROUP BY fk_pilot,`fk_type`";
 
         $resql = $this->db->query($sql);
-        $array = array();
+        /** @var Pilot[] $pilots */
+        $pilots = [];
         if ($resql) {
             $num = $this->db->num_rows($resql);
             $i = 0;
             if ($num) {
                 while ($i < $num) {
                     $obj = $this->db->fetch_object($resql); //vol
-                    if ($obj) {
-                        if (!isset($array[$obj->pilot])) {
-                            $name = $obj->prenom . ' ' . $obj->nom;
-                            $pilot = Pilot::create($name, $obj->pilot);
-                            $array[$obj->pilot] = $pilot;
-                        }
-
-                        $array[$obj->pilot] = $array[$obj->pilot]->addCount(
-                            new FlightTypeCount(
-                                $obj->type,
-                                $obj->nbr,
-                                $this->getFactorByType($obj->type)
-                            )
-                        );
+                    if (!$obj) {
+                        continue;
                     }
+
+                    if (!isset($pilots[$obj->pilot])) {
+                        $pilots[$obj->pilot] = Pilot::create($obj->prenom . ' ' . $obj->nom, $obj->pilot);
+                    }
+
+                    $pilots[$obj->pilot] = $pilots[$obj->pilot]->addCount(
+                        new FlightTypeCount(
+                            $obj->type,
+                            $obj->nbr,
+                            $this->getFactorByType($obj->type)
+                        )
+                    );
+
                     $i++;
                 }
             }
         }
 
         if (!$query->isIncludeTotal()) {
-            return $array;
+            return $pilots;
         }
 
         //total orga
@@ -86,13 +94,13 @@ class BillableFlightQueryHandler
 
                     if ($obj) {
 
-                        if (!isset($array[$obj->rowid])) {
+                        if (!isset($pilots[$obj->rowid])) {
                             $name = $obj->firstname . ' ' . $obj->name;
                             $pilot = Pilot::create($name, $obj->rowid);
-                            $array[$obj->rowid] = $pilot;
+                            $pilots[$obj->rowid] = $pilot;
                         }
 
-                        $array[$obj->rowid] = $array[$obj->rowid]->addCount(
+                        $pilots[$obj->rowid] = $pilots[$obj->rowid]->addCount(
                             new FlightTypeCount(
                                 'orga',
                                 $obj->total,
@@ -116,13 +124,13 @@ class BillableFlightQueryHandler
                     $obj = $this->db->fetch_object($resql); //vol
 
                     if ($obj) {
-                        if (!isset($array[$obj->rowid])) {
+                        if (!isset($pilots[$obj->rowid])) {
                             $name = $obj->firstname . ' ' . $obj->name;
                             $pilot = Pilot::create($name, $obj->rowid);
-                            $array[$obj->rowid] = $pilot;
+                            $pilots[$obj->rowid] = $pilot;
                         }
 
-                        $array[$obj->rowid] = $array[$obj->rowid]->addCount(
+                        $pilots[$obj->rowid] = $pilots[$obj->rowid]->addCount(
                             new FlightTypeCount(
                                 'orga_T6',
                                 $obj->total,
@@ -135,7 +143,29 @@ class BillableFlightQueryHandler
             }
         }
 
-        return $array;
+        //Total damages
+        $damages = $this->pilotDamageQueryRepository->query($query->getFiscalYear());
+        foreach($damages as $currentDamage){
+
+            //Pilot doesn't exist
+            if (!isset($pilots[$currentDamage->getAuthorId()])) {
+                $pilots[$currentDamage->getAuthorId()] = Pilot::create($currentDamage->getAuthorName(), $currentDamage->getAuthorId());
+            }
+
+            // Add all damage
+            $pilots[$currentDamage->getAuthorId()] = $pilots[$currentDamage->getAuthorId()]->addCount(
+                new FlightTypeCount('damage', $currentDamage->getAmount(), 1)
+            );
+
+            // The damage is already invoiced. So not take into account.
+            if($currentDamage->isInvoiced()){
+                $pilots[$currentDamage->getAuthorId()] = $pilots[$currentDamage->getAuthorId()]->addCount(
+                    new FlightTypeCount('invoiced_damage', $currentDamage->getAmount(), -1)
+                );
+            }
+        }
+
+        return $pilots;
     }
 
     /**

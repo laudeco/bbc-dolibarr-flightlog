@@ -134,18 +134,19 @@ print '<table class="" width="100%">';
 print '<tbody>';
 print '<tr class="liste_titre">';
 print '<td colspan="2">Nom</td>';
-print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 1 : Sponsor") . '</td>';
-print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 2 : Baptême") . '</td>';
-print '<td class="liste_titre" colspan="2">' . $langs->trans("Organisateur_(T1/T2)") . '</td>';
-print '<td class="liste_titre" colspan="2">' . $langs->trans("Instructeur (orga T6)") . '</td>';
-print '<td class="liste_titre" >' . $langs->trans("Total bonus") . '</td>';
-print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 3 : Privé") . '</td>';
-print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 4: Meeting") . '</td>';
-print '<td class="liste_titre" colspan="1">' . $langs->trans("Type 5: Chambley") . '</td>';
-print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 6: instruction") . '</td>';
-print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 7: vols < 50 ") . '</td>';
-print '<td class="liste_titre" colspan="1">' . $langs->trans("Facture") . '</td>';
-print '<td class="liste_titre" colspan="1">' . $langs->trans("A payer") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 1 : <br/>Sponsor") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 2 : <br/>Baptême") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Orga. <br/>(T1/T2)") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Instructeur <br/>(orga T6)") . '</td>';
+print '<td class="liste_titre _alignCenter" >' . $langs->trans("Total bonus") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 3 : <br/>Privé") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 4: <br/>Meeting") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("Type 5: <br/>Chambley") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 6: <br/>instruction") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 7: <br/>vols < 50 ") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Réparations") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("Facture") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("A payer") . '</td>';
 print '<tr>';
 
 print '<tr class="liste_titre">';
@@ -163,7 +164,7 @@ print '<td class="liste_titre"> Pts </td>';
 print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> Pts </td>';
 
-print '<td class="liste_titre"> Bonus gagnés </td>';
+print '<td class="liste_titre"> Pts</td>';
 
 print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> € </td>';
@@ -176,8 +177,13 @@ print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> € </td>';
 
+// T7
 print '<td class="liste_titre"> #</td>';
 print '<td class="liste_titre"> €</td>';
+
+// Damage
+print '<td class="liste_titre"> €</td>';
+print '<td class="liste_titre"> fact. €</td>';
 
 print '<td class="liste_titre"> € </td>';
 print '<td class="liste_titre"> Balance (A payer) €</td>';
@@ -224,7 +230,7 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     print '<td>' . $pilot->getCountForType('orga_T6')->getCount() . '</td>';
     print '<td>' . $pilot->getCountForType('orga_T6')->getCost()->getValue() . '</td>';
 
-    print '<td><b>' . $pilot->getFlightBonus()->getValue() . '</b></td>';
+    print sprintf('<td class="%s">', $pilot->getFlightBonus()->getValue() === 0?'text-muted':'text-bold'). $pilot->getFlightBonus()->getValue() . ' pts</td>';
 
     print '<td>' . $pilot->getCountForType('3')->getCount() . '</td>';
     print '<td>' . price($pilot->getCountForType('3')->getCost()->getValue()) . '€</td>';
@@ -240,8 +246,11 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     print '<td>' . $pilot->getCountForType('7')->getCount() . '</td>';
     print '<td>' . price($pilot->getCountForType('7')->getCost()->getValue()) . '€</td>';
 
-    print '<td>' . price($pilot->getFlightsCost()->getValue()) . '€ </td>';
-    print '<td><b>' . price($pilot->getTotalBill()->getValue()) . '€</b></td>';
+    print '<td>' . price($pilot->getCountForType('damage')->getCost()->getValue()) . '€</td>';
+    print '<td>' . price($pilot->getCountForType('invoiced_damage')->getCost()->getValue()) . '€</td>';
+
+    print sprintf('<td class="%s">', $pilot->getFlightsCost()->getValue() === 0?'text-muted':'text-bold'). price($pilot->getFlightsCost()->getValue()) . '€ </td>';
+    print sprintf('<td class="%s">', $pilot->isBillable(FlightBonus::zero())?'text-bold':'text-muted'). price($pilot->getTotalBill()->getValue()) . '€</td>';
     print '</tr>';
 }
 
@@ -275,6 +284,9 @@ print '<td>' . $totalT6 . '</td>';
 print '<td></td>';
 
 print '<td>' . $totalT7 . '</td>';
+print '<td></td>';
+
+print '<td></td>';
 print '<td></td>';
 
 print '<td>Total à reçevoir </td>';

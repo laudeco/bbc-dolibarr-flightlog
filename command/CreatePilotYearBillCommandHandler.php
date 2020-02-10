@@ -155,12 +155,13 @@ class CreatePilotYearBillCommandHandler
         $this->addOrderLine($object, $this->t7->getService(), $command->getPilot()->getCountForType('7')->getCount(),
             $startYearTimestamp, $endYearTimestamp);
 
+        //Damages
+        $this->addDamages($object, $command->getPilot()->getCountForType('damage'), $command->getPilot()->getCountForType('invoiced_damage'), $startYearTimestamp, $endYearTimestamp);
+
         $this->addOrderDiscount($object, $command->getPilot()->getCountForType('1'), $this->t1->getService(), $command->getYear());
         $this->addOrderDiscount($object, $command->getPilot()->getCountForType('2'), $this->t2->getService(), $command->getYear());
-        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('orga'), $this->tOrganisator,
-            $command->getYear());
-        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('orga_T6'), $this->tInstructor,
-            $command->getYear());
+        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('orga'), $this->tOrganisator, $command->getYear());
+        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('orga_T6'), $this->tInstructor, $command->getYear());
 
         //Additional bonus
         $this->addAdditionalBonusToOrder($command, $object);
@@ -249,7 +250,8 @@ class CreatePilotYearBillCommandHandler
      */
     private function addOrderDiscount($order, $pilotFlightCount, $service, $year)
     {
-        $pu_ht = price2num($pilotFlightCount->getCost()->getValue(), 'MU');
+        $price = $pilotFlightCount->getCost()->getValue()/(1+$service->tva_tx/100);
+        $pu_ht = price2num($price, 'MU');
         $desc = $year . " - " . $service->label . " - (" . $pilotFlightCount->getCount() . " * " . $pilotFlightCount->getFactor() . ")";
 
         $discountid = $this->getCompany($order->socid)->set_remise_except($pu_ht, $this->user, $desc, $service->tva_tx);
@@ -279,11 +281,38 @@ class CreatePilotYearBillCommandHandler
             return;
         }
 
-        $pu_ht = price2num($command->getAdditionalBonus(), 'MU');
+        $pointsHt = $command->getAdditionalBonus()/(1+6/100);
         $desc = sprintf("%s - %s", $command->getYear(), $command->getBonusAdditionalMessage());
 
-        $discountid = $this->getCompany($object->socid)->set_remise_except($pu_ht, $this->user, $desc, 0);
+        $discountid = $this->getCompany($object->socid)->set_remise_except($pointsHt, $this->user, $desc, 6);
         $object->insert_discount($discountid);
+    }
+
+    /**
+     * Adds the damages.
+     *
+     * @param Facture $object
+     * @param FlightTypeCount $damage
+     * @param FlightTypeCount $invoicedDamage
+     * @param string $start
+     * @param string $end
+     */
+    private function addDamages(Facture $object, FlightTypeCount $damage, FlightTypeCount $invoicedDamage, $start, $end)
+    {
+        $price = $damage->getCost()->addCost($invoicedDamage->getCost())->getValue();
+
+        if($price <= 0 ){
+            return;
+        }
+
+        $tDamage = new Product($this->db);
+        $tDamage->label = 'Réparations';
+        $tDamage->description = 'Remboursement des dégâts effectués aux ballons.';
+        $tDamage->tva_tx = 21;
+        $tDamage->price_ttc = $price;
+        $tDamage->price = $tDamage->price_ttc / (1 + $tDamage->tva_tx / 100);
+
+        $this->addOrderLine($object, $tDamage, 1, $start, $end);
     }
 
 

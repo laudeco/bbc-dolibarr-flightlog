@@ -141,6 +141,10 @@ abstract class Form implements FormInterface
      */
     public function getErrorMessages()
     {
+        if(!$this->validator){
+            return [];
+        }
+
         return $this->validator->getErrors();
     }
 

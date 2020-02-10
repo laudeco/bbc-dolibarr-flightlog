@@ -4,7 +4,7 @@
  */
 
 /**
- * Number of points
+ * Number of points.
  *
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */

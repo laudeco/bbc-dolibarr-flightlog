@@ -11,12 +11,12 @@ function prepareFlightTabs(Bbcvols $flight)
 {
     global $user, $langs, $conf;
 
-    dol_include_once('/flightlog/class/card/Tab.php');
-    dol_include_once('/flightlog/class/card/TabCollection.php');
+    dol_include_once('/flightlog/flightlog.inc.php');
 
     $tabUrls = [
         DOL_URL_ROOT . '/flightlog/card.php?id=' . $flight->idBBC_vols,
         ($user->rights->flightlog->vol->financial || $user->id == $flight->fk_pilot) ? DOL_URL_ROOT . '/flightlog/card_tab_financial.php?id=' . $flight->idBBC_vols : '',
+        ($user->rights->flightlog->vol->financial || $user->id == $flight->fk_pilot) ? DOL_URL_ROOT . '/flightlog/card_tab_damage.php?id=' . $flight->idBBC_vols : '',
         DOL_URL_ROOT . '/flightlog/card_tab_comments.php?id=' . $flight->idBBC_vols,
         DOL_URL_ROOT . '/flightlog/card_tab_follow.php?id=' . $flight->idBBC_vols,
     ];
@@ -24,6 +24,7 @@ function prepareFlightTabs(Bbcvols $flight)
     $tabNames = [
         'general',
         'financial',
+        'damage',
         'comments',
         'follow',
     ];
@@ -31,6 +32,7 @@ function prepareFlightTabs(Bbcvols $flight)
     $tabTitle = [
         'Vol',
         'Finances',
+        'Dégâts',
         'Remarques',
         'Suivis',
     ];
@@ -43,8 +45,7 @@ function prepareFlightTabs(Bbcvols $flight)
             continue;
         }
 
-        $tab = new Tab($tabTitle[$i], $tabNames[$i], $tabUrls[$i]);
-        $tabCollection->addTab($tab);
+        $tabCollection = $tabCollection->addTab(new Tab($tabTitle[$i], $tabNames[$i], $tabUrls[$i]));
     }
 
     $head = $tabCollection->toArray();

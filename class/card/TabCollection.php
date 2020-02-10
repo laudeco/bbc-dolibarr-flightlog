@@ -46,19 +46,15 @@ class TabCollection implements \Countable
      * @return TabCollection
      */
     public function addTab(Tab $tab) {
-        $this->tabs[] = $tab;
+        return new $this(array_merge($this->tabs, [$tab]));
     }
 
     /**
      * @return array
      */
     public function toArray() {
-        $tabAsArray = [];
-
-        foreach ($this->tabs as $tab) {
-            $tabAsArray[] = $tab->toArray();
-        }
-
-        return $tabAsArray;
+        return array_map(function(Tab $tab){
+            return $tab->toArray();
+        }, $this->tabs);
     }
 }
