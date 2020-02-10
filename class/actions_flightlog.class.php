@@ -53,6 +53,33 @@ class ActionsFlightlog
     }
 
     /**
+     * @param array $params
+     * @param CommonObject $object
+     *
+     * @return int
+     */
+    public function showLinkedObjectBlock(array $params = [], $object){
+        if(!isset($object->linkedObjectsIds) || !isset($object->linkedObjectsIds['flightlog_damage'])){
+            return 0;
+        }
+
+        /** @var DoliDB $db */
+        global $db;
+
+        dol_include_once('/flightlog/flightlog.inc.php');
+        $queryRepository = new \FlightLog\Infrastructure\Damage\Query\Repository\GetDamageQueryRepository($db);
+
+        foreach($object->linkedObjectsIds['flightlog_damage'] as $damageId){
+            try {
+                $object->linkedObjects['flightlog_damage'][$damageId] = $queryRepository->query($damageId);
+            } catch (Exception $e) {
+            }
+        }
+
+        return 0;
+    }
+
+    /**
      * @return string
      */
     private function getSqlForLink()
