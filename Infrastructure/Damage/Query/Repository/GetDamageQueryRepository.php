@@ -106,7 +106,7 @@ final class GetDamageQueryRepository
      */
     public function query($damageId){
 
-        $sql = 'SELECT damage.rowid as id, damage.amount, author.login as author_name, damage.billed as invoiced, damage.flight_id as flight_id';
+        $sql = 'SELECT damage.author_id as  author_id, damage.rowid as id, damage.amount, CONCAT(author.firstname, " " , author.lastname) as author_name, damage.billed as invoiced, damage.flight_id as flight_id';
         $sql.= ', element.rowid as element_id ,element.fk_target as element_fk_target, element.targettype as element_target_type';
         $sql.=' FROM '.MAIN_DB_PREFIX.'bbc_flight_damages as damage';
         $sql.=' INNER JOIN '.MAIN_DB_PREFIX.'user as author ON author.rowid = damage.author_id';

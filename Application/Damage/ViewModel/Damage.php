@@ -38,13 +38,19 @@ final class Damage
     private $flightId;
 
     /**
+     * @var int
+     */
+    private $authorId;
+
+    /**
+     * @param int $authorId
      * @param string $authorName
      * @param float $amount
      * @param int $id
      * @param bool $invoiced
      * @param int $flightId
      */
-    public function __construct($authorName, $amount, $id, $invoiced, $flightId)
+    private function __construct($authorId, $authorName, $amount, $id, $invoiced, $flightId)
     {
         $this->authorName = $authorName;
         $this->amount = $amount;
@@ -52,6 +58,7 @@ final class Damage
         $this->invoiced = $invoiced;
         $this->linkedObjects = [];
         $this->flightId = $flightId;
+        $this->authorId = $authorId;
     }
 
     /**
@@ -60,13 +67,14 @@ final class Damage
      * @return Damage
      */
     public static function fromArray(array $properties){
+        $authorId = $properties['author_id'];
         $author = $properties['author_name'];
         $amount = $properties['amount'];
         $id = $properties['id'];
         $flightId = isset($properties['flight_id']) ? $properties['flight_id'] : null;
         $invoiced = (bool)$properties['invoiced'];
 
-        return new self($author, $amount, $id, $invoiced, $flightId);
+        return new self($authorId, $author, $amount, $id, $invoiced, $flightId);
     }
 
     /**
@@ -121,4 +129,13 @@ final class Damage
     {
         return $this->flightId;
     }
+
+    /**
+     * @return int
+     */
+    public function getAuthorId()
+    {
+        return $this->authorId;
+    }
+
 }

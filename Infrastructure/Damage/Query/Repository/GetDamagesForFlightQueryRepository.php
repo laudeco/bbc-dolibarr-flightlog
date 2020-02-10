@@ -30,7 +30,7 @@ final class GetDamagesForFlightQueryRepository implements GetDamagesForFlightQue
      */
     public function __invoke($flightId)
     {
-        $sql = 'SELECT damage.rowid as id, damage.amount, author.login as author_name, damage.billed as invoiced';
+        $sql = 'SELECT damage.author_id as author_id, damage.rowid as id, damage.amount, CONCAT(author.firstname, " " , author.lastname) as author_name, damage.billed as invoiced';
         $sql.=' FROM '.MAIN_DB_PREFIX.'bbc_flight_damages as damage';
         $sql.=' INNER JOIN '.MAIN_DB_PREFIX.'user as author ON author.rowid = damage.author_id';
         $sql.=' WHERE damage.flight_id = '.$this->db->escape($flightId);

@@ -44,6 +44,10 @@ foreach ($linkedObjectBlock as $key => $damage):
     $ilink++;
     $var = !$var;
     $trclass = ($var ? 'pair' : 'impair');
+
+    if(!$user->rights->flightlog->vol->financial && $user->rowid != $damage->getAuthorId()){
+        continue;
+    }
 ?>
     <tr <?php echo $GLOBALS['bc'][$var]; ?> >
         <td><?php echo $langs->trans("Dégâts"); ?></td>
