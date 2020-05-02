@@ -69,7 +69,7 @@ class YearGraphicalData
         $result = [$this->year];
 
         foreach ($this->graphData as $typeId => $data) {
-            if (!in_array($typeId, [1, 2, 3, 6])) {
+            if (!in_array($typeId, [1, 2, 3,4, 6])) {
                 continue;
             }
 
