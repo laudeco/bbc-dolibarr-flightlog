@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @var DolGraph $graph
+ */
+print $graph->show();
+
+?>
+<div class="bbc-style">
+    <table class="border" width="100%">
+        <tr>
+            <td></td>
+
+            <?php foreach ($graph->data as $key => $value): ?>
+                <td><?php echo $value[0]; ?></td>
+            <?php endforeach; ?>
+        </tr>
+
+        <?php foreach ($graph->Legend as $index => $title): ?>
+            <tr>
+                <td><?php echo $title; ?></td>
+
+                <?php foreach ($graph->data as $key => $value): ?>
+                    <td><?php echo round($value[$index + 1], 2); ?></td>
+                <?php endforeach; ?>
+
+            </tr>
+        <?php endforeach; ?>
+
+
+    </table>
+</div>
