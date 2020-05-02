@@ -14,7 +14,6 @@ if (false === (@include '../main.inc.php')) {  // From htdocs directory
 
 global $db, $langs, $user, $conf;
 
-dol_include_once('/core/class/dolgraph.class.php');
 dol_include_once("/flightlog/flightlog.inc.php");
 
 use flightlog\query\GetPilotsWithMissionsQuery;
@@ -45,7 +44,6 @@ $mesg = $graphByTypeAndYear->isGraphKo();
 if (!$mesg) {
     $data = getGraphByTypeAndYearData();
     $graphByTypeAndYear->SetData($data->export());
-    $graphByTypeAndYear->SetPrecisionY(0);
 
     $legend = [];
     $graphByTypeAndYear->type = [];
@@ -65,12 +63,13 @@ if (!$mesg) {
     $graphByTypeAndYear->SetYLabel($langs->trans("YEAR"));
     $graphByTypeAndYear->SetShading(3);
     $graphByTypeAndYear->SetHorizTickIncrement(1);
-    $graphByTypeAndYear->SetPrecisionY(0);
 
     $graphByTypeAndYear->SetTitle($langs->trans("Par type et par année"));
 
     $graphByTypeAndYear->draw($filenamenb, $fileurlnb);
 }
+
+
 
 // Default action
 if (empty($action) && empty($id) && empty($ref)) {
@@ -338,6 +337,13 @@ print '</div>';
 
     <div class="fichecenter">
         <?php print $graphByTypeAndYear->show(); ?>
+    </div>
+
+    <div class="fichecenter">
+        <?php
+            $ctrl = new \FlightLog\Http\Web\Controller\StatisticalGraphController($db);
+            include $ctrl->billableFlightsPerMonth()->getTemplate();
+        ?>
     </div>
 
 <?php
