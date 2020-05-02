@@ -294,7 +294,6 @@ print '</div>';
 
 ?>
 
-
     <div class="fichecenter">
         <?php include $ctrl->graphByType(getGraphByTypeAndYearData())->getTemplate(); ?>
     </div>

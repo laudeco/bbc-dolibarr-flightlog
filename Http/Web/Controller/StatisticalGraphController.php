@@ -136,7 +136,7 @@ final class StatisticalGraphController extends WebController
         $graphByTypeAndYear->type = [];
         foreach (fetchBbcFlightTypes() as $flightType) {
 
-            if (!in_array($flightType->numero, [1, 2, 3, 6])) {
+            if (!in_array($flightType->numero, [1, 2, 3,4, 6])) {
                 continue;
             }
 
