@@ -153,7 +153,7 @@ final class StatisticalGraphController extends WebController
 
         $graphByTypeAndYear->SetTitle("Par type et par année");
 
-        $graphByTypeAndYear->draw('per_type_'.(new \DateTime())->getTimestamp());
+        $graphByTypeAndYear->draw('per_type_' . (new \DateTime())->getTimestamp());
 
         return $this->render('statistical_graph/billable_flights_per_month.phtml', [
             'graph' => $graphByTypeAndYear
