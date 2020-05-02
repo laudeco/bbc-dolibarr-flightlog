@@ -29,47 +29,7 @@ $myparam = GETPOST('myparam', 'alpha');
 
 $unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
 
-//variables
-$WIDTH = DolGraph::getDefaultGraphSizeForStats('width', 768);
-$HEIGHT = DolGraph::getDefaultGraphSizeForStats('height');
-
-$year = strftime("%Y", dol_now());
-$dir = $conf->expensereport->dir_temp;
-
-$filenamenb = $dir . "/test2-" . $year . ".png";
-$fileurlnb = DOL_URL_ROOT . '/viewimage.php?modulepart=flightlog&amp;file=' . $fileurlnb;
-
-$graphByTypeAndYear = new DolGraph();
-$mesg = $graphByTypeAndYear->isGraphKo();
-if (!$mesg) {
-    $data = getGraphByTypeAndYearData();
-    $graphByTypeAndYear->SetData($data->export());
-
-    $legend = [];
-    $graphByTypeAndYear->type = [];
-    foreach (fetchBbcFlightTypes() as $flightType) {
-
-        if (!in_array($flightType->numero, [1, 2, 3, 6])) {
-            continue;
-        }
-
-        $legend[] = $flightType->nom;
-        $graphByTypeAndYear->type[] = "lines";
-    }
-    $graphByTypeAndYear->SetLegend($legend);
-    $graphByTypeAndYear->SetMaxValue($graphByTypeAndYear->GetCeilMaxValue());
-    $graphByTypeAndYear->SetWidth($WIDTH + 100);
-    $graphByTypeAndYear->SetHeight($HEIGHT);
-    $graphByTypeAndYear->SetYLabel($langs->trans("YEAR"));
-    $graphByTypeAndYear->SetShading(3);
-    $graphByTypeAndYear->SetHorizTickIncrement(1);
-
-    $graphByTypeAndYear->SetTitle($langs->trans("Par type et par année"));
-
-    $graphByTypeAndYear->draw($filenamenb, $fileurlnb);
-}
-
-
+$ctrl = new \FlightLog\Http\Web\Controller\StatisticalGraphController($db);
 
 // Default action
 if (empty($action) && empty($id) && empty($ref)) {
@@ -336,14 +296,11 @@ print '</div>';
 
 
     <div class="fichecenter">
-        <?php print $graphByTypeAndYear->show(); ?>
+        <?php include $ctrl->graphByType(getGraphByTypeAndYearData())->getTemplate(); ?>
     </div>
 
     <div class="fichecenter">
-        <?php
-            $ctrl = new \FlightLog\Http\Web\Controller\StatisticalGraphController($db);
-            include $ctrl->billableFlightsPerMonth()->getTemplate();
-        ?>
+        <?php include $ctrl->billableFlightsPerMonth()->getTemplate(); ?>
     </div>
 
 <?php
