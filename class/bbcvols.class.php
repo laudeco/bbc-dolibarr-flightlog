@@ -1440,12 +1440,12 @@ class Bbcvols extends CommonObject
 
     public function hasComment()
     {
-        return !empty(trim($this->remarque)) || strtolower(trim($this->remarque)) === 'ras';
+        return !empty(trim($this->remarque)) && strtolower(trim($this->remarque)) !== 'ras';
     }
 
     public function hasIncidents()
     {
-        return !empty(trim($this->incidents)) || strtolower(trim($this->incidents)) === 'ras';
+        return !empty(trim($this->incidents)) && strtolower(trim($this->incidents)) !== 'ras';
     }
 
 

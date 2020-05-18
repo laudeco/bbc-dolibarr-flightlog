@@ -99,21 +99,43 @@ class InterfaceMailOnIncident extends DolibarrTriggers
         }
 
         $message = "<p>Bonjour,</p><br/>";
-        $message .= sprintf("<p>Vous recevez cet e-mail car un vol a été encodé avec un incident/ une remarque sur le ballon : %s.</p>", $object->getBalloon()->immat);
-        $message .= sprintf("<p>Vol id : %d</p>", $object->getId());
-        $message .= sprintf("<p>Réalisé par : %s </p>", $object->getPilot()->getFullName($langs));
-        $message .= "<br/>";
-        $message .= sprintf("<p>Commentaire : %s </p>", $object->getComment());
-        $message .= sprintf("<p>Incident : %s </p>", $object->getIncident());
-        $message .= "<p>Ce mail est un mail informatif automatique, il ne faut pas y répondre.</p>";
-        $message .= "<p>Le Belgian balloon club.</p>";
-        
+        $message .= sprintf("<p>Vous recevez cet e-mail car un vol a été encodé avec un incident/ une remarque sur le ballon : %s dont vous êtes titulaire ou co-titulaire.</p>", $object->getBalloon()->immat);
+        $message .= sprintf("<p><b>Vol id :</b> %d</p>", $object->getId());
+        $message .= sprintf("<p><b>Réalisé par :</b> %s </p>", $object->getPilot()->getFullName($langs));
+        if($object->hasComment()){
+            $message .= sprintf("<p><b>Commentaire :</b> %s </p>", $object->getComment());
+        }
+
+        if($object->hasIncidents()){
+            $message .= sprintf("<p><b>Incident :</b> %s </p>", $object->getIncident());
+        }
+
+        $message .= "<p>Ce mail est un mail informatif automatique, il ne faut pas$y répondre.</p>";
+
+        $message .= "<p align=\"right\">Le Belgian balloon club.</p>";
+
+        $to = [];
+
         $responsable = new User($user->db);
-        $responsable->fetch($object->getBalloon()->fk_responsable);
+        $res = $responsable->fetch($object->getBalloon()->fk_responsable);
+        if($res > 0){
+            $to[] = $responsable->email;
+        }
+
+
+        $backup = new User($user->db);
+        $res = $backup->fetch($object->getBalloon()->fk_co_responsable);
+        if($res > 0){
+            $to[] = $backup->email;
+        }
+
+        if(empty($to)){
+            return 0;
+        }
 
         $mailfile = new CMailFile(
             sprintf("Un vol a été encodé avec un incident / un commentaire sur le ballon %s", $object->getBalloon()->immat),
-            $responsable->email,
+            join(',', $to),
             $conf->global->MAIN_MAIL_EMAIL_FROM,
             $message,
             array(),
