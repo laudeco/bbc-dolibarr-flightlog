@@ -258,7 +258,9 @@ class FlightValidator extends AbstractValidator
      */
     private function checkFlightDate(Bbcvols $flight)
     {
-        if($flight->getDate() > new DateTimeImmutable()){
+        $flightDate = $flight->getDate();
+        $flightDate->setTime(0,0,0);
+        if($flightDate > new DateTimeImmutable()){
             $this->addError('date', 'La date est plus grande que la date d\'aujourd\'hui');
         }
 

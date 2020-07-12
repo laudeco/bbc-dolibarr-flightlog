@@ -641,7 +641,7 @@ class Bbctypes extends CommonObject
     public function isInstruction()
     {
         $type = (int) $this->idType;
-        return $type === 6 || $type === 7;
+        return $type === 6;
     }
 
     /**
