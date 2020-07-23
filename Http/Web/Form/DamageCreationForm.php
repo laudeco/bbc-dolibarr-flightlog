@@ -5,6 +5,7 @@ namespace FlightLog\Http\Web\Form;
 
 
 use FlightLog\Application\Damage\Command\CreateDamageCommand;
+use flightlog\form\Csrf;
 use flightlog\form\Form;
 use flightlog\form\FormInterface;
 use flightlog\form\Hidden;
@@ -23,6 +24,7 @@ final class DamageCreationForm extends Form
         parent::__construct($name, FormInterface::METHOD_POST);
 
         $this->add(new Hidden('flight_id'));
+        $this->add(new Csrf('token'));
         $this->addAmount();
 
         $this->add(new SupplierBillSelect('bill_id', $db, [
@@ -44,6 +46,7 @@ final class DamageCreationForm extends Form
     private function addAmount(){
         $field = new Number('amount');
         $field->required();
+        $field->setStep(0.01);
         $field->setMin(1);
         $field->setMax(10000);
 

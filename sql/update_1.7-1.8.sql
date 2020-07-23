@@ -2,7 +2,7 @@ CREATE TABLE `llx_bbc_flight_damages` (
     `rowid` INT NOT NULL AUTO_INCREMENT ,
     `flight_id` INT NOT NULL ,
     `billed` TINYINT NOT NULL DEFAULT '0' ,
-    `amount` DECIMAL NOT NULL ,
+    `amount` DECIMAL(8,2) NOT NULL ,
     `vat` INT NOT NULL DEFAULT '21' ,
     `author_id` INT NOT NULL,
     PRIMARY KEY (`rowid`),

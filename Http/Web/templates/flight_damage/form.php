@@ -22,6 +22,7 @@ $renderer = new \flightlog\form\SimpleFormRenderer();
     <input type="hidden" name="action" value="handle"/>
 
     <?php echo $renderer->render($form->getElement('flight_id')); ?>
+    <?php echo $renderer->render($form->getElement('token')); ?>
 
     <?php if($form->has('amount')): ?>
         <section class="form-section">
