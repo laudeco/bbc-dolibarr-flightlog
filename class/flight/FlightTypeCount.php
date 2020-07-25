@@ -16,7 +16,7 @@ class FlightTypeCount
     private $type;
 
     /**
-     * @var int
+     * @var float
      */
     private $count;
 
@@ -27,13 +27,13 @@ class FlightTypeCount
 
     /**
      * @param string $type
-     * @param int    $count
+     * @param float    $count
      * @param int    $factor
      */
     public function __construct($type, $count = 0, $factor = 0)
     {
         $this->type = $type;
-        $this->count = (int) $count;
+        $this->count = $count;
         $this->factor = (int) $factor;
     }
 
@@ -46,7 +46,7 @@ class FlightTypeCount
     }
 
     /**
-     * @return int
+     * @return float
      */
     public function getCount()
     {

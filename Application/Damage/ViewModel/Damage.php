@@ -18,6 +18,11 @@ final class Damage
     private $amount;
 
     /**
+     * @var string
+     */
+    private $label;
+
+    /**
      * @var int
      */
     public $id;
@@ -50,7 +55,7 @@ final class Damage
      * @param bool $invoiced
      * @param int $flightId
      */
-    private function __construct($authorId, $authorName, $amount, $id, $invoiced, $flightId)
+    private function __construct($authorId, $authorName, $amount, $id, $invoiced, $flightId, $label)
     {
         $this->authorName = $authorName;
         $this->amount = $amount;
@@ -59,6 +64,7 @@ final class Damage
         $this->linkedObjects = [];
         $this->flightId = $flightId;
         $this->authorId = $authorId;
+        $this->label = $label;
     }
 
     /**
@@ -69,12 +75,13 @@ final class Damage
     public static function fromArray(array $properties){
         $authorId = $properties['author_id'];
         $author = $properties['author_name'];
+        $label = $properties['label'];
         $amount = $properties['amount'];
         $id = $properties['id'];
         $flightId = isset($properties['flight_id']) ? $properties['flight_id'] : null;
         $invoiced = (bool)$properties['invoiced'];
 
-        return new self($authorId, $author, $amount, $id, $invoiced, $flightId);
+        return new self($authorId, $author, $amount, $id, $invoiced, $flightId, $label);
     }
 
     /**
@@ -137,5 +144,14 @@ final class Damage
     {
         return $this->authorId;
     }
+
+    /**
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
 
 }

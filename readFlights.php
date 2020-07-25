@@ -205,8 +205,8 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     print '<td>' . $pilot->getCountForType('7')->getCount() . '</td>';
     print '<td>' . price($pilot->getCountForType('7')->getCost()->getValue()) . '€</td>';
 
-    print '<td>' . price($pilot->getCountForType('damage')->getCost()->getValue()) . '€</td>';
-    print '<td>' . price($pilot->getCountForType('invoiced_damage')->getCost()->getValue()) . '€</td>';
+    print '<td>' . price($pilot->damageCost()->getValue()) . '€</td>';
+    print '<td>' . price($pilot->invoicedDamageCost()->getValue()) . '€</td>';
 
     print sprintf('<td class="%s">', $pilot->getFlightsCost()->getValue() === 0?'text-muted':'text-bold'). price($pilot->getFlightsCost()->getValue()) . '€ </td>';
     print sprintf('<td class="%s">', $pilot->isBillable(FlightBonus::zero())?'text-bold':'text-muted'). price($pilot->getTotalBill()->getValue()) . '€</td>';

@@ -66,7 +66,7 @@ abstract class AbstractDomainRepository
             return (int)$value;
         }
 
-        return is_string($value) ? $this->db->escape($value) : $value ;
+        return is_string($value) ? "'".$this->db->escape($value)."'" : $value ;
     }
 
     /**

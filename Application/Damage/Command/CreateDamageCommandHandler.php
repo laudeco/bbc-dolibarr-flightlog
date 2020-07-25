@@ -8,6 +8,7 @@ use FlightLog\Domain\Damage\AuthorId;
 use FlightLog\Domain\Damage\DamageAmount;
 use FlightLog\Domain\Damage\FlightDamage;
 use FlightLog\Domain\Damage\FlightId;
+use FlightLog\Domain\Damage\ValueObject\DamageLabel;
 use FlightLog\Infrastructure\Damage\Repository\FlightDamageRepository;
 
 final class CreateDamageCommandHandler
@@ -40,9 +41,9 @@ final class CreateDamageCommandHandler
      */
     public function __invoke(CreateDamageCommand $command)
     {
-        $damage = FlightDamage::waiting(new DamageAmount($command->getAmount()), AuthorId::create($command->getAuthorId()));
+        $damage = FlightDamage::waiting(new DamageAmount($command->getAmount()), AuthorId::create($command->getAuthorId()), new DamageLabel($command->getLabel()));
         if(null !== $command->getFlightId()){
-            $damage = FlightDamage::damage(FlightId::create($command->getFlightId()), new DamageAmount($command->getAmount()), AuthorId::create($command->getAuthorId()));
+            $damage = FlightDamage::damage(FlightId::create($command->getFlightId()), new DamageLabel($command->getLabel()), new DamageAmount($command->getAmount()), AuthorId::create($command->getAuthorId()));
         }
 
         $id = $this->damageRepository->save($damage);

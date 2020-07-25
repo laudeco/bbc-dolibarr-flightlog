@@ -33,6 +33,9 @@ dol_include_once('/flightlog/class/Damage/FlightDamage.php');
 dol_include_once('/flightlog/class/Damage/FlightId.php');
 dol_include_once('/flightlog/class/Damage/DamageId.php');
 dol_include_once('/flightlog/class/Damage/AuthorId.php');
+dol_include_once('/flightlog/class/Damage/FlightDamageCount.php');
+dol_include_once('/flightlog/class/Damage/FlightInvoicedDamageCount.php');
+dol_include_once('/flightlog/class/Damage/ValueObject/DamageLabel.php');
 
 dol_include_once('/flightlog/exceptions/NoMissionException.php');
 

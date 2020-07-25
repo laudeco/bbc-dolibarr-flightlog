@@ -1,5 +1,8 @@
 <?php
 
+use FlightLog\Domain\Damage\FlightDamageCount;
+use FlightLog\Domain\Damage\FlightInvoicedDamageCount;
+
 require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/Pilot.php');
 require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightTypeCount.php');
 require_once(DOL_DOCUMENT_ROOT . '/flightlog/query/BillableFlightQuery.php');
@@ -68,7 +71,7 @@ class BillableFlightQueryHandler
                     $pilots[$obj->pilot] = $pilots[$obj->pilot]->addCount(
                         new FlightTypeCount(
                             $obj->type,
-                            $obj->nbr,
+                            (int)$obj->nbr,
                             $this->getFactorByType($obj->type)
                         )
                     );
@@ -103,7 +106,7 @@ class BillableFlightQueryHandler
                         $pilots[$obj->rowid] = $pilots[$obj->rowid]->addCount(
                             new FlightTypeCount(
                                 'orga',
-                                $obj->total,
+                                (int)$obj->total,
                                 $this->getFactorByType('orga')
                             )
                         );
@@ -133,7 +136,7 @@ class BillableFlightQueryHandler
                         $pilots[$obj->rowid] = $pilots[$obj->rowid]->addCount(
                             new FlightTypeCount(
                                 'orga_T6',
-                                $obj->total,
+                                (int)$obj->total,
                                 $this->getFactorByType('orga_T6')
                             )
                         );
@@ -153,14 +156,14 @@ class BillableFlightQueryHandler
             }
 
             // Add all damage
-            $pilots[$currentDamage->getAuthorId()] = $pilots[$currentDamage->getAuthorId()]->addCount(
-                new FlightTypeCount('damage', $currentDamage->getAmount(), 1)
+            $pilots[$currentDamage->getAuthorId()]->addDamage(
+                new FlightDamageCount('',  $currentDamage->getAmount())
             );
 
             // The damage is already invoiced. So not take into account.
             if($currentDamage->isInvoiced()){
-                $pilots[$currentDamage->getAuthorId()] = $pilots[$currentDamage->getAuthorId()]->addCount(
-                    new FlightTypeCount('invoiced_damage', $currentDamage->getAmount(), -1)
+                $pilots[$currentDamage->getAuthorId()]->addInvoicedDamage(
+                    new FlightInvoicedDamageCount('',  $currentDamage->getAmount())
                 );
             }
         }

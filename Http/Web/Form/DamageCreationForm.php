@@ -9,6 +9,7 @@ use flightlog\form\Csrf;
 use flightlog\form\Form;
 use flightlog\form\FormInterface;
 use flightlog\form\Hidden;
+use flightlog\form\Input;
 use flightlog\form\Number;
 use flightlog\form\UserSelect;
 
@@ -25,6 +26,7 @@ final class DamageCreationForm extends Form
 
         $this->add(new Hidden('flight_id'));
         $this->add(new Csrf('token'));
+        $this->add(new Input('label'));
         $this->addAmount();
 
         $this->add(new SupplierBillSelect('bill_id', $db, [

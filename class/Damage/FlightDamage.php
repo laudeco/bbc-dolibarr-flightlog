@@ -3,6 +3,8 @@
 
 namespace FlightLog\Domain\Damage;
 
+use FlightLog\Domain\Damage\ValueObject\DamageLabel;
+
 final class FlightDamage
 {
     /**
@@ -31,53 +33,77 @@ final class FlightDamage
     private $author;
 
     /**
+     * @var DamageLabel
+     */
+    private $label;
+
+    /**
+     * @param DamageAmount $amount
+     * @param $billed
+     * @param AuthorId $authorId
+     * @param DamageLabel $label
+     * @param FlightId $flightId
+     * @param DamageId|null $id
+     */
+    private function __construct(
+        DamageAmount $amount,
+        $billed,
+        AuthorId $authorId,
+        DamageLabel $label,
+        FlightId $flightId = null,
+        DamageId $id = null
+    ) {
+        $this->flight = $flightId;
+        $this->amount = $amount;
+        $this->billed = $billed;
+        $this->label = $label;
+        $this->author = $authorId;
+        $this->id = $id;
+    }
+
+    /**
      * @param FlightId $flightId
      * @param DamageAmount $amount
      * @param $billed
      * @param AuthorId $authorId
      * @param DamageId|null $id
+     *
+     * @return FlightDamage
      */
-    private function __construct(DamageAmount $amount, $billed, AuthorId $authorId, FlightId $flightId = null, DamageId $id = null)
+    public static function load(
+        FlightId $flightId,
+        DamageAmount $amount,
+        DamageLabel $label,
+        $billed,
+        AuthorId $authorId,
+        DamageId $id = null
+    ) {
+        return new self($amount, $billed, $authorId, $label, $flightId, $id);
+    }
+
+    /**
+     * @param FlightId $flightId
+     * @param DamageLabel $label
+     * @param DamageAmount $amount
+     * @param AuthorId $authorId
+     *
+     * @return FlightDamage
+     */
+    public static function damage(FlightId $flightId, DamageLabel $label, DamageAmount $amount, AuthorId $authorId)
     {
-       $this->flight = $flightId;
-       $this->amount = $amount;
-       $this->billed = $billed;
-       $this->author = $authorId;
-       $this->id = $id;
-    }
-
-    /**
-     * @param FlightId $flightId
-     * @param DamageAmount $amount
-     * @param $billed
-     * @param AuthorId $authorId
-     * @param DamageId|null $id
-     *
-     * @return FlightDamage
-     */
-    public static function load(FlightId $flightId, DamageAmount $amount, $billed, AuthorId $authorId, DamageId $id = null){
-        return new self($amount, $billed, $authorId, $flightId, $id);
-    }
-
-    /**
-     * @param FlightId $flightId
-     * @param DamageAmount $amount
-     * @param AuthorId $authorId
-     *
-     * @return FlightDamage
-     */
-    public static function damage(FlightId $flightId, DamageAmount $amount, AuthorId $authorId){
-        return new self($amount, false, $authorId, $flightId);
+        return new self($amount, false, $authorId, $label, $flightId);
     }
 
     /**
      * @param DamageAmount $amount
      * @param AuthorId $authorId
+     * @param DamageLabel $label
      *
      * @return FlightDamage
      */
-    public static function waiting(DamageAmount $amount, AuthorId $authorId){
-        return new self($amount, false, $authorId);
+    public static function waiting(DamageAmount $amount, AuthorId $authorId, DamageLabel $label)
+    {
+        return new self($amount, false, $authorId, $label);
     }
 
     /**
@@ -91,14 +117,16 @@ final class FlightDamage
     /**
      * @return FlightId
      */
-    public function getFlightId(){
+    public function getFlightId()
+    {
         return $this->flight;
     }
 
     /**
      * @return DamageAmount
      */
-    public function amount(){
+    public function amount()
+    {
         return $this->amount;
     }
 
@@ -115,8 +143,9 @@ final class FlightDamage
      *
      * @return FlightDamage
      */
-    public function invoice(){
-        return new self($this->flight, $this->amount, true, $this->author, $this->id);
+    public function invoice()
+    {
+        return new self($this->amount, true, $this->author, $this->label, $this->flight, $this->id);
     }
 
     /**
@@ -127,4 +156,11 @@ final class FlightDamage
         return $this->id;
     }
 
+    /**
+     * @return DamageLabel
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
 }

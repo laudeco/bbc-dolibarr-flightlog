@@ -1,0 +1,1 @@
+ALTER TABLE `llx_bbc_flight_damages` ADD `label` VARCHAR(400) NOT NULL DEFAULT '' AFTER `author_id`;

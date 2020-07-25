@@ -23,6 +23,11 @@ final class CreateDamageCommand
     private $amount;
 
     /**
+     * @var string
+     */
+    private $label;
+
+    /**
      * @var int
      */
     private $billId;
@@ -97,6 +102,22 @@ final class CreateDamageCommand
     public function setBillId($billId)
     {
         $this->billId = $billId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param string $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
     }
 
 }

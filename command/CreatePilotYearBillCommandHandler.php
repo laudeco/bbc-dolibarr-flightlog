@@ -3,6 +3,9 @@
  *
  */
 
+use FlightLog\Domain\Damage\FlightDamageCount;
+use FlightLog\Domain\Damage\FlightInvoicedDamageCount;
+
 /**
  * @author Laurent De Coninck <lau.deconinck@gmail.com>
  */
@@ -156,7 +159,12 @@ class CreatePilotYearBillCommandHandler
             $startYearTimestamp, $endYearTimestamp);
 
         //Damages
-        $this->addDamages($object, $command->getPilot()->getCountForType('damage'), $command->getPilot()->getCountForType('invoiced_damage'), $startYearTimestamp, $endYearTimestamp);
+        $this->addDamages(
+            $object,
+            $command->getPilot()->damages(),
+            $startYearTimestamp,
+            $endYearTimestamp
+        );
 
         $this->addOrderDiscount($object, $command->getPilot()->getCountForType('1'), $this->t1->getService(), $command->getYear());
         $this->addOrderDiscount($object, $command->getPilot()->getCountForType('2'), $this->t2->getService(), $command->getYear());
@@ -292,27 +300,29 @@ class CreatePilotYearBillCommandHandler
      * Adds the damages.
      *
      * @param Facture $object
-     * @param FlightTypeCount $damage
-     * @param FlightTypeCount $invoicedDamage
+     * @param array|FlightDamageCount[]|FlightInvoicedDamageCount[] $damages
      * @param string $start
      * @param string $end
      */
-    private function addDamages(Facture $object, FlightTypeCount $damage, FlightTypeCount $invoicedDamage, $start, $end)
+    private function addDamages(Facture $object, array $damages, $start, $end)
     {
-        $price = $damage->getCost()->addCost($invoicedDamage->getCost())->getValue();
+        $totalCost = FlightCost::zero();
+        $description = '';
 
-        if($price <= 0 ){
-            return;
+        foreach ($damages as $damage){
+            $totalCost->addCost($damage->getCost());
+            $description .= $damage->getLabel().'; ';
         }
 
         $tDamage = new Product($this->db);
-        $tDamage->label = 'Réparations';
-        $tDamage->description = 'Remboursement des dégâts effectués aux ballons.';
+        $tDamage->label = 'Réparations aux ballons';
+        $tDamage->description = $description ;
         $tDamage->tva_tx = 21;
-        $tDamage->price_ttc = $price;
+        $tDamage->price_ttc = $totalCost->getValue();
         $tDamage->price = $tDamage->price_ttc / (1 + $tDamage->tva_tx / 100);
 
         $this->addOrderLine($object, $tDamage, 1, $start, $end);
+
     }
 
 

@@ -1,5 +1,8 @@
 <?php
 
+use FlightLog\Domain\Damage\FlightDamageCount;
+use FlightLog\Domain\Damage\FlightInvoicedDamageCount;
+
 require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightBonus.php');
 require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightPoints.php');
 require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightTypeCount.php');
@@ -28,6 +31,11 @@ final class Pilot
      * @var array|FlightTypeCount[]
      */
     private $flightTypeCounts;
+
+    /**
+     * @var array|\FlightLog\Domain\Damage\FlightDamageCount[]|\FlightLog\Domain\Damage\FlightInvoicedDamageCount[]
+     */
+    private $damages = [];
 
     /**
      * @param string $name
@@ -98,6 +106,14 @@ final class Pilot
         return new Pilot($this->name, $this->id, $types);
     }
 
+    public function addDamage(FlightDamageCount $damage){
+        $this->damages[] = $damage;
+    }
+
+    public function addInvoicedDamage(FlightInvoicedDamageCount $damage){
+        $this->damages[] = $damage;
+    }
+
     /**
      * @param string $type
      *
@@ -140,10 +156,51 @@ final class Pilot
         $flightsCost = $flightsCost->addCost($this->getFlightCost('4'));
         $flightsCost = $flightsCost->addCost($this->getFlightCost('6'));
         $flightsCost = $flightsCost->addCost($this->getFlightCost('7'));
-        $flightsCost = $flightsCost->addCost($this->getFlightCost('damage'));
-        $flightsCost = $flightsCost->addCost($this->getFlightCost('invoiced_damage'));
+        $flightsCost = $flightsCost->addCost($this->totalDamageCost());
 
         return $flightsCost;
+    }
+
+    public function totalDamageCost(){
+        $flightCost = FlightCost::zero();
+
+        foreach($this->damages as $damage){
+            $flightCost = $flightCost->addCost($damage->getCost());
+        }
+
+        return $flightCost;
+    }
+
+    public function damageCost(){
+        $flightCost = FlightCost::zero();
+
+        foreach($this->damages as $damage){
+            if(!$damage instanceof FlightDamageCount){
+                continue;
+            }
+
+            $flightCost = $flightCost->addCost($damage->getCost());
+        }
+
+        return $flightCost;
+    }
+
+    public function invoicedDamageCost(){
+        $flightCost = FlightCost::zero();
+
+        foreach($this->damages as $damage){
+            if(!$damage instanceof FlightInvoicedDamageCount){
+                continue;
+            }
+
+            $flightCost = $flightCost->addCost($damage->getCost());
+        }
+
+        return $flightCost;
+    }
+
+    public function damages(){
+        return $this->damages;
     }
 
     /**

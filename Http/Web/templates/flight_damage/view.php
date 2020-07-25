@@ -11,13 +11,16 @@ global $langs, $user, $damages, $receiver, $flightId;
 <table class="border centpercent">
     <tr>
         <td>Auteur</td>
+        <td>Label</td>
         <td>Montant</td>
+        <td colspan="2">&nbsp;</td>
     </tr>
     <?php $total = 0; ?>
     <?php foreach($damages as $currentDamage):?>
         <?php $total += $currentDamage->getAmount(); ?>
         <tr>
             <td><?php echo $currentDamage->getAuthorName();?></td>
+            <td><?php echo $currentDamage->getLabel();?></td>
             <td><?php echo $currentDamage->getAmount();?>€</td>
             <td>
                 <?php if($currentDamage->isInvoiced()): ?>
@@ -34,7 +37,8 @@ global $langs, $user, $damages, $receiver, $flightId;
 
     <tr class="bold border-top">
         <td>Total</td>
+        <td colspan="1">&nbsp;</td>
         <td><?php echo $total; ?>€</td>
-        <td></td>
+        <td colspan="2">&nbsp;</td>
     </tr>
 </table>

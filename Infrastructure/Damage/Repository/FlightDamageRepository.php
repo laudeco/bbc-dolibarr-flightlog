@@ -8,6 +8,7 @@ use FlightLog\Domain\Damage\DamageAmount;
 use FlightLog\Domain\Damage\DamageId;
 use FlightLog\Domain\Damage\FlightDamage;
 use FlightLog\Domain\Damage\FlightId;
+use FlightLog\Domain\Damage\ValueObject\DamageLabel;
 use FlightLog\Infrastructure\Common\Repository\AbstractDomainRepository;
 
 final class FlightDamageRepository extends AbstractDomainRepository
@@ -32,7 +33,8 @@ final class FlightDamageRepository extends AbstractDomainRepository
             'flight_id' => $flightDamage->getFlightId()->getId(),
             'billed' => $flightDamage->isBilled(),
             'amount' => $flightDamage->amount()->getValue(),
-            'author_id' => $flightDamage->getAuthor()->getId()
+            'author_id' => $flightDamage->getAuthor()->getId(),
+            'label' => $flightDamage->getLabel()->value(),
         ];
 
         if($flightDamage->getId()){
@@ -60,6 +62,7 @@ final class FlightDamageRepository extends AbstractDomainRepository
         return FlightDamage::load(
             FlightId::create($damage['flight_id']),
             new DamageAmount($damage['amount']),
+            new DamageLabel($damage['label']),
             $damage['billed'],
             AuthorId::create($damage['author_id']),
             DamageId::create($damage['rowid'])

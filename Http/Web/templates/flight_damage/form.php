@@ -35,6 +35,11 @@ $renderer = new \flightlog\form\SimpleFormRenderer();
                 </tr>
 
                 <tr>
+                    <td class="fieldrequired" width="50%">Description</td>
+                    <td><?php echo $renderer->render($form->getElement('label')); ?></td>
+                </tr>
+
+                <tr>
                     <td class="fieldrequired" width="25%">Autheur des dégâts</td>
                     <td>
                         <?php echo $renderer->render($form->getElement('author_id')); ?>
