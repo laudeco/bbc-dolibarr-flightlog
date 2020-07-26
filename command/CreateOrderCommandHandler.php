@@ -92,6 +92,8 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
             ->addContacts()
             ->validateOrder();
 
+        $this->order->fetch($this->order->id);
+
         $this->order->generateDocument('einstein', $this->langs);
     }
 

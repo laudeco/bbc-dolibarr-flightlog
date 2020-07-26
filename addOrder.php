@@ -200,6 +200,7 @@ if ($msg) {
     </div>
     <form class="flight-form" name='add' method="post">
     <input type="hidden" name="action" value="add"/>
+    <input type="hidden" name="token" value="<?php echo newToken(); ?>"/>
 
     <!-- Commanditaire -->
     <section class="form-section">
