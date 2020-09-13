@@ -146,7 +146,7 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
      */
     private function numberOfPassengersLinkedToOrder($orderId)
     {
-        $sql = sprintf('SELECT SUM(nbrPax) as total FROM `llx_bbc_vols_orders` WHERE order_id = %s', $orderId);
+        $sql = sprintf('SELECT SUM(nbr_passengers) as total FROM `llx_bbc_vols_orders` WHERE order_id = %s', $orderId);
 
         $resql = $this->db->query($sql);
 
