@@ -35,7 +35,7 @@ if (!$user->rights->flightlog->vol->add) {
 $msg = '';
 if (GETPOST("action") == 'add') {
     if (!$_POST["cancel"]) {
-        $dated = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
+        $dated = GETPOST('flight_date');
         $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
         $orderIds = GETPOST('order_id', 'array', 2);
         $orderPassengersCount = GETPOST('order_passengers_count', 'array', 2);
@@ -86,6 +86,15 @@ if (GETPOST("action") == 'add') {
 
 llxHeader('', 'Carnet de vol', '');
 
+$icons = [
+    '1' => 'fa fa-ad',
+    '2' => 'fa fa-ticket-alt',
+    '3' => 'fa fa-user-shield',
+    '4' => 'fa fa-users',
+    '5' => 'fa fa-images',
+    '6' => 'fa fa-graduation-cap',
+    '7' => 'fa fa-user-plus',
+];
 $html = new Form($db);
 $commande = new Commande($db);
 $datec = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
@@ -95,6 +104,11 @@ if ($msg) {
 
 ?>
 
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
+
+<section class="bbc-style">
+
+
     <div class="errors error-messages">
         <?php
         foreach ($validator->getErrors() as $errorMessage) {
@@ -103,231 +117,288 @@ if ($msg) {
         ?>
     </div>
     <form class="flight-form js-form" name='add' action="addFlight.php" method="post">
-    <input type="hidden" name="action" value="add"/>
+        <input type="hidden" name="action" value="add"/>
 
-    <!-- Date et heures -->
-    <section class="form-section">
-        <h1 class="form-section-title"><?php echo $langs->trans('Date & heures'); ?></h1>
-        <table class="border" width="100%">
-            <tr>
-                <td class="fieldrequired"> Type du vol</td>
-                <td colspan="3">
-                    <?php
-                        //type du vol
-                        select_flight_type($_POST['type']);
-                    ?>
-                </td>
-            </tr>
+        <!-- Date et heures -->
+        <section class="form-section">
+            <h1 class="form-section-title"><?php echo $langs->trans('Date & heures'); ?></h1>
 
-            <tr>
-                <td class="fieldrequired"> Date du vol</td>
-                <td>
-                    <?php
-                        print $html->select_date($datec ? $datec : -1, '', '', '', '', 'add', 1, 1);
-                    ?>
-                </td>
-            </tr>
+            <div>
+                <div class="form-group">
+                    <label class="fieldrequired"> Type du vol</label>
 
-            <tr>
-                <td class="fieldrequired">Heure de d&#233;part (format autorise XXXX)</td>
-                <td width="25%" >
-                    <input type="text"
+                    <div class="inline-radio">
+                    <?php foreach (fetchBbcFlightTypes() as $flightType) : ?>
+                        <label class="">
+                            <input type="radio" class="js-flight-type" name="type" value="<?php echo $flightType->id ?>" <?php echo $flightType->numero == $_POST['type'] ? 'checked' : '' ?>>
+                            <span class="icon <?php echo $icons[$flightType->numero]; ?>"></span>
+                            <span class="text-bold"><?php echo "T" . $flightType->numero ?></span>
+                            <span class="font-italic"><?php echo $flightType->nom; ?></span>
+                        </label>
+                    <?php endforeach; ?>
+
+                </div>
+
+                <div class="form-group">
+                    <label class="fieldrequired"> Date du vol</label>
+
+                    <input type="date" name="flight_date" value="<?php print (new DateTimeImmutable())->format('Y-m-d')?>"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="fieldrequired">Heure de d&#233;part</label>
+
+                    <input type="time"
                            name="heureD"
                            class="flat <?php echo($validator->hasError('heureD') ? 'error' : '') ?>"
                            value="<?php echo $_POST['heureD'] ?>"/>
-                </td>
 
-            <td class="fieldrequired">Heure d\'arriv&#233;e (format autorise XXXX)</td>
-            <td>
-                <input type="text"
-                       name="heureA"
-                       class="flat <?php echo($validator->hasError('heureA') ? 'error' : '') ?>"
-                       value="<?php echo $_POST['heureA'] ?>"/>
-            </td>
-            </tr>
+                </div>
 
-        </table>
-    </section>
-
-    <section class="form-section">
-        <h1 class="form-section-title"><?php echo $langs->trans('Pilote & ballon') ?></h1>
-        <table class="border" width="50%">
-            <?php
-            //Pilote
-            print "<tr>";
-            print '<td class="fieldrequired"> Pilote </td><td >';
-            print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $user->id, 'pilot', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
-            print '</td></tr>';
-
-            //Ballon
-            print "<tr>";
-            print '<td width="25%" class="fieldrequired">Ballon</td><td>';
-            select_balloons($_POST['ballon'], 'ballon', 0, 0);
-            print '</td></tr>';
-            ?>
-
-            <tr>
-                <td>Il y'avait-il plusieurs ballons ?</td>
-                <td colspan="3"><input type="checkbox" value="1" name="grouped_flight"/> - Oui</td>
-            </tr>
-        </table>
-    </section>
-
-    <section class="form-section">
-        <h1 class="form-section-title"><?php echo $langs->trans('Lieux') ?></h1>
-        <table class="border" width="100%">
-            <?php
-
-            //place start
-            print "<tr>";
-            print '<td class="fieldrequired">Lieu de d&#233;part </td><td width="25%" >';
-            print '<input type="text" name="lieuD" class="flat" value="' . $_POST['lieuD'] . '"/>';
-            print '</td>';
-
-            //place end
-            print '<td class="fieldrequired">Lieu d\'arriv&#233;e </td><td>';
-            print '<input type="text" name="lieuA" class="flat" value="' . $_POST['lieuA'] . '"/>';
-            print '</td></tr>';
-
-            ?>
-
-        </table>
-    </section>
-
-    <section class="form-section">
-        <h1 class="form-section-title"><span class="js-organisator-field">Organisateur</span><span class="js-instructor-field">Instructeur</span></h1>
-        <table class="border" width="50%">
-            <tr>
-                <td class="fieldrequired"><span class="js-organisator-field">Organisateur</span><span class="js-instructor-field">Instructeur</span></td>
-                <td>
-                <?php
-                    //organisateur
-                    print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $user->id, 'orga', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
-                ?>
-                </td>
-            </tr>
-        </table>
-    </section>
+                <div class="form-group ">
+                    <label class="fieldrequired">Heure d'arriv&#233;e</label>
+                    <input type="time"
+                           name="heureA"
+                           class="flat <?php echo($validator->hasError('heureA') ? 'error' : '') ?>"
+                           value="<?php echo $_POST['heureA'] ?>"/>
+                </div>
 
 
-    <section class="form-section js-expensable-field">
-        <h1 class="form-section-title"><?php echo $langs->trans('Déplacements') ?></h1>
-        <table class="border" width="50%">
-            <!-- number of kilometers done for the flight -->
-            <tr>
-                <td class="fieldrequired">Nombre de kilometres effectués pour le vol</td>
-                <td>
+            </div>
+        </section>
+
+        <!-- Pilote et Ballon -->
+        <section class="form-section">
+            <h1 class="form-section-title"><?php echo $langs->trans('Vol') ?></h1>
+            <div >
+                <div class="form-group">
+                    <label class="fieldrequired"> Pilote</label>
+                    <?php print $html->select_dolusers($_POST["pilot"] ? $_POST["pilot"] : $user->id, 'pilot', 0, null, 0, '', '', 0,0,0,'',0,'','', true); ?>
+                </div>
+
+                <div class="form-group ">
+                    <label class="fieldrequired">
+                        <span class="js-organisator-field">Organisateur</span>
+                        <span class="js-instructor-field">Instructeur</span>
+                    </label>
+                    <?php
+                        //organisateur
+                        print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $user->id, 'orga', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
+                    ?>
+                </div>
+
+                <div class="form-group">
+                    <label class="fieldrequired">Lieu de d&#233;part </label>
+                    <input type="text" name="lieuD" class="flat" value="<?php print  $_POST['lieuD'] ?>"/>
+                </div>
+
+                <div class="form-group ">
+                    <label class="fieldrequired">Lieu d'arriv&#233;e </label>
+                    <input type="text" name="lieuA" class="flat" value="<?php print  $_POST['lieuA'] ?>"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="fieldrequired">Ballon</label>
+                    <?php select_balloons($_POST['ballon'], 'ballon', 0, false); ?>
+                </div>
+
+                <div class="form-group">
+                    <label>Il y'avait-il plusieurs ballons ?</label>
+                    <input type="checkbox" value="1" name="grouped_flight"/> - Oui
+                </div>
+            </div>
+        </section>
+
+        <!-- Movements -->
+        <section class="form-section js-expensable-field">
+            <h1 class="form-section-title"><?php echo $langs->trans('Déplacements') ?></h1>
+            <div >
+                <!-- number of kilometers done for the flight -->
+                <div class="form-group">
+                    <label class="fieldrequired">Nombre de kilometres effectués pour le vol</label>
                     <input type="number" name="kilometers" class="flat <?php echo($validator->hasError('kilometers') ? 'error' : '') ?>" value="<?php echo $_POST['kilometers'] ?>"/>
-                </td>
-            </tr>
+                </div>
 
-            <!-- Justif Kilometers -->
-            <tr>
+                <!-- Justif Kilometers -->
+                <div class="form-group">
 
-                <td width="25%" class="fieldrequired">Justificatif des KM </td>
-                <td>
+                    <label class="fieldrequired">Justificatif des KM </label>
                     <textarea name="justif_kilometers" rows="2" cols="60" class="flat <?php echo($validator->hasError('justif_kilometers') ? 'error' : '') ?>"><?php echo $_POST['justif_kilometers'] ?></textarea>
-                </td>
-            </tr>
-        </table>
-    </section>
+                </div>
+            </div>
+        </section>
 
-    <!-- Passagers -->
-    <section class="form-section">
-        <h1 class="form-section-title"><?php echo $langs->trans('Passager') ?></h1>
-        <table class="border" width="50%">
-            <tr>
-                <td class="fieldrequired"><?php echo $langs->trans('Nombre de passagers'); ?></td>
-                <td>
+        <!-- Passagers -->
+        <section class="form-section">
+            <h1 class="form-section-title"><?php echo $langs->trans('Passagers') ?></h1>
+            <div >
+                <div class="form-group">
+                    <label class="fieldrequired"><?php echo $langs->trans('Nombre de passagers'); ?></label>
                     <input type="number"
                            name="nbrPax"
                            class="flat <?php echo $validator->hasError('nbrPax') ? 'error' : '' ?>"
                            value="<?php echo $_POST['nbrPax']?: 0 ?>"/>
-                </td>
-            </tr>
+                </div>
 
-            <!-- passenger names -->
-            <tr>
-                <td width="25%" class="fieldrequired"><?php echo $langs->trans('Noms des passagers'); ?><br/>(Séparé par des ; )</td>
-                <td>
+                <!-- passenger names -->
+                <div class="form-group">
+                    <label class="fieldrequired"><?php echo $langs->trans('Noms des passagers'); ?><br/>(Séparé par des ; )</label>
                     <textarea name="passenger_names" cols="60" rows="2" class="flat <?php echo $validator->hasError('passenger_names') ? 'error' : '' ?>"><?php echo $_POST['passenger_names'] ?></textarea>
-                </td>
-            </tr>
-        </table>
-    </section>
+                </div>
+            </div>
+        </section>
 
-    <!-- billing information -->
-    <section class="form-section">
-        <h1 class="form-section-title js-billable-field"><?php echo $langs->trans('Facturation') ?></h1>
-        <table class="border" width="50%">
+        <!-- billing information -->
+        <section class="form-section js-billable-field">
+            <h1 class="form-section-title"><?php echo $langs->trans('Facturation') ?></h1>
 
-            <!-- Order -->
-            <tr id="list_order" class=" js-billable-field">
-                <td class="fieldrequired"><?php echo $langs->trans('Commande du vol')?></td>
-                <td class="js-order">
-                    <p class="text-muted">Pour retirer une commande merci de la retirer de la liste ci-dessous.</p>
-                    <?php
-                        echo $html::multiselectarray('order_id', $commande->liste_array(2),$_POST['order_id'],0,0, $validator->hasError('order_id') ? 'error' : '',0,'100%');
-                    ?>
-                </td>
-            </tr>
+            <div>
+                <p class="text-muted">
+                    Le bloc sur la facturation permet de savoir où retrouver l'argent du vol. Sur des commandes, au près d'un membre, ... <br/>
+                    Il est donc normal de devoir réencoder le nombre de passagers.
+                </p>
 
-            <!-- Money receiver -->
-            <tr class="js-hide-order js-billable-field">
-                <td class="fieldrequired"><?php echo $langs->trans('Qui a perçu l\'argent')?></td><td>
-                    <?php print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $user->id,
-                        'fk_receiver', true, null, 0, '', '', 0,0,0,'',0,'','', true); ?>
-                </td>
-            </tr>
+                <!-- Order -->
+                <div id="list_order" class=" js-billable-field form-group">
+                    <!-- BASE form -->
+                    <div class="js-base-form base-order-row order-row">
+                        <div class="js-order-ref order-reference">Comment facturer ce vol?</div>
 
-            <!-- Flight cost -->
-            <tr class="js-hide-order js-billable-field">
-                <td class="fieldrequired">Montant perçu</td>
-                <td>
-                    <input type="text" name="cost" class="flat  <?php echo $validator->hasError('cost') ? 'error' : '' ?>" value="<?php echo $_POST['cost']?:0 ?> "/>
-                    &euro;
-                </td>
-            </tr>
-        </table>
-    </section>
+                        <!-- bill type -->
+                        <div class="form-group ">
+                            <label>Ce vol est composé de ...</label>
+                            <div class="inline-radio">
+                                <label class=""><input type="radio" class="js-bill-type" name="billType" value="order"> Une commande</label>
+                                <label class=""><input type="radio" class="js-bill-type" name="billType" value="cash"> J'ai reçu du cash</label>
+                                <label class=""><input type="radio" class="js-bill-type" name="billType" value="other_receiver"> Quelqu'un d'autre à reçu du cash</label>
+                            </div>
 
-    <!-- comments -->
-    <section class="form-section">
-        <h1 class="form-section-title"><?php echo $langs->trans('Commentaires') ?></h1>
-        <table class="border" width="50%">
-            <!-- commentaires -->
-            <tr class="">
-                <td class="fieldrequired"> Note sur le vol </td><td>
+                        </div>
+
+                        <!-- Order -->
+                        <div class="form-group  js-visible-order js-hide-cash hidden">
+                            <label>Sélection de la commande réalisée en totalité (ou en partie)</label>
+                            <?php
+                            echo $html::selectarray(
+                                'order_id',
+                                $commande->liste_array(2),
+                                $_POST['order_id'],
+                                1,
+                                0,
+                                $validator->hasError('order_id') ? 'error' : '',
+                                0,
+                                '100%',
+                                    0,
+                                    0,
+                                    '',
+                                    'js-order-select'
+                            );
+                            ?>
+                        </div>
+
+                        <!-- Nbr pax -->
+                        <div class="form-group js-visible-order js-hide-cash js-hide-other_receiver hidden">
+                            <label>Nombre de passager(s)</label>
+                            <input type="number" class="js-nb-pax-order" step="1" min="0" max="5" value="1" />
+                            <span class="text-muted">Nombre de passagers de la nacelle associés à cette commande.</span>
+                        </div>
+
+                        <!-- Money receiver -->
+                        <div class="form-group js-visible-cash js-hide-order js-visible-other_receiver  hidden">
+                            <label class=""><?php echo $langs->trans('Qui a perçu l\'argent')?></label>
+                            <?php print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $user->id,
+                                'fk_receiver', true, null, 0, '', '', 0,0,0,'',0,'','', true); ?>
+                        </div>
+
+                        <!-- Flight cost -->
+                        <div class=" form-group js-visible-cash js-hide-other_receiver js-hide-order hidden">
+                            <label class="">Montant perçu</label>
+                            <div class="input-group">
+                                <input type="number" name="cost"  step="1" min="0" class="flat js-cost" value="<?php echo $_POST['cost']?:0 ?>"/>
+                                <span class="input-symbol">&euro;</span>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group center">
+                            <button class="button _primary js-add-bill-type" type="button" ><span class="fa fa-plus"></span> <?php echo $langs->trans('Ajouter') ?></button>
+                        </div>
+
+                    </div>
+
+                    <div class="js-order list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comments -->
+        <section class="form-section">
+            <h1 class="form-section-title"><?php echo $langs->trans('Commentaires') ?></h1>
+            <div>
+                <!-- commentaires -->
+                <div class=" form-group">
+                    <label class="fieldrequired"> Note sur le vol </label>
                     <textarea rows="2" cols="60" class="flat" name="comm" placeholder="RAS"><?php print $_POST['comm']; ?></textarea>
-                </td>
-            </tr>
+                </div>
 
-            <!-- incidents -->
-            <tr class="">
-                <td class="fieldrequired"> Incidents, Brulure, ...</td><td>
+                <!-- incidents -->
+                <div class=" form-group">
+                    <label class="fieldrequired"> Incidents, Brulure, ...</label>
                     <textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS"><?php print $_POST['inci']; ?></textarea>
                     <p class="text-muted">Incidents ou dégâts constatés au ballon.</p>
-                </td>
-            </tr>
-        </table>
-    </section>
+                </div>
+            </div>
+        </section>
+
+        <div class="d-grid">
+            <div class="grid-col grid-col-6">
+                <input class="button" type="submit" name="cancel" value="<?php print $langs->trans("Cancel") ?>">
+            </div>
+
+            <div class="grid-col grid-col-6">
+                <button class="button _success" type="submit" ><span class="fa fa-check"></span> <?php print $langs->trans("Save") ?></button>
+            </div>
+        </div>
+    </form>
 <?php
-
-print '<br><input class="button" type="submit" value="' . $langs->trans("Save") . '"> &nbsp; &nbsp; ';
-print '<input class="button" type="submit" name="cancel" value="' . $langs->trans("Cancel") . '">';
-
-print '</form>';
 
 $db->close();
 ?>
 
 <script type="text/html" id="orderRow">
-    <tr class="js-detail-order">
-        <td class="js-order-ref"></td>
-        <td class="js-order-passenger">
-            <input type="text" name="order_passengers_count[]" class="flat" value="1"/> Passager(s)
-        </td>
-    </tr>
+    <div class="js-detail-order order-row selectable">
+        <input type="hidden" value="0" name="" class="js-nbr-pax" />
+
+        <!-- Remove button -->
+        <div class="remove fa fa-times js-remove"></div>
+
+        <!-- Reference -->
+        <div class="js-order-ref order-reference"></div>
+
+        <!-- Number of pax -->
+        <div> Nombre de passagers : <span class="js-nbr-pax nbr-pax"></span></div>
+    </div>
+</script>
+
+<script type="text/html" id="cashRow">
+    <div class="js-detail-order order-row cash-row selectable">
+
+        <div class="corner"></div>
+
+        <input type="hidden" value="0" name="amount" class="js-amount" />
+        <input type="hidden" value="<?php echo $user->id; ?>" name="receiver" class="js-receiver-id" />
+
+        <!-- Remove button -->
+        <div class="remove fa fa-times js-remove"></div>
+
+        <p>Ce membre à perçu l'argent.</p>
+
+        <!-- Reference -->
+        <p>Membre : <span class="js-order-ref order-reference"></span></p>
+
+        <!-- Number of pax -->
+        <div> Montant reçu : <span class="js-amount"></span>&euro;</div>
+    </div>
 </script>
 
 <script type="application/javascript">
@@ -342,29 +413,39 @@ $db->close();
     function hideOrderInformation (){
         var $this = $(this);
 
-        // Hide - unhide
-        if($this.val().length > 0){
-            $('.js-hide-order').hide();
-        }else{
-            $('.js-hide-order').show();
-        }
-
-        $('tr.js-detail-order').remove();
-
         //Multi orders
         $this.find('option:selected').each(function(){
+
+            return;
+
             var $option = $(this);
             var $addingElement = $($('#orderRow').html());
             var $input = $addingElement.find('.js-order-passenger input');
+            var orderId = parseInt($option.val(), 10);
+            var $removeButton = $addingElement.find('.js-remove');
+
+            if(orderId <= 0){
+                return;
+            }
 
             $addingElement.find('.js-order-ref').html($option.html());
 
+            $removeButton.data('orderId', orderId);
+            $removeButton.on('click', function(){
+                var $this = $(this);
+                $('.js-order select option[value="'+$this.data('orderId')+'"]').attr('disabled', false);
+                $this.parents('.js-detail-order').remove();
+            });
+
+            $option.attr('disabled', true);
+
             $input.attr('name' , 'order_passengers_count['+$option.val()+']');
             if(typeof orders !== "undefined" && typeof orders[$option.val()] !== 'undefined'){
-                $input.val(orders[$option.val()]);
+                $input.val(orders[orderId]);
             }
 
-            $addingElement.insertAfter($('#list_order'));
+            $('#list_order .js-order .order-row:first-child').after($addingElement);
+            //$addingElement.find('input').focus();
         });
     }
 
@@ -440,18 +521,130 @@ $db->close();
             //instruction flight
             $('.js-form .js-instructor-field').removeClass('hidden');
             $('.js-form .js-organisator-field').addClass('hidden');
-        }else{
+        } else {
             $('.js-form .js-instructor-field').addClass('hidden');
             $('.js-form .js-organisator-field').removeClass('hidden');
         }
 
     }
 
+    function addBillType(){
+        var type = $('.js-base-form .js-bill-type:checked').val();
+        if(type === 'cash'){
+            return addCash();
+        }
+
+        if(type === 'order'){
+            return addOrder();
+        }
+
+        if(type === 'other_receiver'){
+            return addCashOther();
+        }
+    }
+
+    function addOrder(){
+        var orderId = parseInt($('.js-base-form .js-order-select').val(), 10);
+        var $option = $('.js-base-form .js-order-select option[value="'+orderId+'"]');
+        var orderRef = $option.html();
+        var $addingElement = $($('#orderRow').html());
+        var $removeButton = $addingElement.find('.js-remove');
+        var nbrPax = parseInt($('.js-base-form .js-nb-pax-order').val(), 10);
+
+        if(orderId <= 0){
+            return;
+        }
+
+        // Manage remove button
+        $removeButton.data('orderId', orderId);
+        $removeButton.on('click', function(){
+            var $this = $(this);
+            $('.js-base-form .js-order-select option[value="'+$this.data('orderId')+'"]').attr('disabled', false);
+            $this.parents('.js-detail-order').remove();
+        });
+
+        // Add the reference
+        $addingElement.find('.js-order-ref').html(orderRef);
+
+        // Add the number of pax
+        $addingElement.find('.js-nbr-pax').html(nbrPax);
+        $addingElement.find('input.js-nbr-pax').val(nbrPax);
+        $addingElement.find('input.js-nbr-pax').attr('name', 'order_passengers_count['+orderId+']');
+
+        // disable the option
+        $option.attr('disabled', true);
+
+        $('#list_order .js-order').append($addingElement);
+
+    }
+
+    function addCash(){
+        var amount = parseInt($('.js-base-form input.js-cost').val(), 10);
+        var $option = $('.js-base-form select[name="fk_receiver"] option:selected');
+        var receiver = $option.html();
+        var receiverId = $option.val();
+
+        var $addingElement = $($('#cashRow').html());
+        var $removeButton = $addingElement.find('.js-remove');
+
+        // Manage remove button
+        $removeButton.on('click', function(){
+            var $this = $(this);
+            $this.parents('.js-detail-order').remove();
+        });
+
+        // Add the receiver name
+        $addingElement.find('.js-order-ref').html(receiver);
+        $addingElement.find('input.js-receiver').val(receiverId);
+
+        // Add the amount
+        $addingElement.find('.js-amount').html(amount);
+        $addingElement.find('input.js-amount').val(amount);
+
+        $('#list_order .js-order').append($addingElement);
+    }
+
+    function addCashOther(){
+        var amount = 0;
+        var $option = $('.js-base-form select[name="fk_receiver"] option:selected');
+        var receiver = $option.html();
+        var receiverId = $option.val();
+
+        var $addingElement = $($('#cashRow').html());
+        var $removeButton = $addingElement.find('.js-remove');
+
+        // Manage remove button
+        $removeButton.on('click', function(){
+            var $this = $(this);
+            $this.parents('.js-detail-order').remove();
+        });
+
+        // Add the receiver name
+        $addingElement.find('.js-order-ref').html(receiver);
+        $addingElement.find('input.js-receiver').val(receiverId);
+
+        // Add the amount
+        $addingElement.find('span.js-amount').parent().remove();
+        $addingElement.find('input.js-amount').val(amount);
+
+        $('#list_order .js-order').append($addingElement);
+    }
+
+    function baseBillMethodChange(){
+        var method = $(this).val();
+
+        $('.js-visible-'+ method).removeClass('hidden');
+        $('.js-hide-'+method).addClass('hidden');
+    }
+
     $(function(){
-        $('.js-order select').on('change', hideOrderInformation);
-        $('.js-order select').each(hideOrderInformation);
+        $('.js-base-form .js-bill-type').on('change', baseBillMethodChange);
+        $('.js-base-form .js-add-bill-type').on('click', addBillType);
 
         $('.js-flight-type').on('change', flightTypeChanged);
         $('.js-flight-type').each(flightTypeChanged);
+
     });
 </script>
+
+</section>
