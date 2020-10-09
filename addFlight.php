@@ -306,6 +306,7 @@ if ($msg) {
             <tr class="">
                 <td class="fieldrequired"> Incidents, Brulure, ...</td><td>
                     <textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS"><?php print $_POST['inci']; ?></textarea>
+                    <p class="text-muted">Incidents ou dégâts constatés au ballon.</p>
                 </td>
             </tr>
         </table>
