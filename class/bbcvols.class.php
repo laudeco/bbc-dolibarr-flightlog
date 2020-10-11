@@ -1205,11 +1205,11 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getBBCBallonsIdBBCBallons()
     {
-        return $this->BBC_ballons_idBBC_ballons;
+        return (int)$this->BBC_ballons_idBBC_ballons;
     }
 
     /**
@@ -1281,11 +1281,11 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getFkType()
     {
-        return $this->fk_type;
+        return (int)$this->fk_type;
     }
 
     /**
