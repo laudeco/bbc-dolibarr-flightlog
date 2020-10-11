@@ -88,6 +88,7 @@ $html = new Form($db);
 $commande = new Commande($db);
 $orders = $commande->liste_array(2);
 $datec = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
+$takeOffPlaces = (new \FlightLog\Infrastructure\Flight\Query\Repository\TakeOffQueryRepository($db))->__invoke($user->id);
 if ($msg) {
     print $msg;
 }
@@ -98,6 +99,13 @@ if ($msg) {
 
 <section class="bbc-style">
 
+    <?php if(!empty($takeOffPlaces)): ?>
+        <datalist id="take_off_places_id">
+            <?php foreach ($takeOffPlaces as $takeOffPlace): ?>
+                <option value="<?php echo $takeOffPlace->getPlace(); ?>"></option>
+            <?php endforeach; ?>
+        </datalist>
+    <?php endif; ?>
 
     <div class="errors error-messages">
         <?php
@@ -185,7 +193,7 @@ if ($msg) {
 
                 <div class="form-group">
                     <label class="fieldrequired">Lieu de d&#233;part </label>
-                    <input type="text" name="lieuD" class="flat" value="<?php print  $_POST['lieuD'] ?>"/>
+                    <input type="text" name="lieuD" list="take_off_places_id" class="flat" value="<?php print  $_POST['lieuD'] ?>"/>
                 </div>
 
                 <div class="form-group ">
