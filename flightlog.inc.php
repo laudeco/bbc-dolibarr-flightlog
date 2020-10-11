@@ -66,6 +66,8 @@ dol_include_once('/flightlog/Application/Damage/ViewModel/Damage.php');
 dol_include_once('/flightlog/Application/Damage/ViewModel/TotalDamage.php');
 dol_include_once('/flightlog/Application/Flight/ViewModel/BillableFlightByYearMonth.php');
 dol_include_once('/flightlog/Application/Flight/ViewModel/Statistic.php');
+dol_include_once("/flightlog/command/CreateFlightCommand.php");
+dol_include_once("/flightlog/command/CreateFlightCommandHandler.php");
 
 dol_include_once('/flightlog/validators/ValidatorInterface.php');
 dol_include_once('/flightlog/validators/AbstractValidator.php');
@@ -120,3 +122,5 @@ dol_include_once('/core/lib/price.lib.php');
 dol_include_once('/core/class/dolgraph.class.php');
 
 dol_include_once('/fourn/class/fournisseur.facture.class.php');
+
+

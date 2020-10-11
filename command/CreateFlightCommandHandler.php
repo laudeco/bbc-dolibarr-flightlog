@@ -63,11 +63,11 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
     public function handle(CommandInterface $command)
     {
         $vol = new Bbcvols($this->db);
-        $vol->date = $command->getDate();
+        $vol->date = $command->getDate()->getTimestamp();
         $vol->lieuD = $command->getLieuD();
         $vol->lieuA =$command->getLieuA();
-        $vol->heureD = $command->getHeureD();
-        $vol->heureA = $command->getHeureA();
+        $vol->heureD = $command->getHeureD()->format('Hi');
+        $vol->heureA = $command->getHeureA()->format('Hi');
         $vol->BBC_ballons_idBBC_ballons = $command->getBBCBallonsIdBBCBallons();
         $vol->nbrPax = $command->getNbrPax();
         $vol->remarque = $command->getRemarque();
@@ -88,7 +88,7 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
             throw new Exception();
         }
 
-        if(!$vol->getFlightType()->isBillingRequired() || $vol->isLinkedToOrder()){
+        if(!$vol->isBillingRequired() || ($vol->isLinkedToOrder() && $vol->hasReceiver())){
             $vol->is_facture = true;
         }
 

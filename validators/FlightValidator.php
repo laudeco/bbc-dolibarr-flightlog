@@ -36,6 +36,8 @@ class FlightValidator extends AbstractValidator
         $this->valid = true;
 
         $this
+            ->checkFlightType($flight)
+            ->checkBalloon($flight)
             ->checkFlightDate($flight)
             ->checkFlightInformation($flight)
             ->checkPassengersInformation($flight)
@@ -201,8 +203,14 @@ class FlightValidator extends AbstractValidator
      */
     private function checkFlightInformation($vol)
     {
+        if(empty($vol->getHeureD()) || $vol->getHeureD() === '0000'){
+            $this->addError('heureD', "L'heure depart est vide");
+        }
         if (!$this->isHourValid($vol->heureD)) {
-            $this->addError('heureD', "L'heure depart n'est pas correcte'");
+            $this->addError('heureD', "L'heure depart n'est pas correcte");
+        }
+        if(empty($vol->getHeureA()) || $vol->getHeureA() === '0000'){
+            $this->addError('heureD', "L'heure d'arrivée est vide");
         }
 
         if (!$this->isHourValid($vol->heureA)) {
@@ -244,7 +252,7 @@ class FlightValidator extends AbstractValidator
             $totalPassenegrs += (int)$nbrPassengers;
         }
 
-        if ($totalPassenegrs !== (int)$vol->getNumberOfPassengers()) {
+        if (!$vol->hasReceiver() && $totalPassenegrs !== (int)$vol->getNumberOfPassengers()) {
             $this->addError('nbrPax', 'Le nombre de passagers ne correspond pas au nombre entré sur les commandes');
         }
 
@@ -259,10 +267,33 @@ class FlightValidator extends AbstractValidator
     private function checkFlightDate(Bbcvols $flight)
     {
         $flightDate = $flight->getDate();
-        $flightDate->setTime(0,0,0);
-        if($flightDate > new DateTimeImmutable()){
+        $flightDate->setTime(0, 0, 0);
+
+        if ($flightDate > new DateTimeImmutable()) {
             $this->addError('date', 'La date est plus grande que la date d\'aujourd\'hui');
         }
+
+        return $this;
+    }
+
+    private function checkBalloon(Bbcvols $flight)
+    {
+        if($flight->getBBCBallonsIdBBCBallons() > 0){
+            return $this;
+        }
+
+        $this->addError('balloon', 'Le ballon est manquant');
+
+        return $this;
+    }
+
+    private function checkFlightType(Bbcvols $flight)
+    {
+        if ($flight->getFkType() > 0) {
+            return $this;
+        }
+
+        $this->addError('type', 'Le type de vol est manquant.');
 
         return $this;
     }

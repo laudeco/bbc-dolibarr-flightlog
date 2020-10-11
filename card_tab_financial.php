@@ -79,6 +79,12 @@ $organisator->fetch($object->fk_organisateur);
 $flightType->fetch($object->fk_type);
 $balloon->fetch($object->BBC_ballons_idBBC_ballons);
 
+if ($action === 'open' && $user->rights->flightlog->vol->financial) {
+    $object->open();
+    $object->update($user);
+}
+
+
 llxHeader('', $langs->trans('financial of flight'), '');
 
 $head = prepareFlightTabs($object);
@@ -98,10 +104,12 @@ if ($user->rights->flightlog->vol->financial) {
 
 print '<tr><td class="fieldrequired">' . $langs->trans("Fieldkilometers") . '</td><td>' . $object->kilometers . ' KM</td></tr>';
 print '<tr><td class="fieldrequired">' . $langs->trans("Fieldjustif_kilometers") . '</td><td>' . $object->justif_kilometers . '</td></tr>';
-if(!$object->isLinkedToOrder()){
+if($object->hasReceiver()){
     print '<tr><td class="fieldrequired">' . $langs->trans("Fieldcost") . '</td><td>' . $object->cost . " " . $langs->getCurrencySymbol($conf->currency) . '</td></tr>';
     print '<tr><td class="fieldrequired">' . $langs->trans("Fieldfk_receiver") . '</td><td>' . $receiver->getNomUrl(1) . '</td></tr>';
-}else{
+}
+
+if($object->isLinkedToOrder()){
     print '<tr><td class="fieldrequired">' . $langs->trans("Order") . '</td><td><ul>';
     foreach($object->getOrders() as $currentOrder){
         print '<li>'.$currentOrder->getNomUrl(1).'</li>';
@@ -115,8 +123,14 @@ dol_fiche_end();
 // Buttons
 print '<div class="tabsAction">' . "\n";
 
+// Make invoice
 if($user->rights->flightlog->vol->financial && $object->fk_type == 2 && !$object->hasFacture()){
     print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/facture.php?id=' . $object->id.'">' . $langs->trans("Facturer") . '</a></div>' . "\n";
+}
+
+// Open
+if($object->isBilled() && $object->isBillingRequired()){
+    print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/card_tab_financial.php?action=open&id=' . $object->id.'">' . $langs->trans("Ouvrir") . '</a></div>' . "\n";
 }
 
 print '</div>' . "\n";

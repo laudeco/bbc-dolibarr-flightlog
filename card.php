@@ -469,8 +469,11 @@ if (($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add 
                     <tr class="js-hide-order js-billable-field">
                         <td class="fieldrequired">Montant perçu</td>
                         <td>
-                            <?php print $renderer->render($formFlight->getElement('cost')); ?>
-                            &euro;
+                            <div class="input-group">
+                                <?php print $renderer->render($formFlight->getElement('cost')); ?>
+                                <span class="input-symbol">&euro;</span>
+                            </div>
+
                         </td>
                     </tr>
                 <?php endif; ?>

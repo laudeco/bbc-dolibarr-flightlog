@@ -131,7 +131,7 @@ class Bbcvols extends CommonObject
      *
      * @param DoliDb $db Database handler
      */
-    public function __construct(DoliDB $db)
+    public function __construct(DoliDB $db = null)
     {
         $this->db = $db;
         $this->cost = 0;
@@ -940,7 +940,7 @@ class Bbcvols extends CommonObject
      */
     public function hasReceiver()
     {
-        return !empty($this->fk_receiver);
+        return $this->getFkReceiver() > 0;
     }
 
     /**
@@ -1205,11 +1205,11 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getBBCBallonsIdBBCBallons()
     {
-        return $this->BBC_ballons_idBBC_ballons;
+        return (int)$this->BBC_ballons_idBBC_ballons;
     }
 
     /**
@@ -1281,11 +1281,11 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getFkType()
     {
-        return $this->fk_type;
+        return (int)$this->fk_type;
     }
 
     /**
@@ -1376,11 +1376,11 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getFkReceiver()
     {
-        return $this->fk_receiver;
+        return (int)$this->fk_receiver;
     }
 
     /**
@@ -1448,5 +1448,15 @@ class Bbcvols extends CommonObject
         return !empty(trim($this->incidents)) && strtolower(trim($this->incidents)) !== 'ras';
     }
 
+    public function isBillingRequired()
+    {
+        return $this->getFlightType()->isBillingRequired();
+    }
+
+
+    public function open()
+    {
+        $this->is_facture = 0;
+    }
 
 }

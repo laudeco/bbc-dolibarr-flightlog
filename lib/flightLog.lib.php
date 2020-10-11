@@ -58,10 +58,11 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
 /**
  * @param string $selected
  * @param string $htmlname
- * @param int    $showimmat
- * @param int    $showDeclasse
+ * @param int $showimmat
+ * @param int $showDeclasse
+ * @param bool $group
  */
-function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $showDeclasse = 1)
+function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $showDeclasse = 1, $group = false)
 {
 
     global $db, $langs;
@@ -82,13 +83,22 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $
         $resql = $db->query("SELECT B.immat,B.rowid FROM llx_bbc_ballons as B ORDER BY B.immat");
     }
 
+    $lastValue = '';
     if ($resql) {
         $num = $db->num_rows($resql);
         $i = 0;
         if ($num) {
             while ($i < $num) {
                 $obj = $db->fetch_object($resql);
+                $currentValue = substr($obj->immat, 0,2);
+
                 if ($obj) {
+                    if(true === $group && $currentValue !== $lastValue){
+                        print '<optgroup label="'.$currentValue.'">';
+                    }
+
+                    $lastValue = $currentValue;
+
                     if ($showimmat) {
                         print '<option value="' . $obj->immat . '"';
                     } else {
@@ -100,6 +110,12 @@ function select_balloons($selected = '', $htmlname = 'ballon', $showimmat = 0, $
                     print '>';
                     echo strtoupper($obj->immat);
                     print "</option>";
+
+                    if(true === $group && $currentValue !== $lastValue){
+                        print '<optgroup label="'.$currentValue.'">';
+                    }
+
+
                 }
                 $i++;
             }
