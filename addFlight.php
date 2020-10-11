@@ -132,7 +132,13 @@ if ($msg) {
 
                 <div class="form-group">
                     <label class="fieldrequired"> Date du vol</label>
-                    <input type="date" name="flight_date" value="<?php print (new DateTimeImmutable())->format('Y-m-d')?>"/>
+                    <input
+                        type="date"
+                        name="flight_date"
+                        value="<?php print (new DateTimeImmutable())->format('Y-m-d')?>"
+                        max="<?php print (new DateTimeImmutable())->format('Y-m-d')?>"
+                        min="<?php print (new DateTimeImmutable())->sub(new DateInterval('P3M'))->format('Y-m-d')?>"
+                    />
                 </div>
 
                 <div class="form-group">
