@@ -33,7 +33,7 @@ function prepareFlightTabs(Bbcvols $flight)
         'Vol',
         'Finances',
         'Dégâts',
-        'Remarques',
+        'Remarques '.($flight->hasComment() ? ' - <span class="fa fa-comment" title="'.$flight->getComment().'"></span>' : '').($flight->hasIncidents() ? ' - <span class="fa fa-exclamation" title="'.$flight->getIncident().'"></span>' : ''),
         'Suivis',
     ];
 
