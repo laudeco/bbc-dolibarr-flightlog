@@ -286,6 +286,7 @@ if (($user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add 
 
     <form class="flight-form js-form" name='add' action="card.php?rowid=<?php echo $object->getId(); ?>" method="POST">
         <input type="hidden" name="action" value="update"/>
+        <input type="hidden" name="token" value="<?php echo newToken();?>"/>
 
         <?php echo $renderer->render($formFlight->getElement('idBBC_vols')); ?>
 
