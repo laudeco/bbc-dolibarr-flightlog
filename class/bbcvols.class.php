@@ -131,7 +131,7 @@ class Bbcvols extends CommonObject
      *
      * @param DoliDb $db Database handler
      */
-    public function __construct(DoliDB $db)
+    public function __construct(DoliDB $db = null)
     {
         $this->db = $db;
         $this->cost = 0;

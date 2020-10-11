@@ -63,11 +63,11 @@ class CreateFlightCommandHandler implements CommandHandlerInterface
     public function handle(CommandInterface $command)
     {
         $vol = new Bbcvols($this->db);
-        $vol->date = $command->getDate();
+        $vol->date = $command->getDate()->getTimestamp();
         $vol->lieuD = $command->getLieuD();
         $vol->lieuA =$command->getLieuA();
-        $vol->heureD = $command->getHeureD();
-        $vol->heureA = $command->getHeureA();
+        $vol->heureD = $command->getHeureD()->format('Hm');
+        $vol->heureA = $command->getHeureA()->format('Hm');
         $vol->BBC_ballons_idBBC_ballons = $command->getBBCBallonsIdBBCBallons();
         $vol->nbrPax = $command->getNbrPax();
         $vol->remarque = $command->getRemarque();

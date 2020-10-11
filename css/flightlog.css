@@ -1,8 +1,5 @@
 
 /* Form */
-.flight-form * {
-    font-family: 'Open Sans', sans-serif, "Font Awesome 5 Free";
-}
 
 .flight-form .form-section .form-section-title {
     color: dodgerblue;
@@ -14,17 +11,23 @@
     min-width: inherit;
 }
 .flight-form .form-group{
-    margin: 5px 10px;
+    margin: 10px 10px;
 }
 
 .flight-form .form-group label{
-    margin-bottom: 5px;
+    margin-bottom: 3px;
+    font-size: 12pt;
 }
 
 .flight-form input:not([type=checkbox]):not([type=radio]), .flight-form select, .flight-form .select2, .flight-form textarea {
     display: block;
     width: 100% !important;
     line-height: 2em;
+}
+
+.flight-form input:not([type=checkbox]):not([type=radio]), .flight-form .select2, .flight-form textarea{
+    border: solid 1px var(--inputbordercolor);
+    border-radius: 5px;
 }
 
 .flight-form .input-group {
@@ -57,39 +60,20 @@
     margin: auto;
 }
 
-.flight-form .order-row{
-    border-radius: 0 10px 10px 10px;
+.flight-form .order-row:first-child td{
+    border-top: solid 1px darkgray;
+}
 
-    margin: 10px 10px 10px 0;
-    padding: 10px;
-
-    box-shadow: 2px 2px 3px #A6A6A6;
-
-    background-color: #f4f4f4;
-
-    position: relative;
-
-    width: 100%;
-    min-height: 120px;
+.flight-form .order-row td{
+    border-bottom: solid 1px darkgray;
+    border-spacing: 0;
+    border-collapse: collapse;
 }
 
 .flight-form .order-row .remove{
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    font-size: 1.3rem;
+    padding-right: 10px;
+    padding-left: 10px;
     cursor: pointer;
-}
-
-.flight-form .order-row.cash-row .corner{
-    background-color: #FD9519;
-    width: 10px;
-    height: 10px;
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    border-bottom-right-radius: 40px;
 }
 
 .flight-form .order-row .order-reference{
@@ -168,22 +152,22 @@ input.error, textarea.error{
 }
 
 /* tables */
-.bbc-style table
+.bbc-style table:not(.style-default)
 {
     overflow-x: auto;
     margin-bottom: 2.5rem;
     border-collapse: collapse;
 }
 
-.bbc-style table.border{
+.bbc-style table:not(.style-default).border{
     border: 1px solid #e1e1e1;
 }
-.bbc-style table.border td{
+.bbc-style table:not(.style-default).border td{
     border: 1px solid #e1e1e1;
 }
 
-.bbc-style th,
-.bbc-style td
+.bbc-style table:not(.style-default) th,
+.bbc-style table:not(.style-default) td
 {
     padding: 12px 15px;
 
@@ -192,27 +176,54 @@ input.error, textarea.error{
     border-bottom: 1px solid #e1e1e1;
 }
 
-.bbc-style th:first-child,
-.bbc-style td:first-child
+.bbc-style table:not(.style-default) th:first-child,
+.bbc-style table:not(.style-default) td:first-child
 {
     padding-left: 5px;
 }
 
-.bbc-style th:last-child,
-.bbc-style td:last-child
+.bbc-style table:not(.style-default) th:last-child,
+.bbc-style table:not(.style-default) td:last-child
 {
     padding-right: 5px;
 }
 
-.bbc-style tr:hover
+.bbc-style table:not(.style-default) tr:hover
 {
     background-color: #f5f5f5;
 }
 
-.bbc-style tr:nth-child(even)
+.bbc-style table:not(.style-default) tr:nth-child(even)
 {
     background-color: #f2f2f2;
 }
+
+.bbc-style table.bill {
+    width: 100%;
+}
+
+.bbc-style table.bill th{
+    text-align: left;
+    font-weight: bold;
+
+    font-size: 1.2em;
+
+    padding: 10px 5px;
+
+    color: dodgerblue;
+
+    background-color: #e8e8e8;
+}
+
+.bbc-style table.bill th:last-child{
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.bbc-style table.bill td{
+    padding: 10px 0;
+}
+
 
 /* Helpers */
 .bbc-style ._full-width
@@ -406,6 +417,11 @@ border-top: solid 1px black ;
     margin: 10px;
 }
 
+
+
+.show-sm{
+    display: none !important;
+}
 @media screen and (max-width: 768px){
     .d-grid .col, .d-grid .grid-col{
         grid-column : auto / span 12;
@@ -417,6 +433,18 @@ border-top: solid 1px black ;
 
     .d-grid .grid-col.grid-col-12{
         grid-column-end: span 12 !important;
+    }
+
+    .hide-sm{
+        display: none !important;
+    }
+
+    .show-sm{
+        display: initial !important;
+    }
+
+    .flight-form .inline-radio label{
+        width: 60px;
     }
 }
 

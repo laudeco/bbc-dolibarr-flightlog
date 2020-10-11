@@ -244,7 +244,7 @@ class FlightValidator extends AbstractValidator
             $totalPassenegrs += (int)$nbrPassengers;
         }
 
-        if ($totalPassenegrs !== (int)$vol->getNumberOfPassengers()) {
+        if ((int)$vol->getFkReceiver() <= 0 && $totalPassenegrs !== (int)$vol->getNumberOfPassengers()) {
             $this->addError('nbrPax', 'Le nombre de passagers ne correspond pas au nombre entré sur les commandes');
         }
 

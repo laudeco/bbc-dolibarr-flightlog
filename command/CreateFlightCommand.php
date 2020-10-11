@@ -9,10 +9,20 @@
 class CreateFlightCommand implements CommandInterface
 {
 
+    /**
+     * @var DateTimeImmutable
+     */
     private $date;
     private $lieuD;
     private $lieuA;
+    /**
+     * @var DateTimeImmutable
+     */
     private $heureD;
+
+    /**
+     * @var DateTimeImmutable
+     */
     private $heureA;
     private $BBC_ballons_idBBC_ballons;
     private $nbrPax;
@@ -34,7 +44,7 @@ class CreateFlightCommand implements CommandInterface
     private $orderIds;
 
     /**
-     * @return mixed
+     * @return DateTimeImmutable
      */
     public function getDate()
     {
@@ -42,7 +52,7 @@ class CreateFlightCommand implements CommandInterface
     }
 
     /**
-     * @param mixed $date
+     * @param DateTimeImmutable $date
      *
      * @return CreateFlightCommand
      */
@@ -91,7 +101,7 @@ class CreateFlightCommand implements CommandInterface
     }
 
     /**
-     * @return mixed
+     * @return DateTimeImmutable
      */
     public function getHeureD()
     {
@@ -99,7 +109,7 @@ class CreateFlightCommand implements CommandInterface
     }
 
     /**
-     * @param mixed $heureD
+     * @param DateTimeImmutable $heureD
      *
      * @return CreateFlightCommand
      */
@@ -110,7 +120,7 @@ class CreateFlightCommand implements CommandInterface
     }
 
     /**
-     * @return mixed
+     * @return DateTimeImmutable
      */
     public function getHeureA()
     {
@@ -118,7 +128,7 @@ class CreateFlightCommand implements CommandInterface
     }
 
     /**
-     * @param mixed $heureA
+     * @param DateTimeImmutable $heureA
      *
      * @return CreateFlightCommand
      */

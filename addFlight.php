@@ -11,11 +11,8 @@ dol_include_once('/commande/class/commande.class.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
-dol_include_once("/flightlog/validators/FlightValidator.php");
-dol_include_once("/flightlog/command/CommandInterface.php");
-dol_include_once("/flightlog/command/CommandHandlerInterface.php");
-dol_include_once("/flightlog/command/CreateFlightCommand.php");
-dol_include_once("/flightlog/command/CreateFlightCommandHandler.php");
+dol_include_once("/flightlog/flightlog.inc.php");
+
 
 // Load translation files required by the page
 $langs->load("mymodule@flightlog");
@@ -35,33 +32,34 @@ if (!$user->rights->flightlog->vol->add) {
 $msg = '';
 if (GETPOST("action") == 'add') {
     if (!$_POST["cancel"]) {
-        $dated = GETPOST('flight_date');
         $isGroupedFlight = (int) GETPOST('grouped_flight', 'int', 2) === 1;
         $orderIds = GETPOST('order_id', 'array', 2);
         $orderPassengersCount = GETPOST('order_passengers_count', 'array', 2);
 
-        $volCommand = new CreateFlightCommand();
-        $volCommand->setDate($dated)
-            ->setLieuD($_POST['lieuD'])
-            ->setLieuA($_POST['lieuA'])
-            ->setHeureD($_POST['heureD'])
-            ->setHeureA($_POST['heureA'])
-            ->setBBCBallonsIdBBCBallons($_POST['ballon'])
-            ->setNbrPax($_POST['nbrPax'])
-            ->setRemarque($_POST['comm'])
-            ->setIncidents($_POST['inci'])
-            ->setFkType($_POST['type'])
-            ->setFkPilot($_POST['pilot'])
-            ->setFkOrganisateur($_POST['orga'])
-            ->setKilometers($_POST['kilometers'])
-            ->setCost($_POST['cost'])
-            ->setFkReceiver($_POST['fk_receiver'])
-            ->setJustifKilometers($_POST['justif_kilometers'])
-            ->setPassengerNames($_POST['passenger_names'])
-            ->setGroupedFlight($isGroupedFlight)
-            ->setOrderIds($orderPassengersCount);
+        try {
+            $volCommand = new CreateFlightCommand();
 
-        try{
+            $volCommand
+                ->setDate(new DateTimeImmutable($_POST['flight_date']))
+                ->setLieuD($_POST['lieuD'])
+                ->setLieuA($_POST['lieuA'])
+                ->setHeureD(new DateTimeImmutable($_POST['flight_date'].' '.$_POST['heureD']))
+                ->setHeureA(new DateTimeImmutable($_POST['flight_date'].' '.$_POST['heureA']))
+                ->setBBCBallonsIdBBCBallons($_POST['ballon'])
+                ->setNbrPax($_POST['nbrPax'])
+                ->setRemarque($_POST['comm'])
+                ->setIncidents($_POST['inci'])
+                ->setFkType($_POST['type'])
+                ->setFkPilot($_POST['pilot'])
+                ->setFkOrganisateur($_POST['orga'])
+                ->setKilometers($_POST['kilometers'])
+                ->setCost($_POST['cost'])
+                ->setFkReceiver($_POST['fk_receiver'])
+                ->setJustifKilometers($_POST['justif_kilometers'])
+                ->setPassengerNames($_POST['passenger_names'])
+                ->setGroupedFlight($isGroupedFlight)
+                ->setOrderIds($orderPassengersCount);
+
             $vol = $createFlightHandler->handle($volCommand);
 
             include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
@@ -86,17 +84,9 @@ if (GETPOST("action") == 'add') {
 
 llxHeader('', 'Carnet de vol', '');
 
-$icons = [
-    '1' => 'fa fa-ad',
-    '2' => 'fa fa-ticket-alt',
-    '3' => 'fa fa-user-shield',
-    '4' => 'fa fa-users',
-    '5' => 'fa fa-images',
-    '6' => 'fa fa-graduation-cap',
-    '7' => 'fa fa-user-plus',
-];
 $html = new Form($db);
 $commande = new Commande($db);
+$orders = $commande->liste_array(2);
 $datec = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
 if ($msg) {
     print $msg;
@@ -118,6 +108,7 @@ if ($msg) {
     </div>
     <form class="flight-form js-form" name='add' action="addFlight.php" method="post">
         <input type="hidden" name="action" value="add"/>
+        <input type="hidden" name="token" value="<?php echo newToken();?>"/>
 
         <!-- Date et heures -->
         <section class="form-section">
@@ -128,20 +119,19 @@ if ($msg) {
                     <label class="fieldrequired"> Type du vol</label>
 
                     <div class="inline-radio">
-                    <?php foreach (fetchBbcFlightTypes() as $flightType) : ?>
-                        <label class="">
-                            <input type="radio" class="js-flight-type" name="type" value="<?php echo $flightType->id ?>" <?php echo $flightType->numero == $_POST['type'] ? 'checked' : '' ?>>
-                            <span class="icon <?php echo $icons[$flightType->numero]; ?>"></span>
-                            <span class="text-bold"><?php echo "T" . $flightType->numero ?></span>
-                            <span class="font-italic"><?php echo $flightType->nom; ?></span>
-                        </label>
-                    <?php endforeach; ?>
+                        <?php foreach (fetchBbcFlightTypes() as $flightType) : ?>
+                            <label class="">
+                                <input type="radio" class="js-flight-type" name="type" value="<?php echo $flightType->id ?>" <?php echo $flightType->numero == $_POST['type'] ? 'checked' : '' ?>>
+                                <span class="text-bold"><?php echo "T" . $flightType->numero ?></span>
+                                <span class="font-italic hide-sm"><?php echo $flightType->nom; ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
 
                 </div>
 
                 <div class="form-group">
                     <label class="fieldrequired"> Date du vol</label>
-
                     <input type="date" name="flight_date" value="<?php print (new DateTimeImmutable())->format('Y-m-d')?>"/>
                 </div>
 
@@ -199,7 +189,7 @@ if ($msg) {
 
                 <div class="form-group">
                     <label class="fieldrequired">Ballon</label>
-                    <?php select_balloons($_POST['ballon'], 'ballon', 0, false); ?>
+                    <?php select_balloons($_POST['ballon'], 'ballon', 0, false, true); ?>
                 </div>
 
                 <div class="form-group">
@@ -259,74 +249,74 @@ if ($msg) {
                 </p>
 
                 <!-- Order -->
-                <div id="list_order" class=" js-billable-field form-group">
+                <div id="list_order" class="js-base-form js-billable-field form-group">
                     <!-- BASE form -->
-                    <div class="js-base-form base-order-row order-row">
-                        <div class="js-order-ref order-reference">Comment facturer ce vol?</div>
+                    <table class="bill style-default">
+                        <!-- Cash -->
+                        <tr>
+                            <th colspan="2">Cash</th>
+                        </tr>
 
-                        <!-- bill type -->
-                        <div class="form-group ">
-                            <label>Ce vol est composé de ...</label>
-                            <div class="inline-radio">
-                                <label class=""><input type="radio" class="js-bill-type" name="billType" value="order"> Une commande</label>
-                                <label class=""><input type="radio" class="js-bill-type" name="billType" value="cash"> J'ai reçu du cash</label>
-                                <label class=""><input type="radio" class="js-bill-type" name="billType" value="other_receiver"> Quelqu'un d'autre à reçu du cash</label>
-                            </div>
+                        <tr>
+                            <td class="js-receiver" data-user-id="<?php echo $user->id;?>">
+                                <label class=""><?php echo $langs->trans('Qui a perçu l\'argent')?>?</label>
+                                <?php print $html->select_dolusers(
+                                        $_POST["fk_receiver"] ? $_POST["fk_receiver"] : -1,
+                                    'fk_receiver', true, null, 0, '', '', 0,0,0,'',0,'','', true); ?>
 
-                        </div>
+                            </td>
+                            <td>
+                                <label>&nbsp;</label>
+                                <div class="input-group">
+                                    <input type="number" name="cost"  step="1" min="0" class="flat js-cost" value="<?php echo $_POST['cost']?:0 ?>"/>
+                                    <span class="input-symbol">&euro;</span>
+                                </div>
+                            </td>
+                        </tr>
 
                         <!-- Order -->
-                        <div class="form-group  js-visible-order js-hide-cash hidden">
-                            <label>Sélection de la commande réalisée en totalité (ou en partie)</label>
-                            <?php
-                            echo $html::selectarray(
-                                'order_id',
-                                $commande->liste_array(2),
-                                $_POST['order_id'],
-                                1,
-                                0,
-                                $validator->hasError('order_id') ? 'error' : '',
-                                0,
-                                '100%',
+                        <tr>
+                            <th>Commande(s)</th>
+                            <th>Nombre de passagers.</th>
+                        </tr>
+                        <?php if(is_array($_POST['order_passengers_count']) && !empty($_POST['order_passengers_count'])): ?>
+                            <?php foreach($_POST['order_passengers_count'] as $order => $orderQuantity): ?>
+                                <tr class="order-row">
+                                    <td>
+                                        <span class="fa fa-trash remove js-remove" data-order-id="<?php echo $order; ?>"></span>
+                                        <span class="js-order-ref"><?php echo $orders[$order]?></span>
+                                    </td>
+                                    <td><input type="number" value="<?php echo $orderQuantity; ?>" min="1" max="5" name="order_passengers_count[<?php echo $order; ?>]" class="js-nbr-pax" /></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+
+                        <tr class="js-order">
+                            <td>
+                                <?php
+                                echo $html::selectarray(
+                                    'order_id',
+                                    $orders,
+                                    $_POST['order_id'],
+                                    1,
+                                    0,
+                                    $validator->hasError('order_id') ? 'error' : '',
+                                    0,
+                                    '100%',
                                     0,
                                     0,
                                     '',
-                                    'js-order-select'
-                            );
-                            ?>
-                        </div>
+                                    'js-order-select',
+                                    true
+                                );
+                                ?>
+                                <span class="text-muted">Sélection de la commande réalisée en totalité (ou en partie)</span>
+                            </td>
 
-                        <!-- Nbr pax -->
-                        <div class="form-group js-visible-order js-hide-cash js-hide-other_receiver hidden">
-                            <label>Nombre de passager(s)</label>
-                            <input type="number" class="js-nb-pax-order" step="1" min="0" max="5" value="1" />
-                            <span class="text-muted">Nombre de passagers de la nacelle associés à cette commande.</span>
-                        </div>
+                            <td >&nbsp;</td>
+                        </tr>
 
-                        <!-- Money receiver -->
-                        <div class="form-group js-visible-cash js-hide-order js-visible-other_receiver  hidden">
-                            <label class=""><?php echo $langs->trans('Qui a perçu l\'argent')?></label>
-                            <?php print $html->select_dolusers($_POST["fk_receiver"] ? $_POST["fk_receiver"] : $user->id,
-                                'fk_receiver', true, null, 0, '', '', 0,0,0,'',0,'','', true); ?>
-                        </div>
-
-                        <!-- Flight cost -->
-                        <div class=" form-group js-visible-cash js-hide-other_receiver js-hide-order hidden">
-                            <label class="">Montant perçu</label>
-                            <div class="input-group">
-                                <input type="number" name="cost"  step="1" min="0" class="flat js-cost" value="<?php echo $_POST['cost']?:0 ?>"/>
-                                <span class="input-symbol">&euro;</span>
-                            </div>
-
-                        </div>
-
-                        <div class="form-group center">
-                            <button class="button _primary js-add-bill-type" type="button" ><span class="fa fa-plus"></span> <?php echo $langs->trans('Ajouter') ?></button>
-                        </div>
-
-                    </div>
-
-                    <div class="js-order list"></div>
+                    </table>
                 </div>
             </div>
         </section>
@@ -352,7 +342,7 @@ if ($msg) {
 
         <div class="d-grid">
             <div class="grid-col grid-col-6">
-                <input class="button" type="submit" name="cancel" value="<?php print $langs->trans("Cancel") ?>">
+                <button class="button _info" type="button" name="cancel" ><?php print $langs->trans("Cancel") ?></button>
             </div>
 
             <div class="grid-col grid-col-6">
@@ -366,88 +356,14 @@ $db->close();
 ?>
 
 <script type="text/html" id="orderRow">
-    <div class="js-detail-order order-row selectable">
-        <input type="hidden" value="0" name="" class="js-nbr-pax" />
 
-        <!-- Remove button -->
-        <div class="remove fa fa-times js-remove"></div>
-
-        <!-- Reference -->
-        <div class="js-order-ref order-reference"></div>
-
-        <!-- Number of pax -->
-        <div> Nombre de passagers : <span class="js-nbr-pax nbr-pax"></span></div>
-    </div>
-</script>
-
-<script type="text/html" id="cashRow">
-    <div class="js-detail-order order-row cash-row selectable">
-
-        <div class="corner"></div>
-
-        <input type="hidden" value="0" name="amount" class="js-amount" />
-        <input type="hidden" value="<?php echo $user->id; ?>" name="receiver" class="js-receiver-id" />
-
-        <!-- Remove button -->
-        <div class="remove fa fa-times js-remove"></div>
-
-        <p>Ce membre à perçu l'argent.</p>
-
-        <!-- Reference -->
-        <p>Membre : <span class="js-order-ref order-reference"></span></p>
-
-        <!-- Number of pax -->
-        <div> Montant reçu : <span class="js-amount"></span>&euro;</div>
-    </div>
+    <tr class="order-row">
+        <td><span class="fa fa-trash remove js-remove"></span> <span class="js-order-ref"></span></td>
+        <td><input type="number" value="1" min="1" max="5" name="" class="js-nbr-pax" /></td>
+    </tr>
 </script>
 
 <script type="application/javascript">
-
-    <?php if(!empty(GETPOST('order_passengers_count', 'array', 2))): ?>
-        var orders = {};
-        <?php foreach( GETPOST('order_passengers_count', 'array', 2) as $currentOrderId=>$nbrPaxForOrder): ?>
-        orders[<?php echo $currentOrderId; ?>] = <?php echo $nbrPaxForOrder; ?>;
-        <?php endforeach; ?>
-    <?php endif; ?>
-
-    function hideOrderInformation (){
-        var $this = $(this);
-
-        //Multi orders
-        $this.find('option:selected').each(function(){
-
-            return;
-
-            var $option = $(this);
-            var $addingElement = $($('#orderRow').html());
-            var $input = $addingElement.find('.js-order-passenger input');
-            var orderId = parseInt($option.val(), 10);
-            var $removeButton = $addingElement.find('.js-remove');
-
-            if(orderId <= 0){
-                return;
-            }
-
-            $addingElement.find('.js-order-ref').html($option.html());
-
-            $removeButton.data('orderId', orderId);
-            $removeButton.on('click', function(){
-                var $this = $(this);
-                $('.js-order select option[value="'+$this.data('orderId')+'"]').attr('disabled', false);
-                $this.parents('.js-detail-order').remove();
-            });
-
-            $option.attr('disabled', true);
-
-            $input.attr('name' , 'order_passengers_count['+$option.val()+']');
-            if(typeof orders !== "undefined" && typeof orders[$option.val()] !== 'undefined'){
-                $input.val(orders[orderId]);
-            }
-
-            $('#list_order .js-order .order-row:first-child').after($addingElement);
-            //$addingElement.find('input').focus();
-        });
-    }
 
     /**
      * get the flight type object from an id.
@@ -500,8 +416,7 @@ $db->close();
         return typeof types[flightTypeId] === 'undefined' ? flightTypeNull : types[flightTypeId];
     }
 
-    function flightTypeChanged(){
-        var $this = $(this);
+    function flightTypeChanged($this){
         var typeId = $this.val();
         var flightType = getFlightType(typeId);
 
@@ -528,28 +443,19 @@ $db->close();
 
     }
 
-    function addBillType(){
-        var type = $('.js-base-form .js-bill-type:checked').val();
-        if(type === 'cash'){
-            return addCash();
-        }
-
-        if(type === 'order'){
-            return addOrder();
-        }
-
-        if(type === 'other_receiver'){
-            return addCashOther();
-        }
+    function removeOrderLine(){
+        var $this = $(this);
+        $('.js-base-form .js-order select option[value="'+$this.data('orderId')+'"]').attr('disabled', false);
+        $this.parents('tr').remove();
     }
 
     function addOrder(){
-        var orderId = parseInt($('.js-base-form .js-order-select').val(), 10);
-        var $option = $('.js-base-form .js-order-select option[value="'+orderId+'"]');
+        var orderId = parseInt($('.js-base-form .js-order select').val(), 10);
+        var $option = $('.js-base-form .js-order select option[value="'+orderId+'"]');
         var orderRef = $option.html();
         var $addingElement = $($('#orderRow').html());
         var $removeButton = $addingElement.find('.js-remove');
-        var nbrPax = parseInt($('.js-base-form .js-nb-pax-order').val(), 10);
+        var nbrPax = 1;
 
         if(orderId <= 0){
             return;
@@ -557,11 +463,7 @@ $db->close();
 
         // Manage remove button
         $removeButton.data('orderId', orderId);
-        $removeButton.on('click', function(){
-            var $this = $(this);
-            $('.js-base-form .js-order-select option[value="'+$this.data('orderId')+'"]').attr('disabled', false);
-            $this.parents('.js-detail-order').remove();
-        });
+        $removeButton.on('click', removeOrderLine);
 
         // Add the reference
         $addingElement.find('.js-order-ref').html(orderRef);
@@ -574,75 +476,34 @@ $db->close();
         // disable the option
         $option.attr('disabled', true);
 
-        $('#list_order .js-order').append($addingElement);
+        $('.js-base-form .js-order').before($addingElement);
 
     }
 
-    function addCash(){
-        var amount = parseInt($('.js-base-form input.js-cost').val(), 10);
-        var $option = $('.js-base-form select[name="fk_receiver"] option:selected');
-        var receiver = $option.html();
-        var receiverId = $option.val();
+    function changeReceiver(){
+        var $select = $(this);
+        var userId = parseInt($select.val(), 10);
+        var currentUserId = parseInt($select.parents('.js-receiver').data('userId'), 10);
+        var $cost = $('input.js-cost');
 
-        var $addingElement = $($('#cashRow').html());
-        var $removeButton = $addingElement.find('.js-remove');
-
-        // Manage remove button
-        $removeButton.on('click', function(){
-            var $this = $(this);
-            $this.parents('.js-detail-order').remove();
-        });
-
-        // Add the receiver name
-        $addingElement.find('.js-order-ref').html(receiver);
-        $addingElement.find('input.js-receiver').val(receiverId);
-
-        // Add the amount
-        $addingElement.find('.js-amount').html(amount);
-        $addingElement.find('input.js-amount').val(amount);
-
-        $('#list_order .js-order').append($addingElement);
-    }
-
-    function addCashOther(){
-        var amount = 0;
-        var $option = $('.js-base-form select[name="fk_receiver"] option:selected');
-        var receiver = $option.html();
-        var receiverId = $option.val();
-
-        var $addingElement = $($('#cashRow').html());
-        var $removeButton = $addingElement.find('.js-remove');
-
-        // Manage remove button
-        $removeButton.on('click', function(){
-            var $this = $(this);
-            $this.parents('.js-detail-order').remove();
-        });
-
-        // Add the receiver name
-        $addingElement.find('.js-order-ref').html(receiver);
-        $addingElement.find('input.js-receiver').val(receiverId);
-
-        // Add the amount
-        $addingElement.find('span.js-amount').parent().remove();
-        $addingElement.find('input.js-amount').val(amount);
-
-        $('#list_order .js-order').append($addingElement);
-    }
-
-    function baseBillMethodChange(){
-        var method = $(this).val();
-
-        $('.js-visible-'+ method).removeClass('hidden');
-        $('.js-hide-'+method).addClass('hidden');
+        $cost.val(0);
+        $cost.prop('disabled', true);
+        if(userId === currentUserId){
+            $cost.val(0);
+            $cost.prop('disabled', false);
+        }
     }
 
     $(function(){
-        $('.js-base-form .js-bill-type').on('change', baseBillMethodChange);
-        $('.js-base-form .js-add-bill-type').on('click', addBillType);
+        $('.js-base-form .js-order select').on('change', addOrder);
+        $('.js-base-form .js-receiver select').on('change', changeReceiver);
 
-        $('.js-flight-type').on('change', flightTypeChanged);
-        $('.js-flight-type').each(flightTypeChanged);
+        $('.js-flight-type').on('change', function(){
+            var $this = $(this);
+            flightTypeChanged($this);
+        });
+        $('.js-remove').on('click', removeOrderLine);
+        flightTypeChanged($('.js-flight-type:checked'));
 
     });
 </script>
