@@ -35,6 +35,7 @@ final class BalloonQueryRepository
               balloon.is_disable = false
               AND llx_bbc_vols.fk_pilot = '.$params['pilot'].'
               
+            GROUP BY balloon.rowid
             ORDER  BY counter DESC
              
             LIMIT 1';
