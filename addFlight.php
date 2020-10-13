@@ -89,6 +89,10 @@ $commande = new Commande($db);
 $orders = $commande->liste_array(2);
 $datec = dol_mktime(12, 0, 0, $_POST["remonth"], $_POST["reday"], $_POST["reyear"]);
 $takeOffPlaces = (new \FlightLog\Infrastructure\Flight\Query\Repository\TakeOffQueryRepository($db))->__invoke($user->id);
+$mostUsedBalloon = (new \FlightLog\Infrastructure\Flight\Query\Repository\BalloonQueryRepository($db))->query([
+    'pilot' => $user->id,
+]);
+
 if ($msg) {
     print $msg;
 }
@@ -203,7 +207,7 @@ if ($msg) {
 
                 <div class="form-group">
                     <label class="fieldrequired">Ballon</label>
-                    <?php select_balloons($_POST['ballon'], 'ballon', 0, false, true); ?>
+                    <?php select_balloons($_POST['ballon']?: ($mostUsedBalloon ? $mostUsedBalloon->getId() : ''), 'ballon', 0, false, true); ?>
                 </div>
 
                 <div class="form-group">

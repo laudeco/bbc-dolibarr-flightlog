@@ -68,6 +68,7 @@ dol_include_once('/flightlog/Application/Damage/ViewModel/TotalDamage.php');
 dol_include_once('/flightlog/Application/Flight/ViewModel/BillableFlightByYearMonth.php');
 dol_include_once('/flightlog/Application/Flight/ViewModel/Statistic.php');
 dol_include_once('/flightlog/Application/Flight/ViewModel/TakeOffPlace.php');
+dol_include_once('/flightlog/Application/Flight/ViewModel/Balloon.php');
 dol_include_once("/flightlog/command/CreateFlightCommand.php");
 dol_include_once("/flightlog/command/CreateFlightCommandHandler.php");
 
@@ -115,6 +116,7 @@ dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetDamagesFo
 dol_include_once('/flightlog/Infrastructure/Damage/Query/Repository/GetPilotDamagesQueryRepository.php');
 dol_include_once('/flightlog/Infrastructure/Flight/Query/Repository/GetBillableFlightPerMonthQueryRepository.php');
 dol_include_once('/flightlog/Infrastructure/Flight/Query/Repository/TakeOffQueryRepository.php');
+dol_include_once('/flightlog/Infrastructure/Flight/Query/Repository/BalloonQueryRepository.php');
 dol_include_once('/flightlog/Infrastructure/Common/Routes/Route.php');
 dol_include_once('/flightlog/Infrastructure/Common/Routes/RouteManager.php');
 dol_include_once('/flightlog/Infrastructure/Common/Routes/Guard.php');
