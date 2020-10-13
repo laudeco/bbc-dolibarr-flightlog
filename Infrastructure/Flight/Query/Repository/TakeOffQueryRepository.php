@@ -35,7 +35,7 @@ final class TakeOffQueryRepository
             WHERE 
               fk_type IN (1,2)
               AND YEAR(NOW())-1 <= YEAR(llx_bbc_vols.date)
-              -- AND llx_bbc_vols.fk_pilot = '.$pilot.'
+              AND llx_bbc_vols.fk_pilot = '.$pilot.'
             
             GROUP BY
               llx_bbc_vols.lieuD
@@ -43,7 +43,7 @@ final class TakeOffQueryRepository
             ORDER BY
               llx_bbc_vols.date DESC
               
-            LIMIT 20';
+            LIMIT 5';
 
         $resql = $this->db->query($sql);
         if (!$resql) {

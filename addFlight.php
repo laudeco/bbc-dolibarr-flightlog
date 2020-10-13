@@ -240,6 +240,8 @@ if ($msg) {
                     <label class="fieldrequired"><?php echo $langs->trans('Nombre de passagers'); ?></label>
                     <input type="number"
                            name="nbrPax"
+                           min="0"
+                           max="5"
                            class="flat <?php echo $validator->hasError('nbrPax') ? 'error' : '' ?>"
                            value="<?php echo $_POST['nbrPax']?: 0 ?>"/>
                 </div>
@@ -268,21 +270,26 @@ if ($msg) {
                     <table class="bill style-default">
                         <!-- Cash -->
                         <tr>
-                            <th colspan="2">Cash</th>
+                            <th colspan="2">A. Cash <small>(ou virement)</small></th>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2">
+                                A compléter si de l'argent a été perçu par un membre du Belgian Balloon Club.
+                            </td>
                         </tr>
 
                         <tr>
                             <td class="js-receiver" data-user-id="<?php echo $user->id;?>">
-                                <label class=""><?php echo $langs->trans('Qui a perçu l\'argent')?>?</label>
+                                <label class=""><?php echo $langs->trans('Membre ayant perçu l\'argent')?>?</label>
                                 <?php print $html->select_dolusers(
                                         $_POST["fk_receiver"] ? $_POST["fk_receiver"] : -1,
                                     'fk_receiver', true, null, 0, '', '', 0,0,0,'',0,'','', true); ?>
-
                             </td>
                             <td>
                                 <label>&nbsp;</label>
                                 <div class="input-group">
-                                    <input type="number" name="cost"  step="1" min="0" class="flat js-cost" value="<?php echo $_POST['cost']?:0 ?>"/>
+                                    <input type="number" name="cost"  step="1" min="0" class="flat js-cost" disabled value="<?php echo $_POST['cost']?:0 ?>"/>
                                     <span class="input-symbol">&euro;</span>
                                 </div>
                             </td>
@@ -290,7 +297,7 @@ if ($msg) {
 
                         <!-- Order -->
                         <tr>
-                            <th>Commande(s)</th>
+                            <th>B. Commande(s)</th>
                             <th>Nombre de passagers.</th>
                         </tr>
                         <?php if(is_array($_POST['order_passengers_count']) && !empty($_POST['order_passengers_count'])): ?>
