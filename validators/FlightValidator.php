@@ -16,12 +16,18 @@ class FlightValidator extends AbstractValidator
     private $defaultService;
 
     /**
+     * @var int
+     */
+    private $userId;
+
+    /**
      * @inheritDoc
      */
-    public function __construct(Translate $langs, DoliDB $db, $defaultServiceId)
+    public function __construct(Translate $langs, DoliDB $db, $defaultServiceId, $userId)
     {
         parent::__construct($langs, $db);
         $this->fetchService($defaultServiceId);
+        $this->userId = $userId;
     }
 
     /**
@@ -104,7 +110,15 @@ class FlightValidator extends AbstractValidator
             return $this;
         }
 
-        if ((!$this->isGroupedFlight($context) || $vol->getPilotId() === $vol->getFkReceiver()) && $vol->getFlightType()->isBillingRequired() && $vol->isFree()) {
+        if (
+            (
+                !$this->isGroupedFlight($context)
+                || $vol->getPilotId() === $vol->getFkReceiver()
+            )
+            && $vol->getFlightType()->isBillingRequired()
+            && $vol->isFree()
+            && $this->userId === $vol->getFkReceiver()
+        ) {
             $this->addError('cost', 'Erreur ce type de vol doit être payant.');
         }
 
@@ -113,7 +127,7 @@ class FlightValidator extends AbstractValidator
                 'Erreur ce type de vol doit être payant, mais personne n\'a été signalé comme recepteur d\'argent.');
         }
 
-        if (!$this->isGroupedFlight($context) && $vol->getFlightType()->isBillingRequired() && ($vol->getAmountPerPassenger()) < $this->getMinPrice()) {
+        if (!$this->isGroupedFlight($context) && $this->userId === $vol->getFkReceiver() && $vol->getFlightType()->isBillingRequired() && ($vol->getAmountPerPassenger()) < $this->getMinPrice()) {
             $this->addError('cost',
                 sprintf('Le montant demandé pour ce vol n\'est pas suffisant un minimum de %s euros est demandé',
                     $this->getMinPrice()));

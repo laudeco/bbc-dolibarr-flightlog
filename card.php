@@ -139,7 +139,7 @@ $organisator->fetch($object->fk_organisateur);
 $flightType->fetch($object->fk_type);
 $balloon->fetch($object->BBC_ballons_idBBC_ballons);
 
-$formFlight = new \flightlog\form\FlightForm(new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER), $object, $db, $conf->global, $user);
+$formFlight = new \flightlog\form\FlightForm(new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER, $user->id), $object, $db, $conf->global, $user);
 $formFlight->bind($object);
 
 

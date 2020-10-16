@@ -17,7 +17,7 @@ dol_include_once("/flightlog/flightlog.inc.php");
 // Load translation files required by the page
 $langs->load("mymodule@flightlog");
 
-$validator = new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER);
+$validator = new FlightValidator($langs, $db, $conf->global->BBC_FLIGHT_TYPE_CUSTOMER, $user->id);
 $createFlightHandler = new CreateFlightCommandHandler($db, $conf, $user, $langs, $validator);
 
 if (!$user->rights->flightlog->vol->add) {
@@ -120,6 +120,7 @@ if ($msg) {
     </div>
     <form class="flight-form js-form" name='add' action="addFlight.php" method="post">
         <input type="hidden" name="action" value="add"/>
+        <input type="hidden" name="user_id" value="<?php echo $user->id; ?>"/>
         <input type="hidden" name="token" value="<?php echo newToken();?>"/>
 
         <!-- Date et heures -->
