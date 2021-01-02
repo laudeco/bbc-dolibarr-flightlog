@@ -213,6 +213,10 @@ class CreatePilotYearBillCommandHandler
      */
     private function addOrderLine($object, $service, $qty, $startDate, $endDate)
     {
+        if($qty <= 0){
+            return;
+        }
+
         $pu_ht = price2num($service->price, 'MU');
         $pu_ttc = price2num($service->price_ttc, 'MU');
         $pu_ht_devise = price2num($service->price, 'MU');
@@ -309,8 +313,12 @@ class CreatePilotYearBillCommandHandler
         $totalCost = FlightCost::zero();
         $description = '';
 
+        if(empty($damages)){
+            return;
+        }
+
         foreach ($damages as $damage){
-            $totalCost->addCost($damage->getCost());
+            $totalCost = $totalCost->addCost($damage->getCost());
             $description .= $damage->getLabel().'; ';
         }
 
@@ -321,7 +329,7 @@ class CreatePilotYearBillCommandHandler
         $tDamage->price_ttc = $totalCost->getValue();
         $tDamage->price = $tDamage->price_ttc / (1 + $tDamage->tva_tx / 100);
 
-        $this->addOrderLine($object, $tDamage, 1, $start, $end);
+        $this->addOrderLine($object, $tDamage, count($damages), $start, $end);
 
     }
 
