@@ -142,37 +142,30 @@ class CreatePilotYearBillCommandHandler
         $startYearTimestamp = (new \DateTime())->setDate($command->getYear(), 1, 1)->getTimestamp();
         $endYearTimestamp = (new \DateTime())->setDate($command->getYear(), 12, 31)->getTimestamp();
 
-        //T3
-        $this->addOrderLine($object, $this->t3->getService(), $command->getPilot()->getCountForType('3')->getCount(),
-            $startYearTimestamp, $endYearTimestamp);
+        $amountPerRate = $this->getTotalPerRate($command->getPilot());
+        krsort($amountPerRate);
 
-        //T4
-        $this->addOrderLine($object, $this->t4->getService(), $command->getPilot()->getCountForType('4')->getCount(),
-            $startYearTimestamp, $endYearTimestamp);
+        $remainingPoints = $command->getPilot()->getFlightBonus()->addPoints(FlightPoints::create($command->getAdditionalBonus()));
 
-        //T6
-        $this->addOrderLine($object, $this->t6->getService(), $command->getPilot()->getCountForType('6')->getCount(),
-            $startYearTimestamp, $endYearTimestamp);
+        foreach ($amountPerRate as $rate => $cost){
+            if($cost->getValue() <= 0){
+                continue;
+            }
 
-        //T7
-        $this->addOrderLine($object, $this->t7->getService(), $command->getPilot()->getCountForType('7')->getCount(),
-            $startYearTimestamp, $endYearTimestamp);
+            if($cost->getValue() <= $remainingPoints->getValue()){
+                $remainingPoints = $remainingPoints->minCosts($cost);
+                continue;
+            }
 
-        //Damages
-        $this->addDamages(
-            $object,
-            $command->getPilot()->damages(),
-            $startYearTimestamp,
-            $endYearTimestamp
-        );
+            $subject = 'vols';
+            if((int)$rate === 21){
+                $subject = 'réparations';
+            }
 
-        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('1'), $this->t1->getService(), $command->getYear());
-        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('2'), $this->t2->getService(), $command->getYear());
-        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('orga'), $this->tOrganisator, $command->getYear());
-        $this->addOrderDiscount($object, $command->getPilot()->getCountForType('orga_T6'), $this->tInstructor, $command->getYear());
+            $this->addOrderLine($object, 'Cloture d\'année concernant les ' . $subject, $cost->minBonus($remainingPoints)->getValue(), (int)$rate, 1, $startYearTimestamp, $endYearTimestamp );
+            $remainingPoints = FlightBonus::zero();
 
-        //Additional bonus
-        $this->addAdditionalBonusToOrder($command, $object);
+        }
 
         $object->fetch($id);
         $object->generateDocument($command->getModelPdf(), $this->langs, $command->isDetailsHidden(),
@@ -206,29 +199,33 @@ class CreatePilotYearBillCommandHandler
 
     /**
      * @param Facture $object
-     * @param Product $service
+     * @param string $title
+     * @param float $priceTtc
+     * @param int $rate
      * @param int     $qty
      * @param string  $startDate
      * @param string  $endDate
      */
-    private function addOrderLine($object, $service, $qty, $startDate, $endDate)
+    private function addOrderLine($object, $title, $priceTtc, $rate, $qty, $startDate, $endDate)
     {
         if($qty <= 0){
             return;
         }
 
-        $pu_ht = price2num($service->price, 'MU');
-        $pu_ttc = price2num($service->price_ttc, 'MU');
-        $pu_ht_devise = price2num($service->price, 'MU');
+        $ht = $priceTtc / (1 + $rate / 100);
+
+        $pu_ht = price2num($ht, 'MU');
+        $pu_ttc = price2num($priceTtc, 'MU');
+        $pu_ht_devise = price2num($ht, 'MU');
 
         $object->addline(
-            $service->description,
+            '',
             $pu_ht,
             $qty,
-            $service->tva_tx,
+            $rate,
             $this->localtax1_tx,
             $this->localtax2_tx,
-            $service->id,
+            0,
             0,
             $startDate,
             $endDate,
@@ -245,7 +242,7 @@ class CreatePilotYearBillCommandHandler
             0,
             '',
             '',
-            $service->label,
+            $title,
             [],
             100,
             '',
@@ -255,82 +252,52 @@ class CreatePilotYearBillCommandHandler
     }
 
     /**
-     * @param Facture         $order
-     * @param FlightTypeCount $pilotFlightCount
-     * @param Product         $service
-     * @param string          $year
-     */
-    private function addOrderDiscount($order, $pilotFlightCount, $service, $year)
-    {
-        $price = $pilotFlightCount->getCost()->getValue()/(1+$service->tva_tx/100);
-        $pu_ht = price2num($price, 'MU');
-        $desc = $year . " - " . $service->label . " - (" . $pilotFlightCount->getCount() . " * " . $pilotFlightCount->getFactor() . ")";
-
-        $discountid = $this->getCompany($order->socid)->set_remise_except($pu_ht, $this->user, $desc, $service->tva_tx);
-        $order->insert_discount($discountid);
-    }
-
-    /**
-     * @param int $id
+     * Get the Cost TTC per rate.
      *
-     * @return Societe
-     */
-    private function getCompany($id)
-    {
-        $soc = new Societe($this->db);
-        $soc->fetch($id);
-
-        return $soc;
-    }
-
-    /**
-     * @param CreatePilotYearBillCommand $command
-     * @param Facture                    $object
-     */
-    private function addAdditionalBonusToOrder(CreatePilotYearBillCommand $command, $object)
-    {
-        if ((int) $command->getAdditionalBonus() <= 0) {
-            return;
-        }
-
-        $pointsHt = $command->getAdditionalBonus()/(1+6/100);
-        $desc = sprintf("%s - %s", $command->getYear(), $command->getBonusAdditionalMessage());
-
-        $discountid = $this->getCompany($object->socid)->set_remise_except($pointsHt, $this->user, $desc, 6);
-        $object->insert_discount($discountid);
-    }
-
-    /**
-     * Adds the damages.
+     * @param Pilot $pilot
      *
-     * @param Facture $object
-     * @param array|FlightDamageCount[]|FlightInvoicedDamageCount[] $damages
-     * @param string $start
-     * @param string $end
+     * @return array|FlightCost[]
      */
-    private function addDamages(Facture $object, array $damages, $start, $end)
+    private function getTotalPerRate(Pilot $pilot): array
     {
-        $totalCost = FlightCost::zero();
-        $description = '';
+        $costs = [];
 
-        if(empty($damages)){
-            return;
+        //T3
+        $rate = $this->t3->getService()->tva_tx;
+        if(!isset($costs[$rate])){
+            $costs[$rate] = FlightCost::zero();
         }
+        $costs[$rate] = $costs[$rate]->addCost($pilot->getCountForType('3')->getCost());
 
-        foreach ($damages as $damage){
-            $totalCost = $totalCost->addCost($damage->getCost());
-            $description .= $damage->getLabel().'; ';
+        //T4
+        $rate = $this->t4->getService()->tva_tx;
+        if(!isset($costs[$rate])){
+            $costs[$rate] = FlightCost::zero();
         }
+        $costs[$rate] = $costs[$rate]->addCost($pilot->getCountForType('4')->getCost());
 
-        $tDamage = new Product($this->db);
-        $tDamage->label = 'Réparations aux ballons';
-        $tDamage->description = $description ;
-        $tDamage->tva_tx = 21;
-        $tDamage->price_ttc = $totalCost->getValue();
-        $tDamage->price = $tDamage->price_ttc / (1 + $tDamage->tva_tx / 100);
+        //T6
+        $rate = $this->t6->getService()->tva_tx;
+        if(!isset($costs[$rate])){
+            $costs[$rate] = FlightCost::zero();
+        }
+        $costs[$rate] = $costs[$rate]->addCost($pilot->getCountForType('6')->getCost());
 
-        $this->addOrderLine($object, $tDamage, count($damages), $start, $end);
+        //T7
+        $rate = $this->t7->getService()->tva_tx;
+        if(!isset($costs[$rate])){
+            $costs[$rate] = FlightCost::zero();
+        }
+        $costs[$rate] = $costs[$rate]->addCost($pilot->getCountForType('7')->getCost());
 
+        //Damages
+        $rate = 21;
+        if(!isset($costs[$rate])){
+            $costs[$rate] = FlightCost::zero();
+        }
+        $costs[$rate] = $costs[$rate]->addCost($pilot->damageCost()->minCost($pilot->invoicedDamageCost()->multiply(-1)));
+
+        return $costs;
     }
 
 

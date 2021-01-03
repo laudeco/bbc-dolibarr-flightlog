@@ -30,6 +30,16 @@ class FlightCost
     }
 
     /**
+     * @param int $cost
+     *
+     * @return FlightCost
+     */
+    public static function fromAmount(int $cost)
+    {
+        return new FlightCost($cost);
+    }
+
+    /**
      * @param FlightCost $cost
      *
      * @return FlightCost
@@ -65,6 +75,16 @@ class FlightCost
     public function minBonus(FlightBonus $bonus)
     {
         return new FlightCost($this->cost - $bonus->getValue());
+    }
+
+    /**
+     * @param FlightCost $cost
+     *
+     * @return FlightCost
+     */
+    public function minCost(FlightCost $cost)
+    {
+        return new FlightCost($this->cost - $cost->getValue());
     }
 
 }

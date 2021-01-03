@@ -10,12 +10,12 @@ require_once(DOL_DOCUMENT_ROOT . '/flightlog/class/flight/FlightPoints.php');
 class FlightBonus
 {
     /**
-     * @var int
+     * @var float
      */
     private $bonusAmount;
 
     /**
-     * @param int $bonusAmount
+     * @param float $bonusAmount
      */
     private function __construct($bonusAmount)
     {
@@ -41,7 +41,22 @@ class FlightBonus
     }
 
     /**
-     * @return int
+     * @param FlightCost $cost
+     *
+     * @return FlightBonus
+     */
+    public function minCosts(FlightCost $cost)
+    {
+        $bonusAmount = $this->bonusAmount - $cost->getValue();
+        if($bonusAmount < 0){
+            return FlightBonus::zero();
+        }
+
+        return new FlightBonus($bonusAmount);
+    }
+
+    /**
+     * @return float
      */
     public function getValue()
     {
