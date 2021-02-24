@@ -315,7 +315,7 @@ if ($search_heureA) {
     $sql .= natural_search("heureA", $search_heureA);
 }
 if ($search_BBC_ballons_idBBC_ballons) {
-    $sql .= natural_search("BBC_ballons_idBBC_ballons", $search_BBC_ballons_idBBC_ballons);
+    $sql .= natural_search("BBC_ballons_idBBC_ballons", $search_BBC_ballons_idBBC_ballons, 1);
 }
 if ($search_nbrPax) {
     $sql .= natural_search("nbrPax", $search_nbrPax, 1);
@@ -327,13 +327,13 @@ if ($search_incidents) {
     $sql .= natural_search("incidents", $search_incidents);
 }
 if ($search_fk_type) {
-    $sql .= natural_search("fk_type", $search_fk_type);
+    $sql .= natural_search("fk_type", $search_fk_type, 1);
 }
 if ($search_fk_pilot && $search_fk_pilot != -1) {
     $sql .= natural_search("fk_pilot", $search_fk_pilot, 2);
 }
 if ($search_fk_organisateur && $search_fk_organisateur != -1) {
-    $sql .= natural_search("fk_organisateur", $search_fk_organisateur);
+    $sql .= natural_search("fk_organisateur", $search_fk_organisateur, 1);
 }
 
 if ($search_is_facture != -1) {
@@ -346,7 +346,7 @@ if ($search_cost) {
     $sql .= natural_search("cost", $search_cost, 1);
 }
 if ($search_fk_receiver) {
-    $sql .= natural_search("fk_receiver", $search_fk_receiver);
+    $sql .= natural_search("fk_receiver", $search_fk_receiver, 1);
 }
 if ($search_justif_kilometers) {
     $sql .= natural_search("justif_kilometers", $search_justif_kilometers);
