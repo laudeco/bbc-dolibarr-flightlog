@@ -748,32 +748,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         </div>
     <?php endif; ?>
 
-    <!-- Toggle Examen flight -->
-    <?php if($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)): ?>
-        <div class="inline-block divButAction">
-            <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id, ACTION_TOGGLE_EXAM); ?>">
-                <?php if(!$object->isExamFlight()): ?>
-                    <?php echo $langs->trans("Vol d'examen") ?>
-                <?php else: ?>
-                    <?php echo $langs->trans("non examen") ?>
-                <?php endif; ?>
-            </a>
-        </div>
-    <?php endif; ?>
-
-    <!-- Toggle Examen flight -->
-    <?php if($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)): ?>
-        <div class="inline-block divButAction">
-            <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id, ACTION_TOGGLE_REFRESH); ?>">
-                <?php if(!$object->isRefreshFlight()): ?>
-                    <?php echo $langs->trans("Vol OPC ") ?>
-                <?php else: ?>
-                    <?php echo $langs->trans("non OPC") ?>
-                <?php endif; ?>
-            </a>
-        </div>
-    <?php endif; ?>
-
     </div>
     <?php
     if ($user->rights->flightlog->vol->financial) {
