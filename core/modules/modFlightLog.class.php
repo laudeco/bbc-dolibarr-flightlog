@@ -460,6 +460,20 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'vol';
         $this->rights[$r][5] = 'advanced';
+        $r++;
+
+        $this->rights[$r][0] = 9992;
+        $this->rights[$r][1] = 'Peut tout editer des vols';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'advanced';
+        $r++;
+
+        $this->rights[$r][0] = 9991;
+        $this->rights[$r][1] = 'Peut modifier toutes les informations des pilotes';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'pilot';
+        $this->rights[$r][5] = 'edit';
     }
 
     private function initCronJobs()
