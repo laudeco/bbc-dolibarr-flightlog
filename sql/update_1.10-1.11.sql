@@ -4,7 +4,7 @@ ALTER TABLE `llx_bbc_vols`
     ADD `is_night` INT NOT NULL DEFAULT 0,
     ADD `is_static` INT NOT NULL DEFAULT 0,
     ADD `is_exam` INT NOT NULL DEFAULT 0,
-    ADD `is_refresh` INT NOT NULL DEFAULT 0;
+    ADD `is_refresh` INT NOT NULL DEFAULT 0 COMMENT 'OPC';
 
 CREATE TABLE `llx_bbc_pilots` (
     user_id TINYINT NOT NULL,

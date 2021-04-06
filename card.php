@@ -729,7 +729,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 <?php if(!$object->isStaticFlight()): ?>
                     <?php echo $langs->trans("Vol static") ?>
                 <?php else: ?>
-                    <?php echo $langs->trans("Non Vol static") ?>
+                    <?php echo $langs->trans("Non static") ?>
                 <?php endif; ?>
             </a>
         </div>
@@ -742,7 +742,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 <?php if(!$object->isNightFlight()): ?>
                     <?php echo $langs->trans("Vol de nuit") ?>
                 <?php else: ?>
-                    <?php echo $langs->trans("Non Vol de nuit") ?>
+                    <?php echo $langs->trans("Non nuit") ?>
                 <?php endif; ?>
             </a>
         </div>
@@ -755,7 +755,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 <?php if(!$object->isExamFlight()): ?>
                     <?php echo $langs->trans("Vol d'examen") ?>
                 <?php else: ?>
-                    <?php echo $langs->trans("non Vol d'examen") ?>
+                    <?php echo $langs->trans("non examen") ?>
                 <?php endif; ?>
             </a>
         </div>
@@ -766,9 +766,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         <div class="inline-block divButAction">
             <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id, ACTION_TOGGLE_REFRESH); ?>">
                 <?php if(!$object->isRefreshFlight()): ?>
-                    <?php echo $langs->trans("Vol de refresh") ?>
+                    <?php echo $langs->trans("Vol OPC ") ?>
                 <?php else: ?>
-                    <?php echo $langs->trans("non Vol de refresh") ?>
+                    <?php echo $langs->trans("non OPC") ?>
                 <?php endif; ?>
             </a>
         </div>
