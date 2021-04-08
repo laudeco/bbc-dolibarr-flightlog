@@ -9,7 +9,7 @@ ALTER TABLE `llx_bbc_vols`
 CREATE TABLE `llx_bbc_pilots` (
     user_id TINYINT NOT NULL,
     pilot_licence_number VARCHAR(100),
-    training_pilot_licence_number TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    training_pilot_licence_number VARCHAR(100),
     last_training_flight_date DATE,
     is_pilot_class_a TINYINT UNSIGNED NOT NULL DEFAULT 0,
     is_pilot_class_b TINYINT UNSIGNED NOT NULL DEFAULT 0,

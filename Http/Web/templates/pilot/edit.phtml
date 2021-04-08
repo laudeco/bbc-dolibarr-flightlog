@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * @var \FlightLog\Http\Web\Form\PilotForm $pilotForm
+ * @var User $pilot
+ */
+
+global $pilotForm, $langs, $pilot;
+
+$renderer = new \flightlog\form\SimpleFormRenderer();
+
+?>
+
+<div class="errors error-messages">
+    <?php
+    foreach ($pilotForm->getErrorMessages() as $errorMessage) {
+        print sprintf('<div class="error"><span>%s</span></div>', $errorMessage);
+    }
+    ?>
+</div>
+
+<h1><?php echo $pilot->firstname . ' ' . $pilot->lastname ; ?></h1>
+
+<form class="pilot-form flight-form js-form" name='<?php echo $pilotForm->getName(); ?>' method="<?php echo $pilotForm->getMethod(); ?>">
+    <input type="hidden" name="action" value="handle"/>
+
+    <?php echo $renderer->render($pilotForm->getElement('pilot_id')); ?>
+    <?php echo $renderer->render($pilotForm->getElement('token')); ?>
+
+    <fieldset>
+        <legend>Information pilote</legend>
+
+        <!-- pilot_licence_number -->
+        <div class="">
+            <label for="pilot_licence_number">N° de licence</label>
+            <?php echo $renderer->render($pilotForm->getElement('pilot_licence_number'), ['attr' => ['id' => 'pilot_licence_number']]); ?>
+        </div>
+    
+        <!-- training_pilot_licence_number -->
+        <div class="">
+            <label for="training_pilot_licence_number">N° de licence d'entrainement</label>
+            <?php echo $renderer->render($pilotForm->getElement('training_pilot_licence_number'), ['attr' => ['id' => 'training_pilot_licence_number']]); ?>
+        </div>
+    
+        <!-- last_training_flight_date -->
+        <div class="">
+            <label for="last_training_flight_date">Date du dernier training flight</label>
+            <?php echo $renderer->render($pilotForm->getElement('last_training_flight_date'), ['attr' => ['id' => 'last_training_flight_date']]); ?>
+        </div>
+    
+        <!-- is_pilot_class_a -->
+        <div class="">
+            <label for="is_pilot_class_a">Pilote en class A</label>
+            <?php echo $renderer->render($pilotForm->getElement('is_pilot_class_a'), ['attr' => ['id' => 'is_pilot_class_a']]); ?>
+        </div>
+    
+        <!-- is_pilot_class_b -->
+        <div class="">
+            <label for="is_pilot_class_b">Pilote en class B</label>
+            <?php echo $renderer->render($pilotForm->getElement('is_pilot_class_b'), ['attr' => ['id' => 'is_pilot_class_b']]); ?>
+        </div>
+    
+        <!-- is_pilot_class_c -->
+        <div class="">
+            <label for="is_pilot_class_c">Pilote en class C</label>
+            <?php echo $renderer->render($pilotForm->getElement('is_pilot_class_c'), ['attr' => ['id' => 'is_pilot_class_c']]); ?>
+        </div>
+    
+        <!-- is_pilot_class_d -->
+        <div class="">
+            <label for="is_pilot_class_d">Pilote en class D</label>
+            <?php echo $renderer->render($pilotForm->getElement('is_pilot_class_d'), ['attr' => ['id' => 'is_pilot_class_d']]); ?>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Qualifications</legend>
+
+        <!-- is_pilot_gaz -->
+        <div class="">
+            <label for="is_pilot_gaz">Licence ballon à GAZ ?</label>
+            <?php echo $renderer->render($pilotForm->getElement('is_pilot_gaz'), ['attr' => ['id' => 'is_pilot_gaz']]); ?>
+        </div>
+
+        <!-- has_qualif_static -->
+        <div class="">
+            <label for="has_qualif_static">Qualification vol static</label>
+            <?php echo $renderer->render($pilotForm->getElement('has_qualif_static'), ['attr' => ['id' => 'has_qualif_static']]); ?>
+        </div>
+
+        <!-- has_qualif_night -->
+        <div class="">
+            <label for="has_qualif_night">Qualification vol de nuit</label>
+            <?php echo $renderer->render($pilotForm->getElement('has_qualif_night'), ['attr' => ['id' => 'has_qualif_night']]); ?>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Informations médicales</legend>
+
+        <!-- is_medical_owner -->
+        <div class="">
+            <label for="is_medical_owner">Licence Médicale</label>
+            <?php echo $renderer->render($pilotForm->getElement('is_medical_owner'), ['attr' => ['id' => 'is_medical_owner']]); ?>
+        </div>
+
+        <!-- start_medical_date -->
+        <div class="">
+            <label for="start_medical_date">Date de délivrance du médical</label>
+            <?php echo $renderer->render($pilotForm->getElement('start_medical_date'), ['attr' => ['id' => 'start_medical_date']]); ?>
+        </div>
+
+        <!-- end_medical_date -->
+        <div class="">
+            <label for="end_medical_date">Date d'échéance du médical</label>
+            <?php echo $renderer->render($pilotForm->getElement('end_medical_date'), ['attr' => ['id' => 'end_medical_date']]); ?>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Commercial</legend>
+
+        <!-- has_qualif_pro -->
+        <div class="">
+            <label for="has_qualif_pro">Qualifications commercial</label>
+            <?php echo $renderer->render($pilotForm->getElement('has_qualif_pro'), ['attr' => ['id' => 'has_qualif_pro']]); ?>
+        </div>
+
+        <!-- last_opc_date -->
+        <div class="">
+            <label for="last_opc_date">Date du dernier OPC</label>
+            <?php echo $renderer->render($pilotForm->getElement('last_opc_date'), ['attr' => ['id' => 'last_opc_date']]); ?>
+        </div>
+
+        <!-- last_pro_refresh_date -->
+        <div class="">
+            <label for="last_pro_refresh_date">Date du dernier refresh</label>
+            <?php echo $renderer->render($pilotForm->getElement('last_pro_refresh_date'), ['attr' => ['id' => 'last_pro_refresh_date']]); ?>
+        </div>
+
+    </fieldset>
+
+    <fieldset>
+        <legend>Qualifications pour la formation</legend>
+
+        <!-- has_qualif_instructor -->
+        <div class="">
+            <label for="has_qualif_instructor">Qualification d'instruction</label>
+            <?php echo $renderer->render($pilotForm->getElement('has_qualif_instructor'), ['attr' => ['id' => 'has_qualif_instructor']]); ?>
+        </div>
+
+        <!-- last_instructor_refresh_date -->
+        <div class="">
+            <label for="last_instructor_refresh_date">Date du dernier refresh d'instructeur</label>
+            <?php echo $renderer->render($pilotForm->getElement('last_instructor_refresh_date'), ['attr' => ['id' => 'last_instructor_refresh_date']]); ?>
+        </div>
+
+        <!-- has_qualif_examinator -->
+        <div class="">
+            <label for="has_qualif_examinator">Qualification d'examinateur</label>
+            <?php echo $renderer->render($pilotForm->getElement('has_qualif_examinator'), ['attr' => ['id' => 'has_qualif_examinator']]); ?>
+        </div>
+
+        <!-- last_examinator_refresh_date -->
+        <div class="">
+            <label for="last_examinator_refresh_date">Date du dernier refresh d'examinateur</label>
+            <?php echo $renderer->render($pilotForm->getElement('last_examinator_refresh_date'), ['attr' => ['id' => 'last_examinator_refresh_date']]); ?>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Radio</legend>
+
+        <!-- has_radio -->
+        <div class="">
+            <label for="has_radio">Detendeur d'une licence radio ?</label>
+            <?php echo $renderer->render($pilotForm->getElement('has_radio'), ['attr' => ['id' => 'has_radio']]); ?>
+        </div>
+
+        <!-- radio_licence_number -->
+        <div class="">
+            <label for="radio_licence_number">Numéro de licence radio</label>
+            <?php echo $renderer->render($pilotForm->getElement('radio_licence_number'), ['attr' => ['id' => 'radio_licence_number']]); ?>
+        </div>
+
+        <!-- radio_licence_date -->
+        <div class="">
+            <label for="radio_licence_date">Date de la licence radio</label>
+            <?php echo $renderer->render($pilotForm->getElement('radio_licence_date'), ['attr' => ['id' => 'radio_licence_date']]); ?>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Formations feu et premier secours</legend>
+
+        <!-- has_training_first_help -->
+        <div class="">
+            <label for="has_training_first_help">Formé aux premiers secours</label>
+            <?php echo $renderer->render($pilotForm->getElement('has_training_first_help'), ['attr' => ['id' => 'has_training_first_help']]); ?>
+        </div>
+    
+        <!-- last_training_first_help_date -->
+        <div class="">
+            <label for="last_training_first_help_date">Date de la dernière formation aux premiers secours</label>
+            <?php echo $renderer->render($pilotForm->getElement('last_training_first_help_date'), ['attr' => ['id' => 'last_training_first_help_date']]); ?>
+        </div>
+    
+        <!-- certification_number_training_first_help -->
+        <div class="">
+            <label for="certification_number_training_first_help">N° de certificat</label>
+            <?php echo $renderer->render($pilotForm->getElement('certification_number_training_first_help'), ['attr' => ['id' => 'certification_number_training_first_help']]); ?>
+        </div>
+    
+        <!-- has_training_fire -->
+        <div class="">
+            <label for="has_training_fire">Formé aux incendies</label>
+            <?php echo $renderer->render($pilotForm->getElement('has_training_fire'), ['attr' => ['id' => 'has_training_fire']]); ?>
+        </div>
+    
+        <!-- last_training_fire_date -->
+        <div class="">
+            <label for="last_training_fire_date">Date de la dernière formation feu</label>
+            <?php echo $renderer->render($pilotForm->getElement('last_training_fire_date'), ['attr' => ['id' => 'last_training_fire_date']]); ?>
+        </div>
+    
+        <!-- certification_number_training_fire -->
+        <div class="">
+            <label for="certification_number_training_fire">N° de certificat</label>
+            <?php echo $renderer->render($pilotForm->getElement('certification_number_training_fire'), ['attr' => ['id' => 'certification_number_training_fire']]); ?>
+        </div>
+
+    </fieldset>
+
+
+        <button class="button" type="submit">Modifier</button>
+</form></div>
+
+

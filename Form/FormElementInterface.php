@@ -25,6 +25,8 @@ interface FormElementInterface
 
     const TYPE_DATE = 'date';
 
+    const TYPE_CHECKBOX = 'checkbox';
+
     /**
      * @return string
      */

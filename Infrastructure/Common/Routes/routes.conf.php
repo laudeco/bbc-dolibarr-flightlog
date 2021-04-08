@@ -10,5 +10,6 @@ return [
     new Route('get_one_damage', DamageController::class, 'view'),
     new Route('invoice_damage', DamageController::class, 'invoice'),
     new Route('get_one_flight', FlightController::class, 'view'),
+    new Route('edit_pilot', \FlightLog\Http\Web\Controller\PilotEditController::class, 'index'),
 ];
 ?>

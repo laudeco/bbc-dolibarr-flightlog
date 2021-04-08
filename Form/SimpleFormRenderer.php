@@ -75,14 +75,22 @@ class SimpleFormRenderer
                 }
 
                 return $html;
-
+            case FormElementInterface::TYPE_CHECKBOX:
+                return sprintf('<input type="%s" class="%s" name="%s" value="%s" %s %s />',
+                    $element->getType(),
+                    ' flat ' . ($element->hasError() ? 'error' : ''),
+                    $element->getName(),
+                    $element->checkedValue(),
+                    $element->getValue() ? 'checked' : '',
+                    $this->formatOptions(array_merge($element->getOptions(), $options))
+                );
             default:
                 return sprintf('<input type="%s" class="%s" name="%s" value="%s" %s />',
                     $element->getType(),
                     ' flat ' . ($element->hasError() ? 'error' : ''),
                     $element->getName(),
                     $element->getValue(),
-                    $this->formatOptions($element->getOptions())
+                    $this->formatOptions(array_merge($element->getOptions(), $options))
                 );
         }
     }

@@ -22,7 +22,7 @@ trait Id
     /**
      * @param int $id
      *
-     * @return Id
+     * @return Id|static
      */
     public static function create($id){
         return new self($id);

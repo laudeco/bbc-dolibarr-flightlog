@@ -37,6 +37,21 @@ dol_include_once('/flightlog/class/Damage/FlightDamageCount.php');
 dol_include_once('/flightlog/class/Damage/FlightInvoicedDamageCount.php');
 dol_include_once('/flightlog/class/Damage/ValueObject/DamageLabel.php');
 
+dol_include_once('flightlog/class/Pilot/Pilot.php');
+dol_include_once('flightlog/class/Pilot/valueObject/DateTrait.php');
+dol_include_once('flightlog/class/Pilot/valueObject/LicenceNumberTrait.php');
+dol_include_once('flightlog/class/Pilot/valueObject/EndDate.php');
+dol_include_once('flightlog/class/Pilot/valueObject/FireCertificationNumber.php');
+dol_include_once('flightlog/class/Pilot/valueObject/FirstHelpCertificationNumber.php');
+dol_include_once('flightlog/class/Pilot/valueObject/IsOwner.php');
+dol_include_once('flightlog/class/Pilot/valueObject/LastTrainingDate.php');
+dol_include_once('flightlog/class/Pilot/valueObject/PilotId.php');
+dol_include_once('flightlog/class/Pilot/valueObject/PilotLicenceNumber.php');
+dol_include_once('flightlog/class/Pilot/valueObject/PilotTrainingLicenceNumber.php');
+dol_include_once('flightlog/class/Pilot/valueObject/RadioLicenceDate.php');
+dol_include_once('flightlog/class/Pilot/valueObject/RadioLicenceNumber.php');
+dol_include_once('flightlog/class/Pilot/valueObject/StartDate.php');
+
 dol_include_once('/flightlog/exceptions/NoMissionException.php');
 
 dol_include_once('/flightlog/query/BillableFlightQuery.php');
@@ -94,6 +109,7 @@ dol_include_once('/flightlog/Form/UserSelect.php');
 dol_include_once('/flightlog/Form/BalloonSelect.php');
 dol_include_once('/flightlog/Form/SimpleFormRenderer.php');
 dol_include_once('/flightlog/Form/FlightForm.php');
+dol_include_once('/flightlog/Form/InputCheckBox.php');
 
 dol_include_once('/flightlog/Http/Web/Controller/WebController.php');
 dol_include_once('/flightlog/Http/Web/Controller/AddFlightDamageController.php');
@@ -101,13 +117,17 @@ dol_include_once('/flightlog/Http/Web/Controller/FlightDamageController.php');
 dol_include_once('/flightlog/Http/Web/Controller/DamageController.php');
 dol_include_once('/flightlog/Http/Web/Controller/FlightController.php');
 dol_include_once('/flightlog/Http/Web/Controller/StatisticalGraphController.php');
+dol_include_once('/flightlog/Http/Web/Controller/PilotEditController.php');
 
 dol_include_once('/flightlog/Http/Web/Requests/Request.php');
 dol_include_once('/flightlog/Http/Web/Response/Response.php');
 dol_include_once('/flightlog/Http/Web/Response/Redirect.php');
 
 dol_include_once('/flightlog/Http/Web/Form/DamageCreationForm.php');
+dol_include_once('/flightlog/Http/Web/Form/PilotForm.php');
 dol_include_once('/flightlog/Http/Web/Form/SupplierBillSelect.php');
+dol_include_once('/flightlog/Application/Pilot/CreateUpdatePilotInformationCommandHandler.php');
+dol_include_once('/flightlog/Application/Pilot/CreateUpdatePilotInformationCommand.php');
 
 dol_include_once('/flightlog/Infrastructure/Common/Repository/AbstractDomainRepository.php');
 dol_include_once('/flightlog/Infrastructure/Damage/Repository/FlightDamageRepository.php');
@@ -120,6 +140,8 @@ dol_include_once('/flightlog/Infrastructure/Flight/Query/Repository/BalloonQuery
 dol_include_once('/flightlog/Infrastructure/Common/Routes/Route.php');
 dol_include_once('/flightlog/Infrastructure/Common/Routes/RouteManager.php');
 dol_include_once('/flightlog/Infrastructure/Common/Routes/Guard.php');
+dol_include_once('/flightlog/Infrastructure/Pilot/Repository/PilotRepository.php');
+
 
 dol_include_once('/core/lib/ajax.lib.php');
 dol_include_once('/core/lib/price.lib.php');
