@@ -38,19 +38,19 @@ dol_include_once('/flightlog/class/Damage/FlightInvoicedDamageCount.php');
 dol_include_once('/flightlog/class/Damage/ValueObject/DamageLabel.php');
 
 dol_include_once('flightlog/class/Pilot/Pilot.php');
-dol_include_once('flightlog/class/Pilot/valueObject/DateTrait.php');
-dol_include_once('flightlog/class/Pilot/valueObject/LicenceNumberTrait.php');
-dol_include_once('flightlog/class/Pilot/valueObject/EndDate.php');
-dol_include_once('flightlog/class/Pilot/valueObject/FireCertificationNumber.php');
-dol_include_once('flightlog/class/Pilot/valueObject/FirstHelpCertificationNumber.php');
-dol_include_once('flightlog/class/Pilot/valueObject/IsOwner.php');
-dol_include_once('flightlog/class/Pilot/valueObject/LastTrainingDate.php');
-dol_include_once('flightlog/class/Pilot/valueObject/PilotId.php');
-dol_include_once('flightlog/class/Pilot/valueObject/PilotLicenceNumber.php');
-dol_include_once('flightlog/class/Pilot/valueObject/PilotTrainingLicenceNumber.php');
-dol_include_once('flightlog/class/Pilot/valueObject/RadioLicenceDate.php');
-dol_include_once('flightlog/class/Pilot/valueObject/RadioLicenceNumber.php');
-dol_include_once('flightlog/class/Pilot/valueObject/StartDate.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/DateTrait.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/LicenceNumberTrait.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/EndDate.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/FireCertificationNumber.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/FirstHelpCertificationNumber.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/IsOwner.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/LastTrainingDate.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/PilotId.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/PilotLicenceNumber.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/PilotTrainingLicenceNumber.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/RadioLicenceDate.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/RadioLicenceNumber.php');
+dol_include_once('flightlog/class/Pilot/ValueObject/StartDate.php');
 
 dol_include_once('/flightlog/exceptions/NoMissionException.php');
 
