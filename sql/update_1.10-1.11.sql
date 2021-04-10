@@ -38,9 +38,7 @@ CREATE TABLE `llx_bbc_pilots` (
     has_training_fire TINYINT UNSIGNED NOT NULL DEFAULT 0,
     last_training_fire_date DATE,
     certification_number_training_fire VARCHAR(100),
-    PRIMARY KEY (`user_id`),
-    UNIQUE KEY (`pilot_licence_number`),
-    UNIQUE KEY (`radio_licence_number`)
+    PRIMARY KEY (`user_id`)
 ) ENGINE = InnoDB;
 
 

@@ -47,13 +47,14 @@ final class PilotEditController extends WebController
 
             try{
                 $this->handle($form->getObject());
+                return $this->redirect($_SERVER["PHP_SELF"].'?id='.$id.'&r=list_members');
             }catch(\Exception $e){
                 print $e->getMessage();
                 dol_syslog($e->getMessage(), LOG_ERR);
             }
 
 
-            return $this->redirect($_SERVER["PHP_SELF"].'?id='.$id.'&r=edit_pilot');
+
         }
 
         return $this->render('pilot/edit.phtml', [

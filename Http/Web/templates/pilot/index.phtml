@@ -4,15 +4,25 @@
  * @var \FlightLog\Application\Pilot\ViewModel\Pilot[]| array $members
  */
 
-global $members;
+global $members, $user;
 ?>
 
 <table class="liste">
-<?php foreach($members as $member): ?>
-    <tr class="pair">
-        <td><a href="<?php echo sprintf(DOL_URL_ROOT.'/flightlog/index.php?id=%s&r=%s', $member->getId(), 'edit_pilot');?>"><?php echo $member->getId(); ?></a></td>
-        <td><?php echo $member->getFirstname(); ?></td>
-        <td><?php echo $member->getName(); ?></td>
+
+    <tr>
+        <th>#</th>
+        <th>Prenom</th>
+        <th>Nom</th>
     </tr>
-<?php endforeach; ?>
+    <?php foreach ($members as $member): ?>
+        <tr class="pair">
+
+            <?php if($user->rights->flightlog->pilot->edit): ?>
+                <td><a href="<?php echo sprintf(DOL_URL_ROOT . '/flightlog/index.php?id=%s&r=%s', $member->getId(), 'edit_pilot'); ?>"><?php echo $member->getId(); ?></a></td>
+            <?php endif; ?>
+
+            <td><?php echo $member->getFirstname(); ?></td>
+            <td><?php echo $member->getName(); ?></td>
+        </tr>
+    <?php endforeach; ?>
 </table>
