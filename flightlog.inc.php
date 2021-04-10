@@ -150,4 +150,40 @@ dol_include_once('/core/class/dolgraph.class.php');
 
 dol_include_once('/fourn/class/fournisseur.facture.class.php');
 
+scan('../flightlog/Http/Web/Controller');
+scan('../flightlog/Infrastructure');
+scan('../flightlog/Application');
 
+function scan(string $root)
+{
+    if (is_file($root) && substr($root, -4) === '.php' && substr($root, -9) !== '.conf.php') {
+        include_once(str_replace('../flightlog', '.', $root));
+        return;
+    }
+
+    if (is_dir($root)) {
+        $lists = scandir($root);
+
+        foreach ($lists as $match) {
+            if ($match === 'vendor') {
+                continue;
+            }
+            if ($match === 'templates') {
+                continue;
+            }
+
+            if($match == ".." || $match == "." || substr($match, 0,1) === '.'){
+                continue;
+            }
+
+            $element = $root . DIRECTORY_SEPARATOR . $match;
+
+            if(substr_count($element, '/', 3) >= 1){
+                scan($element);
+            }
+
+            continue;
+        }
+
+    }
+}

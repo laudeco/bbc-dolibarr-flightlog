@@ -389,6 +389,23 @@ class modFlightLog extends DolibarrModules
             'target' => '',
             'user' => 2
         );
+
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu' => 'fk_mainmenu=flightlog',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Qualifications',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'management',
+            'url' => '/flightlog/index.php?r=list_members',
+            'langs' => 'mylangfile',
+            'position' => 110,
+            'enabled' => '1',
+            'perms' => '',
+            'target' => '',
+            'user' => 2
+        );
+        $r++;
     }
 
     /**
