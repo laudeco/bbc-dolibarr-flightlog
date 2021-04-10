@@ -5,7 +5,6 @@
 
 namespace flightlog\form;
 
-use function Safe\sprintf;
 use ValidatorInterface;
 
 /**
