@@ -9,7 +9,7 @@ abstract class AbstractDomainRepository
     /**
      * @var \DoliDB
      */
-    private $db;
+    protected $db;
 
     /**
      * @var string
@@ -59,7 +59,7 @@ abstract class AbstractDomainRepository
      */
     private function escape($value){
         if(is_null($value)){
-            return null;
+            return 'NULL';
         }
 
         if(is_bool($value)){
@@ -75,7 +75,7 @@ abstract class AbstractDomainRepository
      *
      * @throws \Exception
      */
-    protected function update($id, array $elements)
+    protected function update($id, array $elements, $idCol = 'rowid')
     {
         $sqlModifications = [];
 
@@ -84,7 +84,7 @@ abstract class AbstractDomainRepository
         }
 
         $this->db->begin();
-        $resql = $this->db->query(sprintf('UPDATE %s SET %s WHERE rowid = %s ', $this->tableName, join(',',$sqlModifications), $id));
+        $resql = $this->db->query(sprintf('UPDATE %s SET %s WHERE '.$idCol.' = %s ', $this->tableName, join(',',$sqlModifications), $id));
 
         if (!$resql) {
             $lasterror = $this->db->lasterror();
@@ -100,11 +100,12 @@ abstract class AbstractDomainRepository
      * Get the entity by its id.
      *
      * @param int $id
+     * @param string $idCol
      *
      * @return array|null
      */
-    protected function get($id){
-        $sql = sprintf('SELECT * FROM %s WHERE rowid = %s', $this->tableName, $id );
+    protected function get($id, $idCol = 'rowid'){
+        $sql = sprintf('SELECT * FROM %s WHERE '.$idCol.' = %s', $this->tableName, $id );
 
         $resql = $this->db->query($sql);
         if (!$resql) {

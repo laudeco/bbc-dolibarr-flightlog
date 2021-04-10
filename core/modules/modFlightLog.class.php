@@ -130,7 +130,7 @@ class modFlightLog extends DolibarrModules
         $this->editor_url = 'http://www.dolibarr.org';
 
         // Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-        $this->version = '1.9';
+        $this->version = '1.11';
         // Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
         // Name of image file used for this module.
@@ -389,6 +389,23 @@ class modFlightLog extends DolibarrModules
             'target' => '',
             'user' => 2
         );
+
+        $r++;
+        $this->menu[$r] = array(
+            'fk_menu' => 'fk_mainmenu=flightlog',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Qualifications',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'management',
+            'url' => '/flightlog/index.php?r=list_members',
+            'langs' => 'mylangfile',
+            'position' => 110,
+            'enabled' => '1',
+            'perms' => '',
+            'target' => '',
+            'user' => 2
+        );
+        $r++;
     }
 
     /**
@@ -460,6 +477,20 @@ class modFlightLog extends DolibarrModules
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'vol';
         $this->rights[$r][5] = 'advanced';
+        $r++;
+
+        $this->rights[$r][0] = 9992;
+        $this->rights[$r][1] = 'Peut tout editer des vols';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'vol';
+        $this->rights[$r][5] = 'advanced';
+        $r++;
+
+        $this->rights[$r][0] = 9991;
+        $this->rights[$r][1] = 'Peut modifier toutes les informations des pilotes';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'pilot';
+        $this->rights[$r][5] = 'edit';
     }
 
     private function initCronJobs()

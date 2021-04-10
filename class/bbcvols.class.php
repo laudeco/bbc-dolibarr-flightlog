@@ -100,11 +100,31 @@ class Bbcvols extends CommonObject
     private $orders;
 
     /**
+     * @var bool
+     */
+    private $staticFlight;
+
+    /**
+     * @var bool
+     */
+    private $examFlight;
+
+    /**
+     * @var bool
+     */
+    private $nightFlight;
+
+    /**
+     * @var bool
+     */
+    private $refreshFlight;
+
+    /**
      * @return int
      */
     public function getIdBBCVols()
     {
-        return (int) $this->idBBC_vols;
+        return (int)$this->idBBC_vols;
     }
 
     /**
@@ -112,7 +132,7 @@ class Bbcvols extends CommonObject
      */
     public function getId()
     {
-        return (int) $this->getIdBBCVols();
+        return (int)$this->getIdBBCVols();
     }
 
     /**
@@ -143,8 +163,8 @@ class Bbcvols extends CommonObject
     /**
      * Create a flight
      *
-     * @param  User $user      User that creates
-     * @param  bool $notrigger false=launch triggers after, true=disable triggers
+     * @param User $user User that creates
+     * @param bool $notrigger false=launch triggers after, true=disable triggers
      *
      * @return int <0 if KO, Id of created object if OK
      * @throws Exception
@@ -249,17 +269,17 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->nbrPax) ? 'NULL' : "'" . $this->db->escape($this->nbrPax) . "'") . ',';
         $sql .= ' ' . (!isset($this->remarque) ? 'NULL' : "'" . $this->db->escape($this->remarque) . "'") . ',';
         $sql .= ' ' . (!isset($this->incidents) ? 'NULL' : "'" . $this->db->escape($this->incidents) . "'") . ',';
-        $sql .= ' ' . (!isset($this->fk_type) || (int) $this->fk_type === -1 ? 'NULL' : $this->fk_type) . ',';
-        $sql .= ' ' . (!isset($this->fk_pilot) || (int) $this->fk_pilot === -1 ? 'NULL' : $this->fk_pilot) . ',';
-        $sql .= ' ' . (!isset($this->fk_organisateur) || (int) $this->fk_organisateur === -1 ? 'NULL' : $this->fk_organisateur) . ',';
+        $sql .= ' ' . (!isset($this->fk_type) || (int)$this->fk_type === -1 ? 'NULL' : $this->fk_type) . ',';
+        $sql .= ' ' . (!isset($this->fk_pilot) || (int)$this->fk_pilot === -1 ? 'NULL' : $this->fk_pilot) . ',';
+        $sql .= ' ' . (!isset($this->fk_organisateur) || (int)$this->fk_organisateur === -1 ? 'NULL' : $this->fk_organisateur) . ',';
         $sql .= ' ' . (!isset($this->is_facture) ? '0' : $this->is_facture) . ',';
         $sql .= ' ' . (!isset($this->kilometers) || empty($this->kilometers) ? '0' : $this->kilometers) . ',';
         $sql .= ' ' . (!isset($this->cost) ? 'NULL' : "'" . $this->db->escape($this->cost) . "'") . ',';
-        $sql .= ' ' . (!isset($this->fk_receiver) || (int) $this->fk_receiver === -1 ? 'NULL' : $this->fk_receiver) . ',';
+        $sql .= ' ' . (!isset($this->fk_receiver) || (int)$this->fk_receiver === -1 ? 'NULL' : $this->fk_receiver) . ',';
         $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
-        $sql .= ' ' . "'" . $this->passengerNames . "'" ;
+        $sql .= ' ' . "'" . $this->passengerNames . "'";
         $sql .= ')';
 
         $this->db->begin();
@@ -273,7 +293,7 @@ class Bbcvols extends CommonObject
 
         if (!$error) {
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
-            if(!$this->insertOrders()){
+            if (!$this->insertOrders()) {
                 $error++;
             }
 
@@ -299,29 +319,30 @@ class Bbcvols extends CommonObject
     /**
      * Inserts the order linked to the flight
      */
-    private function insertOrders(){
+    private function insertOrders()
+    {
 
-        if(empty($this->orderIds)){
+        if (empty($this->orderIds)) {
             return true;
         }
 
         $valueTemplate = '(%s, %s, %s)';
-        
+
         // Insert request
         $sql = 'INSERT INTO llx_bbc_vols_orders(';
         $sql .= 'order_id,';
         $sql .= 'flight_id,';
         $sql .= 'nbr_passengers';
         $sql .= ') VALUES %s';
-        
+
         $values = [];
 
-        foreach($this->orderIds as $orderId=>$nbrPassengers){
+        foreach ($this->orderIds as $orderId => $nbrPassengers) {
             $values[] = sprintf(
                 $valueTemplate,
                 $orderId,
                 $this->db->escape($this->id),
-                (!isset($nbrPassengers) ? '0' :  $this->db->escape($nbrPassengers))
+                (!isset($nbrPassengers) ? '0' : $this->db->escape($nbrPassengers))
             );
         }
 
@@ -339,9 +360,10 @@ class Bbcvols extends CommonObject
     /**
      * Inserts the order linked to the flight
      */
-    private function updateOrders(){
+    private function updateOrders()
+    {
 
-        if(empty($this->orderIds)){
+        if (empty($this->orderIds)) {
             return true;
         }
 
@@ -352,9 +374,10 @@ class Bbcvols extends CommonObject
     /**
      * Inserts the order linked to the flight
      */
-    private function deleteOrders(){
+    private function deleteOrders()
+    {
 
-        if(empty($this->orderIds)){
+        if (empty($this->orderIds)) {
             return true;
         }
 
@@ -373,7 +396,7 @@ class Bbcvols extends CommonObject
     /**
      * Load object in memory from the database
      *
-     * @param int    $id  Id object
+     * @param int $id Id object
      * @param string $ref Ref
      *
      * @return int <0 if KO, 0 if not found, >0 if OK
@@ -405,6 +428,10 @@ class Bbcvols extends CommonObject
         $sql .= " t.date_creation,";
         $sql .= " t.date_update,";
         $sql .= " t.passenger_names,";
+        $sql .= ' t.is_night,';
+        $sql .= ' t.is_static,';
+        $sql .= ' t.is_exam,';
+        $sql .= ' t.is_refresh,';
         $sql .= " t.fk_project";
 
 
@@ -423,28 +450,33 @@ class Bbcvols extends CommonObject
 
                 $this->id = $obj->idBBC_vols;
 
-                $this->idBBC_vols = (int) $obj->idBBC_vols;
+                $this->idBBC_vols = (int)$obj->idBBC_vols;
                 $this->date = $this->db->jdate($obj->date);
                 $this->lieuD = $obj->lieuD;
                 $this->lieuA = $obj->lieuA;
                 $this->heureD = $obj->heureD;
                 $this->heureA = $obj->heureA;
-                $this->BBC_ballons_idBBC_ballons = (int) $obj->BBC_ballons_idBBC_ballons;
+                $this->BBC_ballons_idBBC_ballons = (int)$obj->BBC_ballons_idBBC_ballons;
                 $this->nbrPax = $obj->nbrPax;
                 $this->remarque = $obj->remarque;
                 $this->incidents = $obj->incidents;
-                $this->fk_type = (int) $obj->fk_type;
-                $this->fk_pilot = (int) $obj->fk_pilot;
-                $this->fk_organisateur = (int) $obj->fk_organisateur;
-                $this->statut = $this->is_facture = (int) $obj->is_facture;
+                $this->fk_type = (int)$obj->fk_type;
+                $this->fk_pilot = (int)$obj->fk_pilot;
+                $this->fk_organisateur = (int)$obj->fk_organisateur;
+                $this->statut = $this->is_facture = (int)$obj->is_facture;
                 $this->kilometers = $obj->kilometers;
                 $this->total_ttc = $this->cost = $obj->cost;
-                $this->fk_receiver = (int) $obj->fk_receiver;
+                $this->fk_receiver = (int)$obj->fk_receiver;
                 $this->justif_kilometers = $obj->justif_kilometers;
                 $this->date_creation = $obj->date_creation;
                 $this->date_update = $obj->date_update;
                 $this->passengerNames = $obj->passenger_names;
                 $this->fk_project = $obj->fk_project;
+
+                $this->nightFlight = $obj->is_night == 1;
+                $this->staticFlight = $obj->is_static == 1;
+                $this->examFlight = $obj->is_exam == 1;
+                $this->refreshFlight = $obj->is_refresh == 1;
 
                 $this->balloon = $this->fetchBalloon();
                 $this->thirdparty = $this->pilot = $this->fetchUser($this->fk_pilot);
@@ -465,8 +497,8 @@ class Bbcvols extends CommonObject
     }
 
     /**
-     * @param  User $user      User that modifies
-     * @param  bool $notrigger false=launch triggers after, true=disable triggers
+     * @param User $user User that modifies
+     * @param bool $notrigger false=launch triggers after, true=disable triggers
      *
      * @return int <0 if KO, >0 if OK
      * @throws Exception
@@ -550,16 +582,20 @@ class Bbcvols extends CommonObject
         $sql .= ' nbrPax = ' . (isset($this->nbrPax) ? "'" . $this->db->escape($this->nbrPax) . "'" : "null") . ',';
         $sql .= ' remarque = ' . (isset($this->remarque) ? "'" . $this->db->escape($this->remarque) . "'" : "null") . ',';
         $sql .= ' incidents = ' . (isset($this->incidents) ? "'" . $this->db->escape($this->incidents) . "'" : "null") . ',';
-        $sql .= ' fk_type = ' . (isset($this->fk_type) && (int) $this->fk_type > 0 ? $this->fk_type : "null") . ',';
-        $sql .= ' fk_pilot = ' . (isset($this->fk_pilot) && (int) $this->fk_pilot > 0 ? $this->fk_pilot : "null") . ',';
-        $sql .= ' fk_organisateur = ' . (isset($this->fk_organisateur) && (int) $this->fk_organisateur > 0 ? $this->fk_organisateur : "null") . ',';
+        $sql .= ' fk_type = ' . (isset($this->fk_type) && (int)$this->fk_type > 0 ? $this->fk_type : "null") . ',';
+        $sql .= ' fk_pilot = ' . (isset($this->fk_pilot) && (int)$this->fk_pilot > 0 ? $this->fk_pilot : "null") . ',';
+        $sql .= ' fk_organisateur = ' . (isset($this->fk_organisateur) && (int)$this->fk_organisateur > 0 ? $this->fk_organisateur : "null") . ',';
         $sql .= ' is_facture = ' . (isset($this->is_facture) ? $this->is_facture : "0") . ',';
         $sql .= ' kilometers = ' . (!empty($this->kilometers) ? $this->kilometers : "0") . ',';
         $sql .= ' cost = ' . (isset($this->cost) ? "'" . $this->db->escape($this->cost) . "'" : "''") . ',';
-        $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) && (int) $this->fk_receiver > 0 ? $this->fk_receiver : "null") . ',';
+        $sql .= ' fk_receiver = ' . (isset($this->fk_receiver) && (int)$this->fk_receiver > 0 ? $this->fk_receiver : "null") . ',';
         $sql .= ' justif_kilometers = ' . (isset($this->justif_kilometers) ? "'" . $this->db->escape($this->justif_kilometers) . "'," : "'',");
         $sql .= ' date_update = ' . "'" . date('Y-m-d H:i:s') . "',";
-        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames)."'";
+        $sql .= ' is_night = ' . ($this->nightFlight ? 1 : 0) . ',';
+        $sql .= ' is_static = ' . ($this->staticFlight ? 1 : 0) . ',';
+        $sql .= ' is_exam = ' . ($this->examFlight ? 1 : 0) . ',';
+        $sql .= ' is_refresh = ' . ($this->refreshFlight ? 1 : 0) . ',';
+        $sql .= ' passenger_names = ' . "'" . trim($this->passengerNames) . "'";
 
         $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -595,7 +631,7 @@ class Bbcvols extends CommonObject
     /**
      * Delete object in database
      *
-     * @param User $user      User that deletes
+     * @param User $user User that deletes
      * @param bool $notrigger false=launch triggers after, true=disable triggers
      *
      * @return int <0 if KO, >0 if OK
@@ -644,11 +680,11 @@ class Bbcvols extends CommonObject
      *  Return a link to the user card (with optionaly the picto)
      *    Use this->id,this->lastname, this->firstname
      *
-     * @param    int     $withpicto Include picto in link (0=No picto, 1=Include picto into link, 2=Only picto)
-     * @param    string  $option    On what the link point to
-     * @param    integer $notooltip 1=Disable tooltip
-     * @param    int     $maxlen    Max length of visible user name
-     * @param  string    $morecss   Add more css on link
+     * @param int $withpicto Include picto in link (0=No picto, 1=Include picto into link, 2=Only picto)
+     * @param string $option On what the link point to
+     * @param integer $notooltip 1=Disable tooltip
+     * @param int $maxlen Max length of visible user name
+     * @param string $morecss Add more css on link
      *
      * @return    string                        String with URL
      */
@@ -687,7 +723,7 @@ class Bbcvols extends CommonObject
     /**
      *  Retourne le libelle du status d'un user (actif, inactif)
      *
-     * @param    int $mode 0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
+     * @param int $mode 0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
      *
      * @return    string                   Label of status
      */
@@ -700,7 +736,7 @@ class Bbcvols extends CommonObject
      * Renvoi le libelle d'un status donne
      *
      * @param int $status Id status
-     * @param int $mode   0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
+     * @param int $mode 0=libelle long, 1=libelle court, 2=Picto + Libelle court, 3=Picto, 4=Picto + Libelle long, 5=Libelle court + Picto
      *
      * @return string                    Label of status
      */
@@ -850,7 +886,7 @@ class Bbcvols extends CommonObject
      */
     public function getPilotId()
     {
-        return (int) $this->fk_pilot;
+        return (int)$this->fk_pilot;
     }
 
     /**
@@ -858,7 +894,7 @@ class Bbcvols extends CommonObject
      */
     public function getOrganisatorId()
     {
-        return (int) $this->fk_organisateur;
+        return (int)$this->fk_organisateur;
     }
 
     /**
@@ -895,7 +931,7 @@ class Bbcvols extends CommonObject
      */
     public function hasPax()
     {
-        return (int) $this->nbrPax > 0;
+        return (int)$this->nbrPax > 0;
     }
 
     /**
@@ -964,7 +1000,7 @@ class Bbcvols extends CommonObject
      */
     public function getKilometers()
     {
-        return (int) $this->kilometers;
+        return (int)$this->kilometers;
     }
 
     /**
@@ -1007,7 +1043,7 @@ class Bbcvols extends CommonObject
      */
     public function getNumberOfPassengers()
     {
-        return (int) $this->nbrPax;
+        return (int)$this->nbrPax;
     }
 
     /**
@@ -1022,8 +1058,9 @@ class Bbcvols extends CommonObject
      * @param int $orderId
      * @param int $nbrPassengers
      */
-    public function addOrderId($orderId, $nbrPassengers){
-        if(!isset($this->orderIds)){
+    public function addOrderId($orderId, $nbrPassengers)
+    {
+        if (!isset($this->orderIds)) {
             $this->orderIds = [];
         }
 
@@ -1063,7 +1100,7 @@ class Bbcvols extends CommonObject
         if ($resql) {
             $numrows = $this->db->num_rows($resql);
             if ($numrows) {
-                for($i = 0 ; $i < $numrows ; $i++){
+                for ($i = 0; $i < $numrows; $i++) {
                     $obj = $this->db->fetch_object($resql);
                     $this->orderIds[$obj->order_id] = $obj->nbr_passengers;
 
@@ -1084,7 +1121,7 @@ class Bbcvols extends CommonObject
      */
     public function getOrders()
     {
-        if(!isset($this->orders) || empty($this->orders)){
+        if (!isset($this->orders) || empty($this->orders)) {
             $this->fetchOrder();
         }
         return $this->orders;
@@ -1458,5 +1495,90 @@ class Bbcvols extends CommonObject
     {
         $this->is_facture = 0;
     }
+
+    public function staticFlight(): self
+    {
+        $this->staticFlight = true;
+        return $this;
+    }
+
+    public function nightFlight(): self
+    {
+        $this->nightFlight = true;
+        return $this;
+    }
+
+    public function examFlight(): self
+    {
+        $this->examFlight = true;
+        return $this;
+    }
+
+    public function refreshFlight(): self
+    {
+        $this->refreshFlight = true;
+        return $this;
+    }
+
+    public function toggleStaticFlight(): self
+    {
+        if (!$this->staticFlight) {
+            return $this->staticFlight();
+        }
+
+        $this->staticFlight = false;
+        return $this;
+    }
+
+    public function toggleNightFlight(): self
+    {
+        if (!$this->nightFlight) {
+            return $this->nightFlight();
+        }
+
+        $this->nightFlight = false;
+        return $this;
+    }
+
+    public function toggleExamFlight(): self
+    {
+        if (!$this->examFlight) {
+            return $this->examFlight();
+        }
+
+        $this->examFlight = false;
+        return $this;
+    }
+
+    public function toggleRefreshFlight(): self
+    {
+        if (!$this->refreshFlight) {
+            return $this->refreshFlight();
+        }
+
+        $this->refreshFlight = false;
+        return $this;
+    }
+
+    public function isStaticFlight(): bool
+    {
+        return $this->staticFlight;
+    }
+
+    public function isNightFlight(): bool
+    {
+        return $this->nightFlight;
+    }
+
+    public function isExamFlight(): bool
+    {
+        return $this->examFlight;
+    }
+
+    public function isRefreshFlight(): bool
+    {
+        return $this->refreshFlight;
+    }
+
 
 }

@@ -42,7 +42,7 @@ if (!$res) {
 // Change this following line to use the correct relative path from htdocs
 include_once(DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php');
 
-dol_include_once('/flightlog/flightlog.inc.php');
+include('./flightlog.inc.php');
 
 $langs->load("mymodule@flightlog");
 $langs->load("other");

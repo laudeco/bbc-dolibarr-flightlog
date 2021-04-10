@@ -57,6 +57,16 @@ if (!empty($conf->projet->enabled)) {
 
 global $langs, $user, $conf;
 
+const ACTION_TOGGLE_STATIC = 'action_toggle_static';
+const ACTION_TOGGLE_NIGHT = 'action_toggle_night';
+const ACTION_TOGGLE_EXAM = 'action_toggle_exam';
+const ACTION_TOGGLE_REFRESH = 'action_toggle_refresh';
+
+const ACTION_CONFIRM_TOGGLE_STATIC = 'action_confirm_toggle_static';
+const ACTION_CONFIRM_TOGGLE_NIGHT = 'action_confirm_toggle_night';
+const ACTION_CONFIRM_TOGGLE_EXAM = 'action_confirm_toggle_exam';
+const ACTION_CONFIRM_TOGGLE_REFRESH = 'action_confirm_toggle_refresh';
+
 const ACTION_FLAG_BILLED = 'action_flag_bill';
 const ACTION_CONFIRM_FLAG_BILLED = 'confirm_flag_bill';
 const ACTION_CLASSIFY = 'classify';
@@ -222,6 +232,75 @@ if (empty($reshook)) {
 
         if ($result > 0) {
             setEventMessages("Facturé", null, 'mesgs');
+            $action = 'show';
+        } else {
+            if (!empty($object->errors)) {
+                setEventMessages(null, $object->errors, 'errors');
+            } else {
+                setEventMessages($object->error, null, 'errors');
+            }
+        }
+    }
+
+    // toggle is static flight
+    if(($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) && $action == ACTION_CONFIRM_TOGGLE_STATIC){
+        $result = $object
+            ->toggleStaticFlight()
+            ->update($user);
+
+        if ($result > 0) {
+            setEventMessages("Vol static", null, 'mesgs');
+            $action = 'show';
+        } else {
+            if (!empty($object->errors)) {
+                setEventMessages(null, $object->errors, 'errors');
+            } else {
+                setEventMessages($object->error, null, 'errors');
+            }
+        }
+    }
+    // toggle is night flight
+    if(($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) && $action == ACTION_CONFIRM_TOGGLE_NIGHT){
+        $result = $object
+            ->toggleNightFlight()
+            ->update($user);
+
+        if ($result > 0) {
+            setEventMessages("Vol de nuit", null, 'mesgs');
+            $action = 'show';
+        } else {
+            if (!empty($object->errors)) {
+                setEventMessages(null, $object->errors, 'errors');
+            } else {
+                setEventMessages($object->error, null, 'errors');
+            }
+        }
+    }
+    // toggle is exams
+    if(($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) && $action == ACTION_CONFIRM_TOGGLE_EXAM){
+        $result = $object
+            ->toggleExamFlight()
+            ->update($user);
+
+        if ($result > 0) {
+            setEventMessages("Vol d'examen", null, 'mesgs');
+            $action = 'show';
+        } else {
+            if (!empty($object->errors)) {
+                setEventMessages(null, $object->errors, 'errors');
+            } else {
+                setEventMessages($object->error, null, 'errors');
+            }
+        }
+    }
+    // toggle is refresh
+    if(($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) && $action == ACTION_CONFIRM_TOGGLE_REFRESH){
+        $result = $object
+            ->toggleRefreshFlight()
+            ->update($user);
+
+        if ($result > 0) {
+            setEventMessages("Vol de refresh", null, 'mesgs');
             $action = 'show';
         } else {
             if (!empty($object->errors)) {
@@ -536,6 +615,30 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             $langs->trans('Ce vol va être marqué comme facturé, est-ce bien le cas ?'), ACTION_CONFIRM_FLAG_BILLED, '',
             0, 1);
         print $formconfirm;
+    } elseif ($action == ACTION_TOGGLE_STATIC) {
+        $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id,
+            $langs->trans('Marquer comme vol static'),
+            $langs->trans('Ce vol va être marqué comme un vol static, est-ce bien le cas ?'), ACTION_CONFIRM_TOGGLE_STATIC, '',
+            0, 1);
+        print $formconfirm;
+    } elseif ($action == ACTION_TOGGLE_NIGHT) {
+        $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id,
+            $langs->trans('Marquer comme vol de nuit'),
+            $langs->trans('Ce vol va être marqué comme de nuit, est-ce bien le cas ?'), ACTION_CONFIRM_TOGGLE_NIGHT, '',
+            0, 1);
+        print $formconfirm;
+    } elseif ($action == ACTION_TOGGLE_EXAM) {
+        $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id,
+            $langs->trans('Marquer comme vol d\'examen'),
+            $langs->trans('Ce vol va être marqué comme un vol d\'examen, est-ce bien le cas ?'), ACTION_CONFIRM_TOGGLE_EXAM, '',
+            0, 1);
+        print $formconfirm;
+    } elseif ($action == ACTION_TOGGLE_REFRESH) {
+        $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id,
+            $langs->trans('Marquer comme vol de refresh'),
+            $langs->trans('Ce vol va être marqué comme un vol de refresh, est-ce bien le cas ?'), ACTION_CONFIRM_TOGGLE_REFRESH, '',
+            0, 1);
+        print $formconfirm;
     }
 
     print '<table class="border centpercent">' . "\n";
@@ -609,11 +712,38 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     }
     ?>
 
+
     <?php if ($user->rights->flightlog->vol->financial && !$object->isBilled()): ?>
         <div class="inline-block divButAction">
             <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id,
                 ACTION_FLAG_BILLED); ?>">
                 <?php echo $langs->trans("Marqué comme facturé ") ?>
+            </a>
+        </div>
+    <?php endif; ?>
+
+    <!-- Toggle static flight -->
+    <?php if($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)): ?>
+        <div class="inline-block divButAction">
+            <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id, ACTION_TOGGLE_STATIC); ?>">
+                <?php if(!$object->isStaticFlight()): ?>
+                    <?php echo $langs->trans("Vol static") ?>
+                <?php else: ?>
+                    <?php echo $langs->trans("Non static") ?>
+                <?php endif; ?>
+            </a>
+        </div>
+    <?php endif; ?>
+
+    <!-- Toggle night flight -->
+    <?php if($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)): ?>
+        <div class="inline-block divButAction">
+            <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id, ACTION_TOGGLE_NIGHT); ?>">
+                <?php if(!$object->isNightFlight()): ?>
+                    <?php echo $langs->trans("Vol de nuit") ?>
+                <?php else: ?>
+                    <?php echo $langs->trans("Non nuit") ?>
+                <?php endif; ?>
             </a>
         </div>
     <?php endif; ?>

@@ -182,6 +182,7 @@ abstract class Form implements FormInterface
 
     /**
      * @inheritDoc
+     * @throws \ReflectionException
      */
     public function setData(array $data)
     {
@@ -198,7 +199,11 @@ abstract class Form implements FormInterface
             }
 
             if (method_exists($this->object, $methodName)) {
-                $this->object->{$methodName}($currentData);
+
+                $targetMethod = new \ReflectionMethod($this->object, $methodName);
+                if ($targetMethod->isPublic()) {
+                    $this->object->{$methodName}($this->sanitize($targetMethod, $currentData));
+                }
                 continue;
             }
 
@@ -209,6 +214,41 @@ abstract class Form implements FormInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @param \ReflectionMethod $targetMethod
+     * @param mixed             $value
+     *
+     * @return bool|float|int|string
+     */
+    private function sanitize(\ReflectionMethod $targetMethod, $value = null)
+    {
+        /** @var \ReflectionNamedType $valueType */
+        $valueType = $targetMethod->getParameters()[0]->getType();
+
+        if ($valueType === null) {
+            return $value;
+        }
+
+        switch ($valueType->getName()) {
+            case 'array':
+            case 'string':
+            case 'object':
+                return $value;
+                break;
+            case 'int':
+                return intval($value);
+                break;
+            case 'float':
+                return floatval($value);
+                break;
+            case 'bool':
+                return boolval($value);
+                break;
+            default:
+                throw new \InvalidArgumentException(sprintf('Unsupported type %s given.', $valueType->getName()));
+        }
     }
 
     /**
