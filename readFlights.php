@@ -16,6 +16,7 @@ global $db, $langs, $user, $conf;
 
 dol_include_once("/flightlog/flightlog.inc.php");
 
+use FlightLog\Infrastructure\Pilot\Query\Repository\PilotQueryRepository;
 use flightlog\query\GetPilotsWithMissionsQuery;
 use flightlog\query\GetPilotsWithMissionsQueryHandler;
 
@@ -150,6 +151,17 @@ print '<td class="liste_titre"> Balance (A payer) €</td>';
 print'</tr>';
 $tableQuery = new BillableFlightQuery(true, (GETPOST("year") ?: date("Y")));
 $tableQueryHandler = new BillableFlightQueryHandler($db, $conf->global);
+$pilotQueryRepository = new PilotQueryRepository($db);
+
+function pilotStatus($id){
+    global $pilotQueryRepository;
+    $member = $pilotQueryRepository->byId($id);
+    if($member === null){
+        return '';
+    }
+
+    return img_picto($member->getReasons(), $member->getIconId(), '', false, false, false, '', 'classfortooltip');
+}
 
 $total = 0;
 $totalT1 = 0;
@@ -175,7 +187,7 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
 
     print '<tr class="oddeven">';
     print '<td>' . $pilot->getId() . '</td>';
-    print '<td>' . $pilot->getName() . '</td>';
+    print '<td>' . pilotStatus($pilot->getId()) . $pilot->getName() . '</td>';
 
     print '<td>' . $pilot->getCountForType('1')->getCount() . '</td>';
     print '<td>' . $pilot->getCountForType('1')->getCost()->getValue() . '</td>';

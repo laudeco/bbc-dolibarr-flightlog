@@ -23,6 +23,7 @@ global $members, $user;
 
             <td><?php echo $member->getFirstname(); ?></td>
             <td><?php echo $member->getName(); ?></td>
+            <td><?php echo img_picto($member->getReasons(), $member->getIconId(), '', false, false, false, '', 'classfortooltip') ?> </td>
         </tr>
     <?php endforeach; ?>
 </table>
