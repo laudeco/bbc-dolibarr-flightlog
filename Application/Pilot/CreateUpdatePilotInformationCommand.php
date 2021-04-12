@@ -18,12 +18,6 @@ final class CreateUpdatePilotInformationCommand
      * @var string
      */
     private $pilotLicenceNumber = '';
-
-    /**
-     * @var string
-     */
-    private $trainingPilotLicenceNumber = '';
-
     /**
      * @var string
      */
@@ -53,15 +47,11 @@ final class CreateUpdatePilotInformationCommand
     /**
      * @var bool
      */
-    private $isMedicalOwner = false;
+    private $isPilotTraining = false;
     /**
      * @var string
      */
     private $endMedicalDate = '';
-    /**
-     * @var string
-     */
-    private $startMedicalDate = '';
     /**
      * @var bool
      */
@@ -79,10 +69,6 @@ final class CreateUpdatePilotInformationCommand
      */
     private $lastOpcDate = '';
     /**
-     * @var string
-     */
-    private $lastProRefreshDate = '';
-    /**
      * @var bool
      */
     private $hasQualifInstructor = false;
@@ -90,6 +76,11 @@ final class CreateUpdatePilotInformationCommand
      * @var string
      */
     private $lastInstructorRefreshDate = '';
+
+    /**
+     * @var string
+     */
+    private $lastInstructorTrainingFlight = '';
     /**
      * @var bool
      */
@@ -119,10 +110,6 @@ final class CreateUpdatePilotInformationCommand
      */
     private $lastTrainingFirstHelpDate = '';
     /**
-     * @var string
-     */
-    private $certificationNumberTrainingFirstHelp = '';
-    /**
      * @var bool
      */
     private $hasTrainingFire = false;
@@ -130,10 +117,6 @@ final class CreateUpdatePilotInformationCommand
      * @var string
      */
     private $lastTrainingFireDate = '';
-    /**
-     * @var string
-     */
-    private $certificationNumberTrainingFire = '';
 
     public function __construct($pilotId)
     {
@@ -163,24 +146,6 @@ final class CreateUpdatePilotInformationCommand
     public function setPilotLicenceNumber(string $pilotLicenceNumber): CreateUpdatePilotInformationCommand
     {
         $this->pilotLicenceNumber = $pilotLicenceNumber;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTrainingPilotLicenceNumber(): string
-    {
-        return $this->trainingPilotLicenceNumber;
-    }
-
-    /**
-     * @param string $trainingPilotLicenceNumber
-     * @return CreateUpdatePilotInformationCommand
-     */
-    public function setTrainingPilotLicenceNumber(string $trainingPilotLicenceNumber
-    ): CreateUpdatePilotInformationCommand {
-        $this->trainingPilotLicenceNumber = $trainingPilotLicenceNumber;
         return $this;
     }
 
@@ -334,24 +299,6 @@ final class CreateUpdatePilotInformationCommand
     }
 
     /**
-     * @return bool
-     */
-    public function getIsMedicalOwner(): bool
-    {
-        return $this->isMedicalOwner;
-    }
-
-    /**
-     * @param bool $isMedicalOwner
-     * @return CreateUpdatePilotInformationCommand
-     */
-    public function setIsMedicalOwner(bool $isMedicalOwner): CreateUpdatePilotInformationCommand
-    {
-        $this->isMedicalOwner = $isMedicalOwner;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getEndMedicalDate(): string
@@ -366,24 +313,6 @@ final class CreateUpdatePilotInformationCommand
     public function setEndMedicalDate(string $endMedicalDate): CreateUpdatePilotInformationCommand
     {
         $this->endMedicalDate = $endMedicalDate;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStartMedicalDate(): string
-    {
-        return $this->startMedicalDate;
-    }
-
-    /**
-     * @param string $startMedicalDate
-     * @return CreateUpdatePilotInformationCommand
-     */
-    public function setStartMedicalDate(string $startMedicalDate): CreateUpdatePilotInformationCommand
-    {
-        $this->startMedicalDate = $startMedicalDate;
         return $this;
     }
 
@@ -480,24 +409,6 @@ final class CreateUpdatePilotInformationCommand
     public function setLastOpcDate(string $lastOpcDate): CreateUpdatePilotInformationCommand
     {
         $this->lastOpcDate = $lastOpcDate;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLastProRefreshDate(): string
-    {
-        return $this->lastProRefreshDate;
-    }
-
-    /**
-     * @param string $lastProRefreshDate
-     * @return CreateUpdatePilotInformationCommand
-     */
-    public function setLastProRefreshDate(string $lastProRefreshDate): CreateUpdatePilotInformationCommand
-    {
-        $this->lastProRefreshDate = $lastProRefreshDate;
         return $this;
     }
 
@@ -696,24 +607,6 @@ final class CreateUpdatePilotInformationCommand
     }
 
     /**
-     * @return string
-     */
-    public function getCertificationNumberTrainingFirstHelp(): string
-    {
-        return $this->certificationNumberTrainingFirstHelp;
-    }
-
-    /**
-     * @param string $certificationNumberTrainingFirstHelp
-     * @return CreateUpdatePilotInformationCommand
-     */
-    public function setCertificationNumberTrainingFirstHelp(string $certificationNumberTrainingFirstHelp
-    ): CreateUpdatePilotInformationCommand {
-        $this->certificationNumberTrainingFirstHelp = $certificationNumberTrainingFirstHelp;
-        return $this;
-    }
-
-    /**
      * @return bool
      */
     public function getIsHasTrainingFire(): bool
@@ -758,14 +651,6 @@ final class CreateUpdatePilotInformationCommand
     }
 
     /**
-     * @return string
-     */
-    public function getCertificationNumberTrainingFire(): string
-    {
-        return $this->certificationNumberTrainingFire;
-    }
-
-    /**
      * @param string $certificationNumberTrainingFire
      * @return CreateUpdatePilotInformationCommand
      */
@@ -782,14 +667,14 @@ final class CreateUpdatePilotInformationCommand
         if (null !== $state['pilot_licence_number']) {
             $this->pilotLicenceNumber = $state['pilot_licence_number'];
         }
-        if (null !== $state['training_pilot_licence_number']) {
-            $this->trainingPilotLicenceNumber = $state['training_pilot_licence_number'];
-        }
         if (null !== $state['last_training_flight_date']) {
             $this->lastTrainingFlightDate = $state['last_training_flight_date'];
         }
         if (null !== $state['is_pilot_class_a']) {
             $this->isPilotClassA = $state['is_pilot_class_a'];
+        }
+        if (null !== $state['is_pilot_training']) {
+            $this->isPilotTraining = $state['is_pilot_training'];
         }
         if (null !== $state['is_pilot_class_b']) {
             $this->isPilotClassB = $state['is_pilot_class_b'];
@@ -803,14 +688,8 @@ final class CreateUpdatePilotInformationCommand
         if (null !== $state['is_pilot_gaz']) {
             $this->isPilotGaz = $state['is_pilot_gaz'];
         }
-        if (null !== $state['is_medical_owner']) {
-            $this->isMedicalOwner = $state['is_medical_owner'];
-        }
         if (null !== $state['end_medical_date']) {
             $this->endMedicalDate = $state['end_medical_date'];
-        }
-        if (null !== $state['start_medical_date']) {
-            $this->startMedicalDate = $state['start_medical_date'];
         }
         if (null !== $state['has_qualif_static']) {
             $this->hasQualifStatic = $state['has_qualif_static'];
@@ -824,14 +703,14 @@ final class CreateUpdatePilotInformationCommand
         if (null !== $state['last_opc_date']) {
             $this->lastOpcDate = $state['last_opc_date'];
         }
-        if (null !== $state['last_pro_refresh_date']) {
-            $this->lastProRefreshDate = $state['last_pro_refresh_date'];
-        }
         if (null !== $state['has_qualif_instructor']) {
             $this->hasQualifInstructor = $state['has_qualif_instructor'];
         }
         if (null !== $state['last_instructor_refresh_date']) {
             $this->lastInstructorRefreshDate = $state['last_instructor_refresh_date'];
+        }
+        if (null !== $state['last_instructor_training_flight_date']) {
+            $this->lastInstructorTrainingFlight = $state['last_instructor_training_flight_date'];
         }
         if (null !== $state['has_qualif_examinator']) {
             $this->hasQualifExaminator = $state['has_qualif_examinator'];
@@ -854,19 +733,59 @@ final class CreateUpdatePilotInformationCommand
         if (null !== $state['last_training_first_help_date']) {
             $this->lastTrainingFirstHelpDate = $state['last_training_first_help_date'];
         }
-        if (null !== $state['certification_number_training_first_help']) {
-            $this->certificationNumberTrainingFirstHelp = $state['certification_number_training_first_help'];
-        }
         if (null !== $state['has_training_fire']) {
             $this->hasTrainingFire = $state['has_training_fire'];
         }
         if (null !== $state['last_training_fire_date']) {
             $this->lastTrainingFireDate = $state['last_training_fire_date'];
         }
-        if (null !== $state['certification_number_training_fire']) {
-            $this->certificationNumberTrainingFire = $state['certification_number_training_fire'];
-        }
     }
+
+    /**
+     * @return bool
+     */
+    public function isPilotTraining(): bool
+    {
+        return $this->isPilotTraining;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPilotTraining(): bool
+    {
+        return $this->isPilotTraining;
+    }
+
+    /**
+     * @param bool $isPilotTraining
+     * @return CreateUpdatePilotInformationCommand
+     */
+    public function setIsPilotTraining(bool $isPilotTraining)
+    {
+        $this->isPilotTraining = $isPilotTraining;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastInstructorTrainingFlight(): string
+    {
+        return $this->lastInstructorTrainingFlight;
+    }
+
+    /**
+     * @param string $lastInstructorTrainingFlight
+     * @return CreateUpdatePilotInformationCommand
+     */
+    public function setLastInstructorTrainingFlight(string $lastInstructorTrainingFlight
+    ) {
+        $this->lastInstructorTrainingFlight = $lastInstructorTrainingFlight;
+        return $this;
+    }
+
+
 
 
 }

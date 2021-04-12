@@ -41,10 +41,10 @@ final class CreateUpdatePilotInformationCommandHandler
         $pilot = $this->getOrCreatePilot($pilotId);
 
 
-        if ($command->getIsMedicalOwner()) {
-            $pilot->medical();
+        if ($command->isPilotTraining()) {
+            $pilot->training();
         } else {
-            $pilot->removeMedical();
+            $pilot->removeTrainingLicence();
         }
 
         if ($command->getIsPilotClassA()) {
@@ -114,16 +114,12 @@ final class CreateUpdatePilotInformationCommandHandler
         }
 
         $pilot->attributePilotLicenceNumber(PilotLicenceNumber::create($command->getPilotLicenceNumber()));
-        $pilot->attributeTrainingPilotLicenceNumber(PilotTrainingLicenceNumber::create($command->getTrainingPilotLicenceNumber()));
         $pilot->attributeRadioLicenceNumber(RadioLicenceNumber::create($command->getRadioLicenceNumber()));
-        $pilot->attributeCertificationNumberTrainingFirstHelp(FirstHelpCertificationNumber::create($command->getCertificationNumberTrainingFirstHelp()));
-        $pilot->attributeCertificationNumberTrainingFire(FireCertificationNumber::create($command->getCertificationNumberTrainingFire()));
 
         $pilot->attributeLastTrainingFlightDate(LastTrainingDate::fromString($command->getLastTrainingFlightDate()));
         $pilot->attributeEndMedicalDate(EndDate::fromString($command->getEndMedicalDate()));
-        $pilot->attributeStartMedicalDate(StartDate::fromString($command->getStartMedicalDate()));
         $pilot->attributeLastOpcDate(LastTrainingDate::fromString($command->getLastOpcDate()));
-        $pilot->attributeLastProRefreshDate(LastTrainingDate::fromString($command->getLastProRefreshDate()));
+        $pilot->attributeLastInstructorTrainingFlightDate(LastTrainingDate::fromString($command->getLastInstructorTrainingFlight()));
         $pilot->attributeLastInstructorRefreshDate(LastTrainingDate::fromString($command->getLastInstructorRefreshDate()));
         $pilot->attributeLastExaminatorRefreshDate(LastTrainingDate::fromString($command->getLastExaminatorRefreshDate()));
         $pilot->attributeLastTrainingFireDate(LastTrainingDate::fromString($command->getLastTrainingFireDate()));

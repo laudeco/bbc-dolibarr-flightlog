@@ -28,10 +28,6 @@ final class Pilot
      */
     private $pilotLicenceNumber;
     /**
-     * @var PilotTrainingLicenceNumber
-     */
-    private $trainingPilotLicenceNumber;
-    /**
      * @var LastTrainingDate
      */
     private $lastTrainingFlightDate;
@@ -56,18 +52,9 @@ final class Pilot
      */
     private $isPilotCaz;
     /**
-     * @var IsOwner
-     */
-    private $isMedicalOwner;
-    /**
      * @var EndDate
      */
     private $endMedicalDate;
-
-    /**
-     * @var StartDate
-     */
-    private $startMedicalDate;
     /**
      * @var IsOwner
      */
@@ -84,10 +71,6 @@ final class Pilot
      * @var LastTrainingDate
      */
     private $lastOpcDate;
-    /**
-     * @var LastTrainingDate
-     */
-    private $lastProRefreshDate;
     /**
      * @var IsOwner
      */
@@ -125,10 +108,6 @@ final class Pilot
      */
     private $lastTrainingFirstHelpDate;
     /**
-     * @var FirstHelpCertificationNumber
-     */
-    private $certificationNumberTrainingFirstHelp;
-    /**
      * @var IsOwner
      */
     private $hasTrainingFire;
@@ -136,31 +115,35 @@ final class Pilot
      * @var LastTrainingDate
      */
     private $lastTrainingFireDate;
+
     /**
-     * @var FireCertificationNumber
+     * @var LastTrainingDate
      */
-    private $certificationNumberTrainingFire;
+    private $lastInstructorTrainingFlightDate;
+
+    /**
+     * @var LastTrainingDate
+     */
+    private $isPilotTraining;
 
     private function __construct(
         PilotId $pilotId,
         PilotLicenceNumber $pilotLicenceNumber,
-        PilotTrainingLicenceNumber $trainingPilotLicenceNumber,
         LastTrainingDate $lastTrainingFlightDate,
+        IsOwner $isPilotTraining,
         IsOwner $isPilotClassA,
         IsOwner $isPilotClassB,
         IsOwner $isPilotClassC,
         IsOwner $isPilotClassD,
         IsOwner $isPilotCaz,
-        IsOwner $isMedicalOwner,
         EndDate $endMedicalDate,
-        StartDate $startMedicalDate,
         IsOwner $hasQualifStatic,
         IsOwner $hasQualifNight,
         IsOwner $hasQualifPro,
         LastTrainingDate $lastOpcDate,
-        LastTrainingDate $lastProRefreshDate,
         IsOwner $hasQualifInstructor,
         LastTrainingDate $lastInstructorRefreshDate,
+        LastTrainingDate $lastInstructorTrainingFlightDate,
         IsOwner $hasQualifExaminator,
         LastTrainingDate $lastExaminatorRefreshDate,
         IsOwner $hasRadio,
@@ -168,30 +151,26 @@ final class Pilot
         RadioLicenceDate $radioLicenceDate,
         IsOwner $hasTrainingFirstHelp,
         LastTrainingDate $lastTrainingFirstHelpDate,
-        FirstHelpCertificationNumber $certificationNumberTrainingFirstHelp,
         IsOwner $hasTrainingFire,
-        LastTrainingDate $lastTrainingFireDate,
-        FireCertificationNumber $certificationNumberTrainingFire
+        LastTrainingDate $lastTrainingFireDate
     ) {
         $this->pilotId = $pilotId;
         $this->pilotLicenceNumber = $pilotLicenceNumber;
-        $this->trainingPilotLicenceNumber = $trainingPilotLicenceNumber;
         $this->lastTrainingFlightDate = $lastTrainingFlightDate;
+        $this->isPilotTraining = $isPilotTraining;
         $this->isPilotClassA = $isPilotClassA;
         $this->isPilotClassB = $isPilotClassB;
         $this->isPilotClassC = $isPilotClassC;
         $this->isPilotClassD = $isPilotClassD;
         $this->isPilotCaz = $isPilotCaz;
-        $this->isMedicalOwner = $isMedicalOwner;
         $this->endMedicalDate = $endMedicalDate;
-        $this->startMedicalDate = $startMedicalDate;
         $this->hasQualifStatic = $hasQualifStatic;
         $this->hasQualifNight = $hasQualifNight;
         $this->hasQualifPro = $hasQualifPro;
         $this->lastOpcDate = $lastOpcDate;
-        $this->lastProRefreshDate = $lastProRefreshDate;
         $this->hasQualifInstructor = $hasQualifInstructor;
         $this->lastInstructorRefreshDate = $lastInstructorRefreshDate;
+        $this->lastInstructorTrainingFlightDate = $lastInstructorTrainingFlightDate;
         $this->hasQualifExaminator = $hasQualifExaminator;
         $this->lastExaminatorRefreshDate = $lastExaminatorRefreshDate;
         $this->hasRadio = $hasRadio;
@@ -199,10 +178,8 @@ final class Pilot
         $this->radioLicenceDate = $radioLicenceDate;
         $this->hasTrainingFirstHelp = $hasTrainingFirstHelp;
         $this->lastTrainingFirstHelpDate = $lastTrainingFirstHelpDate;
-        $this->certificationNumberTrainingFirstHelp = $certificationNumberTrainingFirstHelp;
         $this->hasTrainingFire = $hasTrainingFire;
         $this->lastTrainingFireDate = $lastTrainingFireDate;
-        $this->certificationNumberTrainingFire = $certificationNumberTrainingFire;
     }
 
     public static function create(PilotId $id)
@@ -210,7 +187,6 @@ final class Pilot
         return new self(
             $id,
             PilotLicenceNumber::empty(),
-            PilotTrainingLicenceNumber::empty(),
             LastTrainingDate::zero(),
             IsOwner::create(),
             IsOwner::create(),
@@ -219,13 +195,12 @@ final class Pilot
             IsOwner::create(),
             IsOwner::create(),
             EndDate::zero(),
-            StartDate::zero(),
             IsOwner::create(),
             IsOwner::create(),
             IsOwner::create(),
             LastTrainingDate::zero(),
-            LastTrainingDate::zero(),
             IsOwner::create(),
+            LastTrainingDate::zero(),
             LastTrainingDate::zero(),
             IsOwner::create(),
             LastTrainingDate::zero(),
@@ -234,10 +209,8 @@ final class Pilot
             RadioLicenceDate::zero(),
             IsOwner::create(),
             LastTrainingDate::zero(),
-            FirstHelpCertificationNumber::empty(),
             IsOwner::create(),
-            LastTrainingDate::zero(),
-            FireCertificationNumber::empty()
+            LastTrainingDate::zero()
         );
     }
 
@@ -246,23 +219,21 @@ final class Pilot
         return new self(
             PilotId::create($state['user_id']),
             PilotLicenceNumber::create($state['pilot_licence_number']),
-            PilotTrainingLicenceNumber::create($state['training_pilot_licence_number']),
             LastTrainingDate::fromString($state['last_training_flight_date']),
+            IsOwner::fromValue($state['is_pilot_training']),
             IsOwner::fromValue($state['is_pilot_class_a']),
             IsOwner::fromValue($state['is_pilot_class_b']),
             IsOwner::fromValue($state['is_pilot_class_c']),
             IsOwner::fromValue($state['is_pilot_class_d']),
             IsOwner::fromValue($state['is_pilot_gaz']),
-            IsOwner::fromValue($state['is_medical_owner']),
             EndDate::fromString($state['end_medical_date']),
-            StartDate::fromString($state['start_medical_date']),
             IsOwner::fromValue($state['has_qualif_static']),
             IsOwner::fromValue($state['has_qualif_night']),
             IsOwner::fromValue($state['has_qualif_pro']),
             LastTrainingDate::fromString($state['last_opc_date']),
-            LastTrainingDate::fromString($state['last_pro_refresh_date']),
             IsOwner::fromValue($state['has_qualif_instructor']),
             LastTrainingDate::fromString($state['last_instructor_refresh_date']),
+            LastTrainingDate::fromString($state['last_instructor_training_flight_date']),
             IsOwner::fromValue($state['has_qualif_examinator']),
             LastTrainingDate::fromString($state['last_examinator_refresh_date']),
             IsOwner::fromValue($state['has_radio']),
@@ -270,10 +241,8 @@ final class Pilot
             RadioLicenceDate::fromString($state['radio_licence_date']),
             IsOwner::fromValue($state['has_training_first_help']),
             LastTrainingDate::fromString($state['last_training_first_help_date']),
-            FirstHelpCertificationNumber::create($state['certification_number_training_first_help']),
             IsOwner::fromValue($state['has_training_fire']),
-            LastTrainingDate::fromString($state['last_training_fire_date']),
-            FireCertificationNumber::create($state['certification_number_training_fire'])
+            LastTrainingDate::fromString($state['last_training_fire_date'])
         );
     }
 
@@ -282,24 +251,22 @@ final class Pilot
         return [
             'user_id' => $this->pilotId->getId(),
             'pilot_licence_number' => $this->pilotLicenceNumber->getLicence(),
-            'training_pilot_licence_number' => $this->trainingPilotLicenceNumber->getLicence(),
             'last_training_flight_date' => $this->lastTrainingFlightDate->asString(),
+            'is_pilot_training' => $this->isPilotTraining->is(),
             'is_pilot_class_a' => $this->isPilotClassA->is(),
             'is_pilot_class_b' => $this->isPilotClassB->is(),
             'is_pilot_class_c' => $this->isPilotClassC->is(),
             'is_pilot_class_d' => $this->isPilotClassD->is(),
             'is_pilot_gaz' => $this->isPilotCaz->is(),
-            'is_medical_owner' => $this->isMedicalOwner->is(),
             'end_medical_date' => $this->endMedicalDate->asString(),
-            'start_medical_date' => $this->startMedicalDate->asString(),
             'medical_validity_duration' => 0,
             'has_qualif_static' => $this->hasQualifStatic->is(),
             'has_qualif_night' => $this->hasQualifNight->is(),
             'has_qualif_pro' => $this->hasQualifPro->is(),
             'last_opc_date' => $this->lastOpcDate->asString(),
-            'last_pro_refresh_date' => $this->lastProRefreshDate->asString(),
             'has_qualif_instructor' => $this->hasQualifInstructor->is(),
             'last_instructor_refresh_date' => $this->lastInstructorRefreshDate->asString(),
+            'last_instructor_training_flight_date' => $this->lastInstructorTrainingFlightDate->asString(),
             'has_qualif_examinator' => $this->hasQualifExaminator->is(),
             'last_examinator_refresh_date' => $this->lastExaminatorRefreshDate->asString(),
             'has_radio' => $this->hasRadio->is(),
@@ -307,26 +274,14 @@ final class Pilot
             'radio_licence_date' => $this->radioLicenceDate->asString(),
             'has_training_first_help' => $this->hasTrainingFirstHelp->is(),
             'last_training_first_help_date' => $this->lastTrainingFirstHelpDate->asString(),
-            'certification_number_training_first_help' => $this->certificationNumberTrainingFirstHelp->getLicence(),
             'has_training_fire' => $this->hasTrainingFire->is(),
             'last_training_fire_date' => $this->lastTrainingFireDate->asString(),
-            'certification_number_training_fire' => $this->certificationNumberTrainingFire->getLicence(),
         ];
     }
 
     public function id(): PilotId
     {
         return $this->pilotId;
-    }
-
-    public function medical()
-    {
-        $this->isMedicalOwner = IsOwner::yes();
-    }
-
-    public function removeMedical()
-    {
-        $this->isMedicalOwner = IsOwner::no();
     }
 
     public function hasClassA()
@@ -464,24 +419,9 @@ final class Pilot
         $this->pilotLicenceNumber = $value;
     }
 
-    public function attributeTrainingPilotLicenceNumber(PilotTrainingLicenceNumber $value)
-    {
-        $this->trainingPilotLicenceNumber = $value;
-    }
-
     public function attributeRadioLicenceNumber(RadioLicenceNumber $value)
     {
         $this->radioLicenceNumber = $value;
-    }
-
-    public function attributeCertificationNumberTrainingFirstHelp(FirstHelpCertificationNumber $value)
-    {
-        $this->certificationNumberTrainingFirstHelp = $value;
-    }
-
-    public function attributeCertificationNumberTrainingFire(FireCertificationNumber $value)
-    {
-        $this->certificationNumberTrainingFire = $value;
     }
 
     public function attributeLastTrainingFlightDate(LastTrainingDate $value)
@@ -494,19 +434,9 @@ final class Pilot
         $this->endMedicalDate = $value;
     }
 
-    public function attributeStartMedicalDate(StartDate $value)
-    {
-        $this->startMedicalDate = $value;
-    }
-
     public function attributeLastOpcDate(LastTrainingDate $value)
     {
         $this->lastOpcDate = $value;
-    }
-
-    public function attributeLastProRefreshDate(LastTrainingDate $value)
-    {
-        $this->lastProRefreshDate = $value;
     }
 
     public function attributeLastInstructorRefreshDate(LastTrainingDate $value)
@@ -526,11 +456,26 @@ final class Pilot
 
     public function attributeRadioLicenceDate(RadioLicenceDate $value)
     {
-        $this->radioLicenceDate =  $value;
+        $this->radioLicenceDate = $value;
     }
 
     public function attributeLastTrainingFirstHelpDate(LastTrainingDate $value)
     {
         $this->lastTrainingFirstHelpDate = $value;
+    }
+
+    public function removeTrainingLicence()
+    {
+        $this->isPilotTraining = IsOwner::no();
+    }
+
+    public function training()
+    {
+        $this->isPilotTraining = IsOwner::yes();
+    }
+
+    public function attributeLastInstructorTrainingFlightDate(LastTrainingDate $value)
+    {
+        $this->lastInstructorTrainingFlightDate = $value;
     }
 }
