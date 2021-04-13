@@ -48,7 +48,7 @@ final class TotalDamage extends ViewModel
      *
      * @return mixed
      */
-    public static function fromArray(array $values)
+    public static function fromArray(array $values, string $prefix = '')
     {
         return new self($values['amount'], $values['author'], $values['author_name'], $values['billed']);
     }

@@ -57,7 +57,7 @@ final class Statistic extends ViewModel
      *
      * @return mixed
      */
-    public static function fromArray(array $values)
+    public static function fromArray(array $values, string $prefix = '')
     {
         return new self(
             $values['stat'],
