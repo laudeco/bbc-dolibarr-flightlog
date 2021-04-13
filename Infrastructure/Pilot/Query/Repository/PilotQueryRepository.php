@@ -23,7 +23,21 @@ final class PilotQueryRepository
      * @return array|Pilot[]
      */
     public function query():array{
-        $sql = sprintf('SELECT 
+        return $this->filter([]);
+    }
+
+    public function byId($id){
+        $pilots = $this->filter(['id' => $id]);
+        if (empty($pilots)) {
+            return Pilot::fromArray(['id' => $id]);
+        }
+
+        return $pilots[0];
+    }
+
+    private function filter(array $filters): array
+    {
+        $sql = 'SELECT 
             llx_user.lastname as name,
             llx_user.firstname as firstname,
             llx_user.email as email,
@@ -68,7 +82,12 @@ final class PilotQueryRepository
             WHERE f.fk_pilot = llx_user.rowid
             AND TIMESTAMPDIFF(MONTH, f.date, NOW()) <= 48
         )
-        ORDER BY llx_user.lastname, llx_user.firstname, llx_user.rowid, flight.date');
+        ';
+
+        if(isset($filters['id'])){
+            $sql .= ' AND llx_user.rowid = '.$filters['id'];
+        }
+        $sql .= ' ORDER BY llx_user.lastname, llx_user.firstname, llx_user.rowid, flight.date';
 
         $resql = $this->db->query($sql);
         if (!$resql) {
@@ -94,39 +113,7 @@ final class PilotQueryRepository
 
         }
 
-        return $pilots;
-    }
-
-    public function byId($id){
-        $sql = sprintf('SELECT 
-            lastname as name,
-            firstname as firstname,
-            email as email,
-            rowid as id,
-            pilot.end_medical_date as medical_end_date,
-            pilot.last_training_flight_date as last_training_flight_date,
-        FROM llx_user
-        LEFT JOIN llx_bbc_pilots as pilot
-            ON pilot.user_id = rowid
-        WHERE  statut = 1 
-        AND firstname != \'\' 
-        AND employee = 1
-        AND pilot.user_id = %s', $id);
-
-        $resql = $this->db->query($sql);
-        if (!$resql) {
-            return Pilot::fromArray(['id' => $id]);
-        }
-
-        $num = $this->db->num_rows($resql);
-        if ($num === 0) {
-            return Pilot::fromArray(['id' => $id]);
-        }
-
-        for($i = 0; $i < $num ; $i++) {
-            return Pilot::fromArray($this->db->fetch_array($resql));
-        }
-        return Pilot::fromArray(['id' => $id]);
+        return array_values($pilots);
     }
 
 }
