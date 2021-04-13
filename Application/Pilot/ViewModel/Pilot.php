@@ -441,36 +441,23 @@ final class Pilot extends ViewModel
 
         $ok = '<span class="text-success text-italic">OK</span>';
 
-        $reasons .= '<br> <span class="text-bold">Médical : </span> ' . ($this->isMedicalValid() ? $ok : 'L\'échéance est atteinte ou dépassée.');
-
-        if ($this->isPilotClassA()) {
+        if($this->isPilot()){
+            $reasons .= '<br> <span class="text-bold">Médical : </span> ' . ($this->isMedicalValid() ? $ok : 'L\'échéance est atteinte ou dépassée.');
             $reasons .= '<br> <span class="text-bold">Training flight : </span> ' . ($this->isTrainingFlightValid() ? $ok : 'Pas de vol avec un FI dans les 48 derniers mois.');
             $reasons .= '<br> <span class="text-bold">Exp. récente Gr. A: </span> ' . ($this->isHoursAndTakeOffValidGroupA() ? $ok : 'Pas 6H & 10TO dans les 24 derniers mois');
+
+            if ($this->hasQualifPro()) {
+                $reasons .= '<br><span class="text-bold">OPC / Refresh: </span> ' . ($this->isProDateValid() ? $ok : 'Pas de OPC dans les 24 derniers mois');
+                $reasons .= '<br><span class="text-bold">Commercial: </span> ' . ($this->isProValid() ? $ok : 'Pas 3 vols dans les 6 derniers mois');
+            }
         }
 
-        if ($this->isPilotClassB()) {
-            // $reasons .= '<br> (<span class="text-bold">Exp. récente Gr. B: </span> ' . ($this->isPilotClassBValid() ? $ok : 'Pas 3H sur les 24 derniers mois'). ')';
-        }
-        if ($this->isPilotClassC()) {
-            // $reasons .= '<br> (<span class="text-bold">Exp. récente Gr. C: </span> ' . ($this->isPilotClassCValid() ? $ok : 'Pas 3H sur les 24 derniers mois'). ')';
-        }
-        if ($this->isPilotClassD()) {
-            // $reasons .= '<br> (<span class="text-bold">Exp. récente Gr. D: </span> ' . ($this->isPilotClassDValid() ? $ok : 'Pas 3H sur les 24 derniers mois'). ')';
-        }
-        if ($this->isPilotGaz()) {
-            // $reasons .= '<br> (<span class="text-bold">Exp. récente Gaz: </span> ' . ($this->isPilotGazValid() ? $ok : 'Pas 3H sur les 24 derniers mois'). ')';
-        }
 
-        if ($this->hasQualifPro()) {
-            $reasons .= '<br><span class="text-bold">OPC / Refresh: </span> ' . ($this->isProDateValid() ? $ok : 'Pas de OPC dans les 24 derniers mois');
-            $reasons .= '<br><span class="text-bold">Commercial: </span> ' . ($this->isProValid() ? $ok : 'Pas 3 vols dans les 6 derniers mois');
-        }
-
-        if($this->isTrainingFire()){
+        if($this->isPilot() || $this->isTrainingFire()){
             $reasons .= '<br><span class="text-bold">Feu: </span> ' . ($this->isTrainingFireValid() ? $ok : 'Date expirée');
         }
 
-        if($this->isTrainingFirstHelp()){
+        if($this->isPilot() || $this->isTrainingFirstHelp()){
             $reasons .= '<br><span class="text-bold">Premiers secours: </span> ' . ($this->isTrainingFirstHelpValid() ? $ok : 'Date expirée');
         }
 
@@ -479,8 +466,12 @@ final class Pilot extends ViewModel
 
     private function isMedicalValid(): bool
     {
-        if (null === $this->medicalEndDate) {
+        if (!$this->isPilot()) {
             return true;
+        }
+
+        if(null === $this->medicalEndDate){
+            return false;
         }
 
         return $this->medicalEndDate > new \DateTimeImmutable();
@@ -489,7 +480,7 @@ final class Pilot extends ViewModel
 
     private function isTrainingFlightValid(): bool
     {
-        if (!$this->isPilotClassA()) {
+        if(!$this->isPilot()){
             return true;
         }
 
@@ -502,6 +493,10 @@ final class Pilot extends ViewModel
 
     private function isHoursAndTakeOffValidGroupA(): bool
     {
+        if(!$this->isPilot()){
+            return true;
+        }
+
         if (!$this->isPilotClassA()) {
             return true;
         }
@@ -523,65 +518,12 @@ final class Pilot extends ViewModel
         return $totalHour >= 6 && ($totalTakeOff >= 10 || $totalLanding >= 10);
     }
 
-    private function isPilotClassBValid()
-    {
-        if (!$this->isPilotClassB()) {
-            return true;
-        }
-
-        // We don't have any balloon in this topic
-
-        return false;
-    }
-
-    private function isPilotClassCValid()
-    {
-        if (!$this->isPilotClassC()) {
-            return true;
-        }
-
-        // We don't have any balloon in this topic
-
-        return false;
-    }
-
-    private function isPilotClassDValid()
-    {
-        if (!$this->isPilotClassD()) {
-            return true;
-        }
-
-        // We don't have any balloon in this topic
-
-        return false;
-    }
-
-    private function isPilotGazValid()
-    {
-        if (!$this->isPilotGaz()) {
-            return true;
-        }
-
-        $totalHour = 0;
-
-        foreach ($this->flights as $currentFlight) {
-
-            if (!$currentFlight->isGazBalloon()) {
-                continue;
-            }
-
-            if ($this->diffDateInMonths($currentFlight->getDate()) > 24) {
-                continue;
-            }
-
-            $totalHour += $currentFlight->getDuration() / 60;
-        }
-
-        return $totalHour >= 3;
-    }
-
     private function isProDateValid(): bool
     {
+        if(!$this->isPilot()){
+            return true;
+        }
+
         if (null === $this->lastOpcDate || !$this->hasQualifPro()) {
             return true;
         }
@@ -592,6 +534,10 @@ final class Pilot extends ViewModel
 
     private function isProValid(): bool
     {
+        if(!$this->isPilot()){
+            return true;
+        }
+        
         if (!$this->hasQualifPro()) {
             return true;
         }
@@ -622,7 +568,7 @@ final class Pilot extends ViewModel
 
     private function isTrainingFireValid()
     {
-        if(!$this->isTrainingFire()){
+        if(!$this->isTrainingFire() && !$this->isPilot()){
             return true;
         }
 
@@ -635,7 +581,7 @@ final class Pilot extends ViewModel
 
     private function isTrainingFirstHelpValid()
     {
-        if(!$this->isTrainingFirstHelp()){
+        if(!$this->isTrainingFirstHelp() && !$this->isPilot() ){
             return true;
         }
 
@@ -644,5 +590,10 @@ final class Pilot extends ViewModel
         }
 
         return $this->diffDateInMonths($this->lastTrainingFirstHelpDate) <= 36;
+    }
+
+    private function isPilot(): bool
+    {
+        return $this->isPilotClassA() || $this->isPilotClassB() || $this->isPilotClassC() || $this->isPilotClassD();
     }
 }
