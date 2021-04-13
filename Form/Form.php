@@ -186,6 +186,18 @@ abstract class Form implements FormInterface
      */
     public function setData(array $data)
     {
+        foreach($this->elements as $element){
+            if($element->getType() !== 'checkbox'){
+                continue;
+            }
+
+            if(isset($data[$element->getName()])){
+                continue;
+            }
+
+            $data[$element->getName()] = 0;
+        }
+
         foreach ($data as $fieldName => $currentData) {
             if (!key_exists($fieldName, $this->elements) || $this->elements[$fieldName]->isDisabled()) {
                 continue;
