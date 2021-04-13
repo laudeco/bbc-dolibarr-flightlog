@@ -497,7 +497,7 @@ final class Pilot extends ViewModel
             return false;
         }
 
-        return $this->diffDateInMonths($this->lastTrainingFlightDate) >= 48;
+        return $this->diffDateInMonths($this->lastTrainingFlightDate) <= 48;
     }
 
     private function isHoursAndTakeOffValidGroupA(): bool
