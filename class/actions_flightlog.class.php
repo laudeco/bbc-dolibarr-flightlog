@@ -17,6 +17,11 @@ class ActionsFlightlog
     public $results = [];
 
     /**
+     * @var string
+     */
+    public $resprints = '';
+
+    /**
      * Add entry in search list
      *
      * @param array $searchInfo
@@ -58,8 +63,9 @@ class ActionsFlightlog
      *
      * @return int
      */
-    public function showLinkedObjectBlock(array $params = [], $object){
-        if(!isset($object->linkedObjectsIds) || !isset($object->linkedObjectsIds['flightlog_damage'])){
+    public function showLinkedObjectBlock(array $params = [], $object)
+    {
+        if (!isset($object->linkedObjectsIds) || !isset($object->linkedObjectsIds['flightlog_damage'])) {
             return 0;
         }
 
@@ -69,7 +75,7 @@ class ActionsFlightlog
         dol_include_once('/flightlog/flightlog.inc.php');
         $queryRepository = new \FlightLog\Infrastructure\Damage\Query\Repository\GetDamageQueryRepository($db);
 
-        foreach($object->linkedObjectsIds['flightlog_damage'] as $damageId){
+        foreach ($object->linkedObjectsIds['flightlog_damage'] as $damageId) {
             try {
                 $object->linkedObjects['flightlog_damage'][$damageId] = $queryRepository->query($damageId);
             } catch (Exception $e) {
@@ -99,23 +105,65 @@ class ActionsFlightlog
         return $sql;
     }
 
-    public function completeListOfReferent(){
+    public function completeListOfReferent()
+    {
         dol_include_once('/flightlog/class/bbcvols.class.php');
 
         $this->results['flightlog'] = [
-            'name'=>"Vols",
-            'title'=>"Vols",
-            'class'=>'bbcvols',
-            'table'=>'bbc_vols',
-            'datefieldname'=>'datev',
-            'margin'=>'minus',
-            'disableamount'=>0,
-            'urlnew'=>'',
-            'lang'=>'flightlog',
-            'buttonnew'=>'Ajouter un vol',
-            'testnew'=>true,
-            'test'=>true,
+            'name' => "Vols",
+            'title' => "Vols",
+            'class' => 'bbcvols',
+            'table' => 'bbc_vols',
+            'datefieldname' => 'datev',
+            'margin' => 'minus',
+            'disableamount' => 0,
+            'urlnew' => '',
+            'lang' => 'flightlog',
+            'buttonnew' => 'Ajouter un vol',
+            'testnew' => true,
+            'test' => true,
             'project_field' => 'fk_project',
         ];
+    }
+
+    public function addOpenElementsDashboardGroup()
+    {
+        $this->results = [
+            /*'pilots' =>
+                array(
+                    'groupName' => 'Pilotes',
+                    'globalStatsKey' => 'Pilots',
+                    'stats' => ['pilotInOrder', 'pilotNotInOrder'],
+                ),*/
+        ];
+    }
+
+    public function addOpenElementsDashboardLine(){
+        $result = new WorkboardResponse();
+        $result->label = 'En ordre';
+        $result->nbtodo = 10;
+
+        $resultNotInOrder = new WorkboardResponse();
+        $resultNotInOrder->label = 'En défaut';
+        $resultNotInOrder->nbtodo = 5;
+
+
+        $this->results = [
+            //'pilotInOrder' => $result,
+            //'pilotNotInOrder' => $resultNotInOrder,
+        ];
+    }
+
+    public function printTopRightMenu(array $parameters = []){
+        /** @var DoliDB $db */
+        global $db, $user;
+
+        dol_include_once('/flightlog/flightlog.inc.php');
+
+        $repository = new \FlightLog\Infrastructure\Pilot\Query\Repository\PilotQueryRepository($db);
+
+        $member = $repository->byId($user->id);
+        $this->resprints = img_picto($member->getReasons(), $member->getIconId(), '', false, false, false, '', 'classfortooltip');
+        return 0;
     }
 }

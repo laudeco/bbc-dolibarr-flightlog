@@ -157,7 +157,7 @@ scan('../flightlog/Application');
 function scan(string $root)
 {
     if (is_file($root) && substr($root, -4) === '.php' && substr($root, -9) !== '.conf.php') {
-        include_once(str_replace('../flightlog', '.', $root));
+        include_once(str_replace('../flightlog', __DIR__, $root));
         return;
     }
 

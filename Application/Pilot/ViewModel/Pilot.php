@@ -483,7 +483,7 @@ final class Pilot extends ViewModel
             $reasons .= '<br><span class="text-bold">Premiers secours: </span> ' . ($this->isTrainingFirstHelpValid() ? $ok : 'Date expirée');
         }
 
-        return '<u>Details:</u>' . $reasons;
+        return '<u><span class="text-bold">Vol autorisé ? </span> :  ' . ($this->isDanger() ? '<span class="text-warning">Méfiance</span>' : $ok) .'</u>'. $reasons;
     }
 
     private function isMedicalValid(): bool

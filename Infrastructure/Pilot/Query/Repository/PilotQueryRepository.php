@@ -26,6 +26,11 @@ final class PilotQueryRepository
         return $this->filter([]);
     }
 
+    /**
+     * @param int $id
+     *
+     * @return Pilot
+     */
     public function byId($id){
         $pilots = $this->filter(['id' => $id]);
         if (empty($pilots)) {
