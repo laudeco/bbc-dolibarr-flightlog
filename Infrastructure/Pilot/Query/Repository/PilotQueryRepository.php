@@ -43,6 +43,7 @@ final class PilotQueryRepository
             llx_user.email as email,
             llx_user.rowid as id,
             
+            pilot.pilot_licence_number as licence_number,
             pilot.end_medical_date as medical_end_date,
             pilot.last_training_flight_date as last_training_flight_date,
             pilot.is_pilot_class_a as is_pilot_class_a,
@@ -76,18 +77,18 @@ final class PilotQueryRepository
         WHERE  llx_user.statut = 1 
         AND llx_user.firstname != \'\' 
         AND llx_user.employee = 1
-        AND flight.rowid IN (
+        AND (flight.rowid IS NULL OR flight.rowid IN (
             SELECT f.rowid
             FROM llx_bbc_vols AS f
             WHERE f.fk_pilot = llx_user.rowid
             AND TIMESTAMPDIFF(MONTH, f.date, NOW()) <= 48
-        )
+        ))
         ';
 
         if(isset($filters['id'])){
             $sql .= ' AND llx_user.rowid = '.$filters['id'];
         }
-        $sql .= ' ORDER BY llx_user.lastname, llx_user.firstname, llx_user.rowid, flight.date';
+        $sql .= ' ORDER BY llx_user.firstname, llx_user.lastname, llx_user.rowid, flight.date';
 
         $resql = $this->db->query($sql);
         if (!$resql) {

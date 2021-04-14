@@ -13,6 +13,8 @@ global $members, $user;
         <th>#</th>
         <th>Prenom</th>
         <th>Nom</th>
+        <th>N° de Licence</th>
+        <th>Statut</th>
     </tr>
     <?php foreach ($members as $member): ?>
         <tr class="pair">
@@ -23,6 +25,7 @@ global $members, $user;
 
             <td><?php echo $member->getFirstname(); ?></td>
             <td><?php echo $member->getName(); ?></td>
+            <td><?php echo $member->getLicenceNumber()?: '-'; ?></td>
             <td><?php echo img_picto($member->getReasons(), $member->getIconId(), '', false, false, false, '', 'classfortooltip') ?> </td>
         </tr>
     <?php endforeach; ?>

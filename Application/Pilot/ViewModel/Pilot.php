@@ -105,6 +105,11 @@ final class Pilot extends ViewModel
      */
     private $isPilotTraining;
 
+    /**
+     * @var string|null
+     */
+    private $licenceNumber;
+
 
     /**
      * @var array|PilotFlight[]
@@ -408,6 +413,23 @@ final class Pilot extends ViewModel
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getLicenceNumber(): ?string
+    {
+        return $this->licenceNumber;
+    }
+
+    /**
+     * @param string|null $licenceNumber
+     * @return Pilot
+     */
+    public function setLicenceNumber(?string $licenceNumber): Pilot
+    {
+        $this->licenceNumber = $licenceNumber;
+        return $this;
+    }
 
     public function addFlight(PilotFlight $flight)
     {
@@ -448,7 +470,7 @@ final class Pilot extends ViewModel
 
             if ($this->hasQualifPro()) {
                 $reasons .= '<br><span class="text-bold">OPC / Refresh: </span> ' . ($this->isProDateValid() ? $ok : 'Pas de OPC dans les 24 derniers mois');
-                $reasons .= '<br><span class="text-bold">Commercial: </span> ' . ($this->isProValid() ? $ok : 'Pas 3 vols dans les 6 derniers mois');
+                $reasons .= '<br><span class="text-bold">Exp. récente Commercial: </span> ' . ($this->isProValid() ? $ok : 'Pas 3 vols dans les 6 derniers mois');
             }
         }
 
@@ -488,7 +510,7 @@ final class Pilot extends ViewModel
             return false;
         }
 
-        return $this->diffDateInMonths($this->lastTrainingFlightDate) <= 48;
+        return $this->diffDateInMonths($this->lastTrainingFlightDate) < 48;
     }
 
     private function isHoursAndTakeOffValidGroupA(): bool
@@ -528,7 +550,7 @@ final class Pilot extends ViewModel
             return !$this->hasQualifPro();
         }
 
-        return $this->diffDateInMonths($this->lastOpcDate) <= 48;
+        return $this->diffDateInMonths($this->lastOpcDate) < 48;
 
     }
 
@@ -544,7 +566,7 @@ final class Pilot extends ViewModel
 
         $flight = $this->getAntepenultimateFlight();
 
-        return $this->diffDateInMonths($flight->getDate()) <= 6;
+        return $this->diffDateInMonths($flight->getDate()) < 6;
     }
 
     private function getAntepenultimateFlight(): ?PilotFlight
@@ -576,7 +598,7 @@ final class Pilot extends ViewModel
             return false;
         }
 
-        return $this->diffDateInMonths($this->lastTrainingFireDate) <= 36;
+        return $this->diffDateInMonths($this->lastTrainingFireDate) < 36;
     }
 
     private function isTrainingFirstHelpValid()
@@ -589,7 +611,7 @@ final class Pilot extends ViewModel
             return false;
         }
 
-        return $this->diffDateInMonths($this->lastTrainingFirstHelpDate) <= 36;
+        return $this->diffDateInMonths($this->lastTrainingFirstHelpDate) < 36;
     }
 
     private function isPilot(): bool
