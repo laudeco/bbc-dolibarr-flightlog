@@ -524,8 +524,8 @@ final class Pilot extends ViewModel
             return true;
         }
 
-        if (null === $this->lastOpcDate || !$this->hasQualifPro()) {
-            return true;
+        if (null === $this->lastOpcDate) {
+            return !$this->hasQualifPro();
         }
 
         return $this->diffDateInMonths($this->lastOpcDate) <= 48;
@@ -537,7 +537,7 @@ final class Pilot extends ViewModel
         if(!$this->isPilot()){
             return true;
         }
-        
+
         if (!$this->hasQualifPro()) {
             return true;
         }
