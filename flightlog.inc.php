@@ -150,9 +150,9 @@ dol_include_once('/core/class/dolgraph.class.php');
 
 dol_include_once('/fourn/class/fournisseur.facture.class.php');
 
-scan('../flightlog/Http/Web/Controller');
-scan('../flightlog/Infrastructure');
-scan('../flightlog/Application');
+scan(__DIR__.'/Http/Web/Controller');
+scan(__DIR__.'/Infrastructure');
+scan(__DIR__.'/Application');
 
 function scan(string $root)
 {

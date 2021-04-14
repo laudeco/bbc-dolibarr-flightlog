@@ -3,6 +3,8 @@
  *
  */
 
+use FlightLog\Infrastructure\Pilot\Query\Repository\PilotQueryRepository;
+
 /**
  * ActionsFlightlog class
  *
@@ -158,11 +160,11 @@ class ActionsFlightlog
         /** @var DoliDB $db */
         global $db, $user;
 
-        dol_include_once('/flightlog/flightlog.inc.php');
+        @dol_include_once('/flightlog/flightlog.inc.php');
 
-        $repository = new \FlightLog\Infrastructure\Pilot\Query\Repository\PilotQueryRepository($db);
+        $repository = new PilotQueryRepository($db);
 
-        $member = $repository->byId($user->id);
+        @$member = $repository->byId($user->id);
         $this->resprints = img_picto($member->getReasons(), $member->getIconId(), '', false, false, false, '', 'classfortooltip');
         return 0;
     }
