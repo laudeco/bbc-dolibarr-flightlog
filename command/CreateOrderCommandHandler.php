@@ -140,7 +140,7 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
 
         $existingCustomers = $this->societe->fetch(null, $name);
         if ($existingCustomers > 0) {
-            $this->societe = $existingCustomers[0];
+            //$this->societe = $existingCustomers[0];
             return $this->societe;
         }
 
@@ -169,7 +169,7 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
         $this->societe->default_lang = $command->getLanguage();
 
         $customerId = $this->societe->create($this->user);
-        if ($customerId < 0) {
+        if ($customerId <= 0) {
             throw new Exception($this->societe->errorsToString(), $customerId);
         }
 
@@ -220,7 +220,7 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
 
         $orderId = $this->order->create($this->user);
         if ($orderId <= 0) {
-            throw new Exception('Exception during the order creation');
+            throw new Exception('Exception during the order creation ('.$this->order->error.')');
         }
 
         return $this;

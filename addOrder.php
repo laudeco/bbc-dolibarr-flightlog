@@ -97,7 +97,7 @@ if (GETPOST("action") == 'add') {
                 $successMessage = true;
             } catch (\Exception $e) {
                 // Creation KO
-                $msg = '<div class="error">Erreur lors de l\'ajout de la commande</div>';
+                $msg = '<div class="error">Erreur lors de l\'ajout de la commande '.$e->getMessage().'</div>';
             }
         }
     }
