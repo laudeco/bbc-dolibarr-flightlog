@@ -127,5 +127,9 @@ final class PilotFlight extends ViewModel
     }
 
 
+    public function isValid(): bool
+    {
+        return $this->date !== null;
+    }
 
 }

@@ -115,7 +115,10 @@ final class PilotQueryRepository
                 $pilots[$pilotId] = Pilot::fromArray($values);
             }
 
-            $pilots[$pilotId]->addFlight(PilotFlight::fromArray($values, 'flight'));
+            $flight = PilotFlight::fromArray($values, 'flight');
+            if($flight->isValid()){
+                $pilots[$pilotId]->addFlight($flight);
+            }
 
         }
 

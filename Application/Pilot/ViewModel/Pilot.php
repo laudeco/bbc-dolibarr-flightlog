@@ -442,19 +442,25 @@ final class Pilot extends ViewModel
             return 'statut8';
         }
 
+        if ($this->isWarning()) {
+            return 'statut1';
+        }
+
         return 'statut4';
     }
 
     public function isDanger()
     {
         return !$this->isMedicalValid()
+            || !$this->isProDateValid()
             || !$this->isTrainingFlightValid()
-            || !$this->isHoursAndTakeOffValidGroupA()
-            || !$this->isProValid()
             || !$this->isProDateValid()
             || !$this->isTrainingFireValid()
             || !$this->isTrainingFirstHelpValid();
+    }
 
+    public function isWarning(){
+        return !$this->isHoursAndTakeOffValidGroupA() || !$this->isProValid();
     }
 
     public function getReasons()
@@ -483,7 +489,19 @@ final class Pilot extends ViewModel
             $reasons .= '<br><span class="text-bold">Premiers secours: </span> ' . ($this->isTrainingFirstHelpValid() ? $ok : 'Date expirée');
         }
 
-        return '<u><span class="text-bold">Vol autorisé ? </span> :  ' . ($this->isDanger() ? '<span class="text-warning">Méfiance</span>' : $ok) .'</u>'. $reasons;
+
+        $qualification = $ok;
+        if(!$this->isPilot()){
+            $qualification = '<span class="text-success">CREW</span>';
+        }
+        if($this->isWarning()){
+            $qualification = '<span class="text-warning">Controle du carnet de vol nécessaire</span>';
+        }
+        if($this->isDanger()){
+            $qualification = '<span class="text-danger">Vol non autorisé</span>';
+        }
+
+        return '<u><span class="text-bold">Qualification </span> :  ' . $qualification .'</u>'. $reasons;
     }
 
     private function isMedicalValid(): bool
