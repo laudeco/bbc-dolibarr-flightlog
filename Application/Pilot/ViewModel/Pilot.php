@@ -541,6 +541,10 @@ final class Pilot extends ViewModel
             return true;
         }
 
+        if($this->lastOpcDate && $this->diffDateInMonths($this->lastOpcDate) < 6){
+            return true;
+        }
+
         $totalHour = 0;
         $totalLanding = 0;
         $totalTakeOff = 0;
