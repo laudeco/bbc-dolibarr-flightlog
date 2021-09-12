@@ -48,13 +48,13 @@ class ActionsFlightlog
      * @param $object
      * @param $action
      */
-    public function showLinkToObjectBlock()
+    public function showLinkToObjectBlock($params = [], CommonObject $object = null)
     {
         $this->results["flightlog_bbcvols"] = [
             'enabled' => 1,
             'perms' => 1,
-            'label' => 'LinkToFlight',
-            'sql' => $this->getSqlForLink(),
+            'label' => 'Un vol',
+            'sql' => $this->getSqlForLink($object),
         ];
 
     }
@@ -88,20 +88,30 @@ class ActionsFlightlog
     }
 
     /**
+     * @param CommonObject|null $object
      * @return string
      */
-    private function getSqlForLink()
+    private function getSqlForLink(CommonObject $object = null)
     {
         $sql = "SELECT ";
         $sql .= " f.idBBC_vols as rowid ";
         $sql .= ", f.cost as total_ht ";
-        $sql .= ", CONCAT('(ID : ',f.idBBC_vols, ') - ' ,f.date, ' - ',f.lieuD, ' => ', f.lieuA) as ref ";
+        $sql .= ", CONCAT('(ID : ',f.idBBC_vols, ') <br/> Date : ' ,f.date, ' <br/> De ',f.lieuD, ' à ', f.lieuA) as ref ";
 
         $sql .= " FROM ";
         $sql .= MAIN_DB_PREFIX . "bbc_vols as f ";
 
-        $sql .= "WHERE YEAR(f.date) = (YEAR(NOW())) ";
-        $sql .= " AND f.fk_type IN (1,2) ";
+        $sql .= "WHERE 1 = 1 ";
+
+        if($object instanceof FactureFournisseur){
+            $sql .= " AND (YEAR(f.date) = (YEAR(NOW())) OR YEAR(f.date) = (YEAR(NOW()) - 1))";
+        }else{
+            $sql .= " AND YEAR(f.date) = (YEAR(NOW())) ";
+            $sql .= " AND f.fk_type IN (1,2) ";
+            $sql .= " AND f.is_facture = 0 ";
+        }
+
+
         $sql .= " ORDER BY date DESC";
 
         return $sql;
