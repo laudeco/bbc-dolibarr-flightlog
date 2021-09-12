@@ -120,7 +120,7 @@ if($user->rights->flightlog->vol->financial){
 
 print '</div>' . "\n";
 
-if($user->rights->flightlog->vol->financial){
+if($user->rights->flightlog->vol->financial && $object instanceof Bbcvols && $form instanceof Form){
     print '<div class="fichecenter"><div class="fichehalfleft">';
     $form->showLinkedObjectBlock($object);
     print '</div></div>';
