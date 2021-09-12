@@ -37,8 +37,8 @@ class ActionsFlightlog
         $langs->load("mymodule@flightlog");
 
         $this->results["flightlog"] = [
-            'label' => $langs->trans("Search flight"),
-            'text' => $langs->trans("Search flight"),
+            'label' => $langs->trans("Vol"),
+            'text' => $langs->trans("Vol"),
             'url' => DOL_URL_ROOT . '/flightlog/list.php?mainmenu=flightlog&sall=' . $searchInfo['search_boxvalue']
         ];
     }
@@ -96,10 +96,14 @@ class ActionsFlightlog
         $sql = "SELECT ";
         $sql .= " f.idBBC_vols as rowid ";
         $sql .= ", f.cost as total_ht ";
-        $sql .= ", CONCAT('(ID : ',f.idBBC_vols, ') <br/> Date : ' ,f.date, ' <br/> De ',f.lieuD, ' à ', f.lieuA) as ref ";
+        $sql .= ", CONCAT('(ID : ',f.idBBC_vols, ') <br/> <b>Date : </b>' ,f.date, ' <br/> De ',f.lieuD, ' à ', f.lieuA) as ref ";
+        $sql .= ", CONCAT('<b>Pilote : </b>', pilot.firstname, ' ', pilot.lastname ,'<br/> <b>Organisateur : </b>', pilot.firstname, ' ', pilot.lastname ,'<br/> <b>Receiver: </b>', pilot.firstname, ' ', pilot.lastname  ) as name ";
 
         $sql .= " FROM ";
         $sql .= MAIN_DB_PREFIX . "bbc_vols as f ";
+        $sql .= ' INNER JOIN ' . MAIN_DB_PREFIX."user as pilot ON pilot.rowid =  f.fk_pilot ";
+        $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX."user as organisator ON organisator.rowid =  f.fk_organisateur ";
+        $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX."user as receiver ON receiver.rowid =  f.fk_receiver ";
 
         $sql .= "WHERE 1 = 1 ";
 
