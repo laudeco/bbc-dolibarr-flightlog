@@ -53,7 +53,7 @@ foreach ($linkedObjectBlock as $key => $flight) {
         <td><?= $flight->getNomUrl()?></td>
         <td align="center"><?= sprintf("%s à %s ", $flight->lieuD, $flight->lieuA); ?></td>
         <td align="center"><?= dol_print_date($flight->date, '%d-%m-%Y') ?></td>
-        <td align="right"><?= $flight->cost ?: 'N/A' ?></td>
+        <td align="right"><?= $flight->cost ?: '-' ?></td>
         <td align="right"><?= $flight->getLibStatut(3)?></td>
         <td align="right"><a
                     href="<?php echo $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=dellink&dellinkid=' . $key; ?>"><?php echo img_delete($langs->transnoentitiesnoconv("RemoveLink")); ?></a>
