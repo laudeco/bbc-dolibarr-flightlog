@@ -120,6 +120,11 @@ class Bbcvols extends CommonObject
     private $refreshFlight;
 
     /**
+     * @var User
+     */
+    private $organisator;
+
+    /**
      * @return int
      */
     public function getIdBBCVols()
@@ -696,11 +701,11 @@ class Bbcvols extends CommonObject
 
         $label = '<u>' . $langs->trans("MyModule") . '</u>';
         $label .= '<div width="100%">';
-        $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->idBBC_vols . '<br>';
+        $label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->idBBC_vols . ' - <b>'.$langs->trans('T') . '</b>' . $this->fk_type . '<br>';
         $label .= '<b>' . $langs->trans('Date') . ':</b> ' . dol_print_date($this->date, '%d-%m-%Y') . '<br/>';
-        $label .= '<b>' . $langs->trans('T') . '</b> ' . $this->fk_type . '<br/>';
-        $label .= '<b>' . $langs->trans('De') . ':</b> ' . $this->lieuD . '<br/>';
-        $label .= '<b>' . $langs->trans('à') . ':</b> ' . $this->lieuA . '<br/>';
+        $label .= '<b>' . $langs->trans('De') . ':</b> ' . $this->lieuD . ' - '. '<b>' . $langs->trans('à') . ':</b> ' . $this->lieuA . '<br/>';
+        $label .= '<b>' . $langs->trans('Pilote') . ':</b> ' . $this->getPilot()->getFullName($langs) . '<br/>';
+        $label .= '<b>' . $langs->trans('Organisateur') . ':</b> ' . $this->getOrganisator()->getFullName($langs) . '<br/>';
         $label .= '</div>';
 
         $link = '<a href="' . DOL_URL_ROOT . '/flightlog/card.php?id=' . $this->idBBC_vols . '"';
@@ -879,6 +884,18 @@ class Bbcvols extends CommonObject
         }
 
         return $this->pilot;
+    }
+
+    /**
+     * @return User
+     */
+    public function getOrganisator()
+    {
+        if (!$this->organisator) {
+            $this->organisator = $this->fetchUser($this->fk_organisateur);
+        }
+
+        return $this->organisator;
     }
 
     /**
