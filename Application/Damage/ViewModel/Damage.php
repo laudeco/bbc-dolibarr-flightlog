@@ -54,6 +54,7 @@ final class Damage
      * @param int $id
      * @param bool $invoiced
      * @param int $flightId
+     * @param $label
      */
     private function __construct($authorId, $authorName, $amount, $id, $invoiced, $flightId, $label)
     {
@@ -72,7 +73,8 @@ final class Damage
      *
      * @return Damage
      */
-    public static function fromArray(array $properties){
+    public static function fromArray(array $properties)
+    {
         $authorId = $properties['author_id'];
         $author = $properties['author_name'];
         $label = $properties['label'];
