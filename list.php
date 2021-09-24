@@ -72,9 +72,9 @@ $page = GETPOST('page', 'int');
 if ($page == -1) {
     $page = 0;
 }
-$offset = $limit * $page;
-$pageprev = $page - 1;
-$pagenext = $page + 1;
+$offset = $limit * (int)$page;
+$pageprev = (int)$page - 1;
+$pagenext = (int)$page + 1;
 if (!$sortfield) {
     $sortfield = "t.date, t.heureD";
 } // Set here default search field
