@@ -284,7 +284,7 @@ class Bbcvols extends CommonObject
         $sql .= ' ' . (!isset($this->justif_kilometers) ? 'NULL' : "'" . $this->db->escape($this->justif_kilometers) . "'") . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
         $sql .= ' ' . "'" . date('Y-m-d H:i:s') . "'" . ',';
-        $sql .= ' ' . "'" . $this->passengerNames . "'";
+        $sql .= ' ' . "'" . $this->db->escape($this->passengerNames) . "'";
         $sql .= ')';
 
         $this->db->begin();
