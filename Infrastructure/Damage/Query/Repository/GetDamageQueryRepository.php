@@ -114,9 +114,16 @@ final class GetDamageQueryRepository
         return current($damages);
     }
 
-    public function listDamages(array $filters = [])
+    /**
+     * @param array $filters
+     *
+     * @return array|Damage[]
+     *
+     * @throws \Exception
+     */
+    public function listDamages(array $filters = []): array
     {
-
+        return $this->mainQuery($filters);
     }
 
     /**

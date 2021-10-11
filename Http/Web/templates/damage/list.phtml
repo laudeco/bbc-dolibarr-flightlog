@@ -1,1 +1,22 @@
 <h1>Hello world</h1>
+
+<table class="border centpercent">
+    <thead>
+        <tr>
+            <td>Auteur</td>
+            <td>Montant (€ TTC)</td>
+            <td>Is billed ?</td>
+        </tr>
+    </thead>
+
+    <tbody>
+    <?php /** @var \FlightLog\Application\Damage\ViewModel\Damage $damage */foreach ($damages as $damage) : ?>
+        <tr>
+            <td><?php echo $damage->getAuthorName(); ?></td>
+            <td><?php echo $damage->getAmount(); ?>€ </td>
+            <td><?php echo $damage->isInvoiced(); ?></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+
+</table>
