@@ -30,8 +30,8 @@ $renderer = new \flightlog\form\SimpleFormRenderer();
             <table class="border" width="50%">
 
                 <tr>
-                    <td class="fieldrequired" width="50%">Montant des dégâts</td>
-                    <td><?php echo $renderer->render($form->getElement('amount')); ?>€</td>
+                    <td class="fieldrequired" width="50%">Montant des dégâts (TTC en €)</td>
+                    <td><?php echo $renderer->render($form->getElement('amount')); ?></td>
                 </tr>
 
                 <tr>

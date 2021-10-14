@@ -392,6 +392,22 @@ class modFlightLog extends DolibarrModules
 
         $r++;
         $this->menu[$r] = array(
+            'fk_menu' => 'fk_mainmenu=flightlog,fk_leftmenu=management',
+            'type' => self::MENU_TYPE_LEFT,
+            'titre' => 'Dégâts',
+            'mainmenu' => 'flightlog',
+            'leftmenu' => 'dammages',
+            'url' => '/flightlog/index.php?r=get_damages',
+            'langs' => 'mylangfile',
+            'position' => 111,
+            'enabled' => '1',
+            'perms' => '$user->rights->flightlog->vol->financial',
+            'target' => '',
+            'user' => 2
+        );
+
+        $r++;
+        $this->menu[$r] = array(
             'fk_menu' => 'fk_mainmenu=flightlog',
             'type' => self::MENU_TYPE_LEFT,
             'titre' => 'Qualifications',
@@ -401,7 +417,7 @@ class modFlightLog extends DolibarrModules
             'langs' => 'mylangfile',
             'position' => 110,
             'enabled' => '1',
-            'perms' => '',
+            'perms' => '$user->rights->flightlog->vol->financial',
             'target' => '',
             'user' => 2
         );

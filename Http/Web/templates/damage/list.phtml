@@ -1,0 +1,55 @@
+<?php
+    print_barre_liste(
+        'Liste des dégâts',
+        0,
+        $_SERVER["PHP_SELF"]
+    );
+?>
+
+<table class="border centpercent">
+    <thead>
+    <tr>
+        <th>&nbsp;</th>
+        <th>Vol</th>
+        <th>Auteur</th>
+        <th>Montant (€ TTC)</th>
+        <th>Is billed ?</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <?php /** @var \FlightLog\Application\Damage\ViewModel\Damage $damage */
+    foreach ($damages as $damage) : ?>
+
+        <tr>
+            <td><?php echo $damage->getId(); ?></td>
+            <td>
+                <?php
+                if ($damage->getFlightId() > 0) {
+                    $flight = new Bbcvols($db);
+                    $flight->fetch($damage->getFlightId());
+
+                    echo $flight->getNomUrl(1);
+                } else {
+                    echo '-';
+                }
+                ?>
+            </td>
+
+            <td>
+                <?php
+                $author = new User($db);
+                $author->fetch($damage->getAuthorId());
+
+                echo $author->getNomUrl(1);
+                ?>
+            </td>
+
+            <td><?php echo $damage->getAmount(); ?>€</td>
+
+            <td><?php echo $damage->isInvoiced() ? 'V' : '-'; ?></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+
+</table>
