@@ -417,7 +417,7 @@ class modFlightLog extends DolibarrModules
             'langs' => 'mylangfile',
             'position' => 110,
             'enabled' => '1',
-            'perms' => '',
+            'perms' => '$user->rights->flightlog->vol->financial',
             'target' => '',
             'user' => 2
         );

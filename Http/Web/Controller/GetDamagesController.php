@@ -30,6 +30,7 @@ final class GetDamagesController extends WebController
     public function list()
     {
         return $this->render('damage/list.phtml', [
+            'db' => $this->db,
             'damages' => $this->getDamageRepository()->listDamages(),
         ]);
     }
