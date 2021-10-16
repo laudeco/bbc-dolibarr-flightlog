@@ -11,6 +11,7 @@ return [
     new Route('get_one_damage', DamageController::class, 'view'),
     new Route('invoice_damage', DamageController::class, 'invoice'),
     new Route('get_damages', \FlightLog\Http\Web\Controller\GetDamagesController::class, 'list'),
+    new Route('create_damage', \FlightLog\Http\Web\Controller\AddDamageController::class, 'view'),
     new Route('get_one_flight', FlightController::class, 'view'),
     new Route('edit_pilot', \FlightLog\Http\Web\Controller\PilotEditController::class, 'index'),
     new Route('list_members', PilotListController::class, 'index'),

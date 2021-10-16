@@ -36,9 +36,9 @@ final class GetPilotDamagesQueryRepository implements GetPilotDamagesQueryReposi
     {
         $sql = 'SELECT damage.amount as amount, damage.billed as billed, damage.author_id as author, author.firstname as author_name';
         $sql.=' FROM '.MAIN_DB_PREFIX.'bbc_flight_damages as damage';
-        $sql.=' INNER JOIN '.MAIN_DB_PREFIX.'bbc_vols as flight ON flight.rowid = damage.flight_id';
+        $sql.=' LEFT JOIN '.MAIN_DB_PREFIX.'bbc_vols as flight ON flight.rowid = damage.flight_id';
         $sql.=' INNER JOIN '.MAIN_DB_PREFIX.'user as author ON author.rowid = damage.author_id';
-        $sql.=' WHERE YEAR(flight.date) = '.$this->db->escape($year);
+        $sql.=' WHERE YEAR(damage.created_at) = '.$this->db->escape($year);
 
         $resql = $this->db->query($sql);
         if ($resql) {

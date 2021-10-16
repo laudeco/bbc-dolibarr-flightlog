@@ -1,8 +1,23 @@
 <?php
+    if($user->rights->flightlog->vol->financial){
+        $url = DOL_URL_ROOT.'/flightlog/index.php?r=create_damage';
+        $label = 'New generic degat';
+        $newcardbutton .= dolGetButtonTitle($langs->trans($label), '', 'fa fa-plus-circle', $url);
+    }
+
+
     print_barre_liste(
         'Liste des dégâts',
         0,
-        $_SERVER["PHP_SELF"]
+        $_SERVER["PHP_SELF"],
+        '',
+        '',
+        '',
+        '',
+        -1,
+        '',
+        'generic',
+        0, $newcardbutton
     );
 ?>
 

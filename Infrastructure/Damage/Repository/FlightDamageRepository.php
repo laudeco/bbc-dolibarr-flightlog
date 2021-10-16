@@ -30,14 +30,15 @@ final class FlightDamageRepository extends AbstractDomainRepository
     public function save(FlightDamage $flightDamage)
     {
         $fields = [
-            'flight_id' => $flightDamage->getFlightId()->getId(),
             'billed' => $flightDamage->isBilled(),
             'amount' => $flightDamage->amount()->getValue(),
             'author_id' => $flightDamage->getAuthor()->getId(),
             'label' => $flightDamage->getLabel()->value(),
         ];
 
-        if($flightDamage->getId()){
+        $fields['flight_id'] = $flightDamage->getFlightId() ? $flightDamage->getFlightId()->getId() : null;
+
+        if ($flightDamage->getId()) {
             $this->update($flightDamage->getId()->getId(), $fields);
             return $flightDamage->getId()->getId();
         }
@@ -52,10 +53,11 @@ final class FlightDamageRepository extends AbstractDomainRepository
      *
      * @throws \Exception
      */
-    public function getById(DamageId $id){
+    public function getById(DamageId $id)
+    {
         $damage = $this->get($id->getId());
 
-        if(null === $damage){
+        if (null === $damage) {
             throw new \Exception('Damage not found');
         }
 
