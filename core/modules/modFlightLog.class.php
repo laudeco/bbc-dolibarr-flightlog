@@ -551,6 +551,8 @@ class modFlightLog extends DolibarrModules
         $this->module_parts["hooks"][] = "completeListOfReferent";
         $this->module_parts["hooks"][] = "addOpenElementsDashboardGroup";
         $this->module_parts["hooks"][] = "toprightmenu";
+        $this->module_parts["hooks"][] = "printFieldListValue";
+        $this->module_parts["hooks"][] = "printFieldListTitle";
 
     }
 
