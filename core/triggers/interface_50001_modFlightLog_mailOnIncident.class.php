@@ -122,11 +122,21 @@ class InterfaceMailOnIncident extends DolibarrTriggers
             $to[] = $responsable->email;
         }
 
-
         $backup = new User($user->db);
         $res = $backup->fetch($object->getBalloon()->fk_co_responsable);
         if($res > 0){
             $to[] = $backup->email;
+        }
+
+        if(isset($conf->global->BBC_DAMAGE_EMAILS) && !empty($conf->global->BBC_DAMAGE_EMAILS)){
+            $tmpEmails = explode(';', $conf->global->BBC_DAMAGE_EMAILS);
+            foreach($tmpEmails as $currentEmail){
+                if(null === $currentEmail || empty($currentEmail)){
+                    continue;
+                }
+
+                $to[] = $currentEmail;
+            }
         }
 
         if(empty($to)){

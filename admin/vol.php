@@ -44,6 +44,7 @@ if($action === ACTION_SAVE){
     dolibarr_set_const($db, 'BBC_DEFAULT_BANK_ACCOUNT', GETPOST('default_bank_account'), 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'BBC_DEFAULT_PAYMENT_TERM_ID', GETPOST('bill_condition'), 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'BBC_DEFAULT_PAYMENT_TYPE_ID', GETPOST('bill_payment_type'), 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'BBC_DAMAGE_EMAILS', GETPOST('damage_emails'), 'chaine', 0, '', $conf->entity);
 }
 
 /*
@@ -62,6 +63,8 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
 
     <form method="POST">
         <input type="hidden" name="action" value="<?= ACTION_SAVE ?>"/>
+        <input type="hidden" name="token" value="<?php echo newToken(); ?>"/>
+
         <!-- Service mapping -->
         <table class="noborder" width="100%">
             <tr class="liste_titre">
@@ -160,6 +163,22 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                 </td>
                 <td>
                     <?php $form->select_types_paiements($conf->global->BBC_DEFAULT_PAYMENT_TYPE_ID, 'bill_payment_type'); ?>
+                </td>
+            </tr>
+
+
+            <tr class="liste_titre">
+                <th><?= $langs->trans("Types de vol.") ?></th>
+                <th><?= $langs->trans("Service / produit") ?></th>
+            </tr>
+
+            <tr class="impair">
+                <td>
+                    <?php echo $langs->trans('E-mail additionel sur les erreurs') ?>
+                </td>
+                <td>
+                    <textarea rows="4" cols="80" name="damage_emails"><?php echo $conf->global->BBC_DAMAGE_EMAILS; ?></textarea>
+                    <span>Separer par des ; </span>
                 </td>
             </tr>
 
