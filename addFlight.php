@@ -361,8 +361,12 @@ if ($msg) {
                 <div class=" form-group">
                     <label class="fieldrequired"> Incidents, Brulure, ...</label>
                     <textarea rows="2" cols="60" class="flat" name="inci" placeholder="RAS"><?php print $_POST['inci']; ?></textarea>
-                    <p class="text-muted">Incidents ou dégâts constatés au ballon.</p>
+                    <p class="text-muted">
+                        Incidents ou dégâts occasionés ou constatés sur le matériel.<br/>
+                        Ce champ enverra un e-mail automatique aux titulaires ainsi qu'au repsonsable matériel volant et non volant.
+                    </p>
                 </div>
+
             </div>
         </section>
 
