@@ -660,6 +660,14 @@ class Bbcvols extends CommonObject
         }
 
         if (!$error) {
+            // Delete Link ordered
+            foreach($this->getOrders() as $currentOrder){
+                $currentOrder->set_reopen($user);
+            }
+            $this->deleteOrders();
+
+
+            // Delete flight itself
             $sql = 'DELETE FROM ' . MAIN_DB_PREFIX . $this->table_element;
             $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -1105,6 +1113,8 @@ class Bbcvols extends CommonObject
      */
     public function fetchOrder()
     {
+        $this->orders = [];
+
         $sql = 'SELECT';
         $sql .= " t.order_id,";
         $sql .= " t.flight_id,";

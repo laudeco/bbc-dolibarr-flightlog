@@ -700,22 +700,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     }
 
     if ($user->rights->flightlog->vol->advanced || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)) {
-        print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=edit">' . $langs->trans("Modify") . '</a></div>' . "\n";
+        print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?token='.newToken().'&id=' . $object->id . '&amp;action=edit">' . $langs->trans("Modify") . '</a></div>' . "\n";
     }
 
     if ($user->rights->flightlog->vol->delete || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id && !$object->isBilled())) {
-        print '<div class="inline-block divButAction"><a class="butActionDelete" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;action=delete">' . $langs->trans('Delete') . '</a></div>' . "\n";
+        print '<div class="inline-block divButAction"><a class="butActionDelete" href="' . $_SERVER["PHP_SELF"] . '?token='.newToken().'&id=' . $object->id . '&amp;action=delete">' . $langs->trans('Delete') . '</a></div>' . "\n";
     }
 
     if ($user->rights->flightlog->vol->financial && $object->fk_type == 2 && !$object->hasFacture() && $object->hasReceiver()) {
-        print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/facture.php?id=' . $object->id . '">' . $langs->trans("Facturer") . '</a></div>' . "\n";
+        print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/facture.php?token='.newToken().'&id=' . $object->id . '">' . $langs->trans("Facturer") . '</a></div>' . "\n";
     }
     ?>
 
 
     <?php if ($user->rights->flightlog->vol->financial && !$object->isBilled()): ?>
         <div class="inline-block divButAction">
-            <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id,
+            <a class="butAction" href="<?php echo sprintf('%s?token=%s&id=%s&action=%s', $_SERVER["PHP_SELF"], newToken(), $object->id,
                 ACTION_FLAG_BILLED); ?>">
                 <?php echo $langs->trans("Marqué comme facturé ") ?>
             </a>
@@ -725,7 +725,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     <!-- Toggle static flight -->
     <?php if($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)): ?>
         <div class="inline-block divButAction">
-            <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id, ACTION_TOGGLE_STATIC); ?>">
+            <a class="butAction" href="<?php echo sprintf('%s?token=%s&id=%s&action=%s', $_SERVER["PHP_SELF"], newToken(), $object->id, ACTION_TOGGLE_STATIC); ?>">
                 <?php if(!$object->isStaticFlight()): ?>
                     <?php echo $langs->trans("Vol static") ?>
                 <?php else: ?>
@@ -738,7 +738,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     <!-- Toggle night flight -->
     <?php if($user->rights->flightlog->vol->advanced || $user->rights->flightlog->pilot->edit || $user->rights->flightlog->vol->edit || ($user->rights->flightlog->vol->add && $object->fk_pilot == $user->id)): ?>
         <div class="inline-block divButAction">
-            <a class="butAction" href="<?php echo sprintf('%s?id=%s&action=%s', $_SERVER["PHP_SELF"], $object->id, ACTION_TOGGLE_NIGHT); ?>">
+            <a class="butAction" href="<?php echo sprintf('%s?token=%s&id=%s&action=%s', $_SERVER["PHP_SELF"], newToken(), $object->id, ACTION_TOGGLE_NIGHT); ?>">
                 <?php if(!$object->isNightFlight()): ?>
                     <?php echo $langs->trans("Vol de nuit") ?>
                 <?php else: ?>
