@@ -35,16 +35,21 @@ abstract class AbstractDomainRepository
      */
     protected function write(array $elements){
         $columns = join(',', array_keys($elements));
-        $values = join(',', array_map([$this, 'escape'], array_values($elements)));
+        $values = [];
+        foreach($elements as $col => $val){
+            $values[] = $this->escape($val);
+        }
+        $values = join(',', $values);
 
         $this->db->begin();
-        $resql = $this->db->query(sprintf('INSERT INTO ' . $this->tableName . '(%s) VALUES (%s)', $columns, $values));
+        $sql = sprintf('INSERT INTO ' . $this->tableName . '(%s) VALUES (%s)', $columns, $values);
+        $resql = $this->db->query($sql);
 
         if (!$resql) {
             $lasterror = $this->db->lasterror();
             dol_syslog(__METHOD__ . ' ' . $lasterror, LOG_ERR);
             $this->db->rollback();
-            throw new \Exception("Repository error - ".$lasterror);
+            throw new \Exception("Repository error - ".$lasterror. ' ('.$sql.')');
         }
 
         $id = $this->db->last_insert_id($this->tableName);
@@ -58,7 +63,7 @@ abstract class AbstractDomainRepository
      * @return int|string|null
      */
     private function escape($value){
-        if(is_null($value)){
+        if((is_null($value) || null == $value) && !is_bool($value)){
             return 'NULL';
         }
 

@@ -40,8 +40,13 @@ final class CreateDamageCommand
         $this->amount = 1;
     }
 
+    public static function create()
+    {
+        return new self(0);
+    }
+
     /**
-     * @return int
+     * @return int|null
      */
     public function getFlightId()
     {
