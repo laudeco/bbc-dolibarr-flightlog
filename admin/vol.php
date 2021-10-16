@@ -102,6 +102,15 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                 </td>
             </tr>
 
+        </table>
+
+
+        <table class="noborder mt-2" width="100%">
+            <tr class="liste_titre">
+                <th><?= $langs->trans("Champ") ?></th>
+                <th><?= $langs->trans("Valeur") ?></th>
+            </tr>
+
             <tr class="impar">
                 <td>
                     <?php echo $langs->trans('Points par type de vols')?>
@@ -138,6 +147,14 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                     <input type="number" id="points_bonus_instructor" name="points_bonus_instructor" value="<?php echo $conf->global->BBC_POINTS_BONUS_INSTRUCTOR?>" />
                 </td>
             </tr>
+        </table>
+
+
+        <table class="noborder mt-2" width="100%">
+            <tr class="liste_titre">
+                <th><?= $langs->trans("Champ") ?></th>
+                <th><?= $langs->trans("Valeur") ?></th>
+            </tr>
 
             <tr class="pair">
                 <td>
@@ -166,6 +183,7 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                 </td>
             </tr>
         </table>
+
 
         <table class="noborder mt-2" width="100%">
             <tr class="liste_titre">
