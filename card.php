@@ -209,6 +209,7 @@ if (empty($reshook)) {
 
     // Action to delete
     if ($action == 'confirm_delete') {
+        $object->fetch($id);
         $result = $object->delete($user);
         if ($result > 0) {
             // Delete OK
