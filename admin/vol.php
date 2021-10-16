@@ -165,11 +165,12 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                     <?php $form->select_types_paiements($conf->global->BBC_DEFAULT_PAYMENT_TYPE_ID, 'bill_payment_type'); ?>
                 </td>
             </tr>
+        </table>
 
-
+        <table class="noborder mt-2" width="100%">
             <tr class="liste_titre">
-                <th><?= $langs->trans("Types de vol.") ?></th>
-                <th><?= $langs->trans("Service / produit") ?></th>
+                <th><?= $langs->trans("Champ") ?></th>
+                <th><?= $langs->trans("Valeur") ?></th>
             </tr>
 
             <tr class="impair">
@@ -178,7 +179,7 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                 </td>
                 <td>
                     <textarea rows="4" cols="80" name="damage_emails"><?php echo $conf->global->BBC_DAMAGE_EMAILS; ?></textarea>
-                    <span>Separer par des ; </span>
+                    <br/><span class="text-muted">Separer par des ; </span>
                 </td>
             </tr>
 

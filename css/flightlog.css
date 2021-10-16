@@ -488,3 +488,11 @@ input.error, textarea.error {
 .pilot-form fieldset div {
     margin-top: 10px;
 }
+
+.m-2{
+    padding: 20px;
+}
+
+.mt-2{
+    padding-top: 20px;
+}
