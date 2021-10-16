@@ -456,6 +456,7 @@ class Bbcvols extends CommonObject
                 $this->id = $obj->idBBC_vols;
 
                 $this->idBBC_vols = (int)$obj->idBBC_vols;
+                $this->id = (int)$obj->idBBC_vols;
                 $this->date = $this->db->jdate($obj->date);
                 $this->lieuD = $obj->lieuD;
                 $this->lieuA = $obj->lieuA;
@@ -660,6 +661,14 @@ class Bbcvols extends CommonObject
         }
 
         if (!$error) {
+            // Delete Link ordered
+            foreach($this->getOrders() as $currentOrder){
+                $currentOrder->set_reopen($user);
+                $currentOrder->deleteObjectLinked($this->idBBC_vols, 'flightlog_bbcvols');
+            }
+            $this->deleteOrders();
+
+            // Delete flight itself
             $sql = 'DELETE FROM ' . MAIN_DB_PREFIX . $this->table_element;
             $sql .= ' WHERE idBBC_vols=' . $this->idBBC_vols;
 
@@ -1105,6 +1114,8 @@ class Bbcvols extends CommonObject
      */
     public function fetchOrder()
     {
+        $this->orders = [];
+
         $sql = 'SELECT';
         $sql .= " t.order_id,";
         $sql .= " t.flight_id,";
