@@ -31,6 +31,11 @@ class CreateOrderCommand implements CommandInterface
     private $town;
 
     /**
+     * @var string
+     */
+    private $street;
+
+    /**
      * @var int
      */
     private $state;
@@ -117,6 +122,7 @@ class CreateOrderCommand implements CommandInterface
         $this->email = $form->email;
         $this->tva = $form->tva;
         $this->nbrPax = $form->nbrPax;
+        $this->street = $form->street;
         $this->region = $form->region;
         $this->cost = $form->cost;
         $this->comment = $form->comment;
@@ -213,6 +219,14 @@ class CreateOrderCommand implements CommandInterface
     public function getRegion()
     {
         return $this->region;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStreet(): string
+    {
+        return trim($this->street);
     }
 
     /**

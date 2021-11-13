@@ -154,6 +154,7 @@ class CreateOrderCommandHandler implements CommandHandlerInterface
         $this->societe->address = GETPOST('address');
         $this->societe->zip = $command->getZip();
         $this->societe->town = $command->getTown();
+        $this->societe->address = $command->getStreet();
         $this->societe->country_id = 2;
         $this->societe->state_id = $command->getState();
         $this->societe->phone = $command->getPhone();

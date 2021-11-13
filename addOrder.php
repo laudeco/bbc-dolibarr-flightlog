@@ -75,6 +75,7 @@ if (GETPOST("action") == 'add') {
         $formObject->zip = GETPOST('zipcode','alpha');
         $formObject->town = GETPOST('town', 'alpha');
         $formObject->state = GETPOST('state_id', 'int');
+        $formObject->street = GETPOST('address', 'alpha');
         $formObject->phone = GETPOST('phone', 'alpha');
         $formObject->origine = GETPOST('origine', 'int');
         $formObject->email = trim(GETPOST('mail', 'custom', 0, FILTER_SANITIZE_EMAIL));
@@ -318,6 +319,18 @@ if ($msg) {
                         print $formcompany->select_ziptown($formObject->zip,'town',array('zipcode','selectcountry_id','state_id'), 0, 0, '', 'maxwidth100 quatrevingtpercent');
                         print '</td></tr>';
                 ?>
+
+                <!-- Rue -->
+                <tr>
+                    <td class="">
+                        <?php echo $langs->trans('Adresse'); ?>
+                    </td>
+                    <td>
+                        <textarea name="address" id="address" class="quatrevingtpercent" rows="2" wrap="soft">
+                        <?php echo dol_escape_htmltag($object->address, 0, 1); ?>
+		                </textarea>
+                    </td>
+                </tr>
 
                 <!-- origine -->
                 <tr>
