@@ -171,6 +171,13 @@ $totalT4 = 0;
 $totalT5 = 0;
 $totalT6 = 0;
 $totalT7 = 0;
+
+$totalPtsMission1 = 0;
+$totalPtsMission2 = 0;
+$totalPtsOrga = 0;
+$totalPtsInstructor = 0;
+$totalPts = 0;
+
 /**
  * @var int   $key
  * @var Pilot $pilot
@@ -184,6 +191,12 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     $totalT5 += $pilot->getCountForType('5')->getCount();
     $totalT6 += $pilot->getCountForType('6')->getCount();
     $totalT7 += $pilot->getCountForType('7')->getCount();
+
+    $totalPtsMission1 += $pilot->getCountForType('1')->getCost()->getValue();
+    $totalPtsMission2 += $pilot->getCountForType('2')->getCost()->getValue();
+    $totalPtsOrga += $pilot->getCountForType('orga')->getCost()->getValue();
+    $totalPtsInstructor += $pilot->getCountForType('orga_T6')->getCost()->getValue();
+    $totalPts += $pilot->getFlightBonus()->getValue();
 
     print '<tr class="oddeven">';
     print '<td>' . $pilot->getId() . '</td>';
@@ -230,18 +243,18 @@ print '<td></td>';
 print '<td></td>';
 
 print '<td>' . $totalT1 . '</td>';
-print '<td></td>';
+print '<td>' . $totalPtsMission1 . '</td>';
 
 print '<td>' . $totalT2 . '</td>';
-print '<td>' . '</td>';
+print '<td>' . $totalPtsMission2 . '</td>';
 
 print '<td>' . '</td>';
-print '<td>' . '</td>';
+print '<td>' . $totalPtsOrga . '</td>';
 
 print '<td>' . '</td>';
-print '<td>' . '</td>';
+print '<td>' . $totalPtsInstructor . '</td>';
 
-print '<td><b>' . '</b></td>';
+print '<td><b>' . $totalPts . '</b></td>';
 
 print '<td>' . $totalT3 . '</td>';
 print '<td></td>';
