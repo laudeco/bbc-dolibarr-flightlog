@@ -237,7 +237,7 @@ final class Pilot
             IsOwner::fromValue($state['has_qualif_examinator']),
             LastTrainingDate::fromString($state['last_examinator_refresh_date']),
             IsOwner::fromValue($state['has_radio']),
-            RadioLicenceNumber::create($state['radio_licence_number']),
+            RadioLicenceNumber::create($state['radio_licence_number']?:''),
             RadioLicenceDate::fromString($state['radio_licence_date']),
             IsOwner::fromValue($state['has_training_first_help']),
             LastTrainingDate::fromString($state['last_training_first_help_date']),

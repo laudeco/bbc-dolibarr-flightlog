@@ -164,6 +164,7 @@ function pilotStatus($id){
 }
 
 $total = 0;
+
 $totalT1 = 0;
 $totalT2 = 0;
 $totalT3 = 0;
@@ -171,6 +172,8 @@ $totalT4 = 0;
 $totalT5 = 0;
 $totalT6 = 0;
 $totalT7 = 0;
+
+$totalWithoutPts = 0;
 
 $totalPtsMission1 = 0;
 $totalPtsMission2 = 0;
@@ -197,6 +200,8 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     $totalPtsOrga += $pilot->getCountForType('orga')->getCost()->getValue();
     $totalPtsInstructor += $pilot->getCountForType('orga_T6')->getCost()->getValue();
     $totalPts += $pilot->getFlightBonus()->getValue();
+
+    $totalWithoutPts += $pilot->getFlightsCost()->getValue();
 
     print '<tr class="oddeven">';
     print '<td>' . $pilot->getId() . '</td>';
@@ -273,7 +278,7 @@ print '<td></td>';
 print '<td></td>';
 print '<td></td>';
 
-print '<td>Total à reçevoir </td>';
+print '<td>' . price($totalWithoutPts) . '€</td>';
 print "<td>" . price($total) . "€</td>";
 print '</tr>';
 
