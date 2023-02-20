@@ -148,7 +148,7 @@ if ($msg) {
                     <input
                         type="date"
                         name="flight_date"
-                        value="<?php print (new DateTimeImmutable())->format('Y-m-d')?>"
+                        value="<?php print (isset($_POST['flight_date']) && !empty($_POST['flight_date'])) ? $_POST['flight_date'] :  (new DateTimeImmutable())->format('Y-m-d')?>"
                         max="<?php print (new DateTimeImmutable())->format('Y-m-d')?>"
                         min="<?php print (new DateTimeImmutable())->sub(new DateInterval('P3M'))->format('Y-m-d')?>"
                     />
