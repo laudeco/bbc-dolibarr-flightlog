@@ -1,0 +1,20 @@
+name: Deploy on Tag Creation
+on:
+  push:
+    tags:
+      - 'bbc.*'
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy via rsync and SSH
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: -ravz --update --exclude 'wercker.yml' --exclude '.github/*'  --exclude 'README.md'
+          remote_path: ${{ secrets.SSH_DESTINATION }}
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
