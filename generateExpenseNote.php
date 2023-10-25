@@ -111,13 +111,14 @@ foreach($flightYears as $currentFlightYear){
     ];
 }
 
-dol_fiche_head($tabLinks, "tab_".$year);
+dol_fiche_head($tabLinks, "tab_".(empty($year)?$currentYear:$year));
 
 ?>
     <form method="POST">
 
         <!-- action -->
         <input type="hidden" name="action" value="<?= EXPENSE_REPORT_GENERATOR_ACTION_GENERATE ?>">
+		<input type="hidden" name="token" value="<?php echo newToken();?>"/>
 
         <?php
             $queryHandler = new GetPilotsWithMissionsQueryHandler($db);
@@ -147,8 +148,7 @@ dol_fiche_head($tabLinks, "tab_".$year);
 
         <!-- Public note -->
         <label><?= $langs->trans("Note publique (commune à toutes les notes de frais)"); ?></label><br/>
-        <textarea name="public_note" wrap="soft" class="quatrevingtpercent" rows="2">
-            Les frais pilotes regroupent tous les frais qu'à le pilote pour organiser son vol (Champagne, Téléphone, Diplômes, ...).
+        <textarea name="public_note" wrap="soft" class="quatrevingtpercent" rows="2">Les frais pilotes regroupent tous les frais qu'à le pilote pour organiser son vol (Champagne, Téléphone, Diplômes, ...).
         </textarea>
         <br/>
 
