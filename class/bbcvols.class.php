@@ -441,10 +441,9 @@ class Bbcvols extends CommonObject
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
-        if (null !== $ref) {
+		$sql .= ' WHERE t.idBBC_vols = ' . $id;
+        if (!empty($ref)) {
             $sql .= ' WHERE t.ref = ' . '\'' . $ref . '\'';
-        } else {
-            $sql .= ' WHERE t.idBBC_vols = ' . $id;
         }
 
         $resql = $this->db->query($sql);
@@ -492,9 +491,9 @@ class Bbcvols extends CommonObject
 
             if ($numrows) {
                 return 1;
-            } else {
-                return 0;
             }
+
+			return 0;
         }
 
         $this->errors[] = 'Error ' . $this->db->lasterror();
@@ -1179,11 +1178,19 @@ class Bbcvols extends CommonObject
      */
     public function getDate()
     {
+		if(empty($this->date)){
+			return new DateTime();
+		}
+
+		if(is_string($this->date)){
+			return DateTime::createFromFormat('Y-m-d', $this->date);
+		}
+
         return (new DateTime())->setTimestamp($this->date);
     }
 
     /**
-     * @param string $date
+     * @param string|int $date
      *
      * @return Bbcvols
      */

@@ -3,6 +3,7 @@
  * When a user generates the expense report for all pilots
  */
 define("EXPENSE_REPORT_GENERATOR_ACTION_GENERATE", "generate");
+define("EXPENSE_REPORT_GENERATOR_ACTION_SELECT", "select");
 
 /**
  * When a user changes dates (year / Month)
@@ -118,6 +119,7 @@ $form = new Form($db);
         <h2 class="section-title"><?php echo $langs->trans('Période'); ?></h2>
 
         <form class="form-inline flight-form" method="POST">
+			<input type="hidden" name="token" value="<?php echo newToken(); ?>">
             <section class="form-section">
                 <input type="hidden" name="action" value="<?php echo EXPENSE_REPORT_GENERATOR_ACTION_CHANGE_DATES ?>">
 
@@ -156,7 +158,7 @@ $form = new Form($db);
         </div>
 
         <form action="#" method="POST">
-
+			<input type="hidden" name="token" value="<?php echo newToken(); ?>">
             <!-- action -->
             <input type="hidden" name="action" value="<?php echo EXPENSE_REPORT_GENERATOR_ACTION_GENERATE ?>">
             <input type="hidden" name="month" value="<?php echo $month ?>">
