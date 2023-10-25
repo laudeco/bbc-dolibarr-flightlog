@@ -63,7 +63,7 @@ dol_include_once('/flightlog/query/FlightForQuarterAndPilotQueryHandler.php');
 dol_include_once('/flightlog/Application/Damage/Query/GetDamagesForFlightQueryRepositoryInterface.php');
 dol_include_once('/flightlog/Application/Damage/Query/GetPilotDamagesQueryRepositoryInterface.php');
 dol_include_once('/flightlog/Application/Flight/Query/GetBillableFlightPerMonthQueryRepositoryInterface.php');
-dol_include_once('/flightlog/Application/Flight/Query/.php');
+dol_include_once('/flightlog/Application/Flight/Query/GetBillableFlightPerMonthQueryRepositoryInterface.php');
 
 dol_include_once('/flightlog/command/CommandHandlerInterface.php');
 dol_include_once('/flightlog/command/CommandInterface.php');
