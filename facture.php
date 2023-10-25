@@ -128,7 +128,7 @@ if ($action == EXPENSE_REPORT_GENERATOR_ACTION_GENERATE) {
         $handler->handle($command);
     }catch (\Exception $e){
         dol_syslog($e->getMessage(),LOG_ERR);
-        dol_htmloutput_mesg("Facture non créée", '', 'error');
+        dol_htmloutput_mesg("Facture non créée ".$e->getMessage(), '', 'error');
     }
 }
 
@@ -224,7 +224,7 @@ if (!$flight->hasReceiver()) {
                 </td>
 
                 <td>
-                    <?php print $form->select_company($memberReceiver->fk_soc, 'customerid', '((s.client = 1 OR s.client = 3) AND s.status=1)', 'SelectThirdParty', 0, 0, null, 0, 'minwidth300'); ?>
+                    <?php print $form->select_company($memberReceiver->fk_soc, 'customerid', '((s.client:IN:1,3) AND (s.status:=:1))', 'SelectThirdParty', 0, 0, null, 0, 'minwidth300'); ?>
                 </td>
 
             </tr>

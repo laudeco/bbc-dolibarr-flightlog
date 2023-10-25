@@ -71,7 +71,7 @@ class CreateFlightBillCommandHandler
         $id = $object->create($this->user);
 
         if ($id <= 0) {
-            throw new \InvalidArgumentException('Error during bill creation');
+            throw new \InvalidArgumentException('Error during bill creation '.$object->errorsToString());
         }
 
         $this->addOrderLine($object, $flightProduct, $flight, $command->getNbrPax());
