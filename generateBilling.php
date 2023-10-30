@@ -108,7 +108,7 @@ if (!$conf->facture->enabled || !$user->rights->flightlog->vol->status || !$user
 }
 
 // Default action
-if (empty($action)) {
+if (empty($afetchction)) {
     $action = EXPENSE_REPORT_GENERATOR_ACTION_SELECT;
 }
 
@@ -282,34 +282,34 @@ dol_fiche_head($tabLinks, "tab_" . $year);
             print '<td>' . $pilot->getName() . '</td>';
 
             print '<td>' . $pilot->getCountForType('1')->getCount() . '</td>';
-            print '<td>' . $pilot->getCountForType('1')->getCost()->getValue() . '</td>';
+            print '<td>' . $pilot->getFlightPoints('1')->getValue() . '</td>';
 
             print '<td>' . $pilot->getCountForType('2')->getCount() . '</td>';
-            print '<td>' . $pilot->getCountForType('2')->getCost()->getValue() . '</td>';
+            print '<td>' . $pilot->getFlightPoints('2')->getValue() . '</td>';
 
             print '<td>' . $pilot->getCountForType('orga')->getCount() . '</td>';
-            print '<td>' . $pilot->getCountForType('orga')->getCost()->getValue() . '</td>';
+            print '<td>' . $pilot->getFlightPoints('orga')->getValue() . '</td>';
 
             print '<td>' . $pilot->getCountForType('orga_T6')->getCount() . '</td>';
-            print '<td>' . $pilot->getCountForType('orga_T6')->getCost()->getValue() . '</td>';
+            print '<td>' . $pilot->getFlightPoints('orga_T6')->getValue() . '</td>';
 
             print '<td><b>' . $pilot->getFlightBonus()->getValue() . '</b></td>';
             print '<td>' . sprintf('<input type="number" value="0" name="additional_bonus[%s]"/>',
                     $pilot->getId()) . '</b></td>';
 
             print '<td>' . $pilot->getCountForType('3')->getCount() . '</td>';
-            print '<td>' . price($pilot->getCountForType('3')->getCost()->getValue()) . '€</td>';
+            print '<td>' . price($pilot->getFlightCost('3')->getValue()) . '€</td>';
 
             print '<td>' . $pilot->getCountForType('4')->getCount() . '</td>';
-            print '<td>' . price($pilot->getCountForType('4')->getCost()->getValue()) . '€</td>';
+            print '<td>' . price($pilot->getFlightCost('4')->getValue()) . '€</td>';
 
             print '<td>' . $pilot->getCountForType('5')->getCount() . '</td>';
 
             print '<td>' . $pilot->getCountForType('6')->getCount() . '</td>';
-            print '<td>' . price($pilot->getCountForType('6')->getCost()->getValue()) . '€</td>';
+            print '<td>' . price($pilot->getFlightCost('6')->getValue()) . '€</td>';
 
             print '<td>' . $pilot->getCountForType('7')->getCount() . '</td>';
-            print '<td>' . price($pilot->getCountForType('7')->getCost()->getValue()) . '€</td>';
+            print '<td>' . price($pilot->getFlightCost('7')->getValue()) . '€</td>';
 
             print '<td>';
             print sprintf('<input type="hidden" value="%d" name="amout[%d]"/>', $pilot->getFlightsCost()->getValue(),
