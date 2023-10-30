@@ -28,9 +28,9 @@ final class Pilot
     private $id;
 
     /**
-     * @var array|FlightTypeCount[]
+     * @var FlightTypeCount[]
      */
-    private $flightTypeCounts;
+    private array $flightTypeCounts;
 
     /**
      * @var array|\FlightLog\Domain\Damage\FlightDamageCount[]|\FlightLog\Domain\Damage\FlightInvoicedDamageCount[]
@@ -88,19 +88,17 @@ final class Pilot
         $found = false;
         /** @var FlightTypeCount $currentType */
         foreach ($this->flightTypeCounts as $currentType) {
-            if ($currentType->getType() === $flightTypeCount->getType()) {
+            if ($currentType->equals($flightTypeCount)) {
                 $found = true;
-                $types[] = $currentType->add($flightTypeCount);
+                $types[] = $currentType->add($flightTypeCount); // Add to the matching counter.
                 break;
             }
 
-            $types[] = new FlightTypeCount($currentType->getType(), $currentType->getCount(),
-                $currentType->getFactor());
+            $types[] = $currentType->copy(); // Copy all existing values
         }
 
         if (!$found) {
-            $types[] = new FlightTypeCount($flightTypeCount->getType(), $flightTypeCount->getCount(),
-                $flightTypeCount->getFactor());
+            $types[] = $flightTypeCount->copy(); // Add the counter since didn't exist.
         }
 
         return new Pilot($this->name, $this->id, $types);
@@ -114,26 +112,20 @@ final class Pilot
         $this->damages[] = $damage;
     }
 
-    /**
-     * @param string $type
-     *
-     * @return FlightTypeCount
-     */
-    public function getCountForType($type)
+    public function getCountForType(string $type):FlightTypeCount
     {
+		$count = FlightTypeCount::create($type);
+
         foreach ($this->flightTypeCounts as $flightTypeCount) {
-            if ($flightTypeCount->getType() === $type) {
-                return $flightTypeCount;
+            if ($flightTypeCount->isType($type)) {
+                $count = $count->add($flightTypeCount);
             }
         }
 
-        return new FlightTypeCount($type);
+        return $count;
     }
 
-    /**
-     * @return FlightBonus
-     */
-    public function getFlightBonus()
+    public function getFlightBonus():FlightBonus
     {
         $bonus = FlightBonus::zero();
 
@@ -203,10 +195,7 @@ final class Pilot
         return $this->damages;
     }
 
-    /**
-     * @return FlightCost
-     */
-    public function getTotalBill()
+    public function getTotalBill():FlightCost
     {
         $totalBill = $this->getFlightsCost()->minBonus($this->getFlightBonus());
         if ($totalBill->getValue() < 0) {
@@ -231,9 +220,16 @@ final class Pilot
      *
      * @return FlightPoints
      */
-    private function getFlightPoints($type)
+    public function getFlightPoints(string $type): FlightPoints
     {
-        return FlightPoints::create($this->getCountForType($type)->getCost()->getValue());
+		$count = FlightPoints::zero();
+		foreach ($this->flightTypeCounts as $flightTypeCount) {
+			if (!$flightTypeCount->isType($type)) {
+				continue;
+			}
+			$count = $count->add(FlightPoints::create($flightTypeCount->getCost()->getValue()));
+		}
+		return $count;
     }
 
     /**
@@ -243,9 +239,16 @@ final class Pilot
      *
      * @return FlightCost
      */
-    private function getFlightCost($type)
+    public function getFlightCost(string $type):FlightCost
     {
-        return $this->getCountForType($type)->getCost();
+		$count = FlightCost::zero();
+		foreach ($this->flightTypeCounts as $flightTypeCount) {
+			if (!$flightTypeCount->isType($type)) {
+				continue;
+			}
+			$count = $count->addCost($flightTypeCount->getCost());
+		}
+		return $count;
     }
 
 
