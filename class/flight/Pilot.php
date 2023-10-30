@@ -28,6 +28,8 @@ final class Pilot
     private $id;
 
     /**
+	 * May contain Multiple count for the same type, if the factor is different.
+	 * 
      * @var FlightTypeCount[]
      */
     private array $flightTypeCounts;
