@@ -170,7 +170,8 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
 							1,
 							2,
 							'',
-							1, [],
+							1,
+							[],
 							$buyer->id
 						); ?>
 					</td>

@@ -100,7 +100,7 @@ class BbcBalloonTypeService extends CommonObject
 		// Update request
 		$sql = 'UPDATE ' . MAIN_DB_PREFIX . $this->table_element . ' SET';
 
-		$sql .= ' fk_bbc_flight_type = ' . $this->idBalloon . ',';
+		$sql .= ' fk_bbc_flight_type = ' . $this->idType . ',';
 		$sql .= ' fk_bbc_balloon = ' . $this->idBalloon . ',';
 		$sql .= ' fk_product = ' . $this->fkService ;
 
