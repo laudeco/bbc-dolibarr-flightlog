@@ -218,4 +218,9 @@ class BbcBalloonTypeService extends CommonObject
 			return $this->id;
 		}
 	}
+
+	public function hasService():bool
+	{
+		return $this->fkService > 0;
+	}
 }
