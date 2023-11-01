@@ -72,6 +72,10 @@ final class Pilot
      */
     private $lastOpcDate;
     /**
+     * @var LastTrainingDate
+     */
+    private $previousOpcDate;
+    /**
      * @var IsOwner
      */
     private $hasQualifInstructor;
@@ -141,6 +145,7 @@ final class Pilot
         IsOwner $hasQualifNight,
         IsOwner $hasQualifPro,
         LastTrainingDate $lastOpcDate,
+        LastTrainingDate $previousOpcDate,
         IsOwner $hasQualifInstructor,
         LastTrainingDate $lastInstructorRefreshDate,
         LastTrainingDate $lastInstructorTrainingFlightDate,
@@ -168,6 +173,7 @@ final class Pilot
         $this->hasQualifNight = $hasQualifNight;
         $this->hasQualifPro = $hasQualifPro;
         $this->lastOpcDate = $lastOpcDate;
+		$this->previousOpcDate = $previousOpcDate;
         $this->hasQualifInstructor = $hasQualifInstructor;
         $this->lastInstructorRefreshDate = $lastInstructorRefreshDate;
         $this->lastInstructorTrainingFlightDate = $lastInstructorTrainingFlightDate;
@@ -198,6 +204,7 @@ final class Pilot
             IsOwner::create(),
             IsOwner::create(),
             IsOwner::create(),
+            LastTrainingDate::zero(),
             LastTrainingDate::zero(),
             IsOwner::create(),
             LastTrainingDate::zero(),
@@ -231,6 +238,7 @@ final class Pilot
             IsOwner::fromValue($state['has_qualif_night']),
             IsOwner::fromValue($state['has_qualif_pro']),
             LastTrainingDate::fromString($state['last_opc_date']),
+            LastTrainingDate::fromString($state['previous_opc_date']),
             IsOwner::fromValue($state['has_qualif_instructor']),
             LastTrainingDate::fromString($state['last_instructor_refresh_date']),
             LastTrainingDate::fromString($state['last_instructor_training_flight_date']),
@@ -264,6 +272,7 @@ final class Pilot
             'has_qualif_night' => $this->hasQualifNight->is(),
             'has_qualif_pro' => $this->hasQualifPro->is(),
             'last_opc_date' => $this->lastOpcDate->asString(),
+            'previous_opc_date' => $this->previousOpcDate->asString(),
             'has_qualif_instructor' => $this->hasQualifInstructor->is(),
             'last_instructor_refresh_date' => $this->lastInstructorRefreshDate->asString(),
             'last_instructor_training_flight_date' => $this->lastInstructorTrainingFlightDate->asString(),
@@ -436,6 +445,11 @@ final class Pilot
 
     public function attributeLastOpcDate(LastTrainingDate $value)
     {
+		if($this->lastOpcDate->equals($value)){
+			return;
+		}
+
+		$this->previousOpcDate = $this->lastOpcDate;
         $this->lastOpcDate = $value;
     }
 

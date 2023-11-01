@@ -48,7 +48,7 @@ trait DateTrait
         return new self(\DateTimeImmutable::createFromFormat('Y-m-d', $date));
     }
 
-    public function asString()
+    public function asString():?string
     {
         if (null === $this->value) {
             return null;
@@ -57,4 +57,19 @@ trait DateTrait
         return $this->value->format('Y-m-d');
     }
 
+	public function equals(self $date):bool
+	{
+		if ($this->value === null && $date->value === null) {
+			return true;
+		}
+		if ($this->value === null || $date->value === null) {
+			return false;
+		}
+		return $this->value->format('Y-m-d') === $date->value->format('Y-m-d');
+	}
+
+	public function __toString():string
+	{
+		return $this->asString()?:'';
+	}
 }
