@@ -81,6 +81,10 @@ final class Pilot extends ViewModel
      */
     private $lastOpcDate;
     /**
+     * @var \DateTimeImmutable|null
+     */
+    private $previousOpcDate;
+    /**
      * @var bool|null
      */
     private $hasTrainingFirstHelp;
@@ -353,6 +357,11 @@ final class Pilot extends ViewModel
         return $this;
     }
 
+	public function setPreviousOpcDate(?\DateTimeImmutable $previousOpcDate): void
+	{
+		$this->previousOpcDate = $previousOpcDate;
+	}
+
     /**
      * @param bool|null $hasTrainingFirstHelp
      * @return Pilot
@@ -454,7 +463,6 @@ final class Pilot extends ViewModel
         return !$this->isMedicalValid()
             || !$this->isProDateValid()
             || !$this->isTrainingFlightValid()
-            || !$this->isProDateValid()
             || !$this->isTrainingFireValid()
             || !$this->isTrainingFirstHelpValid();
     }
@@ -475,7 +483,7 @@ final class Pilot extends ViewModel
             $reasons .= '<br> <span class="text-bold">Exp. récente Gr. A: </span> ' . ($this->isHoursAndTakeOffValidGroupA() ? $ok : 'Pas 6H & 10TO dans les 24 derniers mois');
 
             if ($this->hasQualifPro()) {
-                $reasons .= '<br><span class="text-bold">OPC / Refresh: </span> ' . ($this->isProDateValid() ? $ok : 'Pas de OPC dans les 24 derniers mois');
+                $reasons .= '<br><span class="text-bold">OPC / Refresh: </span> ' . ($this->isProDateValid() ? $ok . ($this->getOpcBaseDate() ? ' - Valide jusqu\'au : '.$this->getOpcBaseValidityDate()->format('d/m/Y') : '' ): 'Pas de OPC dans les 24 derniers mois '.$this->getOpcBaseValidityDate()?->format('d/m/Y'));
                 $reasons .= '<br><span class="text-bold">Exp. récente Commercial: </span> ' . ($this->isProValid() ? $ok : 'Pas 3 vols dans les 6 derniers mois');
             }
         }
@@ -568,9 +576,60 @@ final class Pilot extends ViewModel
             return !$this->hasQualifPro();
         }
 
-        return $this->diffDateInMonths($this->lastOpcDate) < 48;
-
+        return $this->diffDateInMonths($this->getOpcBaseDate()) < 24;
     }
+
+	private function getOpcBaseDate(): ?\DateTimeImmutable
+	{
+		if(null === $this->lastOpcDate){
+			return null; // Not commercial Pilot
+		}
+
+		if(null === $this->previousOpcDate){
+			return $this->lastDayOfMonth($this->lastOpcDate); // Tmp situation where the previous OPC date is not set.
+		}
+
+		$previousOpcValidityDate = $this->getPreviousOpcValidityDate();
+		if($this->diffDateInMonths($previousOpcValidityDate, $this->lastDayOfMonth($this->lastOpcDate)) >= 3){
+			return $this->lastDayOfMonth($this->lastOpcDate);
+		}
+		return $previousOpcValidityDate;
+	}
+
+	private function getPreviousOpcValidityDate(): ?\DateTimeImmutable
+	{
+		if(null === $this->previousOpcDate){
+			return null; // Not commercial Pilot
+		}
+
+		return $this->computeOpcValidityDate($this->previousOpcDate);
+	}
+
+	private function getOpcBaseValidityDate(): ?\DateTimeImmutable
+	{
+		if(null === $this->getOpcBaseDate()){
+			return null; // Not commercial Pilot
+		}
+
+		return $this->computeOpcValidityDate($this->getOpcBaseDate());
+	}
+
+	private function getOpcValidityDate(): ?\DateTimeImmutable
+	{
+		if ($this->lastOpcDate) {
+			return $this->computeOpcValidityDate($this->lastOpcDate);
+		}
+
+		return null;
+	}
+
+	private function computeOpcValidityDate(\DateTimeImmutable $date):\DateTimeImmutable{
+		return $this->lastDayOfMonth($date)->add(new \DateInterval('P24M'));
+	}
+
+	private function lastDayOfMonth(\DateTimeImmutable $date): \DateTimeImmutable{
+		return $date->modify('last day of this month');
+	}
 
     private function isProValid(): bool
     {
