@@ -69,7 +69,7 @@ if (GETPOST("action") == 'add') {
             $msg = '<div class="ok">L\'ajout du vol du : ' . $_POST["reday"] . '/' . $_POST["remonth"] . '/' . $_POST["reyear"] . ' s\'est correctement effectue ! </div>';
             Header("Location: card.php?id=" . $vol->id);
         }catch (\Exception $e){
-            $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . ($vol->error?:$e->getMessage()) . '! </div>';
+            $msg = '<div class="error">Erreur lors de l\'ajout du vol : ' . ($vol->error?:$e->getTraceAsString()). '! </div>';
         }
 
     }

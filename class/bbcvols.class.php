@@ -1499,13 +1499,7 @@ class Bbcvols extends CommonObject
     private function getNextId()
     {
         /** @var mysqli_result $result */
-        $result = $this->db->query("SELECT
-        auto_increment
-    FROM
-        information_schema.tables
-    WHERE
-        table_name = 'llx_bbc_vols'
-        and table_schema = database();");
+        $result = $this->db->query("SELECT MAX(rowid)+1 as auto_increment FROM llx_bbc_vols;");
 
         return $result->fetch_assoc()['auto_increment'];
     }

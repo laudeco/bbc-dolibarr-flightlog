@@ -12,7 +12,7 @@ dol_include_once('/flightlog/class/bbctypes.class.php');
 dol_include_once("/flightlog/lib/flightLog.lib.php");
 dol_include_once("/flightlog/validators/SimpleOrderValidator.php");
 dol_include_once("/flightlog/command/CreateOrderCommandHandler.php");
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/clas	s/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formadmin.class.php';
 
 // Load object modCodeTiers
@@ -214,7 +214,7 @@ if ($msg) {
                 </td>
 
                 <td>
-                    <?php print $form->select_company($customer->id, 'socid', '((s.client = 1 OR s.client = 3) AND s.status=1)', 'SelectThirdParty', 0, 0, null, 0, 'minwidth300'); ?>
+                    <?php print $form->select_company($customer->id, 'socid', '(((s.client:=:1) OR (s.client:=:3)) AND (s.status:=:1))', 'SelectThirdParty', 0, 0, null, 0, 'minwidth300'); ?>
                     <script type="text/javascript">
                         $(document).ready(function() {
                             $("#socid").change(function() {
