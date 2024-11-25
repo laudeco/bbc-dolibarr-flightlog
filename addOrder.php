@@ -27,7 +27,7 @@ foreach ($dirsociete as $dirroot)
     $res=dol_include_once($dirroot.$module.'.php');
     if ($res) break;
 }
-$modCodeClient = new $module;
+$modCodeClient = new $module($db);
 // Load object modCodeFournisseur
 $module = getDolGlobalString('SOCIETE_CODECLIENT_ADDON', 'mod_codeclient_leopard');
 if (substr($module, 0, 15) == 'mod_codeclient_' && substr($module, -3) == 'php')
@@ -40,7 +40,7 @@ foreach ($dirsociete as $dirroot)
     $res=dol_include_once($dirroot.$module.'.php');
     if ($res) break;
 }
-$modCodeFournisseur = new $module;
+$modCodeFournisseur = new $module($db);
 
 // Load translation files required by the page
 $langs->load("mymodule@flightlog");
