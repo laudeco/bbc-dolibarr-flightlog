@@ -16,7 +16,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formadmin.class.php';
 
 // Load object modCodeTiers
-$module=(! empty($conf->global->SOCIETE_CODECLIENT_ADDON)?$conf->global->SOCIETE_CODECLIENT_ADDON:'mod_codeclient_leopard');
+$module = getDolGlobalString('SOCIETE_CODECLIENT_ADDON', 'mod_codeclient_leopard');
 if (substr($module, 0, 15) == 'mod_codeclient_' && substr($module, -3) == 'php')
 {
     $module = substr($module, 0, dol_strlen($module)-4);
@@ -29,7 +29,7 @@ foreach ($dirsociete as $dirroot)
 }
 $modCodeClient = new $module;
 // Load object modCodeFournisseur
-$module=(! empty($conf->global->SOCIETE_CODECLIENT_ADDON)?$conf->global->SOCIETE_CODECLIENT_ADDON:'mod_codeclient_leopard');
+$module = getDolGlobalString('SOCIETE_CODECLIENT_ADDON', 'mod_codeclient_leopard');
 if (substr($module, 0, 15) == 'mod_codeclient_' && substr($module, -3) == 'php')
 {
     $module = substr($module, 0, dol_strlen($module)-4);
