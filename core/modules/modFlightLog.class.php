@@ -553,6 +553,8 @@ class modFlightLog extends DolibarrModules
         $this->module_parts["hooks"][] = "toprightmenu";
         $this->module_parts["hooks"][] = "printFieldListValue";
         $this->module_parts["hooks"][] = "printFieldListTitle";
+        $this->module_parts["hooks"][] = "addMoreActionsButtons";
+        $this->module_parts["hooks"][] = "main";
 
     }
 

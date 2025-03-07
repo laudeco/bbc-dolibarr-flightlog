@@ -12,6 +12,8 @@ dol_include_once('/flightlog/class/card/TabCollection.php');
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
 
+dol_include_once('/flightlog/class/enum/WebFlight.php');
+
 dol_include_once('/flightlog/class/GraphicalData.php');
 dol_include_once('/flightlog/class/GraphicalType.php');
 dol_include_once('/flightlog/class/GraphicalValue.php');

@@ -276,4 +276,131 @@ class ActionsFlightlog
         return $paiedInvoice === count($order->linkedObjects['facture'])
             || (int)($order->total_ttc * 1000) <= (int)($invoiced * 1000);
     }
+
+	/**
+	 * Adds some buttons on the web flights event calendar.
+	 *
+	 * @param array $params
+	 * @param $event
+	 * @param $action
+	 * @param $hookManager
+	 *
+	 * @return int
+	 */
+	public function addMoreActionsButtons($params, $event, $action, $hookManager)
+	{
+		dol_include_once('/flightlog/class/enum/WebFlight.php');
+
+		$contexts = explode(':', $params['context']);
+		if(!in_array('actioncard', $contexts) || $action === 'edit'){
+			return 0;
+		}
+
+		if(!($event instanceof ActionComm)){
+			return 0;
+		}
+
+		if($event->type_code !== 'BBC_VOL_WEB'){
+			return 0;
+		}
+
+		$actions  = [
+			'published' => ['perm' => 1, 'label' => 'Publier', 'url' => $_SERVER["PHP_SELF"] . '?id=' . $event->id . '&action=web_flight_publish'],
+			'confirmed' => ['perm' => 0, 'label' => 'Confirmer', 'url' => $_SERVER["PHP_SELF"] . '?id=' . $event->id . '&action=web_flight_confirm'],
+		];
+
+		$cancelActions = null;
+
+		if($event->getExtraField('statut') !== WebFlight::STATE_DRAFT){
+			// only be able to publish a draft flight web event
+			$actions['published']['perm'] = 0;
+		}
+
+		if(($event->getExtraField('statut') === WebFlight::STATE_BOOKED || $event->getExtraField('statut') === WebFlight::STATE_PRIVATE)){
+			// Confirm
+			if(!empty($event->location)){
+				$actions['confirmed']['perm'] = 1;
+			}else{
+				setEventMessages('Le vol web ne pourra pas être confirmé tant qu\'il manquera le lieu', null, 'warnings');
+			}
+
+			// Cancel
+			$cancelActions = [
+				'cancel_weather' => ['perm' => 1, 'label' => 'Annulé : Météo', 'url' => $_SERVER["PHP_SELF"] . '?id=' . $event->id . '&action=web_flight_cancel_weather'],
+				'cancel_nbr_pax' => ['perm' => 1, 'label' => 'Annulé : nombre de pax', 'url' => $_SERVER["PHP_SELF"] . '?id=' . $event->id . '&action=web_flight_cancel_nbr_pax'],
+				'cancel_pax' => ['perm' => 1, 'label' => 'Annulé : cause pax', 'url' => $_SERVER["PHP_SELF"] . '?id=' . $event->id . '&action=web_flight_cancel_pax'],
+				'cancel_other' => ['perm' => 1, 'label' => 'Annulé : Autre', 'url' => $_SERVER["PHP_SELF"] . '?id=' . $event->id . '&action=web_flight_cancel_other'],
+			];
+
+		}
+
+		$nbrEnabledFlightWebActions = count(array_filter($actions, function($action){
+			return $action['perm'] === 1;
+		}));
+		if($nbrEnabledFlightWebActions > 0){
+			print dolGetButtonAction('', 'Vol Web', 'default', $actions);
+		}
+
+		if($cancelActions){
+			print dolGetButtonAction('', 'Vol Web - Annulation', 'default', $cancelActions);
+		}
+
+		return 0;
+	}
+
+	public function doActions($params, $event, $action, $hookManager){
+		global $user;
+		dol_include_once('/flightlog/class/enum/WebFlight.php');
+
+		if(!($event instanceof ActionComm)){
+			return 0;
+		}
+
+		if($event->type_code !== 'BBC_VOL_WEB'){
+			return 0;
+		}
+
+		if($action == 'confirm_delete'
+			&& GETPOST("confirm") == 'yes'
+			&& (
+				$event->getExtraField('statut') === WebFlight::STATE_BOOKED
+				|| $event->getExtraField('statut') === WebFlight::STATE_PRIVATE
+			)
+		){
+			setEventMessages('Le vol web ne peut plus etre supprimé', null, 'errors');
+			return 1;
+		}
+
+		if($action === 'web_flight_publish'){
+			$event->setExtraField('statut', WebFlight::STATE_WAITING);
+			$event->update($user);
+		}
+
+		if($action === 'web_flight_confirm'){
+			$event->setExtraField('statut', WebFlight::STATE_CONFIRMED);
+			$event->update($user);
+		}
+
+		if($action === 'web_flight_cancel_weather'){
+			$event->setExtraField('statut', WebFlight::STATE_CANCEL_WEATHER);
+			$event->update($user);
+		}
+
+		if($action === 'web_flight_cancel_nbr_pax'){
+			$event->setExtraField('statut', WebFlight::STATE_CANCEL_NBR_PAX);
+			$event->update($user);
+		}
+
+		if($action === 'web_flight_cancel_pax'){
+			$event->setExtraField('statut', WebFlight::STATE_CANCEL_PAX);
+			$event->update($user);
+		}
+
+		if($action === 'web_flight_cancel_other'){
+			$event->setExtraField('statut', WebFlight::STATE_CANCEL_OTHER);
+			$event->update($user);
+		}
+
+		return 0;
+	}
 }
