@@ -192,7 +192,7 @@ if ($msg) {
                     </label>
                     <?php
                         //organisateur
-                        print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $user->id, 'orga', 0, null, 0, '', '', 0,0,0,'',0,'','', true);
+                        print $html->select_dolusers($_POST["orga"] ? $_POST["orga"] : $user->id, 'orga', 0, null, 0, [], '', 0,0,0,'',0,'','', true);
                     ?>
                 </div>
 

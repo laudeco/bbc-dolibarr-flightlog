@@ -334,15 +334,15 @@ class ActionsFlightlog
 
 		}
 
-		$nbrEnabledFlightWebActions = count(array_filter($actions, function($action){
+
+		foreach(array_filter($actions, function($action){
 			return $action['perm'] === 1;
-		}));
-		if($nbrEnabledFlightWebActions > 0){
-			print dolGetButtonAction('', 'Vol Web', 'default', $actions);
+		}) as $btn){
+			print dolGetButtonAction('', $btn['label'], 'default', $btn['url']);
 		}
 
 		if($cancelActions){
-			print dolGetButtonAction('', 'Vol Web - Annulation', 'default', $cancelActions);
+			print dolGetButtonAction('', 'Vol Web - Annulation', 'danger', $cancelActions, 'vol_web_cancel');
 		}
 
 		return 0;
