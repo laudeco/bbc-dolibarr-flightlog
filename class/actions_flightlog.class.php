@@ -67,7 +67,18 @@ class ActionsFlightlog
      */
     public function showLinkedObjectBlock(array $params = [], $object)
     {
+
+		return 0;
         if (!isset($object->linkedObjectsIds) || !isset($object->linkedObjectsIds['flightlog_damage'])) {
+
+
+			if(isset($object->linkedObjectsIds['action'])){
+				foreach ($object->linkedObjectsIds['action'] as $k => $actionId) {
+					$object->linkedObjects['flightlog_action'][$k] = new ActionComm($object->db);
+					$object->linkedObjects['flightlog_action'][$k]->fetch($actionId);
+				}
+			}
+
             return 0;
         }
 
@@ -117,6 +128,29 @@ class ActionsFlightlog
 
 
         $sql .= " ORDER BY date DESC";
+
+        return $sql;
+    }
+    /**
+     * @param CommonObject|null $object
+     * @return string
+     */
+    private function getSqlForActionLink(CommonObject $object = null)
+    {
+        $sql = "SELECT ";
+        $sql .= " a.id as rowid ";
+        $sql .= ", 0 as total_ht ";
+        $sql .= ", CONCAT('(ID : ',a.ref, ') <br/> <b>Date : </b>' ,a.datep, ' <br/> Code ',a.code) as ref ";
+        $sql .= ", CONCAT('(ID : ',a.ref, ') <br/> <b>Date : </b>' ,a.datep, ' <br/> Code ',a.code) as name ";
+
+        $sql .= " FROM ";
+        $sql .= MAIN_DB_PREFIX . "actioncomm as a ";
+
+        $sql .= "WHERE 1 = 1 ";
+		$sql .= " AND (YEAR(a.datep) = (YEAR(NOW())) OR YEAR(a.datep) = (YEAR(NOW()) - 1))";
+
+        $sql .= " ORDER BY datep DESC";
+
 
         return $sql;
     }
@@ -287,8 +321,9 @@ class ActionsFlightlog
 	 *
 	 * @return int
 	 */
-	public function addMoreActionsButtons($params, $event, $action, $hookManager)
+	public function addMoreActionsButtons($params, $event, &$action, $hookManager)
 	{
+		global $user;
 		dol_include_once('/flightlog/class/enum/WebFlight.php');
 
 		$contexts = explode(':', $params['context']);
@@ -311,6 +346,11 @@ class ActionsFlightlog
 
 		$cancelActions = null;
 
+		if(empty($event->getExtraField('nombredeplacesdisponibles'))){
+			// if empty cannot publish
+			$actions['published']['perm'] = 0;
+		}
+
 		if($event->getExtraField('statut') !== WebFlight::STATE_DRAFT){
 			// only be able to publish a draft flight web event
 			$actions['published']['perm'] = 0;
@@ -331,24 +371,23 @@ class ActionsFlightlog
 				'cancel_pax' => ['perm' => 1, 'label' => 'Annulé : cause pax', 'url' => $_SERVER["PHP_SELF"] . '?id=' . $event->id . '&action=web_flight_cancel_pax'],
 				'cancel_other' => ['perm' => 1, 'label' => 'Annulé : Autre', 'url' => $_SERVER["PHP_SELF"] . '?id=' . $event->id . '&action=web_flight_cancel_other'],
 			];
-
 		}
-
+		$btnRights = (($event->authorid == $user->id || $event->userownerid == $user->id) && $user->hasRight('agenda', 'myactions', 'create'));
 
 		foreach(array_filter($actions, function($action){
 			return $action['perm'] === 1;
 		}) as $btn){
-			print dolGetButtonAction('', $btn['label'], 'default', $btn['url']);
+			print dolGetButtonAction('', $btn['label'], 'default', $btn['url'], '', $btnRights);
 		}
 
 		if($cancelActions){
-			print dolGetButtonAction('', 'Vol Web - Annulation', 'danger', $cancelActions, 'vol_web_cancel');
+			print dolGetButtonAction('', 'Vol Web - Annulation', 'danger', $cancelActions, 'vol_web_cancel', $btnRights);
 		}
 
 		return 0;
 	}
 
-	public function doActions($params, $event, $action, $hookManager){
+	public function doActions($params, $event, &$action, HookManager $hookManager){
 		global $user;
 		dol_include_once('/flightlog/class/enum/WebFlight.php');
 
@@ -356,10 +395,30 @@ class ActionsFlightlog
 			return 0;
 		}
 
-		if($event->type_code !== 'BBC_VOL_WEB'){
+		if($event->type_code !== 'BBC_VOL_WEB' && GETPOST('actioncode') !== 'BBC_VOL_WEB'){
 			return 0;
 		}
 
+		// Check if the user has the right to edit the event
+		if($action === 'update' && (empty(GETPOST('options_nombredeplacesdisponibles')) || GETPOST('options_nombredeplacesdisponibles') <= 0)){
+			$hookManager->errors[] = 'Le nombre de places disponibles vol web doit être supérieur à 0. (Vol non modifié)';
+			$action = 'edit';
+			return -1;
+		}
+
+		//If the user update the number of passengers
+		if(($action === 'update') && (GETPOST('options_cpax') != $event->getExtraField('options_cpax'))){
+			$hookManager->errors[] = 'Le champ nbr de passagers ne peut pas être modifié manuellement. (Vol non modifié)';
+			$action = 'edit';
+			return -1;
+		}
+		if(($action === 'add') && (GETPOST('options_cpax') >= 0 )){
+			$hookManager->errors[] = 'Le champ nbr de passagers ne peut pas être ajouté manuellement. (Vol non modifié)';
+			$action = 'create';
+			return -1;
+		}
+
+		// check deletion
 		if($action == 'confirm_delete'
 			&& GETPOST("confirm") == 'yes'
 			&& (
