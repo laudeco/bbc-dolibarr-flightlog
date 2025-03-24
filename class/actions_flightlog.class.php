@@ -407,7 +407,7 @@ class ActionsFlightlog
 		}
 
 		//If the user update the number of passengers
-		if(($action === 'update') && (GETPOST('options_cpax') != $event->getExtraField('options_cpax'))){
+		if(($action === 'update') && (GETPOST('options_cpax') != $event->getExtraField('cpax'))){
 			$hookManager->errors[] = 'Le champ nbr de passagers ne peut pas être modifié manuellement. (Vol non modifié)';
 			$action = 'edit';
 			return -1;
