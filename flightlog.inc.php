@@ -11,6 +11,7 @@ dol_include_once('/flightlog/class/card/TabCollection.php');
 
 dol_include_once('/flightlog/class/bbcvols.class.php');
 dol_include_once('/flightlog/class/bbctypes.class.php');
+dol_include_once('/flightlog/class/BbcBalloonTypeService.php');
 
 dol_include_once('/flightlog/class/enum/WebFlight.php');
 
