@@ -231,8 +231,8 @@ class FlightValidator extends AbstractValidator
             $this->addError('heureA', 'L\'heure d\'arrivee n\'est pas correcte');
         }
 
-        if (empty($this->errors) && ($vol->heureA - $vol->heureD) <= 0) {
-            $this->addError('heures', 'L\'heure de depart est plus grande  que l\'heure d\'arrivee');
+        if (empty($this->errors) && (strtotime($vol->heureA) - strtotime($vol->heureD)) <= 0) {
+            $this->addError('heures', 'L\'heure de depart est plus grande  que l\'heure d\'arrivee ');
         }
 
         if (empty($vol->lieuD)) {
