@@ -46,6 +46,11 @@ class FlightMission
     private $date;
 
     /**
+     * @var int
+     */
+    private $fkType;
+
+    /**
      * FlightMission constructor.
      *
      * @param int      $id
@@ -54,8 +59,9 @@ class FlightMission
      * @param string   $kilometersComment
      * @param int      $numberOfKilometers
      * @param DateTime $date
+     * @param int      $fkType
      */
-    public function __construct($id, $startPoint, $endPoint, $kilometersComment, $numberOfKilometers, DateTime $date)
+    public function __construct($id, $startPoint, $endPoint, $kilometersComment, $numberOfKilometers, DateTime $date, $fkType = 0)
     {
         $this->id = (int)$id;
         $this->startPoint = $startPoint;
@@ -63,6 +69,7 @@ class FlightMission
         $this->kilometersComment = $kilometersComment;
         $this->numberOfKilometers = $numberOfKilometers;
         $this->date = $date;
+        $this->fkType = (int)$fkType;
     }
 
     /**
@@ -111,5 +118,13 @@ class FlightMission
     public function getDate()
     {
         return $this->date;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFkType()
+    {
+        return $this->fkType;
     }
 }

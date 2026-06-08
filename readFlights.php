@@ -88,22 +88,40 @@ if ($num) {
 }
 
 
+// Load flight types for visible_tableau. T1 and T2 stay in the hardcoded bonus section.
+$allFlightTypes = fetchBbcFlightTypes(1);
+$t1Type = null;
+$t2Type = null;
+$visibleCostTypes = [];
+foreach ($allFlightTypes as $ft) {
+    if ((int)$ft->numero === 1) { $t1Type = $ft; continue; }
+    if ((int)$ft->numero === 2) { $t2Type = $ft; continue; }
+    if ($ft->isVisibleTableau()) {
+        $visibleCostTypes[] = $ft;
+    }
+}
+$showT1 = $t1Type === null || $t1Type->isVisibleTableau();
+$showT2 = $t2Type === null || $t2Type->isVisibleTableau();
+
 print '<div class="tabBar">';
 print '<table class="" width="100%">';
 
 print '<tbody>';
 print '<tr class="liste_titre">';
 print '<td colspan="2">Nom</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 1 : <br/>Sponsor") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 2 : <br/>Baptême") . '</td>';
+if ($showT1) {
+    print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 1 : <br/>Sponsor") . '</td>';
+}
+if ($showT2) {
+    print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 2 : <br/>Baptême") . '</td>';
+}
 print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Orga. <br/>(T1/T2)") . '</td>';
 print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Instructeur <br/>(orga T6)") . '</td>';
 print '<td class="liste_titre _alignCenter" >' . $langs->trans("Total bonus") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 3 : <br/>Privé") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 4: <br/>Meeting") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("Type 5: <br/>Chambley") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 6: <br/>instruction") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 7: <br/>vols < 50 ") . '</td>';
+foreach ($visibleCostTypes as $ft) {
+    $colspan = $ft->cout_pilote > 0 ? 2 : 1;
+    print '<td class="liste_titre _alignCenter" colspan="' . $colspan . '">(T' . $ft->numero . ') ' . $ft->nom . '</td>';
+}
 print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Réparations") . '</td>';
 print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("Facture") . '</td>';
 print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("A payer") . '</td>';
@@ -112,11 +130,14 @@ print '<tr>';
 print '<tr class="liste_titre">';
 print '<td colspan="2" class="liste_titre"></td>';
 
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> Pts </td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> Pts </td>';
+if ($showT1) {
+    print '<td class="liste_titre"> # </td>';
+    print '<td class="liste_titre"> Pts </td>';
+}
+if ($showT2) {
+    print '<td class="liste_titre"> # </td>';
+    print '<td class="liste_titre"> Pts </td>';
+}
 
 print '<td class="liste_titre"> # </td>';
 print '<td class="liste_titre"> Pts </td>';
@@ -126,22 +147,13 @@ print '<td class="liste_titre"> Pts </td>';
 
 print '<td class="liste_titre"> Pts</td>';
 
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> € </td>';
+foreach ($visibleCostTypes as $ft) {
+    print '<td class="liste_titre"> # </td>';
+    if ($ft->cout_pilote > 0) {
+        print '<td class="liste_titre"> € </td>';
+    }
+}
 
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> € </td>';
-
-print '<td class="liste_titre"> # </td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> € </td>';
-
-// T7
-print '<td class="liste_titre"> #</td>';
-print '<td class="liste_titre"> €</td>';
-
-// Damage
 print '<td class="liste_titre"> €</td>';
 print '<td class="liste_titre"> fact. €</td>';
 
@@ -164,22 +176,18 @@ function pilotStatus($id){
 }
 
 $total = 0;
-
+$totalWithoutPts = 0;
 $totalT1 = 0;
 $totalT2 = 0;
-$totalT3 = 0;
-$totalT4 = 0;
-$totalT5 = 0;
-$totalT6 = 0;
-$totalT7 = 0;
-
-$totalWithoutPts = 0;
-
 $totalPtsMission1 = 0;
 $totalPtsMission2 = 0;
 $totalPtsOrga = 0;
 $totalPtsInstructor = 0;
 $totalPts = 0;
+$totalByType = [];
+foreach ($visibleCostTypes as $ft) {
+    $totalByType[$ft->numero] = 0;
+}
 
 /**
  * @var int   $key
@@ -187,31 +195,32 @@ $totalPts = 0;
  */
 foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     $total += $pilot->getTotalBill()->getValue();
+
     $totalT1 += $pilot->getCountForType('1')->getCount();
     $totalT2 += $pilot->getCountForType('2')->getCount();
-    $totalT3 += $pilot->getCountForType('3')->getCount();
-    $totalT4 += $pilot->getCountForType('4')->getCount();
-    $totalT5 += $pilot->getCountForType('5')->getCount();
-    $totalT6 += $pilot->getCountForType('6')->getCount();
-    $totalT7 += $pilot->getCountForType('7')->getCount();
-
     $totalPtsMission1 += $pilot->getCountForType('1')->getCost()->getValue();
     $totalPtsMission2 += $pilot->getCountForType('2')->getCost()->getValue();
     $totalPtsOrga += $pilot->getCountForType('orga')->getCost()->getValue();
     $totalPtsInstructor += $pilot->getCountForType('orga_T6')->getCost()->getValue();
     $totalPts += $pilot->getFlightBonus()->getValue();
-
     $totalWithoutPts += $pilot->getFlightsCost()->getValue();
+
+    foreach ($visibleCostTypes as $ft) {
+        $totalByType[$ft->numero] += $pilot->getCountForType((string)$ft->numero)->getCount();
+    }
 
     print '<tr class="oddeven">';
     print '<td>' . $pilot->getId() . '</td>';
     print '<td>' . pilotStatus($pilot->getId()) . $pilot->getName() . '</td>';
 
-    print '<td>' . $pilot->getCountForType('1')->getCount() . '</td>';
-    print '<td>' . $pilot->getCountForType('1')->getCost()->getValue() . '</td>';
-
-    print '<td>' . $pilot->getCountForType('2')->getCount() . '</td>';
-    print '<td>' . $pilot->getCountForType('2')->getCost()->getValue() . '</td>';
+    if ($showT1) {
+        print '<td>' . $pilot->getCountForType('1')->getCount() . '</td>';
+        print '<td>' . $pilot->getCountForType('1')->getCost()->getValue() . '</td>';
+    }
+    if ($showT2) {
+        print '<td>' . $pilot->getCountForType('2')->getCount() . '</td>';
+        print '<td>' . $pilot->getCountForType('2')->getCost()->getValue() . '</td>';
+    }
 
     print '<td>' . $pilot->getCountForType('orga')->getCount() . '</td>';
     print '<td>' . $pilot->getCountForType('orga')->getCost()->getValue() . '</td>';
@@ -221,19 +230,13 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
 
     print sprintf('<td class="%s">', $pilot->getFlightBonus()->getValue() === 0?'text-muted':'text-bold'). $pilot->getFlightBonus()->getValue() . ' pts</td>';
 
-    print '<td>' . $pilot->getCountForType('3')->getCount() . '</td>';
-    print '<td>' . price($pilot->getCountForType('3')->getCost()->getValue()) . '€</td>';
-
-    print '<td>' . $pilot->getCountForType('4')->getCount() . '</td>';
-    print '<td>' . price($pilot->getCountForType('4')->getCost()->getValue()) . '€</td>';
-
-    print '<td>' . $pilot->getCountForType('5')->getCount() . '</td>';
-
-    print '<td>' . $pilot->getCountForType('6')->getCount() . '</td>';
-    print '<td>' . price($pilot->getCountForType('6')->getCost()->getValue()) . '€</td>';
-
-    print '<td>' . $pilot->getCountForType('7')->getCount() . '</td>';
-    print '<td>' . price($pilot->getCountForType('7')->getCost()->getValue()) . '€</td>';
+    foreach ($visibleCostTypes as $ft) {
+        $typeNum = (string)$ft->numero;
+        print '<td>' . $pilot->getCountForType($typeNum)->getCount() . '</td>';
+        if ($ft->cout_pilote > 0) {
+            print '<td>' . price($pilot->getCountForType($typeNum)->getCost()->getValue()) . '€</td>';
+        }
+    }
 
     print '<td>' . price($pilot->damageCost()->getValue()) . '€</td>';
     print '<td>' . price($pilot->invoicedDamageCost()->getValue()) . '€</td>';
@@ -243,37 +246,34 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     print '</tr>';
 }
 
+// Totals row
 print '<tr class="oddeven">';
 print '<td></td>';
 print '<td></td>';
 
-print '<td>' . $totalT1 . '</td>';
-print '<td>' . $totalPtsMission1 . '</td>';
+if ($showT1) {
+    print '<td>' . $totalT1 . '</td>';
+    print '<td>' . $totalPtsMission1 . '</td>';
+}
+if ($showT2) {
+    print '<td>' . $totalT2 . '</td>';
+    print '<td>' . $totalPtsMission2 . '</td>';
+}
 
-print '<td>' . $totalT2 . '</td>';
-print '<td>' . $totalPtsMission2 . '</td>';
-
-print '<td>' . '</td>';
+print '<td></td>';
 print '<td>' . $totalPtsOrga . '</td>';
 
-print '<td>' . '</td>';
+print '<td></td>';
 print '<td>' . $totalPtsInstructor . '</td>';
 
 print '<td><b>' . $totalPts . '</b></td>';
 
-print '<td>' . $totalT3 . '</td>';
-print '<td></td>';
-
-print '<td>' . $totalT4. '</td>';
-print '<td></td>';
-
-print '<td>' . $totalT5 . '</td>';
-
-print '<td>' . $totalT6 . '</td>';
-print '<td></td>';
-
-print '<td>' . $totalT7 . '</td>';
-print '<td></td>';
+foreach ($visibleCostTypes as $ft) {
+    print '<td>' . ($totalByType[$ft->numero] ?? 0) . '</td>';
+    if ($ft->cout_pilote > 0) {
+        print '<td></td>';
+    }
+}
 
 print '<td></td>';
 print '<td></td>';

@@ -146,12 +146,17 @@ class CreateExpenseNoteCommandHandler
      */
     private function addKilometersLine(FlightMission $currentFlightForQuarter, $expenseNote)
     {
+        $rateKm = $this->getRemboursementKmForFlight($currentFlightForQuarter);
+        if ($rateKm <= 0 || $currentFlightForQuarter->getNumberOfKilometers() <= 0) {
+            return $expenseNote;
+        }
+
         $object_ligne = new ExpenseReportLine($this->db);
         $object_ligne->comments = $this->langs->trans(sprintf("Vol (id: %d) %s à %s  détail: %s",
             $currentFlightForQuarter->getId(), $currentFlightForQuarter->getStartPoint(),
             $currentFlightForQuarter->getEndPoint(), $currentFlightForQuarter->getKilometersComment()));
         $object_ligne->qty = $currentFlightForQuarter->getNumberOfKilometers();
-        $object_ligne->value_unit = $this->getAmountByKilometer();
+        $object_ligne->value_unit = $rateKm;
 
         $object_ligne->date = $currentFlightForQuarter->getDate()->format('Y-m-d');
 
@@ -180,11 +185,16 @@ class CreateExpenseNoteCommandHandler
      */
     private function addMissionLine(FlightMission $currentFlightForQuarter, ExpenseReport $expenseReport)
     {
+        $defraiement = $this->getDefraiementForFlight($currentFlightForQuarter);
+        if ($defraiement <= 0) {
+            return $expenseReport;
+        }
+
         $object_ligne = new ExpenseReportLine($this->db);
         $object_ligne->comments = sprintf("Vol (id: %d) %s à %s", $currentFlightForQuarter->getId(),
             $currentFlightForQuarter->getStartPoint(), $currentFlightForQuarter->getEndPoint());
         $object_ligne->qty = 1;
-        $object_ligne->value_unit = $this->getAmountByMission();
+        $object_ligne->value_unit = $defraiement;
 
         $object_ligne->date = $currentFlightForQuarter->getDate()->format('Y-m-d');
 
@@ -206,26 +216,43 @@ class CreateExpenseNoteCommandHandler
     }
 
     /**
-     * Get the unit price pe KM.
+     * Returns the km reimbursement rate for a given flight, falling back to global config.
      *
-     * @return int
+     * @param FlightMission $flight
+     *
+     * @return float
      */
-    private function getAmountByKilometer()
+    private function getRemboursementKmForFlight(FlightMission $flight)
     {
-        return isset($this->conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $this->conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
+        if ($flight->getFkType() > 0) {
+            $type = new \Bbctypes($this->db);
+            if ($type->fetch($flight->getFkType()) > 0 && $type->remboursement_km > 0) {
+                return (float)$type->remboursement_km;
+            }
+        }
+
+        return isset($this->conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? (float)$this->conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
     }
 
     /**
-     * @return mixed
+     * Returns the expense allowance amount for a given flight, falling back to global config.
+     *
+     * @param FlightMission $flight
+     *
+     * @return float
      */
-    private function getAmountByMission()
+    private function getDefraiementForFlight(FlightMission $flight)
     {
-        return $this->conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
+        if ($flight->getFkType() > 0) {
+            $type = new \Bbctypes($this->db);
+            if ($type->fetch($flight->getFkType()) > 0 && $type->defraiement > 0) {
+                return (float)$type->defraiement;
+            }
+        }
+
+        return isset($this->conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION) ? (float)$this->conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION : 0;
     }
 
-    /**
-     * @return string
-     */
     private function getVatRate()
     {
         return '0.000';

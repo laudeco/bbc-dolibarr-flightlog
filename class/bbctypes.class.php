@@ -64,6 +64,36 @@ class Bbctypes extends CommonObject
     public $service;
 
     /**
+     * @var float
+     */
+    public $remboursement_km = 0;
+
+    /**
+     * @var int
+     */
+    public $points_pilote = 0;
+
+    /**
+     * @var float
+     */
+    public $cout_pilote = 0;
+
+    /**
+     * @var int
+     */
+    public $visible_graphique = 1;
+
+    /**
+     * @var int
+     */
+    public $visible_tableau = 1;
+
+    /**
+     * @var float
+     */
+    public $defraiement = 0;
+
+    /**
      * Constructor
      *
      * @param DoliDb $db Database handler
@@ -110,16 +140,26 @@ class Bbctypes extends CommonObject
         $sql .= 'numero,';
         $sql .= 'nom,';
         $sql .= 'fkService,';
-        $sql .= 'active';
-
+        $sql .= 'active,';
+        $sql .= 'remboursement_km,';
+        $sql .= 'points_pilote,';
+        $sql .= 'cout_pilote,';
+        $sql .= 'visible_graphique,';
+        $sql .= 'visible_tableau,';
+        $sql .= 'defraiement';
 
         $sql .= ') VALUES (';
 
         $sql .= ' ' . (!isset($this->numero) ? 'NULL' : $this->numero) . ',';
         $sql .= ' ' . (!isset($this->nom) ? 'NULL' : "'" . $this->db->escape($this->nom) . "'") . ',';
         $sql .= ' ' . (!isset($this->fkService) ? 'NULL' : "'" . $this->db->escape($this->fkService) . "'") . ',';
-        $sql .= ' ' . (!isset($this->active) ? 'NULL' : $this->active);
-
+        $sql .= ' ' . (!isset($this->active) ? 'NULL' : $this->active) . ',';
+        $sql .= ' ' . (float)$this->remboursement_km . ',';
+        $sql .= ' ' . (int)$this->points_pilote . ',';
+        $sql .= ' ' . (float)$this->cout_pilote . ',';
+        $sql .= ' ' . (int)$this->visible_graphique . ',';
+        $sql .= ' ' . (int)$this->visible_tableau . ',';
+        $sql .= ' ' . (float)$this->defraiement;
 
         $sql .= ')';
 
@@ -170,8 +210,13 @@ class Bbctypes extends CommonObject
         $sql .= " t.numero,";
         $sql .= " t.nom,";
         $sql .= " t.fkService,";
-        $sql .= " t.active";
-
+        $sql .= " t.active,";
+        $sql .= " t.remboursement_km,";
+        $sql .= " t.points_pilote,";
+        $sql .= " t.cout_pilote,";
+        $sql .= " t.visible_graphique,";
+        $sql .= " t.visible_tableau,";
+        $sql .= " t.defraiement";
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
         if (null !== $ref) {
@@ -193,6 +238,12 @@ class Bbctypes extends CommonObject
                 $this->nom = $obj->nom;
                 $this->fkService = $obj->fkService;
                 $this->active = $obj->active;
+                $this->remboursement_km = (float)$obj->remboursement_km;
+                $this->points_pilote = (int)$obj->points_pilote;
+                $this->cout_pilote = (float)$obj->cout_pilote;
+                $this->visible_graphique = (int)$obj->visible_graphique;
+                $this->visible_tableau = (int)$obj->visible_tableau;
+                $this->defraiement = (float)$obj->defraiement;
 
                 if ($this->fkService) {
                     $this->service = new Product($this->db);
@@ -241,8 +292,13 @@ class Bbctypes extends CommonObject
         $sql .= " t.numero,";
         $sql .= " t.nom,";
         $sql .= " t.fkService,";
-        $sql .= " t.active";
-
+        $sql .= " t.active,";
+        $sql .= " t.remboursement_km,";
+        $sql .= " t.points_pilote,";
+        $sql .= " t.cout_pilote,";
+        $sql .= " t.visible_graphique,";
+        $sql .= " t.visible_tableau,";
+        $sql .= " t.defraiement";
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
 
@@ -286,6 +342,12 @@ class Bbctypes extends CommonObject
                 $line->nom = $obj->nom;
                 $line->fkService = $obj->fkService;
                 $line->active = $obj->active;
+                $line->remboursement_km = (float)$obj->remboursement_km;
+                $line->points_pilote = (int)$obj->points_pilote;
+                $line->cout_pilote = (float)$obj->cout_pilote;
+                $line->visible_graphique = (int)$obj->visible_graphique;
+                $line->visible_tableau = (int)$obj->visible_tableau;
+                $line->defraiement = (float)$obj->defraiement;
 
                 $this->lines[$line->id] = $line;
             }
@@ -342,8 +404,13 @@ class Bbctypes extends CommonObject
         $sql .= ' numero = ' . (isset($this->numero) ? $this->numero : "null") . ',';
         $sql .= ' nom = ' . (isset($this->nom) ? "'" . $this->db->escape($this->nom) . "'" : "null") . ',';
         $sql .= ' fkService = ' . (isset($this->fkService) ? "'" . $this->db->escape($this->fkService) . "'" : "null") . ',';
-        $sql .= ' active = ' . (isset($this->active) ? $this->active : "null");
-
+        $sql .= ' active = ' . (isset($this->active) ? $this->active : "null") . ',';
+        $sql .= ' remboursement_km = ' . (float)$this->remboursement_km . ',';
+        $sql .= ' points_pilote = ' . (int)$this->points_pilote . ',';
+        $sql .= ' cout_pilote = ' . (float)$this->cout_pilote . ',';
+        $sql .= ' visible_graphique = ' . (int)$this->visible_graphique . ',';
+        $sql .= ' visible_tableau = ' . (int)$this->visible_tableau . ',';
+        $sql .= ' defraiement = ' . (float)$this->defraiement;
 
         $sql .= ' WHERE idType=' . $this->id;
 
@@ -592,6 +659,12 @@ class Bbctypes extends CommonObject
         $this->nom = '';
         $this->fkService = null;
         $this->active = '';
+        $this->remboursement_km = 0;
+        $this->points_pilote = 0;
+        $this->cout_pilote = 0;
+        $this->visible_graphique = 1;
+        $this->visible_tableau = 1;
+        $this->defraiement = 0;
     }
 
     /**
@@ -689,6 +762,36 @@ class BbctypesLine
     public $active;
 
     /**
+     * @var float
+     */
+    public $remboursement_km = 0;
+
+    /**
+     * @var int
+     */
+    public $points_pilote = 0;
+
+    /**
+     * @var float
+     */
+    public $cout_pilote = 0;
+
+    /**
+     * @var int
+     */
+    public $visible_graphique = 1;
+
+    /**
+     * @var int
+     */
+    public $visible_tableau = 1;
+
+    /**
+     * @var float
+     */
+    public $defraiement = 0;
+
+    /**
      * @return int
      */
     public function getId()
@@ -742,6 +845,54 @@ class BbctypesLine
     public function getLabel()
     {
         return "T" . $this->numero . '-' . $this->nom;
+    }
+
+    /**
+     * @return float
+     */
+    public function getRemboursementKm()
+    {
+        return $this->remboursement_km;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPointsPilote()
+    {
+        return $this->points_pilote;
+    }
+
+    /**
+     * @return float
+     */
+    public function getCoutPilote()
+    {
+        return $this->cout_pilote;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisibleGraphique()
+    {
+        return (bool)$this->visible_graphique;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisibleTableau()
+    {
+        return (bool)$this->visible_tableau;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDefraiement()
+    {
+        return $this->defraiement;
     }
 
 }

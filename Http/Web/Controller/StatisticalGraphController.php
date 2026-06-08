@@ -135,8 +135,7 @@ final class StatisticalGraphController extends WebController
         $legend = [];
         $graphByTypeAndYear->type = [];
         foreach (fetchBbcFlightTypes() as $flightType) {
-
-            if (!in_array($flightType->numero, [1, 2, 3,4, 6])) {
+            if (!$flightType->isVisibleGraphique()) {
                 continue;
             }
 

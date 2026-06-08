@@ -47,7 +47,7 @@ class FlightForQuarterAndPilotQueryHandler
                     $flight = $this->db->fetch_object($resql);
                     if ($flight) {
                         $flights[] = new FlightMission($flight->rowid, $flight->lieuD, $flight->lieuA,
-                            $flight->justif_kilometers, $flight->kilometers, new \DateTime($flight->date));
+                            $flight->justif_kilometers, $flight->kilometers, new \DateTime($flight->date), $flight->fk_type);
                     }
                     $i++;
                 }
