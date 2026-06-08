@@ -1,6 +1,4 @@
 <?php
-//require '../../main.inc.php';
-
 require '../../main.inc.php';
 
 require_once '../../core/lib/admin.lib.php';
@@ -17,29 +15,12 @@ if (!$user->admin) {
     accessforbidden();
 }
 
-$flightType = new Bbctypes($db);
 $action = GETPOST('action', 'alpha', 2);
-$services = GETPOST('idprod', 'array', 2);
 
 /*
  * Actions
  */
-// Save
-if($action === ACTION_SAVE){
-    foreach($services as $flightTypeId => $serviceId){
-        $res = $flightType->fetch($flightTypeId);
-        if($res > 0 ){
-            $flightType->fkService = $serviceId;
-            $flightType->remboursement_km = price2num(GETPOST('remboursement_km_'.$flightTypeId));
-            $flightType->points_pilote    = (int) GETPOST('points_pilote_'.$flightTypeId, 'int');
-            $flightType->cout_pilote      = price2num(GETPOST('cout_pilote_'.$flightTypeId));
-            $flightType->defraiement      = price2num(GETPOST('defraiement_'.$flightTypeId));
-            $flightType->visible_graphique = GETPOST('visible_graphique_'.$flightTypeId) ? 1 : 0;
-            $flightType->visible_tableau   = GETPOST('visible_tableau_'.$flightTypeId) ? 1 : 0;
-            $flightType->update($user);
-        }
-    }
-
+if ($action === ACTION_SAVE) {
     dolibarr_set_const($db, 'BBC_FLIGHT_TYPE_CUSTOMER', GETPOST('customer_product'), 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'BBC_FLIGHT_DEFAULT_CUSTOMER', GETPOST('defaultCustomer'), 'chaine', 0, '', $conf->entity);
 
@@ -56,7 +37,6 @@ if($action === ACTION_SAVE){
  */
 
 $form = new Form($db);
-$flightType->fetchAll();
 
 llxHeader('', $langs->trans("FLightLogSetup"), $help_url);
 
@@ -69,68 +49,27 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
         <input type="hidden" name="action" value="<?= ACTION_SAVE ?>"/>
         <input type="hidden" name="token" value="<?php echo newToken(); ?>"/>
 
-        <!-- Configuration par type de vol -->
-        <h3><?= $langs->trans("Configuration par type de vol") ?></h3>
+        <h3><?= $langs->trans("Configuration générale") ?></h3>
         <table class="noborder" width="100%">
             <tr class="liste_titre">
-                <th><?= $langs->trans("Type de vol") ?></th>
-                <th><?= $langs->trans("Service / produit") ?></th>
-                <th><?= $langs->trans("Remb. km (€/km)") ?></th>
-                <th><?= $langs->trans("Points pilote") ?></th>
-                <th><?= $langs->trans("Coût pilote (€)") ?></th>
-                <th><?= $langs->trans("Défraiement (€)") ?></th>
-                <th><?= $langs->trans("Visible graphique") ?></th>
-                <th><?= $langs->trans("Visible tableau") ?></th>
+                <th><?= $langs->trans("Champ") ?></th>
+                <th><?= $langs->trans("Valeur") ?></th>
             </tr>
-
-            <?php foreach ($flightType->lines as $flightTypeLine): ?>
-                <tr class="<?= $flightTypeLine->id % 2 == 0 ? "pair" : "impair" ?>">
-                    <td>(T<?= $flightTypeLine->numero ?>) - <?= $flightTypeLine->nom ?></td>
-                    <td>
-                        <?php $form->select_produits($flightTypeLine->fkService, 'idprod['.$flightTypeLine->id.']', $filtertype, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1, array(),$buyer->id); ?>
-                    </td>
-                    <td>
-                        <input type="number" step="0.001" name="remboursement_km_<?= $flightTypeLine->id ?>"
-                               value="<?= $flightTypeLine->remboursement_km ?>" style="width:80px"/>
-                    </td>
-                    <td>
-                        <input type="number" step="1" name="points_pilote_<?= $flightTypeLine->id ?>"
-                               value="<?= $flightTypeLine->points_pilote ?>" style="width:70px"/>
-                    </td>
-                    <td>
-                        <input type="number" step="0.01" name="cout_pilote_<?= $flightTypeLine->id ?>"
-                               value="<?= $flightTypeLine->cout_pilote ?>" style="width:80px"/>
-                    </td>
-                    <td>
-                        <input type="number" step="0.01" name="defraiement_<?= $flightTypeLine->id ?>"
-                               value="<?= $flightTypeLine->defraiement ?>" style="width:80px"/>
-                    </td>
-                    <td style="text-align:center">
-                        <input type="checkbox" name="visible_graphique_<?= $flightTypeLine->id ?>"
-                               value="1" <?= $flightTypeLine->visible_graphique ? 'checked' : '' ?>/>
-                    </td>
-                    <td style="text-align:center">
-                        <input type="checkbox" name="visible_tableau_<?= $flightTypeLine->id ?>"
-                               value="1" <?= $flightTypeLine->visible_tableau ? 'checked' : '' ?>/>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
 
             <tr class="impair">
                 <td>Vol client</td>
-                <td colspan="7">
+                <td>
                     <?php $form->select_produits($conf->global->BBC_FLIGHT_TYPE_CUSTOMER, 'customer_product',
-                        $filtertype, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1, array(),$buyer->id); ?>
+                        $filtertype, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1, array(), $buyer->id); ?>
                 </td>
             </tr>
 
             <tr class="pair">
                 <td>Client par défaut</td>
-                <td colspan="7">
+                <td>
                     <?php echo $form->select_thirdparty_list($conf->global->BBC_FLIGHT_DEFAULT_CUSTOMER, 'defaultCustomer'); ?>
                 </td>
             </tr>
-
         </table>
 
 
@@ -142,18 +81,18 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
             </tr>
 
             <tr class="pair">
-                <td><?php echo $langs->trans('Points organisateur')?></td>
+                <td><?php echo $langs->trans('Points organisateur') ?></td>
                 <td>
                     <input type="number" id="points_bonus_organisator" name="points_bonus_organisator"
-                           value="<?php echo $conf->global->BBC_POINTS_BONUS_ORGANISATOR?>" />
+                           value="<?php echo $conf->global->BBC_POINTS_BONUS_ORGANISATOR ?>" />
                 </td>
             </tr>
 
             <tr class="impar">
-                <td><?php echo $langs->trans('Points instructeur')?></td>
+                <td><?php echo $langs->trans('Points instructeur') ?></td>
                 <td>
                     <input type="number" id="points_bonus_instructor" name="points_bonus_instructor"
-                           value="<?php echo $conf->global->BBC_POINTS_BONUS_INSTRUCTOR?>" />
+                           value="<?php echo $conf->global->BBC_POINTS_BONUS_INSTRUCTOR ?>" />
                 </td>
             </tr>
         </table>
@@ -203,8 +142,8 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
                     <br/><span class="text-muted">Separer par des ; </span>
                 </td>
             </tr>
-
         </table>
+
         <input type="submit" />
     </form>
 <?php
