@@ -149,9 +149,14 @@ print '<td class="liste_titre"> € </td>';
 print '<td class="liste_titre"> Balance (A payer) €</td>';
 
 print'</tr>';
-$tableQuery = new BillableFlightQuery(true, (GETPOST("year") ?: date("Y")));
-$tableQueryHandler = new BillableFlightQueryHandler($db, $conf->global);
-$pilotQueryRepository = new PilotQueryRepository($db);
+try{
+	$tableQuery = new BillableFlightQuery(true, (GETPOST("year") ?: date("Y")));
+	$tableQueryHandler = new BillableFlightQueryHandler($db, $conf->global);
+	$pilotQueryRepository = new PilotQueryRepository($db);
+
+}catch(Exception $e){
+	dol_syslog($e->getMessage(), LOG_ERR);
+}
 
 function pilotStatus($id){
     global $pilotQueryRepository;
