@@ -172,45 +172,57 @@ class BillableFlightQueryHandler
     }
 
     /**
-     * Returns the number of points if set in the config, if not return the price of the service.
+     * Returns the financial factor (points or cost) for a flight type.
+     * For bonus types (T1, T2): returns points_pilote, falling back to BBC_POINTS_BONUS_X.
+     * For cost types (T3, T4, T6, T7): returns cout_pilote, falling back to service price_ttc.
+     * For role types (orga, orga_T6): returns global constants.
      *
      * @param string $type
      *
-     * @return int
+     * @return float
      */
     private function getFactorByType($type)
     {
         switch ($type) {
             case 'orga':
-                return $this->conf->BBC_POINTS_BONUS_ORGANISATOR;
+                return (float)$this->conf->BBC_POINTS_BONUS_ORGANISATOR;
             case 'orga_T6':
-                return $this->conf->BBC_POINTS_BONUS_INSTRUCTOR;
+                return (float)$this->conf->BBC_POINTS_BONUS_INSTRUCTOR;
         }
 
-        $constVariableName = 'BBC_POINTS_BONUS_' . $type;
-        if (!isset($this->conf->$constVariableName) || empty($this->conf->$constVariableName) || $this->conf->$constVariableName < 0) {
-            return $this->getFactorForService($type);
-        }
-
-        return (int) $this->conf->$constVariableName;
-
-    }
-
-    /**
-     * @param string $type
-     *
-     * @return float
-     */
-    private function getFactorForService($type)
-    {
-        $service = new Bbctypes($this->db);
-        $fetchResult = $service->fetch($type);
+        $bbcType = new Bbctypes($this->db);
+        $fetchResult = $bbcType->fetch((int)$type);
 
         if ($fetchResult <= 0) {
-            throw new \InvalidArgumentException('Service not found');
+            return 0;
         }
 
-        return $service->getService()->price_ttc;
+        // Bonus types: T1, T2 → use points_pilote
+        if (in_array((int)$type, [1, 2])) {
+            if ($bbcType->points_pilote > 0) {
+                return (float)$bbcType->points_pilote;
+            }
+
+            // Backward-compatibility: fall back to global constant
+            $constVariableName = 'BBC_POINTS_BONUS_' . $type;
+            if (!empty($this->conf->$constVariableName) && $this->conf->$constVariableName > 0) {
+                return (float)$this->conf->$constVariableName;
+            }
+
+            return 0;
+        }
+
+        // Cost types: T3, T4, T6, T7 → use cout_pilote
+        if ($bbcType->cout_pilote > 0) {
+            return (float)$bbcType->cout_pilote;
+        }
+
+        // Backward-compatibility: fall back to service price
+        if ($bbcType->fkService) {
+            return (float)$bbcType->getService()->price_ttc;
+        }
+
+        return 0;
     }
 
 

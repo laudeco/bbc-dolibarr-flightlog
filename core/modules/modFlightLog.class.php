@@ -523,17 +523,21 @@ class modFlightLog extends DolibarrModules
 
     private function initFlightTypeDictionnary()
     {
+        $selectFields = 'f.idType, f.numero, f.nom, f.fkService,'
+            . ' f.remboursement_km, f.points_pilote, f.cout_pilote, f.defraiement,'
+            . ' f.visible_graphique, f.visible_tableau, f.active';
+
         $this->dictionaries = array(
-            'langs' => 'mylangfile@mymodule',
-            'tabname' => array(MAIN_DB_PREFIX . "bbc_types"),
-            'tablib' => array("Types de vols"),
-            'tabsql' => array('SELECT f.idType, f.numero, f.nom, f.active FROM ' . MAIN_DB_PREFIX . 'bbc_types as f',),
-            'tabsqlsort' => array("numero ASC"),
-            'tabfield' => array("idType,numero,nom"),
-            'tabfieldvalue' => array("numero,nom"),
-            'tabfieldinsert' => array("numero,nom"),
-            'tabrowid' => array("idType"),
-            'tabcond' => array('$conf->flightlog->enabled'),
+            'langs'          => 'mylangfile@mymodule',
+            'tabname'        => array(MAIN_DB_PREFIX . 'bbc_types'),
+            'tablib'         => array('Types de vols'),
+            'tabsql'         => array('SELECT ' . $selectFields . ' FROM ' . MAIN_DB_PREFIX . 'bbc_types as f'),
+            'tabsqlsort'     => array('numero ASC'),
+            'tabfield'       => array('idType,numero,nom,fkService,remboursement_km,points_pilote,cout_pilote,defraiement,visible_graphique,visible_tableau'),
+            'tabfieldvalue'  => array('numero,nom,fkService,remboursement_km,points_pilote,cout_pilote,defraiement,visible_graphique,visible_tableau'),
+            'tabfieldinsert' => array('numero,nom,fkService,remboursement_km,points_pilote,cout_pilote,defraiement,visible_graphique,visible_tableau'),
+            'tabrowid'       => array('idType'),
+            'tabcond'        => array('$conf->flightlog->enabled'),
         );
     }
 
