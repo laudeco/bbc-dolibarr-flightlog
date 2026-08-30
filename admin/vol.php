@@ -5,6 +5,7 @@ require '../../main.inc.php';
 
 require_once '../../core/lib/admin.lib.php';
 dol_include_once("/flightlog/class/bbctypes.class.php");
+dol_include_once("/flightlog/flightlog.inc.php");
 
 global $langs, $user, $db, $conf;
 
@@ -17,9 +18,15 @@ if (!$user->admin) {
     accessforbidden();
 }
 
+$balloons = new Bbc_ballons($db);
+$balloons->fetchAll();
+
+$balloonTypeService = new BbcBalloonTypeService($db);
+
 $flightType = new Bbctypes($db);
 $action = GETPOST('action', 'alpha', 2);
 $services = GETPOST('idprod', 'array', 2);
+$balloonTypes = GETPOST('balloon_types', 'array', 2);
 
 /*
  * Actions
@@ -35,6 +42,30 @@ if($action === ACTION_SAVE){
 
         dolibarr_set_const($db, 'BBC_POINTS_BONUS_'.$flightTypeId, GETPOST('points_bonus_'.$flightTypeId), 'chaine', 0, 'Points pour le vol T'.$flightTypeId, $conf->entity);
     }
+
+	foreach ($balloonTypes as $balloonId => $balloonTypesPost){
+		foreach($balloonTypesPost as $balloonTypeId => $serviceId){
+			$currElt = $balloonTypeService->fetchByBalloonIdAndTypeId($balloonId, $balloonTypeId);
+			if(-1 == $serviceId){
+				$currElt->delete($user);
+				continue;
+			}
+
+			$currElt->idBalloon = $balloonId;
+			$currElt->idType = $balloonTypeId;
+
+			if(-1 === $currElt->fkService){
+				$currElt->fkService = $serviceId;
+				$currElt->create($user);
+				continue;
+			}
+
+			$currElt->fkService = $serviceId;
+			$currElt->update($user);
+		}
+	}
+
+
 
     dolibarr_set_const($db, 'BBC_FLIGHT_TYPE_CUSTOMER', GETPOST('customer_product'), 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'BBC_FLIGHT_DEFAULT_CUSTOMER', GETPOST('defaultCustomer'), 'chaine', 0, '', $conf->entity);
@@ -105,7 +136,56 @@ print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup'
         </table>
 
 
-        <table class="noborder mt-2" width="100%">
+		<!-- Flight Type / Balloon / Service  -->
+		<table class="noborder" width="100%">
+			<tr class="liste_titre">
+				<th><?= $langs->trans("Ballons") ?></th>
+				<th><?= $langs->trans("Types de vol.") ?></th>
+				<th><?= $langs->trans("Service / Produit") ?></th>
+			</tr>
+
+			<?php
+			/** @var Bbc_ballons $currentBalloon */
+			foreach ($balloons->lines as $currentBalloon): ?>
+				<?php $newBalloon = true; ?>
+				<?php
+				/** @var BbctypesLine $currentFlightType */
+				foreach ($flightType->lines as $currentFlightType): ?>
+				<tr>
+					<?php if($newBalloon): ?>
+						<?php if($currentBalloon->is_disable): ?>
+							<td rowspan="<?php echo count($flightType->lines); ?>>"><s><?php echo $currentBalloon->immat; ?></s></td>
+						<?php else: ?>
+							<td rowspan="<?php echo count($flightType->lines); ?>>"><?php echo $currentBalloon->immat; ?></td>
+						<?php endif; ?>
+					<?php endif; ?>
+					<td>(T<?= $currentFlightType->numero ?>) - <?= $currentFlightType->nom ?></td>
+					<td>
+						<?php $form->select_produits(
+							$balloonTypeService->fetchByBalloonIdAndTypeId($currentBalloon->id, $currentFlightType->id)->fkService,
+							'balloon_types['.$currentBalloon->id.']['.$currentFlightType->idType.']',
+							'',
+							$conf->product->limit_size,
+							$buyer->price_level,
+							1,
+							2,
+							'',
+							1,
+							[],
+							$buyer->id
+						); ?>
+					</td>
+				</tr>
+				<?php $newBalloon = false; ?>
+				<?php endforeach; ?>
+			<?php endforeach; ?>
+
+
+
+		</table>
+
+
+		<table class="noborder mt-2" width="100%">
             <tr class="liste_titre">
                 <th><?= $langs->trans("Champ") ?></th>
                 <th><?= $langs->trans("Valeur") ?></th>

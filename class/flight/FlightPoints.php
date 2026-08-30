@@ -29,12 +29,17 @@ class FlightPoints
      *
      * @return FlightPoints
      */
-    public static function create($initialAmount)
+    public static function create(int $initialAmount)
     {
         return new FlightPoints($initialAmount);
     }
 
-    /**
+	public static function zero():self
+	{
+		return new FlightPoints(0);
+	}
+
+	/**
      * @param int $factor
      *
      * @return FlightPoints
@@ -44,10 +49,11 @@ class FlightPoints
         return new FlightPoints($this->amount * $factor);
     }
 
-    /**
-     * @return int
-     */
-    public function getValue()
+	public function add(FlightPoints $points):self{
+		return new FlightPoints($this->amount + $points->getValue());
+	}
+
+    public function getValue():int
     {
         return $this->amount;
     }

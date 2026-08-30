@@ -37,6 +37,10 @@ class FlightTypeCount
         $this->factor = (int) $factor;
     }
 
+	public static function create(string $type):self{
+		return new self($type);
+	}
+
     /**
      * @return string
      */
@@ -44,6 +48,10 @@ class FlightTypeCount
     {
         return $this->type;
     }
+
+	public function isType(string $type):bool{
+		return $this->type === $type;
+	}
 
     /**
      * @return float
@@ -56,7 +64,7 @@ class FlightTypeCount
     /**
      * @return int
      */
-    public function getFactor()
+    public function getFactor():int
     {
         return $this->factor;
     }
@@ -71,11 +79,18 @@ class FlightTypeCount
         return new FlightTypeCount($this->type, $this->count + $flightTypeCount->getCount(), $this->factor);
     }
 
-    /**
-     * @return FlightCost
-     */
-    public function getCost()
+    public function getCost(): FlightCost
     {
         return new FlightCost($this->count * $this->factor);
     }
+
+	public function equals(FlightTypeCount $flightTypeCount):bool
+	{
+		return $this->type == $flightTypeCount->getType() && $this->factor === $flightTypeCount->getFactor();
+	}
+
+	public function copy():self
+	{
+		return new FlightTypeCount($this->type, $this->count, $this->factor);
+	}
 }
