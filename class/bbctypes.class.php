@@ -59,6 +59,48 @@ class Bbctypes extends CommonObject
     public $fkService;
 
     /**
+     * Is this type a mission for the club (it gives points to the pilot) ?
+     *
+     * @var boolean
+     */
+    public $isMission;
+
+    /**
+     * Does this type require passengers ?
+     *
+     * @var boolean
+     */
+    public $paxRequired;
+
+    /**
+     * Does this type have to be invoiced to a customer ?
+     *
+     * @var boolean
+     */
+    public $billingRequired;
+
+    /**
+     * Is this type an instruction flight (the organisator is the instructor) ?
+     *
+     * @var boolean
+     */
+    public $isInstructionType;
+
+    /**
+     * Is this type charged to the pilot on his yearly bill ?
+     *
+     * @var boolean
+     */
+    public $isPilotCharged;
+
+    /**
+     * Number of points (mission) or amount (other types) won/due per flight.
+     *
+     * @var int|null
+     */
+    public $points;
+
+    /**
      * @var Product
      */
     public $service;
@@ -110,15 +152,27 @@ class Bbctypes extends CommonObject
         $sql .= 'numero,';
         $sql .= 'nom,';
         $sql .= 'fkService,';
-        $sql .= 'active';
+        $sql .= 'active,';
+        $sql .= 'is_mission,';
+        $sql .= 'pax_required,';
+        $sql .= 'billing_required,';
+        $sql .= 'is_instruction,';
+        $sql .= 'is_pilot_charged,';
+        $sql .= 'points';
 
 
         $sql .= ') VALUES (';
 
-        $sql .= ' ' . (!isset($this->numero) ? 'NULL' : $this->numero) . ',';
+        $sql .= ' ' . (!isset($this->numero) ? 'NULL' : (int) $this->numero) . ',';
         $sql .= ' ' . (!isset($this->nom) ? 'NULL' : "'" . $this->db->escape($this->nom) . "'") . ',';
-        $sql .= ' ' . (!isset($this->fkService) ? 'NULL' : "'" . $this->db->escape($this->fkService) . "'") . ',';
-        $sql .= ' ' . (!isset($this->active) ? 'NULL' : $this->active);
+        $sql .= ' ' . (empty($this->fkService) ? 'NULL' : (int) $this->fkService) . ',';
+        $sql .= ' ' . (!isset($this->active) ? '1' : (int) (bool) $this->active) . ',';
+        $sql .= ' ' . (int) (bool) $this->isMission . ',';
+        $sql .= ' ' . (int) (bool) $this->paxRequired . ',';
+        $sql .= ' ' . (int) (bool) $this->billingRequired . ',';
+        $sql .= ' ' . (int) (bool) $this->isInstructionType . ',';
+        $sql .= ' ' . (int) (bool) $this->isPilotCharged . ',';
+        $sql .= ' ' . ($this->points === null || $this->points === '' ? 'NULL' : (int) $this->points);
 
 
         $sql .= ')';
@@ -170,7 +224,13 @@ class Bbctypes extends CommonObject
         $sql .= " t.numero,";
         $sql .= " t.nom,";
         $sql .= " t.fkService,";
-        $sql .= " t.active";
+        $sql .= " t.active,";
+        $sql .= " t.is_mission,";
+        $sql .= " t.pax_required,";
+        $sql .= " t.billing_required,";
+        $sql .= " t.is_instruction,";
+        $sql .= " t.is_pilot_charged,";
+        $sql .= " t.points";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -193,6 +253,12 @@ class Bbctypes extends CommonObject
                 $this->nom = $obj->nom;
                 $this->fkService = $obj->fkService;
                 $this->active = $obj->active;
+                $this->isMission = (bool) $obj->is_mission;
+                $this->paxRequired = (bool) $obj->pax_required;
+                $this->billingRequired = (bool) $obj->billing_required;
+                $this->isInstructionType = (bool) $obj->is_instruction;
+                $this->isPilotCharged = (bool) $obj->is_pilot_charged;
+                $this->points = $obj->points === null ? null : (int) $obj->points;
 
                 if ($this->fkService) {
                     $this->service = new Product($this->db);
@@ -241,7 +307,13 @@ class Bbctypes extends CommonObject
         $sql .= " t.numero,";
         $sql .= " t.nom,";
         $sql .= " t.fkService,";
-        $sql .= " t.active";
+        $sql .= " t.active,";
+        $sql .= " t.is_mission,";
+        $sql .= " t.pax_required,";
+        $sql .= " t.billing_required,";
+        $sql .= " t.is_instruction,";
+        $sql .= " t.is_pilot_charged,";
+        $sql .= " t.points";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -286,6 +358,12 @@ class Bbctypes extends CommonObject
                 $line->nom = $obj->nom;
                 $line->fkService = $obj->fkService;
                 $line->active = $obj->active;
+                $line->isMission = (bool) $obj->is_mission;
+                $line->paxRequired = (bool) $obj->pax_required;
+                $line->billingRequired = (bool) $obj->billing_required;
+                $line->isInstructionType = (bool) $obj->is_instruction;
+                $line->isPilotCharged = (bool) $obj->is_pilot_charged;
+                $line->points = $obj->points === null ? null : (int) $obj->points;
 
                 $this->lines[$line->id] = $line;
             }
@@ -339,10 +417,16 @@ class Bbctypes extends CommonObject
         // Update request
         $sql = 'UPDATE ' . MAIN_DB_PREFIX . $this->table_element . ' SET';
 
-        $sql .= ' numero = ' . (isset($this->numero) ? $this->numero : "null") . ',';
+        $sql .= ' numero = ' . (isset($this->numero) ? (int) $this->numero : "null") . ',';
         $sql .= ' nom = ' . (isset($this->nom) ? "'" . $this->db->escape($this->nom) . "'" : "null") . ',';
-        $sql .= ' fkService = ' . (isset($this->fkService) ? "'" . $this->db->escape($this->fkService) . "'" : "null") . ',';
-        $sql .= ' active = ' . (isset($this->active) ? $this->active : "null");
+        $sql .= ' fkService = ' . (empty($this->fkService) ? "null" : (int) $this->fkService) . ',';
+        $sql .= ' is_mission = ' . (int) (bool) $this->isMission . ',';
+        $sql .= ' pax_required = ' . (int) (bool) $this->paxRequired . ',';
+        $sql .= ' billing_required = ' . (int) (bool) $this->billingRequired . ',';
+        $sql .= ' is_instruction = ' . (int) (bool) $this->isInstructionType . ',';
+        $sql .= ' is_pilot_charged = ' . (int) (bool) $this->isPilotCharged . ',';
+        $sql .= ' points = ' . ($this->points === null || $this->points === '' ? 'null' : (int) $this->points) . ',';
+        $sql .= ' active = ' . (isset($this->active) ? (int) (bool) $this->active : "null");
 
 
         $sql .= ' WHERE idType=' . $this->id;
@@ -592,6 +676,12 @@ class Bbctypes extends CommonObject
         $this->nom = '';
         $this->fkService = null;
         $this->active = '';
+        $this->isMission = false;
+        $this->paxRequired = false;
+        $this->billingRequired = false;
+        $this->isInstructionType = false;
+        $this->isPilotCharged = true;
+        $this->points = null;
     }
 
     /**
@@ -599,13 +689,7 @@ class Bbctypes extends CommonObject
      */
     public function isPaxRequired()
     {
-        switch ((int) $this->idType) {
-            case 1:
-            case 2:
-                return true;
-            default:
-                return false;
-        }
+        return (bool) $this->paxRequired;
     }
 
     /**
@@ -615,7 +699,47 @@ class Bbctypes extends CommonObject
      */
     public function isBillingRequired()
     {
-        return (int) $this->idType === 2;
+        return (bool) $this->billingRequired;
+    }
+
+    /**
+     * Is this type a mission for the club ? Missions give points to the pilots and
+     * are reimbursed through the expense notes.
+     *
+     * @return boolean
+     */
+    public function isMission()
+    {
+        return (bool) $this->isMission;
+    }
+
+    /**
+     * Is this type charged to the pilot on his yearly bill ?
+     *
+     * @return boolean
+     */
+    public function isPilotCharged()
+    {
+        return (bool) $this->isPilotCharged;
+    }
+
+    /**
+     * Number of points (mission) or amount in euro (other types) per flight.
+     * Null when nothing is configured for this type.
+     *
+     * @return int|null
+     */
+    public function getPoints()
+    {
+        return $this->points === null || $this->points === '' ? null : (int) $this->points;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel()
+    {
+        return "T" . $this->numero . '-' . $this->nom;
     }
 
     /**
@@ -640,8 +764,7 @@ class Bbctypes extends CommonObject
      */
     public function isInstruction()
     {
-        $type = (int) $this->idType;
-        return $type === 6;
+        return (bool) $this->isInstructionType;
     }
 
     /**
@@ -687,6 +810,36 @@ class BbctypesLine
      * @var boolean
      */
     public $active;
+
+    /**
+     * @var boolean
+     */
+    public $isMission;
+
+    /**
+     * @var boolean
+     */
+    public $paxRequired;
+
+    /**
+     * @var boolean
+     */
+    public $billingRequired;
+
+    /**
+     * @var boolean
+     */
+    public $isInstructionType;
+
+    /**
+     * @var boolean
+     */
+    public $isPilotCharged;
+
+    /**
+     * @var int|null
+     */
+    public $points;
 
     /**
      * @return int
@@ -737,11 +890,69 @@ class BbctypesLine
     }
 
     /**
+     * @return boolean
+     */
+    public function isMission()
+    {
+        return (bool) $this->isMission;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isPaxRequired()
+    {
+        return (bool) $this->paxRequired;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isBillingRequired()
+    {
+        return (bool) $this->billingRequired;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isInstruction()
+    {
+        return (bool) $this->isInstructionType;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isPilotCharged()
+    {
+        return (bool) $this->isPilotCharged;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPoints()
+    {
+        return $this->points === null || $this->points === '' ? null : (int) $this->points;
+    }
+
+    /**
      * @return string
      */
     public function getLabel()
     {
         return "T" . $this->numero . '-' . $this->nom;
+    }
+
+    /**
+     * Short label of the type (eg. T1).
+     *
+     * @return string
+     */
+    public function getShortLabel()
+    {
+        return "T" . $this->numero;
     }
 
 }

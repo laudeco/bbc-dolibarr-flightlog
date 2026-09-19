@@ -33,7 +33,7 @@ final class TakeOffQueryRepository
               llx_bbc_vols
             
             WHERE 
-              fk_type IN (1,2)
+              fk_type IN ('.\bbcMissionFlightTypeIdsAsSqlList().')
               AND YEAR(NOW())-1 <= YEAR(llx_bbc_vols.date)
               AND llx_bbc_vols.fk_pilot = '.$pilot.'
             

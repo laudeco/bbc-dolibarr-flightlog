@@ -40,7 +40,7 @@ FROM
   llx_bbc_vols
 
 WHERE 
-  fk_type IN (1,2)
+  fk_type IN ('.\bbcMissionFlightTypeIdsAsSqlList().')
   AND YEAR(NOW())-3 <= YEAR(llx_bbc_vols.date)
 
 GROUP BY

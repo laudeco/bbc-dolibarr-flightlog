@@ -89,66 +89,7 @@ if ($num) {
 
 
 print '<div class="tabBar">';
-print '<table class="" width="100%">';
 
-print '<tbody>';
-print '<tr class="liste_titre">';
-print '<td colspan="2">Nom</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 1 : <br/>Sponsor") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 2 : <br/>Baptême") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Orga. <br/>(T1/T2)") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Instructeur <br/>(orga T6)") . '</td>';
-print '<td class="liste_titre _alignCenter" >' . $langs->trans("Total bonus") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 3 : <br/>Privé") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 4: <br/>Meeting") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("Type 5: <br/>Chambley") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 6: <br/>instruction") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Type 7: <br/>vols < 50 ") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Réparations") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("Facture") . '</td>';
-print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("A payer") . '</td>';
-print '<tr>';
-
-print '<tr class="liste_titre">';
-print '<td colspan="2" class="liste_titre"></td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> Pts </td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> Pts </td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> Pts </td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> Pts </td>';
-
-print '<td class="liste_titre"> Pts</td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> € </td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> € </td>';
-
-print '<td class="liste_titre"> # </td>';
-
-print '<td class="liste_titre"> # </td>';
-print '<td class="liste_titre"> € </td>';
-
-// T7
-print '<td class="liste_titre"> #</td>';
-print '<td class="liste_titre"> €</td>';
-
-// Damage
-print '<td class="liste_titre"> €</td>';
-print '<td class="liste_titre"> fact. €</td>';
-
-print '<td class="liste_titre"> € </td>';
-print '<td class="liste_titre"> Balance (A payer) €</td>';
-
-print'</tr>';
 try{
 	$tableQuery = new BillableFlightQuery(true, (GETPOST("year") ?: date("Y")));
 	$tableQueryHandler = new BillableFlightQueryHandler($db, $conf->global);
@@ -168,55 +109,134 @@ function pilotStatus($id){
     return img_picto($member->getReasons(), $member->getIconId(), '', false, false, false, '', 'classfortooltip');
 }
 
+/** @var Pilot[] $pilots */
+$pilots = $tableQueryHandler->__invoke($tableQuery);
+
+//The flight types are fully configurable : the table is built from the configuration.
+$flightTypes = filterBbcFlightTypesToDisplay(fetchAllBbcFlightTypes(), $pilots);
+$missionFlightTypes = filterBbcMissionFlightTypes($flightTypes);
+$otherFlightTypes = filterBbcNonMissionFlightTypes($flightTypes);
+
+// mission types (# + pts) + organisator + instructor + sub total
+$missionColumnCount = (2 * count($missionFlightTypes)) + 5;
+// other types (# + €) + damages + sub total + balance
+$otherColumnCount = (2 * count($otherFlightTypes)) + 4;
+
+print '<table class="" width="100%">';
+
+print '<tbody>';
+
+// Group of columns : the missions of the club on one side, all the other types on the other side.
+print '<tr class="liste_titre">';
+print '<td colspan="2"></td>';
+print '<td class="liste_titre _alignCenter" colspan="' . $missionColumnCount . '">' . $langs->trans("Missions du club (points)") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="' . $otherColumnCount . '">' . $langs->trans("Autres vols (€)") . '</td>';
+print '</tr>';
+
+print '<tr class="liste_titre">';
+print '<td colspan="2">Nom</td>';
+
+foreach ($missionFlightTypes as $currentFlightType) {
+    print '<td class="liste_titre _alignCenter" colspan="2">' . bbcFlightTypeColumnLabel($currentFlightType) . '</td>';
+}
+
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Orga.") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Instructeur") . '</td>';
+print '<td class="liste_titre _alignCenter" >' . $langs->trans("Total bonus") . '</td>';
+
+foreach ($otherFlightTypes as $currentFlightType) {
+    print '<td class="liste_titre _alignCenter" colspan="2">' . bbcFlightTypeColumnLabel($currentFlightType) . '</td>';
+}
+
+print '<td class="liste_titre _alignCenter" colspan="2">' . $langs->trans("Réparations") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("Facture") . '</td>';
+print '<td class="liste_titre _alignCenter" colspan="1">' . $langs->trans("A payer") . '</td>';
+print '</tr>';
+
+print '<tr class="liste_titre">';
+print '<td colspan="2" class="liste_titre"></td>';
+
+// missions : number of flights and points
+foreach ($missionFlightTypes as $currentFlightType) {
+    print '<td class="liste_titre"> # </td>';
+    print '<td class="liste_titre"> Pts </td>';
+}
+
+print '<td class="liste_titre"> # </td>';
+print '<td class="liste_titre"> Pts </td>';
+
+print '<td class="liste_titre"> # </td>';
+print '<td class="liste_titre"> Pts </td>';
+
+print '<td class="liste_titre"> Pts</td>';
+
+// other types : number of flights and amount
+foreach ($otherFlightTypes as $currentFlightType) {
+    print '<td class="liste_titre"> # </td>';
+    print '<td class="liste_titre"> € </td>';
+}
+
+// Damage
+print '<td class="liste_titre"> €</td>';
+print '<td class="liste_titre"> fact. €</td>';
+
+print '<td class="liste_titre"> € </td>';
+print '<td class="liste_titre"> Balance (A payer) €</td>';
+
+print'</tr>';
+
 $total = 0;
 
-$totalT1 = 0;
-$totalT2 = 0;
-$totalT3 = 0;
-$totalT4 = 0;
-$totalT5 = 0;
-$totalT6 = 0;
-$totalT7 = 0;
+$totalCountByType = [];
+$totalPointsByType = [];
+$totalCostByType = [];
+foreach ($flightTypes as $currentFlightType) {
+    $totalCountByType[$currentFlightType->getNumero()] = 0;
+    $totalPointsByType[$currentFlightType->getNumero()] = 0;
+    $totalCostByType[$currentFlightType->getNumero()] = 0;
+}
 
 $totalWithoutPts = 0;
 
-$totalPtsMission1 = 0;
-$totalPtsMission2 = 0;
+$totalCountOrga = 0;
+$totalCountInstructor = 0;
 $totalPtsOrga = 0;
 $totalPtsInstructor = 0;
 $totalPts = 0;
+$totalDamage = 0;
+$totalInvoicedDamage = 0;
 
 /**
  * @var int   $key
  * @var Pilot $pilot
  */
-foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
+foreach ($pilots as $key => $pilot) {
     $total += $pilot->getTotalBill()->getValue();
-    $totalT1 += $pilot->getCountForType('1')->getCount();
-    $totalT2 += $pilot->getCountForType('2')->getCount();
-    $totalT3 += $pilot->getCountForType('3')->getCount();
-    $totalT4 += $pilot->getCountForType('4')->getCount();
-    $totalT5 += $pilot->getCountForType('5')->getCount();
-    $totalT6 += $pilot->getCountForType('6')->getCount();
-    $totalT7 += $pilot->getCountForType('7')->getCount();
 
-    $totalPtsMission1 += $pilot->getCountForType('1')->getCost()->getValue();
-    $totalPtsMission2 += $pilot->getCountForType('2')->getCost()->getValue();
     $totalPtsOrga += $pilot->getCountForType('orga')->getCost()->getValue();
     $totalPtsInstructor += $pilot->getCountForType('orga_T6')->getCost()->getValue();
+    $totalCountOrga += $pilot->getCountForType('orga')->getCount();
+    $totalCountInstructor += $pilot->getCountForType('orga_T6')->getCount();
     $totalPts += $pilot->getFlightBonus()->getValue();
 
     $totalWithoutPts += $pilot->getFlightsCost()->getValue();
+    $totalDamage += $pilot->damageCost()->getValue();
+    $totalInvoicedDamage += $pilot->invoicedDamageCost()->getValue();
 
     print '<tr class="oddeven">';
     print '<td>' . $pilot->getId() . '</td>';
     print '<td>' . pilotStatus($pilot->getId()) . $pilot->getName() . '</td>';
 
-    print '<td>' . $pilot->getCountForType('1')->getCount() . '</td>';
-    print '<td>' . $pilot->getCountForType('1')->getCost()->getValue() . '</td>';
+    // Missions of the club : the pilot wins points
+    foreach ($missionFlightTypes as $currentFlightType) {
+        $count = $pilot->getCountForType((string) $currentFlightType->getNumero());
 
-    print '<td>' . $pilot->getCountForType('2')->getCount() . '</td>';
-    print '<td>' . $pilot->getCountForType('2')->getCost()->getValue() . '</td>';
+        $totalCountByType[$currentFlightType->getNumero()] += $count->getCount();
+        $totalPointsByType[$currentFlightType->getNumero()] += $count->getCost()->getValue();
+
+        print '<td>' . $count->getCount() . '</td>';
+        print '<td>' . $count->getCost()->getValue() . '</td>';
+    }
 
     print '<td>' . $pilot->getCountForType('orga')->getCount() . '</td>';
     print '<td>' . $pilot->getCountForType('orga')->getCost()->getValue() . '</td>';
@@ -224,25 +244,24 @@ foreach ($tableQueryHandler->__invoke($tableQuery) as $key => $pilot) {
     print '<td>' . $pilot->getCountForType('orga_T6')->getCount() . '</td>';
     print '<td>' . $pilot->getCountForType('orga_T6')->getCost()->getValue() . '</td>';
 
+    //Sub total of the missions
     print sprintf('<td class="%s">', $pilot->getFlightBonus()->getValue() === 0?'text-muted':'text-bold'). $pilot->getFlightBonus()->getValue() . ' pts</td>';
 
-    print '<td>' . $pilot->getCountForType('3')->getCount() . '</td>';
-    print '<td>' . price($pilot->getCountForType('3')->getCost()->getValue()) . '€</td>';
+    // All the other types : the pilot has to pay
+    foreach ($otherFlightTypes as $currentFlightType) {
+        $count = $pilot->getCountForType((string) $currentFlightType->getNumero());
 
-    print '<td>' . $pilot->getCountForType('4')->getCount() . '</td>';
-    print '<td>' . price($pilot->getCountForType('4')->getCost()->getValue()) . '€</td>';
+        $totalCountByType[$currentFlightType->getNumero()] += $count->getCount();
+        $totalCostByType[$currentFlightType->getNumero()] += $currentFlightType->isPilotCharged() ? $count->getCost()->getValue() : 0;
 
-    print '<td>' . $pilot->getCountForType('5')->getCount() . '</td>';
-
-    print '<td>' . $pilot->getCountForType('6')->getCount() . '</td>';
-    print '<td>' . price($pilot->getCountForType('6')->getCost()->getValue()) . '€</td>';
-
-    print '<td>' . $pilot->getCountForType('7')->getCount() . '</td>';
-    print '<td>' . price($pilot->getCountForType('7')->getCost()->getValue()) . '€</td>';
+        print '<td>' . $count->getCount() . '</td>';
+        print '<td>' . ($currentFlightType->isPilotCharged() ? price($count->getCost()->getValue()) . '€' : '-') . '</td>';
+    }
 
     print '<td>' . price($pilot->damageCost()->getValue()) . '€</td>';
     print '<td>' . price($pilot->invoicedDamageCost()->getValue()) . '€</td>';
 
+    //Sub total of the other types
     print sprintf('<td class="%s">', $pilot->getFlightsCost()->getValue() === 0?'text-muted':'text-bold'). price($pilot->getFlightsCost()->getValue()) . '€ </td>';
     print sprintf('<td class="%s">', $pilot->isBillable(FlightBonus::zero())?'text-bold':'text-muted'). price($pilot->getTotalBill()->getValue()) . '€</td>';
     print '</tr>';
@@ -252,41 +271,30 @@ print '<tr class="oddeven">';
 print '<td></td>';
 print '<td></td>';
 
-print '<td>' . $totalT1 . '</td>';
-print '<td>' . $totalPtsMission1 . '</td>';
+foreach ($missionFlightTypes as $currentFlightType) {
+    print '<td>' . $totalCountByType[$currentFlightType->getNumero()] . '</td>';
+    print '<td>' . $totalPointsByType[$currentFlightType->getNumero()] . '</td>';
+}
 
-print '<td>' . $totalT2 . '</td>';
-print '<td>' . $totalPtsMission2 . '</td>';
-
-print '<td>' . '</td>';
+print '<td>' . $totalCountOrga . '</td>';
 print '<td>' . $totalPtsOrga . '</td>';
 
-print '<td>' . '</td>';
+print '<td>' . $totalCountInstructor . '</td>';
 print '<td>' . $totalPtsInstructor . '</td>';
 
 print '<td><b>' . $totalPts . '</b></td>';
 
-print '<td>' . $totalT3 . '</td>';
-print '<td></td>';
+foreach ($otherFlightTypes as $currentFlightType) {
+    print '<td>' . $totalCountByType[$currentFlightType->getNumero()] . '</td>';
+    print '<td>' . ($currentFlightType->isPilotCharged() ? price($totalCostByType[$currentFlightType->getNumero()]) . '€' : '-') . '</td>';
+}
 
-print '<td>' . $totalT4. '</td>';
-print '<td></td>';
+print '<td>' . price($totalDamage) . '€</td>';
+print '<td>' . price($totalInvoicedDamage) . '€</td>';
 
-print '<td>' . $totalT5 . '</td>';
-
-print '<td>' . $totalT6 . '</td>';
-print '<td></td>';
-
-print '<td>' . $totalT7 . '</td>';
-print '<td></td>';
-
-print '<td></td>';
-print '<td></td>';
-
-print '<td>' . price($totalWithoutPts) . '€</td>';
-print "<td>" . price($total) . "€</td>";
+print '<td><b>' . price($totalWithoutPts) . '€</b></td>';
+print "<td><b>" . price($total) . "€</b></td>";
 print '</tr>';
-
 
 print '</tbody>';
 print'</table>';

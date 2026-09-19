@@ -134,7 +134,7 @@ if ($msg) {
                     <div class="inline-radio">
                         <?php foreach (fetchBbcFlightTypes() as $flightType) : ?>
                             <label class="">
-                                <input type="radio" class="js-flight-type" name="type" value="<?php echo $flightType->id ?>" <?php echo $flightType->numero == $_POST['type'] ? 'checked' : '' ?>>
+                                <input type="radio" class="js-flight-type" name="type" value="<?php echo $flightType->id ?>" <?php echo isset($_POST['type']) && $flightType->id == $_POST['type'] ? 'checked' : '' ?>>
                                 <span class="text-bold"><?php echo "T" . $flightType->numero ?></span>
                                 <span class="font-italic hide-sm"><?php echo $flightType->nom; ?></span>
                             </label>
@@ -399,47 +399,12 @@ $db->close();
      * get the flight type object from an id.
      */
     function getFlightType(flightTypeId){
-        var types = {
-            1:{
-                'billable' : 1,
-                'expensable' : 1,
-                'id' : 1
-            },
-            2:{
-                'billable' : 1,
-                'expensable' : 1,
-                'id' : 2
-            },
-            3:{
-                'billable' : 0,
-                'expensable' : 0,
-                'id' : 3
-            },
-            4:{
-                'billable' : 0,
-                'expensable' : 0,
-                'id' : 4
-            },
-            5:{
-                'billable' : 0,
-                'expensable' : 0,
-                'id' : 5
-            },
-            6:{
-                'billable' : 0,
-                'expensable' : 0,
-                'id' : 6
-            },
-            7:{
-                'billable' : 0,
-                'expensable' : 0,
-                'id' : 7
-            }
-        };
+        var types = <?php echo json_encode(bbcFlightTypesAsJsConfiguration(fetchBbcFlightTypes())); ?>;
 
         var flightTypeNull = {
             'billable' : 0,
             'expensable' : 0,
+            'instruction' : 0,
             'id' : 0
         };
 
@@ -462,7 +427,7 @@ $db->close();
             $('.js-form .js-expensable-field').addClass('hidden');
         }
 
-        if(flightType.id === 6){
+        if(flightType.instruction === 1){
             //instruction flight
             $('.js-form .js-instructor-field').removeClass('hidden');
             $('.js-form .js-organisator-field').addClass('hidden');

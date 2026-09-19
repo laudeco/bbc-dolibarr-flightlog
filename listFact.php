@@ -137,7 +137,7 @@ $sql .= " WHERE BBC_ballons_idBBC_ballons = BAL.rowid";
 if ($viewSelection == 1) {
     $sql .= " AND fk_organisateur = USR.rowid";
     $sql .= " AND llx_element_element.rowid IS NULL";
-    $sql .= " AND llx_bbc_vols.fk_type = 2";
+    $sql .= " AND llx_bbc_vols.fk_type IN (" . bbcBillingRequiredFlightTypeIdsAsSqlList() . ")";
 }
 if ($viewSelection == 2) {
     $sql .= " AND fk_pilot = USR.rowid ";

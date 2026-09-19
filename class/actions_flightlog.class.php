@@ -122,7 +122,7 @@ class ActionsFlightlog
             $sql .= " AND (YEAR(f.date) = (YEAR(NOW())) OR YEAR(f.date) = (YEAR(NOW()) - 1))";
         } else {
             $sql .= " AND YEAR(f.date) = (YEAR(NOW())) ";
-            $sql .= " AND f.fk_type IN (1,2) ";
+            $sql .= " AND f.fk_type IN (" . bbcMissionFlightTypeIdsAsSqlList() . ") ";
             $sql .= " AND f.is_facture = 0 ";
         }
 

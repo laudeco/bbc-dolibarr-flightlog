@@ -61,29 +61,24 @@ $documentModel = GETPOST("model", "alpha", 3);
 //variables
 $currentYear = date('Y');
 
-$t1 = new Bbctypes($db);
-$t1->fetch(1);
-$t2 = new Bbctypes($db);
-$t2->fetch(2);
-$t3 = new Bbctypes($db);
-$t3->fetch(3);
-$t4 = new Bbctypes($db);
-$t4->fetch(4);
-$t5 = new Bbctypes($db);
-$t5->fetch(5);
-$t6 = new Bbctypes($db);
-$t6->fetch(6);
-$t7 = new Bbctypes($db);
-$t7->fetch(7);
-$flightTypes = [
-    '1' => $t1,
-    '2' => $t2,
-    '3' => $t3,
-    '4' => $t4,
-    '5' => $t5,
-    '6' => $t6,
-    '7' => $t7,
-];
+//Flight types are fully configurable : everything is built from the configuration.
+$flightTypeLines = fetchAllBbcFlightTypes();
+
+/** @var Bbctypes[] $flightTypes indexed by the number of the type */
+$flightTypes = [];
+$missingServiceTypes = [];
+foreach ($flightTypeLines as $currentFlightTypeLine) {
+    $currentFlightType = new Bbctypes($db);
+    if ($currentFlightType->fetch($currentFlightTypeLine->getId()) <= 0) {
+        continue;
+    }
+
+    $flightTypes[(string) $currentFlightTypeLine->getNumero()] = $currentFlightType;
+
+    if ($currentFlightType->active && !$currentFlightType->service) {
+        $missingServiceTypes[] = $currentFlightType->getLabel();
+    }
+}
 
 //Query
 $flightYears = getFlightYears();
@@ -190,8 +185,8 @@ foreach ($flightYears as $currentFlightYear) {
     ];
 }
 
-if (!$t1->service || !$t2->service || !$t3->service || !$t4->service || !$t5->service || !$t6->service || !$t7->service) {
-    dol_htmloutput_mesg("Un service n'a pas été configuré", '', 'warning');
+if (!empty($missingServiceTypes)) {
+    dol_htmloutput_mesg("Un service n'a pas été configuré pour : " . implode(', ', $missingServiceTypes), '', 'warning');
 }
 dol_fiche_head($tabLinks, "tab_" . $year);
 
@@ -211,32 +206,54 @@ dol_fiche_head($tabLinks, "tab_" . $year);
         //tableau par pilote
 
         print '<div class="tabBar">';
+
+        /** @var Pilot[] $pilots */
+        $pilots = $tableQueryHandler->__invoke(new BillableFlightQuery(true, $year));
+
+        //The table is built from the flight types configuration.
+        $displayedFlightTypes = filterBbcFlightTypesToDisplay($flightTypeLines, $pilots);
+        $missionFlightTypes = filterBbcMissionFlightTypes($displayedFlightTypes);
+        $otherFlightTypes = filterBbcNonMissionFlightTypes($displayedFlightTypes);
+
+        // mission types (# + pts) + organisator + instructor + won bonus + additional bonus
+        $missionColumnCount = (2 * count($missionFlightTypes)) + 6;
+        // other types (# + €) + invoice + balance
+        $otherColumnCount = (2 * count($otherFlightTypes)) + 2;
+
         print '<table class="border" width="100%">';
 
         print '<tr class="liste_titre">';
+        print '<td colspan="2"></td>';
+        print '<td class="liste_titre" colspan="' . $missionColumnCount . '">' . $langs->trans("Missions du club (points)") . '</td>';
+        print '<td class="liste_titre" colspan="' . $otherColumnCount . '">' . $langs->trans("Autres vols (€)") . '</td>';
+        print '</tr>';
+
+        print '<tr class="liste_titre">';
         print '<td colspan="2">Nom</td>';
-        print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 1 : Sponsor") . '</td>';
-        print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 2 : Baptême") . '</td>';
-        print '<td class="liste_titre" colspan="2">' . $langs->trans("Organisateur_(T1/T2)") . '</td>';
+
+        foreach ($missionFlightTypes as $currentFlightType) {
+            print '<td class="liste_titre" colspan="2">' . bbcFlightTypeColumnLabel($currentFlightType) . '</td>';
+        }
+
+        print '<td class="liste_titre" colspan="2">' . $langs->trans("Organisateur") . '</td>';
         print '<td class="liste_titre" colspan="2">' . $langs->trans("Instructeur") . '</td>';
         print '<td class="liste_titre" colspan="2">' . $langs->trans("Total bonus") . '</td>';
-        print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 3 : Privé") . '</td>';
-        print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 4: Meeting") . '</td>';
-        print '<td class="liste_titre" colspan="1">' . $langs->trans("Type 5: Chambley") . '</td>';
-        print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 6: instruction") . '</td>';
-        print '<td class="liste_titre" colspan="2">' . $langs->trans("Type 7: vols < 50 ") . '</td>';
+
+        foreach ($otherFlightTypes as $currentFlightType) {
+            print '<td class="liste_titre" colspan="2">' . bbcFlightTypeColumnLabel($currentFlightType) . '</td>';
+        }
+
         print '<td class="liste_titre" colspan="1">' . $langs->trans("Facture") . '</td>';
         print '<td class="liste_titre" colspan="1">' . $langs->trans("A payer") . '</td>';
-        print '<tr>';
+        print '</tr>';
 
         print '<tr class="liste_titre">';
         print '<td colspan="2" class="liste_titre"></td>';
 
-        print '<td class="liste_titre"> # </td>';
-        print '<td class="liste_titre"> Pts </td>';
-
-        print '<td class="liste_titre"> # </td>';
-        print '<td class="liste_titre"> Pts </td>';
+        foreach ($missionFlightTypes as $currentFlightType) {
+            print '<td class="liste_titre"> # </td>';
+            print '<td class="liste_titre"> Pts </td>';
+        }
 
         print '<td class="liste_titre"> # </td>';
         print '<td class="liste_titre"> Pts </td>';
@@ -247,19 +264,10 @@ dol_fiche_head($tabLinks, "tab_" . $year);
         print '<td class="liste_titre"> Bonus gagnés </td>';
         print '<td class="liste_titre"> Bonus additional (ROI) </td>';
 
-        print '<td class="liste_titre"> # </td>';
-        print '<td class="liste_titre"> € </td>';
-
-        print '<td class="liste_titre"> # </td>';
-        print '<td class="liste_titre"> € </td>';
-
-        print '<td class="liste_titre"> # </td>';
-
-        print '<td class="liste_titre"> # </td>';
-        print '<td class="liste_titre"> € </td>';
-
-        print '<td class="liste_titre"> #</td>';
-        print '<td class="liste_titre"> €</td>';
+        foreach ($otherFlightTypes as $currentFlightType) {
+            print '<td class="liste_titre"> # </td>';
+            print '<td class="liste_titre"> € </td>';
+        }
 
         print '<td class="liste_titre"> € </td>';
         print '<td class="liste_titre"> Balance (A payer) €</td>';
@@ -271,7 +279,7 @@ dol_fiche_head($tabLinks, "tab_" . $year);
          * @var int   $key
          * @var Pilot $pilot
          */
-        foreach ($tableQueryHandler->__invoke(new BillableFlightQuery(true, $year)) as $key => $pilot) {
+        foreach ($pilots as $key => $pilot) {
             $total += $pilot->getTotalBill()->getValue();
 
             print '<tr class="pair">';
@@ -281,11 +289,13 @@ dol_fiche_head($tabLinks, "tab_" . $year);
 
             print '<td>' . $pilot->getName() . '</td>';
 
-            print '<td>' . $pilot->getCountForType('1')->getCount() . '</td>';
-            print '<td>' . $pilot->getCountForType('1')->getCost()->getValue() . '</td>';
+            // Missions of the club : the pilot wins points
+            foreach ($missionFlightTypes as $currentFlightType) {
+                $count = $pilot->getCountForType((string) $currentFlightType->getNumero());
 
-            print '<td>' . $pilot->getCountForType('2')->getCount() . '</td>';
-            print '<td>' . $pilot->getCountForType('2')->getCost()->getValue() . '</td>';
+                print '<td>' . $count->getCount() . '</td>';
+                print '<td>' . $count->getCost()->getValue() . '</td>';
+            }
 
             print '<td>' . $pilot->getCountForType('orga')->getCount() . '</td>';
             print '<td>' . $pilot->getCountForType('orga')->getCost()->getValue() . '</td>';
@@ -293,24 +303,20 @@ dol_fiche_head($tabLinks, "tab_" . $year);
             print '<td>' . $pilot->getCountForType('orga_T6')->getCount() . '</td>';
             print '<td>' . $pilot->getCountForType('orga_T6')->getCost()->getValue() . '</td>';
 
+            //Sub total of the missions
             print '<td><b>' . $pilot->getFlightBonus()->getValue() . '</b></td>';
             print '<td>' . sprintf('<input type="number" value="0" name="additional_bonus[%s]"/>',
                     $pilot->getId()) . '</b></td>';
 
-            print '<td>' . $pilot->getCountForType('3')->getCount() . '</td>';
-            print '<td>' . price($pilot->getCountForType('3')->getCost()->getValue()) . '€</td>';
+            // All the other types : the pilot has to pay
+            foreach ($otherFlightTypes as $currentFlightType) {
+                $count = $pilot->getCountForType((string) $currentFlightType->getNumero());
 
-            print '<td>' . $pilot->getCountForType('4')->getCount() . '</td>';
-            print '<td>' . price($pilot->getCountForType('4')->getCost()->getValue()) . '€</td>';
+                print '<td>' . $count->getCount() . '</td>';
+                print '<td>' . ($currentFlightType->isPilotCharged() ? price($count->getCost()->getValue()) . '€' : '-') . '</td>';
+            }
 
-            print '<td>' . $pilot->getCountForType('5')->getCount() . '</td>';
-
-            print '<td>' . $pilot->getCountForType('6')->getCount() . '</td>';
-            print '<td>' . price($pilot->getCountForType('6')->getCost()->getValue()) . '€</td>';
-
-            print '<td>' . $pilot->getCountForType('7')->getCount() . '</td>';
-            print '<td>' . price($pilot->getCountForType('7')->getCost()->getValue()) . '€</td>';
-
+            //Sub total of the other types
             print '<td>';
             print sprintf('<input type="hidden" value="%d" name="amout[%d]"/>', $pilot->getFlightsCost()->getValue(),
                 $pilot->getId());
@@ -326,16 +332,15 @@ dol_fiche_head($tabLinks, "tab_" . $year);
 
         }
 
+        print '<tr>';
+        print '<td colspan="' . ($missionColumnCount + $otherColumnCount) . '"></td>';
+        print '<td>Total à reçevoir</td>';
+        print '<td>' . price($total) . '€</td>';
+        print '</tr>';
 
+        print '</table>';
         ?>
 
-        <tr>
-            <td colspan='19'></td>
-            <td>Total à reçevoir</td>
-            <td><?= price($total) ?>€</td>
-        </tr>
-
-        </table>
 
 
         <!-- Additional Point message -->
@@ -394,7 +399,7 @@ dol_fiche_head($tabLinks, "tab_" . $year);
         <br/>
         <br/>
 
-        <?php if ($year >= $currentYear || !$t1->service || !$t2->service || !$t3->service || !$t4->service || !$t5->service || !$t6->service || !$t7->service) : ?>
+        <?php if ($year >= $currentYear || !empty($missingServiceTypes)) : ?>
             <a class="butActionRefused" href="#">Générer</a>
         <?php else: ?>
             <button class="butAction" type="submit">Générer</button>

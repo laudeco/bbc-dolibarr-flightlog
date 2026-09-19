@@ -87,7 +87,7 @@ class GetPilotsWithMissionsQueryHandler
         $sql .= " LEFT JOIN llx_user AS USR ON VOL.fk_pilot = USR.rowid";
         $sql .= " WHERE ";
         $sql .= " YEAR(VOL.date) = " . $query->getYear();
-        $sql .= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
+        $sql .= " AND VOL.fk_type IN (" . \bbcMissionFlightTypeIdsAsSqlList() . ") ";
 
         if ($query->hasQuarter()) {
             $sql .= " AND QUARTER(VOL.date) = " . $query->getQuarter();

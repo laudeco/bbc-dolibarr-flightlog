@@ -19,6 +19,233 @@ function fetchBbcFlightTypes($active = 1)
 }
 
 /**
+ * Return all the flight types, active or not, sorted by their number.
+ *
+ * @return BbctypesLine[]
+ */
+function fetchAllBbcFlightTypes()
+{
+    global $db;
+
+    $bbcTypes = new Bbctypes($db);
+    $bbcTypes->fetchAll('ASC', 'numero');
+
+    return $bbcTypes->lines;
+}
+
+/**
+ * Keep only the flight types flagged as a mission for the club.
+ *
+ * @param BbctypesLine[] $flightTypes
+ *
+ * @return BbctypesLine[]
+ */
+function filterBbcMissionFlightTypes($flightTypes)
+{
+    return array_filter($flightTypes, function (BbctypesLine $flightType) {
+        return $flightType->isMission();
+    });
+}
+
+/**
+ * Keep only the flight types that are not a mission for the club.
+ *
+ * @param BbctypesLine[] $flightTypes
+ *
+ * @return BbctypesLine[]
+ */
+function filterBbcNonMissionFlightTypes($flightTypes)
+{
+    return array_filter($flightTypes, function (BbctypesLine $flightType) {
+        return !$flightType->isMission();
+    });
+}
+
+/**
+ * Keep the types that have to be displayed in the recap tables: the active ones and
+ * the disabled ones still having flights in the given result set.
+ *
+ * @param BbctypesLine[] $flightTypes
+ * @param Pilot[]        $pilots
+ *
+ * @return BbctypesLine[]
+ */
+function filterBbcFlightTypesToDisplay($flightTypes, $pilots)
+{
+    $usedNumeros = [];
+    foreach ($pilots as $pilot) {
+        foreach ($pilot->getCounts() as $currentCount) {
+            if ($currentCount->getCount() > 0) {
+                $usedNumeros[(string) $currentCount->getType()] = true;
+            }
+        }
+    }
+
+    return array_filter($flightTypes, function (BbctypesLine $flightType) use ($usedNumeros) {
+        return $flightType->getActive() || isset($usedNumeros[(string) $flightType->getNumero()]);
+    });
+}
+
+/**
+ * Build the flight type configuration used by the javascript of the flight forms.
+ * Everything that drives the display of the form is configured on the type itself.
+ *
+ * @param BbctypesLine[] $flightTypes
+ *
+ * @return stdClass
+ */
+function bbcFlightTypesAsJsConfiguration($flightTypes)
+{
+    $configuration = [];
+
+    foreach ($flightTypes as $flightType) {
+        $configuration[(int) $flightType->getId()] = [
+            'id' => (int) $flightType->getId(),
+            'billable' => $flightType->isPaxRequired() ? 1 : 0,
+            'expensable' => $flightType->isMission() ? 1 : 0,
+            'instruction' => $flightType->isInstruction() ? 1 : 0,
+        ];
+    }
+
+    return (object) $configuration;
+}
+
+/**
+ * Label of a flight type used as column header.
+ *
+ * @param BbctypesLine $flightType
+ *
+ * @return string
+ */
+function bbcFlightTypeColumnLabel(BbctypesLine $flightType)
+{
+    $label = sprintf('%s :<br/>%s', $flightType->getShortLabel(), $flightType->getNom());
+
+    if (!$flightType->getActive()) {
+        $label .= '<br/><span class="text-muted">(inactif)</span>';
+    }
+
+    return $label;
+}
+
+/**
+ * Return the flight types flagged as a mission for the club. Those flights give
+ * points to the pilots and are the base of the expense notes.
+ *
+ * Inactive types are kept: a type may have been disabled while flights of the
+ * past still have to be counted.
+ *
+ * @return BbctypesLine[]
+ */
+function fetchBbcMissionFlightTypes()
+{
+    return filterBbcMissionFlightTypes(fetchAllBbcFlightTypes());
+}
+
+/**
+ * Return the flight types that are not a mission for the club.
+ *
+ * @return BbctypesLine[]
+ */
+function fetchBbcNonMissionFlightTypes()
+{
+    return filterBbcNonMissionFlightTypes(fetchAllBbcFlightTypes());
+}
+
+/**
+ * Return the flight types flagged as an instruction flight.
+ *
+ * @return BbctypesLine[]
+ */
+function fetchBbcInstructionFlightTypes()
+{
+    return array_filter(fetchAllBbcFlightTypes(), function (BbctypesLine $flightType) {
+        return $flightType->isInstruction();
+    });
+}
+
+/**
+ * Return the flight types that have to be invoiced to a customer.
+ *
+ * @return BbctypesLine[]
+ */
+function fetchBbcBillingRequiredFlightTypes()
+{
+    return array_filter(fetchAllBbcFlightTypes(), function (BbctypesLine $flightType) {
+        return $flightType->isBillingRequired();
+    });
+}
+
+/**
+ * Build a safe SQL list (eg. "1,2") of flight type ids usable in a IN (...) clause.
+ * When no type matches, returns "0" so that the condition never matches a flight.
+ *
+ * @param BbctypesLine[] $flightTypes
+ *
+ * @return string
+ */
+function bbcFlightTypeIdsAsSqlList($flightTypes)
+{
+    $ids = array_map(function (BbctypesLine $flightType) {
+        return (int) $flightType->getId();
+    }, array_values($flightTypes));
+
+    if (empty($ids)) {
+        return '0';
+    }
+
+    return implode(',', $ids);
+}
+
+/**
+ * SQL list of the flight type ids considered as a mission for the club.
+ *
+ * @return string
+ */
+function bbcMissionFlightTypeIdsAsSqlList()
+{
+    return bbcFlightTypeIdsAsSqlList(fetchBbcMissionFlightTypes());
+}
+
+/**
+ * SQL list of the flight type ids considered as an instruction flight.
+ *
+ * @return string
+ */
+function bbcInstructionFlightTypeIdsAsSqlList()
+{
+    return bbcFlightTypeIdsAsSqlList(fetchBbcInstructionFlightTypes());
+}
+
+/**
+ * SQL list of the flight type ids that have to be invoiced to a customer.
+ *
+ * @return string
+ */
+function bbcBillingRequiredFlightTypeIdsAsSqlList()
+{
+    return bbcFlightTypeIdsAsSqlList(fetchBbcBillingRequiredFlightTypes());
+}
+
+/**
+ * Human readable list of the mission types (eg. "T1 & T2").
+ *
+ * @return string
+ */
+function bbcMissionFlightTypesLabel()
+{
+    $labels = array_map(function (BbctypesLine $flightType) {
+        return $flightType->getShortLabel();
+    }, array_values(fetchBbcMissionFlightTypes()));
+
+    if (empty($labels)) {
+        return '';
+    }
+
+    return implode(' & ', $labels);
+}
+
+/**
  * @deprecated should use the form instead.
  *
  * Return list of flight type
@@ -44,7 +271,7 @@ function select_flight_type($selected = '1', $htmlname = 'type', $showempty = fa
 
     foreach ($types as $flightType) {
         print '<option value="' . $flightType->id . '"';
-        if ($flightType->numero == $selected) {
+        if ($flightType->id == $selected) {
             print ' selected="selected"';
         }
         print '>';
@@ -151,7 +378,7 @@ function generateQuarterQuery($year = null, $pilotId = null, $quarter = null, $g
     $sql .= " LEFT OUTER JOIN llx_user AS USR ON VOL.fk_pilot = USR.rowid";
     $sql .= " WHERE ";
     $sql .= " YEAR(VOL.date) = " . ($year ?: 'YEAR(NOW())');
-    $sql .= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
+    $sql .= " AND VOL.fk_type IN (" . bbcMissionFlightTypeIdsAsSqlList() . ") ";
 
     if ($pilotId !== null) {
         $sql .= " AND USR.rowid = " . $pilotId;
@@ -238,25 +465,25 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
     print '<td class="liste_titre" > Prenom </td>';
 
 
-    print '<td class="liste_titre" > # T1 & T2</td>';
+    print '<td class="liste_titre" > # ' . bbcMissionFlightTypesLabel() . '</td>';
     print '<td class="liste_titre" > Forfaits pil </td>';
     print '<td class="liste_titre" > Total des KM </td>';
     print '<td class="liste_titre" > Remb km €</td>';
     print '<td class="liste_titre" > Total € </td>';
 
-    print '<td class="liste_titre" > # T1 & T2</td>';
+    print '<td class="liste_titre" > # ' . bbcMissionFlightTypesLabel() . '</td>';
     print '<td class="liste_titre" > Forfaits pil </td>';
     print '<td class="liste_titre" > Total des KM </td>';
     print '<td class="liste_titre" > Remb km €</td>';
     print '<td class="liste_titre" > Total € </td>';
 
-    print '<td class="liste_titre" > # T1 & T2</td>';
+    print '<td class="liste_titre" > # ' . bbcMissionFlightTypesLabel() . '</td>';
     print '<td class="liste_titre" > Forfaits pil </td>';
     print '<td class="liste_titre" > Total des KM </td>';
     print '<td class="liste_titre" > Remb km €</td>';
     print '<td class="liste_titre" > Total € </td>';
 
-    print '<td class="liste_titre" > # T1 & T2</td>';
+    print '<td class="liste_titre" > # ' . bbcMissionFlightTypesLabel() . '</td>';
     print '<td class="liste_titre" > Forfaits pil </td>';
     print '<td class="liste_titre" > Total des KM </td>';
     print '<td class="liste_titre" > Remb km €</td>';
