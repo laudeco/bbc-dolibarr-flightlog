@@ -8,6 +8,8 @@ dol_include_once("/flightlog/class/bbctypes.class.php");
 
 global $langs, $user, $db, $conf;
 
+$filtertype = '';
+
 $langs->load("admin");
 $langs->load("mymodule@flightlog");
 
@@ -200,7 +202,7 @@ if ($action === ACTION_DELETE) {
 $form = new Form($db);
 $flightType->fetchAll('ASC', 'numero');
 
-llxHeader('', $langs->trans("FLightLogSetup"), $help_url);
+llxHeader('', $langs->trans("FLightLogSetup"), '');
 
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">' . $langs->trans("BackToModuleList") . '</a>';
 print load_fiche_titre($langs->trans("FLightLogSetup"), $linkback, 'title_setup');
@@ -262,8 +264,8 @@ if (!empty($setupMessages)) {
                     </td>
                     <td>
                         <?php $form->select_produits($flightTypeLine->getFkService(),
-                            'idprod[' . $flightTypeLine->getId() . ']', $filtertype, $conf->product->limit_size,
-                            $buyer->price_level, 1, 2, '', 1, array(), $buyer->id); ?>
+                            'idprod[' . $flightTypeLine->getId() . ']', $filtertype, getDolGlobalInt('PRODUIT_LIMIT_SIZE'),
+                            0, 1, 2, '', 1, array(), 0); ?>
                     </td>
                     <td>
                         <input type="number" name="flight_type_points[<?= $flightTypeLine->getId() ?>]"
@@ -328,8 +330,8 @@ if (!empty($setupMessages)) {
                 </td>
                 <td>
                     <?php $form->select_produits($conf->global->BBC_FLIGHT_TYPE_CUSTOMER, 'customer_product',
-                        $filtertype, $conf->product->limit_size, $buyer->price_level, 1, 2, '', 1, array(),
-                        $buyer->id); ?>
+                        $filtertype, getDolGlobalInt('PRODUIT_LIMIT_SIZE'), 0, 1, 2, '', 1, array(),
+                        0); ?>
                 </td>
             </tr>
 
@@ -452,8 +454,8 @@ if (!empty($setupMessages)) {
                 <td>T<input type="number" min="1" size="3" name="new_flight_type_number" value=""/></td>
                 <td><input type="text" maxlength="64" name="new_flight_type_name" value=""/></td>
                 <td>
-                    <?php $form->select_produits('', 'new_idprod', $filtertype, $conf->product->limit_size,
-                        $buyer->price_level, 1, 2, '', 1, array(), $buyer->id); ?>
+                    <?php $form->select_produits('', 'new_idprod', $filtertype, getDolGlobalInt('PRODUIT_LIMIT_SIZE'),
+                        0, 1, 2, '', 1, array(), 0); ?>
                 </td>
                 <td><input type="number" name="new_flight_type_points" value="" placeholder="prix du service"/></td>
                 <td><input type="checkbox" value="1" name="new_flight_type_mission"/></td>
