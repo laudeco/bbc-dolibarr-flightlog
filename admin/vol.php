@@ -228,22 +228,22 @@ if (!empty($setupMessages)) {
                 <th><?= $langs->trans("Nom") ?></th>
                 <th><?= $langs->trans("Service / produit") ?></th>
                 <th title="Points gagnés (mission) ou montant facturé au pilote par vol. Vide = prix du service.">
-                    <?= $langs->trans("Points / montant") ?>
+                    Points <span class="fa fa-info-circle"></span>
                 </th>
                 <th title="Le vol est une mission pour le club : il rapporte des points au pilote et entre dans les notes de frais.">
-                    <?= $langs->trans("Mission") ?>
+                    <?= $langs->trans("Mission") ?> <span class="fa fa-info-circle"></span>
                 </th>
                 <th title="Le nombre de passagers est obligatoire.">
-                    <?= $langs->trans("Pax") ?>
+                    <?= $langs->trans("Pax") ?> <span class="fa fa-info-circle"></span>
                 </th>
                 <th title="Le vol doit être facturé à un client.">
-                    <?= $langs->trans("A facturer") ?>
+                    <?= $langs->trans("A facturer") ?> <span class="fa fa-info-circle"></span>
                 </th>
                 <th title="Vol d'instruction : l'organisateur est l'instructeur.">
-                    <?= $langs->trans("Instruction") ?>
+                    <?= $langs->trans("Instruction") ?> <span class="fa fa-info-circle"></span>
                 </th>
                 <th title="Le vol est facturé au pilote sur sa facture annuelle.">
-                    <?= $langs->trans("Facturé au pilote") ?>
+                    <?= $langs->trans("Facturé au pilote") ?> <span class="fa fa-info-circle"></span>
                 </th>
                 <th><?= $langs->trans("Actif") ?></th>
                 <th></th>
@@ -318,7 +318,7 @@ if (!empty($setupMessages)) {
 
         </table>
 
-        <table class="noborder mt-2" width="100%">
+        <table class="noborder " width="100%">
             <tr class="liste_titre">
                 <th><?= $langs->trans("Champ") ?></th>
                 <th><?= $langs->trans("Valeur") ?></th>
@@ -368,14 +368,6 @@ if (!empty($setupMessages)) {
                            value="<?php echo $conf->global->BBC_POINTS_BONUS_INSTRUCTOR ?>"/>
                 </td>
             </tr>
-        </table>
-
-
-        <table class="noborder mt-2" width="100%">
-            <tr class="liste_titre">
-                <th><?= $langs->trans("Champ") ?></th>
-                <th><?= $langs->trans("Valeur") ?></th>
-            </tr>
 
             <tr class="pair">
                 <td>
@@ -409,7 +401,7 @@ if (!empty($setupMessages)) {
         </table>
 
 
-        <table class="noborder mt-2" width="100%">
+        <table class="noborder " width="100%">
             <tr class="liste_titre">
                 <th><?= $langs->trans("Champ") ?></th>
                 <th><?= $langs->trans("Valeur") ?></th>
@@ -420,13 +412,13 @@ if (!empty($setupMessages)) {
                     <?php echo $langs->trans('E-mail additionel sur les erreurs') ?>
                 </td>
                 <td>
-                    <textarea rows="4" cols="80" name="damage_emails"><?php echo $conf->global->BBC_DAMAGE_EMAILS; ?></textarea>
+                    <textarea rows="4" cols="80" name="damage_emails"><?php echo getDolGlobalString('BBC_DAMAGE_EMAILS'); ?></textarea>
                     <br/><span class="text-muted">Separer par des ; </span>
                 </td>
             </tr>
 
         </table>
-        <input type="submit" value="<?= $langs->trans("Save") ?>"/>
+		<button role="button" type="submit" class="butAction"><?= $langs->trans("Save") ?></button>
     </form>
 
     <!-- New flight type -->
@@ -434,7 +426,7 @@ if (!empty($setupMessages)) {
         <input type="hidden" name="action" value="<?= ACTION_ADD ?>"/>
         <input type="hidden" name="token" value="<?php echo newToken(); ?>"/>
 
-        <table class="noborder mt-2" width="100%">
+        <table class="noborder " width="100%">
             <tr class="liste_titre">
                 <th colspan="10"><?= $langs->trans("Ajouter un type de vol") ?></th>
             </tr>
@@ -442,7 +434,7 @@ if (!empty($setupMessages)) {
                 <th><?= $langs->trans("Numéro") ?></th>
                 <th><?= $langs->trans("Nom") ?></th>
                 <th><?= $langs->trans("Service / produit") ?></th>
-                <th><?= $langs->trans("Points / montant") ?></th>
+                <th><?= $langs->trans("Points") ?></th>
                 <th><?= $langs->trans("Mission") ?></th>
                 <th><?= $langs->trans("Pax") ?></th>
                 <th><?= $langs->trans("A facturer") ?></th>
