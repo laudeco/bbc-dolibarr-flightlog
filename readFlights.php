@@ -336,25 +336,24 @@ print '</div>';
 
 ?>
 
-    <?php
-    // One graph for the missions of the club, one for all the other types of flight.
-    $missionGraphData = getGraphMissionsByTypeAndYearData();
-    $otherFlightsGraphData = getGraphOtherFlightsByTypeAndYearData();
-    ?>
-
-    <?php if (!empty($missionGraphData->getTypes())): ?>
-        <div class="fichecenter">
-            <?php include $ctrl->graphByType($missionGraphData,
-                "Missions du club par type et par année", 'per_mission_type')->getTemplate(); ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($otherFlightsGraphData->getTypes())): ?>
-        <div class="fichecenter">
-            <?php include $ctrl->graphByType($otherFlightsGraphData,
-                "Autres vols par type et par année", 'per_other_type')->getTemplate(); ?>
-        </div>
-    <?php endif; ?>
+    <div class="fichecenter">
+        <?php
+        // One graph for the missions of the club, one for all the other types of flight,
+        // both sharing the same table of values.
+        include $ctrl->graphsByType([
+            [
+                'title' => "Missions du club par type et par année",
+                'tag' => 'per_mission_type',
+                'data' => getGraphMissionsByTypeAndYearData(),
+            ],
+            [
+                'title' => "Autres vols par type et par année",
+                'tag' => 'per_other_type',
+                'data' => getGraphOtherFlightsByTypeAndYearData(),
+            ],
+        ])->getTemplate();
+        ?>
+    </div>
 
     <div class="fichecenter">
         <?php include $ctrl->billableFlightsPerMonth()->getTemplate(); ?>

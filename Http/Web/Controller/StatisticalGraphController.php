@@ -124,13 +124,73 @@ final class StatisticalGraphController extends WebController
     }
 
     /**
-     * @param GraphicalData $data  one serie per flight type
-     * @param string        $title title of the graph
-     * @param string        $tag   identifier of the graph, unique within the page
+     * Draw the graphs of the flights by type and by year, side by side, followed by one
+     * single table holding the values of every graph.
+     *
+     * @param array $graphs list of ['title' => string, 'tag' => string, 'data' => GraphicalData],
+     *                      the entries without any flight type being ignored
      *
      * @return Response
      */
-    public function graphByType(GraphicalData $data, $title = "Par type et par année", $tag = 'per_type')
+    public function graphsByType(array $graphs)
+    {
+        $graphs = array_values(array_filter($graphs, function (array $graph) {
+            /** @var GraphicalData $data */
+            $data = $graph['data'];
+
+            return count($data->getTypes()) > 0;
+        }));
+
+        $dolGraphs = [];
+        $tables = [];
+        $years = [];
+
+        foreach ($graphs as $graph) {
+            /** @var GraphicalData $data */
+            $data = $graph['data'];
+            $export = $data->export();
+
+            $dolGraphs[] = $this->buildGraphByType($data, $graph['title'], $graph['tag'], count($graphs));
+
+            $rows = [];
+            foreach ($data->getTypes() as $index => $graphicalType) {
+                $values = [];
+                foreach ($export as $yearValues) {
+                    $year = $yearValues[0];
+                    $years[$year] = $year;
+                    $values[$year] = isset($yearValues[$index + 1]) ? $yearValues[$index + 1] : 0;
+                }
+
+                $rows[] = [
+                    'label' => $graphicalType->getTitle(),
+                    'values' => $values,
+                ];
+            }
+
+            $tables[] = [
+                'title' => $graph['title'],
+                'rows' => $rows,
+            ];
+        }
+
+        ksort($years);
+
+        return $this->render('statistical_graph/flights_per_type.phtml', [
+            'flightTypeGraphs' => $dolGraphs,
+            'flightTypeGraphYears' => array_values($years),
+            'flightTypeGraphTables' => $tables,
+        ]);
+    }
+
+    /**
+     * @param GraphicalData $data           one serie per flight type
+     * @param string        $title          title of the graph
+     * @param string        $tag            identifier of the graph, unique within the page
+     * @param int           $numberOfGraphs number of graphs shown side by side
+     *
+     * @return DolGraph
+     */
+    private function buildGraphByType(GraphicalData $data, $title, $tag, $numberOfGraphs = 1)
     {
         $graphByTypeAndYear = new DolGraph();
 
@@ -148,8 +208,8 @@ final class StatisticalGraphController extends WebController
         }
         $graphByTypeAndYear->SetLegend($legend);
         $graphByTypeAndYear->SetMaxValue($graphByTypeAndYear->GetCeilMaxValue());
-        $graphByTypeAndYear->SetWidth($WIDTH + 100);
-        $graphByTypeAndYear->SetHeight($HEIGHT + 300);
+        $graphByTypeAndYear->SetWidth((int) ($WIDTH / max(1, $numberOfGraphs)));
+        $graphByTypeAndYear->SetHeight($HEIGHT + 150);
         $graphByTypeAndYear->SetYLabel("#");
         $graphByTypeAndYear->SetShading(3);
         $graphByTypeAndYear->SetHorizTickIncrement(1);
@@ -158,10 +218,7 @@ final class StatisticalGraphController extends WebController
 
         $graphByTypeAndYear->draw($tag . '_' . (new \DateTime())->getTimestamp());
 
-        return $this->render('statistical_graph/billable_flights_per_month.phtml', [
-            'graph' => $graphByTypeAndYear
-        ]);
-
+        return $graphByTypeAndYear;
     }
 
 }
