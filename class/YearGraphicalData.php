@@ -50,6 +50,22 @@ class YearGraphicalData
     }
 
     /**
+     * All the types held by this year, in the order they were added.
+     *
+     * @return GraphicalType[]
+     */
+    public function getTypes()
+    {
+        $types = [];
+
+        foreach ($this->graphData as $data) {
+            $types[] = $data->getType();
+        }
+
+        return $types;
+    }
+
+    /**
      * @param GraphicalValue $graphicalValue
      */
     public function addGraphicalValue(GraphicalValue $graphicalValue)
@@ -62,17 +78,15 @@ class YearGraphicalData
     }
 
     /**
+     * One value per type, in the same order as getTypes().
+     *
      * @return array
      */
     public function export()
     {
         $result = [$this->year];
 
-        foreach ($this->graphData as $typeId => $data) {
-            if (!in_array($typeId, [1, 2, 3,4, 6])) {
-                continue;
-            }
-
+        foreach ($this->graphData as $data) {
             $result[] = $data->getValue();
         }
 

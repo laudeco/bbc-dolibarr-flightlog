@@ -132,22 +132,18 @@ final class StatisticalGraphController extends WebController
 
         $graphByTypeAndYear->SetData($data->export());
 
+        // One serie per flight type, in the very same order as the exported values.
         $legend = [];
         $graphByTypeAndYear->type = [];
-        foreach (fetchBbcFlightTypes() as $flightType) {
-
-            if (!in_array($flightType->numero, [1, 2, 3,4, 6])) {
-                continue;
-            }
-
-            $legend[] = $flightType->nom;
+        foreach ($data->getTypes() as $graphicalType) {
+            $legend[] = $graphicalType->getTitle();
             $graphByTypeAndYear->type[] = "lines";
         }
         $graphByTypeAndYear->SetLegend($legend);
         $graphByTypeAndYear->SetMaxValue($graphByTypeAndYear->GetCeilMaxValue());
         $graphByTypeAndYear->SetWidth($WIDTH + 100);
         $graphByTypeAndYear->SetHeight($HEIGHT + 300);
-        $graphByTypeAndYear->SetYLabel("Years");
+        $graphByTypeAndYear->SetYLabel("#");
         $graphByTypeAndYear->SetShading(3);
         $graphByTypeAndYear->SetHorizTickIncrement(1);
 

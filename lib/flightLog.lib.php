@@ -87,6 +87,49 @@ function filterBbcFlightTypesToDisplay($flightTypes, $pilots)
 }
 
 /**
+ * Ids of the flight types having at least one flight.
+ *
+ * @return int[]
+ */
+function fetchBbcFlightTypeIdsWithFlights()
+{
+    global $db;
+
+    $ids = [];
+
+    $sql = 'SELECT DISTINCT fk_type FROM ' . MAIN_DB_PREFIX . 'bbc_vols WHERE fk_type IS NOT NULL';
+    $resql = $db->query($sql);
+    if (!$resql) {
+        return $ids;
+    }
+
+    while ($obj = $db->fetch_object($resql)) {
+        $ids[] = (int) $obj->fk_type;
+    }
+
+    $db->free($resql);
+
+    return $ids;
+}
+
+/**
+ * Keep the types to show in the statistics: the active ones and the disabled ones that
+ * still carry flights, so that the history of a retired type does not disappear.
+ *
+ * @param BbctypesLine[] $flightTypes
+ *
+ * @return BbctypesLine[]
+ */
+function filterBbcFlightTypesWithHistory($flightTypes)
+{
+    $idsWithFlights = fetchBbcFlightTypeIdsWithFlights();
+
+    return array_filter($flightTypes, function (BbctypesLine $flightType) use ($idsWithFlights) {
+        return $flightType->getActive() || in_array((int) $flightType->getId(), $idsWithFlights, true);
+    });
+}
+
+/**
  * Build the flight type configuration used by the javascript of the flight forms.
  * Everything that drives the display of the form is configured on the type itself.
  *
@@ -632,20 +675,25 @@ function fetchGraphByTypeAndYearData(GraphicalData $graphData)
 }
 
 /**
+ * Data of the "by type and by year" graph. Every flight type of the configuration is
+ * a serie of the graph, the retired ones included as long as they carry flights.
+ *
  * @return GraphicalData
  */
 function getGraphByTypeAndYearData()
 {
+    $flightTypes = filterBbcFlightTypesWithHistory(fetchAllBbcFlightTypes());
 
-    $flightTypes = fetchBbcFlightTypes();
+    $flightYears = getFlightYears();
+    sort($flightYears);
 
     $graphData = new GraphicalData();
 
-    foreach (getFlightYears() as $flightYear) {
+    foreach ($flightYears as $flightYear) {
         $pieceData = new YearGraphicalData($flightYear);
 
         foreach ($flightTypes as $flightType) {
-            $pieceData->addType(new GraphicalType($flightType->id, $flightType->nom));
+            $pieceData->addType(new GraphicalType($flightType->getId(), $flightType->getLabel()));
         }
 
         $graphData->addData($pieceData);
