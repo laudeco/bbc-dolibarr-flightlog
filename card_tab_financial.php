@@ -124,7 +124,7 @@ dol_fiche_end();
 print '<div class="tabsAction">' . "\n";
 
 // Make invoice
-if($user->rights->flightlog->vol->financial && $object->fk_type == 2 && !$object->hasFacture()){
+if($user->rights->flightlog->vol->financial && $object->isBillingRequired() && !$object->hasFacture()){
     print '<div class="inline-block divButAction"><a class="butAction" href="' . DOL_URL_ROOT . '/flightlog/facture.php?id=' . $object->id.'">' . $langs->trans("Facturer") . '</a></div>' . "\n";
 }
 

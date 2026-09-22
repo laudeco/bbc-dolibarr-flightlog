@@ -41,6 +41,27 @@ Since we are using Dolibarr for our accountacy and our management, we didn't wan
 * Fixing here and there some small issues
 
  
+# Flight types
+Every flight type is fully managed from the administration page of the module (_Configuration > Modules > Carnet de vol_).
+A type carries its number (T1, T2, ...), its name, the service used to invoice it and the following rules :
+
+| Field | Meaning |
+| --- | --- |
+| Points / montant | Points won (mission) or amount charged to the pilot per flight. Left empty, the price of the linked service is used. |
+| Mission | The flight is a mission for the club : it gives points to the pilot, the organisator wins points too and the flight is reimbursed through the expense notes (kilometers + lump sum). |
+| Pax | The number of passengers is required. |
+| A facturer | The flight has to be invoiced to a customer. |
+| Instruction | Instruction flight : the organisator is the instructor and wins the instructor points. |
+| Facturé au pilote | The flight is charged to the pilot on his yearly bill. |
+| €/km | Kilometer allowance reimbursed to the pilot on his expense note. Left empty, the value of the module (`BBC_FLIGHT_LOG_TAUX_REMB_KM`) is used. |
+| Forfait € | Lump sum reimbursed to the pilot for one flight of this type. Left empty, the value of the module (`BBC_FLIGHT_LOG_UNIT_PRICE_MISSION`) is used. |
+| Actif | The type can be selected on a new flight. |
+
+The recap table of the module, the pilot bills and the expense notes are built from those rules: the missions of the club
+are grouped together with their own sub total of points, all the other types are grouped with their own sub total in euro.
+The reimbursement of a pilot is computed type by type, with the allowances of each type.
+A type may be added, renamed, renumbered, disabled and - as long as no flight uses it - deleted.
+
 # Installation
 
 At the moment the tested way is :

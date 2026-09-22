@@ -12,6 +12,11 @@ use FlightLog\Domain\Damage\FlightInvoicedDamageCount;
 class CreatePilotYearBillCommandHandler
 {
     /**
+     * VAT rate applied on the damages.
+     */
+    const DAMAGE_VAT_RATE = 21;
+
+    /**
      * @var \DoliDB
      */
     private $db;
@@ -29,60 +34,22 @@ class CreatePilotYearBillCommandHandler
     private $langs;
 
     /**
-     * @var Bbctypes
+     * All the flight types of the module, indexed by their number.
+     *
+     * @var array|Bbctypes[]
      */
-    private $t1;
-
-    /**
-     * @var Bbctypes
-     */
-    private $t2;
-
-    /**
-     * @var Bbctypes
-     */
-    private $t3;
-
-    /**
-     * @var Bbctypes
-     */
-    private $t4;
-
-    /**
-     * @var Bbctypes
-     */
-    private $t5;
-
-    /**
-     * @var Bbctypes
-     */
-    private $t6;
-
-    /**
-     * @var Bbctypes
-     */
-    private $t7;
+    private $flightTypes;
 
     private $localtax1_tx;
 
     private $localtax2_tx;
 
     /**
-     * @var Product
-     */
-    private $tOrganisator;
-
-    /**
-     * @var Product
-     */
-    private $tInstructor;
-
-    /**
      * @param DoliDB           $db
      * @param stdClass         $conf
      * @param User             $user
      * @param                  $langs
-     * @param array|Bbctypes[] $flightTypes
+     * @param array|Bbctypes[] $flightTypes flight types indexed by their number
      */
     public function __construct(DoliDB $db, stdClass $conf, User $user, $langs, $flightTypes)
     {
@@ -90,22 +57,7 @@ class CreatePilotYearBillCommandHandler
         $this->conf = $conf;
         $this->user = $user;
         $this->langs = $langs;
-
-        $this->t1 = $flightTypes['1'];
-        $this->t2 = $flightTypes['2'];
-        $this->t3 = $flightTypes['3'];
-        $this->t4 = $flightTypes['4'];
-        $this->t5 = $flightTypes['5'];
-        $this->t6 = $flightTypes['6'];
-        $this->t7 = $flightTypes['7'];
-
-        $this->tOrganisator = new Product($this->db);
-        $this->tOrganisator->label = 'Vols dont vous êtes organisateur';
-        $this->tOrganisator->tva_tx = $this->t1->getService()->tva_tx;
-
-        $this->tInstructor = new Product($this->db);
-        $this->tInstructor->label = 'Vols dont vous êtes instructeur/examinateur';
-        $this->tInstructor->tva_tx = $this->t1->getService()->tva_tx;
+        $this->flightTypes = $flightTypes;
     }
 
     /**
@@ -158,7 +110,7 @@ class CreatePilotYearBillCommandHandler
             }
 
             $subject = 'vols';
-            if((int)$rate === 21){
+            if((int)$rate === self::DAMAGE_VAT_RATE){
                 $subject = 'réparations';
             }
 
@@ -254,6 +206,9 @@ class CreatePilotYearBillCommandHandler
     /**
      * Get the Cost TTC per rate.
      *
+     * Every flight type charged to the pilot is grouped on the VAT rate of the
+     * service linked to the type. The damages keep their own rate.
+     *
      * @param Pilot $pilot
      *
      * @return array|FlightCost[]
@@ -262,37 +217,19 @@ class CreatePilotYearBillCommandHandler
     {
         $costs = [];
 
-        //T3
-        $rate = $this->t3->getService()->tva_tx;
-        if(!isset($costs[$rate])){
-            $costs[$rate] = FlightCost::zero();
-        }
-        $costs[$rate] = $costs[$rate]->addCost($pilot->getCountForType('3')->getCost());
+        foreach ($pilot->getChargedCounts() as $chargedCount) {
+            $rate = $this->getVatRateForType($chargedCount->getType());
 
-        //T4
-        $rate = $this->t4->getService()->tva_tx;
-        if(!isset($costs[$rate])){
-            $costs[$rate] = FlightCost::zero();
-        }
-        $costs[$rate] = $costs[$rate]->addCost($pilot->getCountForType('4')->getCost());
+            if (!isset($costs[$rate])) {
+                $costs[$rate] = FlightCost::zero();
+            }
 
-        //T6
-        $rate = $this->t6->getService()->tva_tx;
-        if(!isset($costs[$rate])){
-            $costs[$rate] = FlightCost::zero();
+            $costs[$rate] = $costs[$rate]->addCost($chargedCount->getCost());
         }
-        $costs[$rate] = $costs[$rate]->addCost($pilot->getCountForType('6')->getCost());
-
-        //T7
-        $rate = $this->t7->getService()->tva_tx;
-        if(!isset($costs[$rate])){
-            $costs[$rate] = FlightCost::zero();
-        }
-        $costs[$rate] = $costs[$rate]->addCost($pilot->getCountForType('7')->getCost());
 
         //Damages
-        $rate = 21;
-        if(!isset($costs[$rate])){
+        $rate = self::DAMAGE_VAT_RATE;
+        if (!isset($costs[$rate])) {
             $costs[$rate] = FlightCost::zero();
         }
         $costs[$rate] = $costs[$rate]->addCost($pilot->damageCost()->minCost($pilot->invoicedDamageCost()->multiply(-1)));
@@ -300,5 +237,28 @@ class CreatePilotYearBillCommandHandler
         return $costs;
     }
 
+    /**
+     * VAT rate of the service linked to a flight type. The rate is kept as given by
+     * the service (eg. "21.000") so that it is not truncated when used as array key.
+     *
+     * @param string $numero flight type number
+     *
+     * @return string
+     */
+    private function getVatRateForType($numero)
+    {
+        $key = (string) $numero;
+
+        if (!isset($this->flightTypes[$key])) {
+            return '0';
+        }
+
+        $flightType = $this->flightTypes[$key];
+        if (empty($flightType->fkService)) {
+            return '0';
+        }
+
+        return (string) $flightType->getService()->tva_tx;
+    }
 
 }

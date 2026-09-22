@@ -40,7 +40,7 @@ class MonthlyBillableQueryHandler
     {
         $sql = 'SELECT flights.*, usr.rowid as usrRowId, usr.lastname as lastname,  usr.firstname as firstname FROM llx_bbc_vols as flights INNER JOIN llx_user as usr ON flights.fk_receiver = usr.rowid';
         $sql .= ' WHERE ';
-        $sql .= ' flights.fk_type = 2 ';
+        $sql .= ' flights.fk_type IN (' . bbcBillingRequiredFlightTypeIdsAsSqlList() . ') ';
         $sql .= ' AND flights.is_facture = 0 ';
         $sql .= ' AND (flights.cost IS NOT NULL AND flights.cost > 0) ';
         $sql .= sprintf(' AND YEAR(flights.date) = %s ', $query->getYear());

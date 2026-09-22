@@ -36,6 +36,8 @@ class FlightForQuarterAndPilotQueryHandler
     {
         $sql = $this->generateQuery($query);
 
+        $flightTypes = \fetchBbcFlightTypesById();
+
         /** @var FlightMission[]|array $flights */
         $flights = [];
         $resql = $this->db->query($sql);
@@ -46,8 +48,14 @@ class FlightForQuarterAndPilotQueryHandler
                 while ($i < $num) {
                     $flight = $this->db->fetch_object($resql);
                     if ($flight) {
+                        $flightTypeId = (int) $flight->fk_type;
+                        $flightType = isset($flightTypes[$flightTypeId]) ? $flightTypes[$flightTypeId] : null;
+
                         $flights[] = new FlightMission($flight->rowid, $flight->lieuD, $flight->lieuA,
-                            $flight->justif_kilometers, $flight->kilometers, new \DateTime($flight->date));
+                            $flight->justif_kilometers, $flight->kilometers, new \DateTime($flight->date),
+                            $flightTypeId,
+                            \bbcFlightTypeKmAllowance($flightType),
+                            \bbcFlightTypeMissionAllowance($flightType));
                     }
                     $i++;
                 }
@@ -72,7 +80,7 @@ class FlightForQuarterAndPilotQueryHandler
         $sql .= " LEFT OUTER JOIN llx_user AS USR ON VOL.fk_pilot = USR.rowid";
         $sql .= " WHERE ";
         $sql .= " YEAR(VOL.date) = " . $query->getYear();
-        $sql .= " AND ( VOL.fk_type = 1 OR VOL.fk_type = 2 ) ";
+        $sql .= " AND VOL.fk_type IN (" . \bbcMissionFlightTypeIdsAsSqlList() . ") ";
         $sql .= " AND USR.rowid = " . $query->getPilotId();
         $sql .= " AND QUARTER(VOL.date) = " . $query->getQuarter();
         $sql .= " ORDER BY QUARTER(VOL.date), VOL.fk_pilot";

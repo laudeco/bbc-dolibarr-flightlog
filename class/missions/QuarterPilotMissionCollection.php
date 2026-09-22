@@ -25,20 +25,18 @@ class QuarterPilotMissionCollection implements IteratorAggregate
     }
 
     /**
-     * @param int $quarter
-     * @param int $pilotId
-     * @param string $pilotFirstname
-     * @param string $pilotLastname
-     * @param int $numberOfFlights
-     * @param int $numberOfKilometers
+     * @param int         $quarter
+     * @param int         $pilotId
+     * @param string      $pilotFirstname
+     * @param string      $pilotLastname
+     * @param TypeMission $typeMission missions of one flight type for this quarter
      */
     public function addMission(
         $quarter,
         $pilotId,
         $pilotFirstname,
         $pilotLastname,
-        $numberOfFlights,
-        $numberOfKilometers
+        TypeMission $typeMission
     )
     {
         $pilotId = (int)$pilotId;
@@ -47,7 +45,7 @@ class QuarterPilotMissionCollection implements IteratorAggregate
             $this->items[$pilotId] = new PilotMissions($pilotId, $pilotFirstname, $pilotLastname);
         }
 
-        $this->items[$pilotId]->addQuarter($quarter, $numberOfFlights, $numberOfKilometers);
+        $this->items[$pilotId]->addTypeMission($quarter, $typeMission);
     }
 
     /**

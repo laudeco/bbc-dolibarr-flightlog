@@ -48,6 +48,20 @@ class GraphicalData
     }
 
     /**
+     * The types of the graph, in the same order as the values of each exported year.
+     *
+     * @return GraphicalType[]
+     */
+    public function getTypes()
+    {
+        foreach ($this->data as $year) {
+            return $year->getTypes();
+        }
+
+        return [];
+    }
+
+    /**
      * @return array
      */
     public function export()

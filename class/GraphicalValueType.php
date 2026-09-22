@@ -34,6 +34,13 @@ class GraphicalValueType
     }
 
     /**
+     * @return GraphicalType
+     */
+    public function getType() {
+        return $this->types;
+    }
+
+    /**
      * @param GraphicalValue $value
      */
     public function addValue(GraphicalValue $value) {

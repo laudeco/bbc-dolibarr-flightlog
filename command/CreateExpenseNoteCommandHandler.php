@@ -110,6 +110,12 @@ class CreateExpenseNoteCommandHandler
                 $expenseNote = $this->addMissionLine($currentFlightForQuarter, $expenseNote);
             }
 
+            if (empty($expenseNote->lines)) {
+                dol_htmloutput_mesg(sprintf("Aucune indemnité à rembourser pour %s", $currentMission->getPilotName()),
+                    '', 'warning');
+                continue;
+            }
+
             $expenseNote = $this->saveExpenseNote($currentMission->getPilotId(), $expenseNote);
             if (null === $expenseNote) {
                 dol_htmloutput_errors("Erreur lors de la création de la note de frais", $expenseNote->errors);
@@ -146,12 +152,17 @@ class CreateExpenseNoteCommandHandler
      */
     private function addKilometersLine(FlightMission $currentFlightForQuarter, $expenseNote)
     {
+        // Nothing to reimburse for the kilometers of this type of flight.
+        if ($this->getAmountByKilometer($currentFlightForQuarter) <= 0) {
+            return $expenseNote;
+        }
+
         $object_ligne = new ExpenseReportLine($this->db);
         $object_ligne->comments = $this->langs->trans(sprintf("Vol (id: %d) %s à %s  détail: %s",
             $currentFlightForQuarter->getId(), $currentFlightForQuarter->getStartPoint(),
             $currentFlightForQuarter->getEndPoint(), $currentFlightForQuarter->getKilometersComment()));
         $object_ligne->qty = $currentFlightForQuarter->getNumberOfKilometers();
-        $object_ligne->value_unit = $this->getAmountByKilometer();
+        $object_ligne->value_unit = $this->getAmountByKilometer($currentFlightForQuarter);
 
         $object_ligne->date = $currentFlightForQuarter->getDate()->format('Y-m-d');
 
@@ -180,11 +191,16 @@ class CreateExpenseNoteCommandHandler
      */
     private function addMissionLine(FlightMission $currentFlightForQuarter, ExpenseReport $expenseReport)
     {
+        // No lump sum configured for this type of flight.
+        if ($this->getAmountByMission($currentFlightForQuarter) <= 0) {
+            return $expenseReport;
+        }
+
         $object_ligne = new ExpenseReportLine($this->db);
         $object_ligne->comments = sprintf("Vol (id: %d) %s à %s", $currentFlightForQuarter->getId(),
             $currentFlightForQuarter->getStartPoint(), $currentFlightForQuarter->getEndPoint());
         $object_ligne->qty = 1;
-        $object_ligne->value_unit = $this->getAmountByMission();
+        $object_ligne->value_unit = $this->getAmountByMission($currentFlightForQuarter);
 
         $object_ligne->date = $currentFlightForQuarter->getDate()->format('Y-m-d');
 
@@ -206,21 +222,27 @@ class CreateExpenseNoteCommandHandler
     }
 
     /**
-     * Get the unit price pe KM.
+     * Get the unit price per KM, as configured on the type of the flight.
      *
-     * @return int
+     * @param FlightMission $flight
+     *
+     * @return float
      */
-    private function getAmountByKilometer()
+    private function getAmountByKilometer(FlightMission $flight)
     {
-        return isset($this->conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $this->conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
+        return $flight->getKmAllowance();
     }
 
     /**
-     * @return mixed
+     * Get the lump sum of the flight, as configured on its type.
+     *
+     * @param FlightMission $flight
+     *
+     * @return float
      */
-    private function getAmountByMission()
+    private function getAmountByMission(FlightMission $flight)
     {
-        return $this->conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
+        return $flight->getMissionAllowance();
     }
 
     /**

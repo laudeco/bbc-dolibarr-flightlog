@@ -91,16 +91,16 @@ final class Pilot
             if ($currentType->getType() === $flightTypeCount->getType()) {
                 $found = true;
                 $types[] = $currentType->add($flightTypeCount);
-                break;
+                continue;
             }
 
             $types[] = new FlightTypeCount($currentType->getType(), $currentType->getCount(),
-                $currentType->getFactor());
+                $currentType->getFactor(), $currentType->isMission(), $currentType->isCharged());
         }
 
         if (!$found) {
             $types[] = new FlightTypeCount($flightTypeCount->getType(), $flightTypeCount->getCount(),
-                $flightTypeCount->getFactor());
+                $flightTypeCount->getFactor(), $flightTypeCount->isMission(), $flightTypeCount->isCharged());
         }
 
         return new Pilot($this->name, $this->id, $types);
@@ -131,34 +131,70 @@ final class Pilot
     }
 
     /**
+     * Sum of the points won on every type flagged as a mission for the club
+     * (including the organisator and instructor bonuses).
+     *
      * @return FlightBonus
      */
     public function getFlightBonus()
     {
         $bonus = FlightBonus::zero();
 
-        $bonus = $bonus->addPoints($this->getFlightPoints('1'));
-        $bonus = $bonus->addPoints($this->getFlightPoints('2'));
-        $bonus = $bonus->addPoints($this->getFlightPoints('orga'));
-        $bonus = $bonus->addPoints($this->getFlightPoints('orga_T6'));
+        foreach ($this->getMissionCounts() as $missionCount) {
+            $bonus = $bonus->addPoints(FlightPoints::create($missionCount->getCost()->getValue()));
+        }
 
         return $bonus;
     }
 
     /**
-     * Get the total of cost for the pilot
+     * Get the total of cost for the pilot : every type charged to the pilot plus the damages.
      */
     public function getFlightsCost()
     {
         $flightsCost = FlightCost::zero();
 
-        $flightsCost = $flightsCost->addCost($this->getFlightCost('3'));
-        $flightsCost = $flightsCost->addCost($this->getFlightCost('4'));
-        $flightsCost = $flightsCost->addCost($this->getFlightCost('6'));
-        $flightsCost = $flightsCost->addCost($this->getFlightCost('7'));
+        foreach ($this->getChargedCounts() as $chargedCount) {
+            $flightsCost = $flightsCost->addCost($chargedCount->getCost());
+        }
+
         $flightsCost = $flightsCost->addCost($this->totalDamageCost());
 
         return $flightsCost;
+    }
+
+    /**
+     * All the counts of the pilot.
+     *
+     * @return array|FlightTypeCount[]
+     */
+    public function getCounts()
+    {
+        return array_values($this->flightTypeCounts);
+    }
+
+    /**
+     * All the counts giving points to the pilot.
+     *
+     * @return array|FlightTypeCount[]
+     */
+    public function getMissionCounts()
+    {
+        return array_values(array_filter($this->flightTypeCounts, function (FlightTypeCount $count) {
+            return $count->isMission();
+        }));
+    }
+
+    /**
+     * All the counts charged to the pilot.
+     *
+     * @return array|FlightTypeCount[]
+     */
+    public function getChargedCounts()
+    {
+        return array_values(array_filter($this->flightTypeCounts, function (FlightTypeCount $count) {
+            return $count->isCharged();
+        }));
     }
 
     public function totalDamageCost(){
@@ -225,28 +261,5 @@ final class Pilot
     {
         return $this->getTotalBill()->minBonus($extraBonus)->getValue() > 0;
     }
-
-    /**
-     * @param string $type
-     *
-     * @return FlightPoints
-     */
-    private function getFlightPoints($type)
-    {
-        return FlightPoints::create($this->getCountForType($type)->getCost()->getValue());
-    }
-
-    /**
-     * Get the flight cost for a type.
-     *
-     * @param string $type
-     *
-     * @return FlightCost
-     */
-    private function getFlightCost($type)
-    {
-        return $this->getCountForType($type)->getCost();
-    }
-
 
 }

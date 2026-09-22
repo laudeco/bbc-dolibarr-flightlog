@@ -52,9 +52,6 @@ $publicNote = GETPOST('public_note');
 $currentYear = date('Y');
 $currentQuarter = floor((date('n') - 1) / 3) + 1;
 
-$tauxRemb = isset($conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
-$unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
-
 $flightYears = getFlightYears();
 $object = new ExpenseReport($db);
 $vatrate = "0.000";
@@ -124,7 +121,7 @@ dol_fiche_head($tabLinks, "tab_".(empty($year)?$currentYear:$year));
             $queryHandler = new GetPilotsWithMissionsQueryHandler($db);
             $query = new GetPilotsWithMissionsQuery($year);
 
-            printBbcKilometersByQuartil($queryHandler->__invoke($query), $tauxRemb, $unitPriceMission);
+            printBbcKilometersByQuartil($queryHandler->__invoke($query));
         ?>
 
         <!-- Quarter -->

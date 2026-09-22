@@ -27,6 +27,7 @@ dol_include_once('/flightlog/class/flight/Pilot.php');
 
 dol_include_once('/flightlog/class/missions/PilotMissions.php');
 dol_include_once('/flightlog/class/missions/FlightMission.php');
+dol_include_once('/flightlog/class/missions/TypeMission.php');
 dol_include_once('/flightlog/class/missions/QuarterMission.php');
 dol_include_once('/flightlog/class/missions/QuarterPilotMissionCollection.php');
 

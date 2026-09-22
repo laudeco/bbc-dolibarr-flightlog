@@ -29,6 +29,13 @@ class BillableFlightQueryHandler
     private $pilotDamageQueryRepository;
 
     /**
+     * All the flight types indexed by their number.
+     *
+     * @var array|BbctypesLine[]
+     */
+    private $flightTypesByNumero;
+
+    /**
      * @param DoliDb   $db
      * @param stdClass $conf
      */
@@ -37,6 +44,11 @@ class BillableFlightQueryHandler
         $this->db = $db;
         $this->conf = $conf;
         $this->pilotDamageQueryRepository = new \FlightLog\Infrastructure\Damage\Query\Repository\GetPilotDamagesQueryRepository($db);
+
+        $this->flightTypesByNumero = [];
+        foreach (fetchAllBbcFlightTypes() as $currentFlightType) {
+            $this->flightTypesByNumero[(string) $currentFlightType->getNumero()] = $currentFlightType;
+        }
     }
 
     /**
@@ -72,7 +84,9 @@ class BillableFlightQueryHandler
                         new FlightTypeCount(
                             $obj->type,
                             (int)$obj->nbr,
-                            $this->getFactorByType($obj->type)
+                            $this->getFactorByType($obj->type),
+                            $this->isMission($obj->type),
+                            $this->isPilotCharged($obj->type)
                         )
                     );
 
@@ -85,8 +99,8 @@ class BillableFlightQueryHandler
             return $pilots;
         }
 
-        //total orga
-        $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON llx_user.rowid = llx_bbc_vols.fk_organisateur WHERE YEAR(date) = \'' . $query->getFiscalYear() . '\' AND fk_type IN (1,2) GROUP BY fk_organisateur';
+        //total orga : every flight type flagged as a mission for the club
+        $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON llx_user.rowid = llx_bbc_vols.fk_organisateur WHERE YEAR(date) = \'' . $query->getFiscalYear() . '\' AND fk_type IN (' . bbcMissionFlightTypeIdsAsSqlList() . ') GROUP BY fk_organisateur';
         $resql = $this->db->query($sql);
         if ($resql) {
             $num = $this->db->num_rows($resql);
@@ -107,7 +121,9 @@ class BillableFlightQueryHandler
                             new FlightTypeCount(
                                 'orga',
                                 (int)$obj->total,
-                                $this->getFactorByType('orga')
+                                $this->getFactorByType('orga'),
+                                true,
+                                false
                             )
                         );
                     }
@@ -116,8 +132,8 @@ class BillableFlightQueryHandler
             }
         }
 
-        //total orga T6 - instructeur
-        $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON llx_user.rowid = fk_organisateur WHERE YEAR(date) = \'' . $query->getFiscalYear() . '\' AND fk_type = 6 GROUP BY fk_organisateur';
+        //total orga instruction - instructeur
+        $sql = 'SELECT llx_user.lastname as name , llx_user.firstname,llx_user.rowid, count(idBBC_vols) as total FROM llx_bbc_vols LEFT JOIN llx_user ON llx_user.rowid = fk_organisateur WHERE YEAR(date) = \'' . $query->getFiscalYear() . '\' AND fk_type IN (' . bbcInstructionFlightTypeIdsAsSqlList() . ') GROUP BY fk_organisateur';
         $resql = $this->db->query($sql);
         if ($resql) {
             $num = $this->db->num_rows($resql);
@@ -137,7 +153,9 @@ class BillableFlightQueryHandler
                             new FlightTypeCount(
                                 'orga_T6',
                                 (int)$obj->total,
-                                $this->getFactorByType('orga_T6')
+                                $this->getFactorByType('orga_T6'),
+                                true,
+                                false
                             )
                         );
                     }
@@ -172,11 +190,13 @@ class BillableFlightQueryHandler
     }
 
     /**
-     * Returns the number of points if set in the config, if not return the price of the service.
+     * Returns the number of points/the amount configured on the flight type. When
+     * nothing is configured, falls back on the (legacy) constant and then on the
+     * price of the service linked to the type.
      *
      * @param string $type
      *
-     * @return int
+     * @return int|float
      */
     private function getFactorByType($type)
     {
@@ -187,30 +207,82 @@ class BillableFlightQueryHandler
                 return $this->conf->BBC_POINTS_BONUS_INSTRUCTOR;
         }
 
-        $constVariableName = 'BBC_POINTS_BONUS_' . $type;
-        if (!isset($this->conf->$constVariableName) || empty($this->conf->$constVariableName) || $this->conf->$constVariableName < 0) {
-            return $this->getFactorForService($type);
+        $flightType = $this->getFlightType($type);
+        if (null !== $flightType && null !== $flightType->getPoints() && $flightType->getPoints() >= 0) {
+            return $flightType->getPoints();
         }
 
-        return (int) $this->conf->$constVariableName;
+        $constVariableName = 'BBC_POINTS_BONUS_' . $type;
+        if (isset($this->conf->$constVariableName) && !empty($this->conf->$constVariableName) && $this->conf->$constVariableName >= 0) {
+            return (int) $this->conf->$constVariableName;
+        }
 
+        return $this->getFactorForService($type);
     }
 
     /**
-     * @param string $type
+     * @param string $type flight type number
      *
      * @return float
      */
     private function getFactorForService($type)
     {
-        $service = new Bbctypes($this->db);
-        $fetchResult = $service->fetch($type);
+        $flightType = $this->getFlightType($type);
 
-        if ($fetchResult <= 0) {
+        if (null === $flightType) {
+            throw new \InvalidArgumentException(sprintf('Flight type %s not found', $type));
+        }
+
+        if (empty($flightType->getFkService())) {
+            return 0;
+        }
+
+        $service = new Product($this->db);
+        if ($service->fetch($flightType->getFkService()) <= 0) {
             throw new \InvalidArgumentException('Service not found');
         }
 
-        return $service->getService()->price_ttc;
+        return $service->price_ttc;
+    }
+
+    /**
+     * Is this flight type a mission for the club ?
+     *
+     * @param string $type flight type number
+     *
+     * @return boolean
+     */
+    private function isMission($type)
+    {
+        $flightType = $this->getFlightType($type);
+
+        return null !== $flightType && $flightType->isMission();
+    }
+
+    /**
+     * Is this flight type charged to the pilot ?
+     *
+     * @param string $type flight type number
+     *
+     * @return boolean
+     */
+    private function isPilotCharged($type)
+    {
+        $flightType = $this->getFlightType($type);
+
+        return null !== $flightType && $flightType->isPilotCharged();
+    }
+
+    /**
+     * @param string $type flight type number
+     *
+     * @return BbctypesLine|null
+     */
+    private function getFlightType($type)
+    {
+        $key = (string) $type;
+
+        return isset($this->flightTypesByNumero[$key]) ? $this->flightTypesByNumero[$key] : null;
     }
 
 

@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * The graphs of the flights by type and by year, side by side, and one single table
+ * holding the values of every graph.
+ *
+ * @var DolGraph[] $flightTypeGraphs
+ * @var int[]      $flightTypeGraphYears
+ * @var array      $flightTypeGraphTables
+ */
+
+?>
+<div class="d-flex flight-type-graphs">
+    <?php foreach ($flightTypeGraphs as $currentGraph): ?>
+        <div class="flight-type-graph">
+            <?php print $currentGraph->show(); ?>
+        </div>
+    <?php endforeach; ?>
+</div>
+
+<div class="bbc-style">
+    <table class="border" width="100%">
+        <tr>
+            <th></th>
+            <?php foreach ($flightTypeGraphYears as $currentYear): ?>
+                <th><?php echo $currentYear; ?></th>
+            <?php endforeach; ?>
+        </tr>
+
+        <?php foreach ($flightTypeGraphTables as $currentTable): ?>
+            <tr>
+                <th colspan="<?php echo count($flightTypeGraphYears) + 1; ?>">
+                    <?php echo $currentTable['title']; ?>
+                </th>
+            </tr>
+
+            <?php $totalPerYear = array_fill_keys($flightTypeGraphYears, 0); ?>
+
+            <?php foreach ($currentTable['rows'] as $currentRow): ?>
+                <tr>
+                    <td><?php echo $currentRow['label']; ?></td>
+
+                    <?php foreach ($flightTypeGraphYears as $currentYear): ?>
+                        <?php $value = isset($currentRow['values'][$currentYear]) ? $currentRow['values'][$currentYear] : 0; ?>
+                        <?php $totalPerYear[$currentYear] += $value; ?>
+                        <td><?php echo round($value, 2); ?></td>
+                    <?php endforeach; ?>
+                </tr>
+            <?php endforeach; ?>
+
+            <tr>
+                <td class="text-bold">Total</td>
+
+                <?php foreach ($flightTypeGraphYears as $currentYear): ?>
+                    <td class="text-bold"><?php echo round($totalPerYear[$currentYear], 2); ?></td>
+                <?php endforeach; ?>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+</div>

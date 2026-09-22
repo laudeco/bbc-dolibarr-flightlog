@@ -76,3 +76,28 @@ Fieldfk_receiver = Percepteur d'argent
 Fieldjustif_kilometers = Justificatif de KM
 FieldDateCreation = Date de création dans le système
 FieldDateUpdate = Date de modification dans le système
+#
+# Types de vol (administration & récapitulatif)
+#
+Numéro = Numéro
+Nom = Nom
+Service / produit = Service / produit
+Points / montant = Points / montant
+Mission = Mission
+Pax = Pax
+A facturer = A facturer
+Instruction = Instruction
+Facturé au pilote = Facturé au pilote
+Actif = Actif
+Ajouter un type de vol = Ajouter un type de vol
+Ajouter = Ajouter
+Missions du club (points) = Missions du club (points)
+Autres vols (€) = Autres vols (€)
+Orga. = Orga.
+Organisateur = Organisateur
+Instructeur = Instructeur
+Réparations = Réparations
+Points organisateur = Points organisateur
+Points instructeur = Points instructeur
+€/km = €/km
+Forfait € = Forfait €
