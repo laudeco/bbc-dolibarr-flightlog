@@ -53,10 +53,13 @@ A type carries its number (T1, T2, ...), its name, the service used to invoice i
 | A facturer | The flight has to be invoiced to a customer. |
 | Instruction | Instruction flight : the organisator is the instructor and wins the instructor points. |
 | Facturé au pilote | The flight is charged to the pilot on his yearly bill. |
+| €/km | Kilometer allowance reimbursed to the pilot on his expense note. Left empty, the value of the module (`BBC_FLIGHT_LOG_TAUX_REMB_KM`) is used. |
+| Forfait € | Lump sum reimbursed to the pilot for one flight of this type. Left empty, the value of the module (`BBC_FLIGHT_LOG_UNIT_PRICE_MISSION`) is used. |
 | Actif | The type can be selected on a new flight. |
 
 The recap table of the module, the pilot bills and the expense notes are built from those rules: the missions of the club
 are grouped together with their own sub total of points, all the other types are grouped with their own sub total in euro.
+The reimbursement of a pilot is computed type by type, with the allowances of each type.
 A type may be added, renamed, renumbered, disabled and - as long as no flight uses it - deleted.
 
 # Installation

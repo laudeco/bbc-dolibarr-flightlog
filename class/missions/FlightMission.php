@@ -46,6 +46,21 @@ class FlightMission
     private $date;
 
     /**
+     * @var int
+     */
+    private $flightTypeId;
+
+    /**
+     * @var float amount reimbursed per kilometer for this type of flight
+     */
+    private $kmAllowance;
+
+    /**
+     * @var float lump sum reimbursed for this type of flight
+     */
+    private $missionAllowance;
+
+    /**
      * FlightMission constructor.
      *
      * @param int      $id
@@ -54,15 +69,58 @@ class FlightMission
      * @param string   $kilometersComment
      * @param int      $numberOfKilometers
      * @param DateTime $date
+     * @param int      $flightTypeId
+     * @param float    $kmAllowance
+     * @param float    $missionAllowance
      */
-    public function __construct($id, $startPoint, $endPoint, $kilometersComment, $numberOfKilometers, DateTime $date)
-    {
+    public function __construct(
+        $id,
+        $startPoint,
+        $endPoint,
+        $kilometersComment,
+        $numberOfKilometers,
+        DateTime $date,
+        $flightTypeId = 0,
+        $kmAllowance = 0,
+        $missionAllowance = 0
+    ) {
         $this->id = (int)$id;
         $this->startPoint = $startPoint;
         $this->endPoint = $endPoint;
         $this->kilometersComment = $kilometersComment;
         $this->numberOfKilometers = $numberOfKilometers;
         $this->date = $date;
+        $this->flightTypeId = (int)$flightTypeId;
+        $this->kmAllowance = (float)$kmAllowance;
+        $this->missionAllowance = (float)$missionAllowance;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFlightTypeId()
+    {
+        return $this->flightTypeId;
+    }
+
+    /**
+     * Amount reimbursed per kilometer for this type of flight.
+     *
+     * @return float
+     */
+    public function getKmAllowance()
+    {
+        return $this->kmAllowance;
+    }
+
+    /**
+     * Lump sum reimbursed for this type of flight.
+     *
+     * @return float
+     */
+    public function getMissionAllowance()
+    {
+        return $this->missionAllowance;
     }
 
     /**

@@ -101,6 +101,20 @@ class Bbctypes extends CommonObject
     public $points;
 
     /**
+     * Amount reimbursed to the pilot per kilometer. Null to use the value of the module.
+     *
+     * @var float|null
+     */
+    public $kmAllowance;
+
+    /**
+     * Lump sum reimbursed to the pilot per flight. Null to use the value of the module.
+     *
+     * @var float|null
+     */
+    public $missionAllowance;
+
+    /**
      * @var Product
      */
     public $service;
@@ -158,7 +172,9 @@ class Bbctypes extends CommonObject
         $sql .= 'billing_required,';
         $sql .= 'is_instruction,';
         $sql .= 'is_pilot_charged,';
-        $sql .= 'points';
+        $sql .= 'points,';
+        $sql .= 'km_allowance,';
+        $sql .= 'mission_allowance';
 
 
         $sql .= ') VALUES (';
@@ -172,7 +188,9 @@ class Bbctypes extends CommonObject
         $sql .= ' ' . (int) (bool) $this->billingRequired . ',';
         $sql .= ' ' . (int) (bool) $this->isInstructionType . ',';
         $sql .= ' ' . (int) (bool) $this->isPilotCharged . ',';
-        $sql .= ' ' . ($this->points === null || $this->points === '' ? 'NULL' : (int) $this->points);
+        $sql .= ' ' . ($this->points === null || $this->points === '' ? 'NULL' : (int) $this->points) . ',';
+        $sql .= ' ' . ($this->kmAllowance === null || $this->kmAllowance === '' ? 'NULL' : (float) $this->kmAllowance) . ',';
+        $sql .= ' ' . ($this->missionAllowance === null || $this->missionAllowance === '' ? 'NULL' : (float) $this->missionAllowance);
 
 
         $sql .= ')';
@@ -230,7 +248,9 @@ class Bbctypes extends CommonObject
         $sql .= " t.billing_required,";
         $sql .= " t.is_instruction,";
         $sql .= " t.is_pilot_charged,";
-        $sql .= " t.points";
+        $sql .= " t.points,";
+        $sql .= " t.km_allowance,";
+        $sql .= " t.mission_allowance";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -259,6 +279,8 @@ class Bbctypes extends CommonObject
                 $this->isInstructionType = (bool) $obj->is_instruction;
                 $this->isPilotCharged = (bool) $obj->is_pilot_charged;
                 $this->points = $obj->points === null ? null : (int) $obj->points;
+                $this->kmAllowance = $obj->km_allowance === null ? null : (float) $obj->km_allowance;
+                $this->missionAllowance = $obj->mission_allowance === null ? null : (float) $obj->mission_allowance;
 
                 if ($this->fkService) {
                     $this->service = new Product($this->db);
@@ -313,7 +335,9 @@ class Bbctypes extends CommonObject
         $sql .= " t.billing_required,";
         $sql .= " t.is_instruction,";
         $sql .= " t.is_pilot_charged,";
-        $sql .= " t.points";
+        $sql .= " t.points,";
+        $sql .= " t.km_allowance,";
+        $sql .= " t.mission_allowance";
 
 
         $sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
@@ -364,6 +388,8 @@ class Bbctypes extends CommonObject
                 $line->isInstructionType = (bool) $obj->is_instruction;
                 $line->isPilotCharged = (bool) $obj->is_pilot_charged;
                 $line->points = $obj->points === null ? null : (int) $obj->points;
+                $line->kmAllowance = $obj->km_allowance === null ? null : (float) $obj->km_allowance;
+                $line->missionAllowance = $obj->mission_allowance === null ? null : (float) $obj->mission_allowance;
 
                 $this->lines[$line->id] = $line;
             }
@@ -426,6 +452,8 @@ class Bbctypes extends CommonObject
         $sql .= ' is_instruction = ' . (int) (bool) $this->isInstructionType . ',';
         $sql .= ' is_pilot_charged = ' . (int) (bool) $this->isPilotCharged . ',';
         $sql .= ' points = ' . ($this->points === null || $this->points === '' ? 'null' : (int) $this->points) . ',';
+        $sql .= ' km_allowance = ' . ($this->kmAllowance === null || $this->kmAllowance === '' ? 'null' : (float) $this->kmAllowance) . ',';
+        $sql .= ' mission_allowance = ' . ($this->missionAllowance === null || $this->missionAllowance === '' ? 'null' : (float) $this->missionAllowance) . ',';
         $sql .= ' active = ' . (isset($this->active) ? (int) (bool) $this->active : "null");
 
 
@@ -682,6 +710,8 @@ class Bbctypes extends CommonObject
         $this->isInstructionType = false;
         $this->isPilotCharged = true;
         $this->points = null;
+        $this->kmAllowance = null;
+        $this->missionAllowance = null;
     }
 
     /**
@@ -732,6 +762,26 @@ class Bbctypes extends CommonObject
     public function getPoints()
     {
         return $this->points === null || $this->points === '' ? null : (int) $this->points;
+    }
+
+    /**
+     * Amount reimbursed per kilometer, null when the value of the module has to be used.
+     *
+     * @return float|null
+     */
+    public function getKmAllowance()
+    {
+        return $this->kmAllowance === null || $this->kmAllowance === '' ? null : (float) $this->kmAllowance;
+    }
+
+    /**
+     * Lump sum reimbursed per flight, null when the value of the module has to be used.
+     *
+     * @return float|null
+     */
+    public function getMissionAllowance()
+    {
+        return $this->missionAllowance === null || $this->missionAllowance === '' ? null : (float) $this->missionAllowance;
     }
 
     /**
@@ -842,6 +892,16 @@ class BbctypesLine
     public $points;
 
     /**
+     * @var float|null
+     */
+    public $kmAllowance;
+
+    /**
+     * @var float|null
+     */
+    public $missionAllowance;
+
+    /**
      * @return int
      */
     public function getId()
@@ -935,6 +995,22 @@ class BbctypesLine
     public function getPoints()
     {
         return $this->points === null || $this->points === '' ? null : (int) $this->points;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getKmAllowance()
+    {
+        return $this->kmAllowance === null || $this->kmAllowance === '' ? null : (float) $this->kmAllowance;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getMissionAllowance()
+    {
+        return $this->missionAllowance === null || $this->missionAllowance === '' ? null : (float) $this->missionAllowance;
     }
 
     /**

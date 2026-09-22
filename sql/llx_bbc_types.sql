@@ -10,6 +10,8 @@ CREATE  TABLE IF NOT EXISTS `llx_bbc_types` (
   `is_instruction` TINYINT(1) NOT NULL DEFAULT 0,
   `is_pilot_charged` TINYINT(1) NOT NULL DEFAULT 1,
   `points` INT NULL DEFAULT NULL,
+  `km_allowance` DECIMAL(10,4) NULL DEFAULT NULL,
+  `mission_allowance` DECIMAL(10,4) NULL DEFAULT NULL,
 
   PRIMARY KEY (`idType`) )
 ENGINE = InnoDB;

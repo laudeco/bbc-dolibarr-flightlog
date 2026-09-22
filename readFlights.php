@@ -28,8 +28,6 @@ $id = GETPOST('id', 'int');
 $action = GETPOST('action', 'alpha');
 $myparam = GETPOST('myparam', 'alpha');
 
-$unitPriceMission = $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION;
-
 $ctrl = new \FlightLog\Http\Web\Controller\StatisticalGraphController($db);
 
 // Default action
@@ -302,8 +300,7 @@ print'</table>';
 print '<br/>';
 print '<h3>' . $langs->trans("Remboursement aux pilotes") . '</h3>';
 
-//table km
-$tauxRemb = isset($conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? $conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
+//table km : the allowances come from the type of each mission
 $year = GETPOST("year", 'int');
 if(empty($year)){
     $year = date('Y');
@@ -312,7 +309,7 @@ if(empty($year)){
 $queryHandler = new GetPilotsWithMissionsQueryHandler($db);
 $query = new GetPilotsWithMissionsQuery($year);
 
-printBbcKilometersByQuartil($queryHandler->__invoke($query), $tauxRemb, $unitPriceMission);
+printBbcKilometersByQuartil($queryHandler->__invoke($query));
 
 print '</div>';
 

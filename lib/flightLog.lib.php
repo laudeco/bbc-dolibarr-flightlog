@@ -87,6 +87,60 @@ function filterBbcFlightTypesToDisplay($flightTypes, $pilots)
 }
 
 /**
+ * All the flight types indexed by their id.
+ *
+ * @return BbctypesLine[]
+ */
+function fetchBbcFlightTypesById()
+{
+    $flightTypes = [];
+
+    foreach (fetchAllBbcFlightTypes() as $flightType) {
+        $flightTypes[(int) $flightType->getId()] = $flightType;
+    }
+
+    return $flightTypes;
+}
+
+/**
+ * Amount reimbursed to the pilot per kilometer for a flight type. The value configured
+ * for the whole module is used when the type does not carry its own.
+ *
+ * @param BbctypesLine|null $flightType
+ *
+ * @return float
+ */
+function bbcFlightTypeKmAllowance($flightType)
+{
+    global $conf;
+
+    if (null !== $flightType && null !== $flightType->getKmAllowance()) {
+        return $flightType->getKmAllowance();
+    }
+
+    return isset($conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM) ? (float) $conf->global->BBC_FLIGHT_LOG_TAUX_REMB_KM : 0;
+}
+
+/**
+ * Lump sum reimbursed to the pilot for one flight of a flight type. The value configured
+ * for the whole module is used when the type does not carry its own.
+ *
+ * @param BbctypesLine|null $flightType
+ *
+ * @return float
+ */
+function bbcFlightTypeMissionAllowance($flightType)
+{
+    global $conf;
+
+    if (null !== $flightType && null !== $flightType->getMissionAllowance()) {
+        return $flightType->getMissionAllowance();
+    }
+
+    return isset($conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION) ? (float) $conf->global->BBC_FLIGHT_LOG_UNIT_PRICE_MISSION : 0;
+}
+
+/**
  * Ids of the flight types having at least one flight.
  *
  * @return int[]
@@ -483,62 +537,50 @@ function bbcKilometersByQuartil($year)
 }
 
 /**
+ * Print the reimbursement of the pilots, quarter by quarter. Every amount is computed
+ * with the allowances of the flight type of the missions.
+ *
  * @param QuarterPilotMissionCollection $kmByQuartil
- * @param int                           $tauxRemb
- * @param int                           $unitPriceMission
  */
-function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
+function printBbcKilometersByQuartil($kmByQuartil)
 {
+    $quarters = [
+        1 => 'Trimestre 1 (Jan - Mars)',
+        2 => 'Trimestre 2 (Avr - Juin)',
+        3 => 'Trimestre 3 (Juil - Sept)',
+        4 => 'Trimestre 4 (Oct - Dec)',
+    ];
+
     print '<table class="border" width="100%">';
 
     print '<tr>';
     print '<td></td>';
     print '<td></td>';
 
-    print '<td class="liste_titre" colspan="5">Trimestre 1 (Jan - Mars)</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 2 (Avr - Juin)</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 3 (Juil - Sept)</td>';
-    print '<td class="liste_titre" colspan="5">Trimestre 4 (Oct - Dec)</td>';
-    print '<td class="liste_titre" >Total</td>';
+    foreach ($quarters as $quarterLabel) {
+        print '<td class="liste_titre" colspan="5">' . $quarterLabel . '</td>';
+    }
 
+    print '<td class="liste_titre" >Total</td>';
     print '</tr>';
 
     print '<tr class="liste_titre">';
     print '<td class="liste_titre" > Nom </td>';
     print '<td class="liste_titre" > Prenom </td>';
 
-
-    print '<td class="liste_titre" > # ' . bbcMissionFlightTypesLabel() . '</td>';
-    print '<td class="liste_titre" > Forfaits pil </td>';
-    print '<td class="liste_titre" > Total des KM </td>';
-    print '<td class="liste_titre" > Remb km €</td>';
-    print '<td class="liste_titre" > Total € </td>';
-
-    print '<td class="liste_titre" > # ' . bbcMissionFlightTypesLabel() . '</td>';
-    print '<td class="liste_titre" > Forfaits pil </td>';
-    print '<td class="liste_titre" > Total des KM </td>';
-    print '<td class="liste_titre" > Remb km €</td>';
-    print '<td class="liste_titre" > Total € </td>';
-
-    print '<td class="liste_titre" > # ' . bbcMissionFlightTypesLabel() . '</td>';
-    print '<td class="liste_titre" > Forfaits pil </td>';
-    print '<td class="liste_titre" > Total des KM </td>';
-    print '<td class="liste_titre" > Remb km €</td>';
-    print '<td class="liste_titre" > Total € </td>';
-
-    print '<td class="liste_titre" > # ' . bbcMissionFlightTypesLabel() . '</td>';
-    print '<td class="liste_titre" > Forfaits pil </td>';
-    print '<td class="liste_titre" > Total des KM </td>';
-    print '<td class="liste_titre" > Remb km €</td>';
-    print '<td class="liste_titre" > Total € </td>';
+    $missionTypesLabel = bbcMissionFlightTypesLabel();
+    foreach (array_keys($quarters) as $quarter) {
+        print '<td class="liste_titre" > # ' . $missionTypesLabel . '</td>';
+        print '<td class="liste_titre" > Forfaits pil </td>';
+        print '<td class="liste_titre" > Total des KM </td>';
+        print '<td class="liste_titre" > Remb km €</td>';
+        print '<td class="liste_titre" > Total € </td>';
+    }
 
     print '<td class="liste_titre" > Total € </td>';
     print '</tr>';
 
-    $totalQ1 = 0;
-    $totalQ2 = 0;
-    $totalQ3 = 0;
-    $totalQ4 = 0;
+    $totalPerQuarter = array_fill_keys(array_keys($quarters), 0);
 
     $curMonth = date("m", time());
     $curQuarter = ceil($curMonth / 3);
@@ -546,72 +588,39 @@ function printBbcKilometersByQuartil($kmByQuartil, $tauxRemb, $unitPriceMission)
 
     /** @var PilotMissions $pilotMission */
     foreach ($kmByQuartil as $pilotMission) {
-        $sumQ1 = $pilotMission->getTotalOfKilometersForQuarter(1);
-        $sumQ2 = $pilotMission->getTotalOfKilometersForQuarter(2);
-        $sumQ3 = $pilotMission->getTotalOfKilometersForQuarter(3);
-        $sumQ4 = $pilotMission->getTotalOfKilometersForQuarter(4);
-
-        $flightsQ1 = $pilotMission->getNumberOfFlightsForQuarter(1);
-        $flightsQ2 = $pilotMission->getNumberOfFlightsForQuarter(2);
-        $flightsQ3 = $pilotMission->getNumberOfFlightsForQuarter(3);
-        $flightsQ4 = $pilotMission->getNumberOfFlightsForQuarter(4);
-
-        $amoutQ1 = ($sumQ1 * $tauxRemb) + ($flightsQ1 * $unitPriceMission);
-        $amoutQ2 = ($sumQ2 * $tauxRemb) + ($flightsQ2 * $unitPriceMission);
-        $amoutQ3 = ($sumQ3 * $tauxRemb) + ($flightsQ3 * $unitPriceMission);
-        $amoutQ4 = ($sumQ4 * $tauxRemb) + ($flightsQ4 * $unitPriceMission);
-
-        $totalQ1 += $amoutQ1;
-        $totalQ2 += $amoutQ2;
-        $totalQ3 += $amoutQ3;
-        $totalQ4 += $amoutQ4;
-
-        $sumKm = ($sumQ1 + $sumQ2 + $sumQ3 + $sumQ4);
-        $sumFlights = ($flightsQ1 + $flightsQ2 + $flightsQ3 + $flightsQ4);
-
         print '<tr>';
 
         print '<td>' . $pilotMission->getPilotLastname() . '</td>';
         print '<td>' . $pilotMission->getPilotFirstname() . '</td>';
 
-        print '<td' . ($curQuarter < 1 ? $disableColor : '') . '>' . ($flightsQ1) . '</td>';
-        print '<td' . ($curQuarter < 1 ? $disableColor : '') . '>' . ($flightsQ1 * $unitPriceMission) . '€</td>';
-        print '<td' . ($curQuarter < 1 ? $disableColor : '') . '>' . $sumQ1 . '</td>';
-        print '<td' . ($curQuarter < 1 ? $disableColor : '') . '>' . ($sumQ1 * $tauxRemb) . '</td>';
-        print '<td' . ($curQuarter < 1 ? $disableColor : '') . '><b>' . $amoutQ1 . '€</b></td>';
+        foreach (array_keys($quarters) as $quarter) {
+            $amount = $pilotMission->getTotalAllowanceForQuarter($quarter);
+            $totalPerQuarter[$quarter] += $amount;
 
-        print '<td ' . ($curQuarter < 2 ? $disableColor : '') . '>' . ($flightsQ2) . '</td>';
-        print '<td ' . ($curQuarter < 2 ? $disableColor : '') . '>' . ($flightsQ2 * $unitPriceMission) . '€</td>';
-        print '<td ' . ($curQuarter < 2 ? $disableColor : '') . '>' . $sumQ2 . '</td>';
-        print '<td ' . ($curQuarter < 2 ? $disableColor : '') . '>' . ($sumQ2 * $tauxRemb) . '</td>';
-        print '<td ' . ($curQuarter < 2 ? $disableColor : '') . '><b>' . $amoutQ2 . '€</b></td>';
+            $cellAttributes = $curQuarter < $quarter ? $disableColor : '';
 
-        print '<td ' . ($curQuarter < 3 ? $disableColor : '') . '>' . ($flightsQ3) . '</td>';
-        print '<td ' . ($curQuarter < 3 ? $disableColor : '') . '>' . ($flightsQ3 * $unitPriceMission) . '€</td>';
-        print '<td ' . ($curQuarter < 3 ? $disableColor : '') . '>' . $sumQ3 . '</td>';
-        print '<td ' . ($curQuarter < 3 ? $disableColor : '') . '>' . ($sumQ3 * $tauxRemb) . '</td>';
-        print '<td ' . ($curQuarter < 3 ? $disableColor : '') . '><b>' . $amoutQ3 . '€</b></td>';
+            print '<td ' . $cellAttributes . '>' . $pilotMission->getNumberOfFlightsForQuarter($quarter) . '</td>';
+            print '<td ' . $cellAttributes . '>' . price($pilotMission->getFlightsAllowanceForQuarter($quarter)) . '€</td>';
+            print '<td ' . $cellAttributes . '>' . $pilotMission->getTotalOfKilometersForQuarter($quarter) . '</td>';
+            print '<td ' . $cellAttributes . '>' . price($pilotMission->getKilometersAllowanceForQuarter($quarter)) . '€</td>';
+            print '<td ' . $cellAttributes . '><b>' . price($amount) . '€</b></td>';
+        }
 
-        print '<td ' . ($curQuarter < 4 ? $disableColor : '') . '>' . ($flightsQ4) . '</td>';
-        print '<td ' . ($curQuarter < 4 ? $disableColor : '') . '>' . ($flightsQ4 * $unitPriceMission) . '€</td>';
-        print '<td ' . ($curQuarter < 4 ? $disableColor : '') . '>' . $sumQ4 . '</td>';
-        print '<td ' . ($curQuarter < 4 ? $disableColor : '') . '>' . ($sumQ4 * $tauxRemb) . '</td>';
-        print '<td ' . ($curQuarter < 4 ? $disableColor : '') . '><b>' . $amoutQ4 . '€</b></td>';
-
-        print '<td>' . (($sumFlights * $unitPriceMission) + ($sumKm * $tauxRemb)) . '€</td>';
+        print '<td><b>' . price($pilotMission->getTotalAllowance()) . '€</b></td>';
 
         print '</tr>';
     }
 
-    print "<td colspan='6'></td>";
-    print "<td>" . price($totalQ1) . "€</td>";
-    print "<td colspan='4'></td>";
-    print "<td>" . price($totalQ2) . "€</td>";
-    print "<td colspan='4'></td>";
-    print "<td>" . price($totalQ3) . "€</td>";
-    print "<td colspan='4'></td>";
-    print "<td>" . price($totalQ4) . "€</td>";
-    print "<td></td>";
+    print '<tr>';
+    print '<td colspan="2" class="text-bold">Total</td>';
+
+    foreach (array_keys($quarters) as $quarter) {
+        print '<td colspan="4"></td>';
+        print '<td class="text-bold">' . price($totalPerQuarter[$quarter]) . '€</td>';
+    }
+
+    print '<td class="text-bold">' . price(array_sum($totalPerQuarter)) . '€</td>';
+    print '</tr>';
 
     print '</table>';
 }

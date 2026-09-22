@@ -5,6 +5,7 @@ require '../../main.inc.php';
 
 require_once '../../core/lib/admin.lib.php';
 dol_include_once("/flightlog/class/bbctypes.class.php");
+dol_include_once("/flightlog/lib/flightLog.lib.php");
 
 global $langs, $user, $db, $conf;
 
@@ -39,6 +40,8 @@ $paxRequirements = GETPOST('flight_type_pax', 'array', 2);
 $billingRequirements = GETPOST('flight_type_billing', 'array', 2);
 $instructions = GETPOST('flight_type_instruction', 'array', 2);
 $pilotCharges = GETPOST('flight_type_charged', 'array', 2);
+$kmAllowances = GETPOST('flight_type_km_allowance', 'array', 2);
+$missionAllowances = GETPOST('flight_type_mission_allowance', 'array', 2);
 $actives = GETPOST('flight_type_active', 'array', 2);
 
 /**
@@ -112,6 +115,8 @@ if ($action === ACTION_SAVE) {
 
         $currentFlightType->fkService = isset($services[$flightTypeId]) ? $services[$flightTypeId] : null;
         $currentFlightType->points = isset($points[$flightTypeId]) && $points[$flightTypeId] !== '' ? (int) $points[$flightTypeId] : null;
+        $currentFlightType->kmAllowance = isset($kmAllowances[$flightTypeId]) && $kmAllowances[$flightTypeId] !== '' ? (float) price2num($kmAllowances[$flightTypeId]) : null;
+        $currentFlightType->missionAllowance = isset($missionAllowances[$flightTypeId]) && $missionAllowances[$flightTypeId] !== '' ? (float) price2num($missionAllowances[$flightTypeId]) : null;
         $currentFlightType->isMission = isset($missions[$flightTypeId]);
         $currentFlightType->paxRequired = isset($paxRequirements[$flightTypeId]);
         $currentFlightType->billingRequired = isset($billingRequirements[$flightTypeId]);
@@ -163,6 +168,10 @@ if ($action === ACTION_ADD) {
         $newFlightType->fkService = GETPOST('new_idprod', 'int', 2) ?: null;
         $newFlightType->points = GETPOST('new_flight_type_points', 'alphanohtml', 2) !== '' ? (int) GETPOST('new_flight_type_points',
             'int', 2) : null;
+        $newKmAllowance = GETPOST('new_flight_type_km_allowance', 'alphanohtml', 2);
+        $newFlightType->kmAllowance = $newKmAllowance !== '' ? (float) price2num($newKmAllowance) : null;
+        $newMissionAllowance = GETPOST('new_flight_type_mission_allowance', 'alphanohtml', 2);
+        $newFlightType->missionAllowance = $newMissionAllowance !== '' ? (float) price2num($newMissionAllowance) : null;
         $newFlightType->isMission = (bool) GETPOST('new_flight_type_mission', 'int', 2);
         $newFlightType->paxRequired = (bool) GETPOST('new_flight_type_pax', 'int', 2);
         $newFlightType->billingRequired = (bool) GETPOST('new_flight_type_billing', 'int', 2);
@@ -202,6 +211,10 @@ if ($action === ACTION_DELETE) {
 $form = new Form($db);
 $flightType->fetchAll('ASC', 'numero');
 
+// Values of the module, used by every type that does not carry its own allowances.
+$defaultKmAllowance = bbcFlightTypeKmAllowance(null);
+$defaultMissionAllowance = bbcFlightTypeMissionAllowance(null);
+
 llxHeader('', $langs->trans("FLightLogSetup"), '');
 
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">' . $langs->trans("BackToModuleList") . '</a>';
@@ -232,6 +245,12 @@ if (!empty($setupMessages)) {
                 </th>
                 <th title="Le vol est une mission pour le club : il rapporte des points au pilote et entre dans les notes de frais.">
                     <?= $langs->trans("Mission") ?> <span class="fa fa-info-circle"></span>
+                </th>
+                <th title="Indemnité kilométrique remboursée au pilote sur sa note de frais. Vide = valeur du module (<?= price($defaultKmAllowance) ?>€/km).">
+                    <?= $langs->trans("€/km") ?> <span class="fa fa-info-circle"></span>
+                </th>
+                <th title="Forfait remboursé au pilote par vol sur sa note de frais. Vide = valeur du module (<?= price($defaultMissionAllowance) ?>€).">
+                    <?= $langs->trans("Forfait €") ?> <span class="fa fa-info-circle"></span>
                 </th>
                 <th title="Le nombre de passagers est obligatoire.">
                     <?= $langs->trans("Pax") ?> <span class="fa fa-info-circle"></span>
@@ -276,6 +295,18 @@ if (!empty($setupMessages)) {
                         <input type="checkbox" value="1"
                                name="flight_type_mission[<?= $flightTypeLine->getId() ?>]"
                             <?= $flightTypeLine->isMission() ? 'checked="checked"' : '' ?> />
+                    </td>
+                    <td>
+                        <input type="number" step="0.0001" min="0" size="5"
+                               name="flight_type_km_allowance[<?= $flightTypeLine->getId() ?>]"
+                               value="<?= $flightTypeLine->getKmAllowance() === null ? '' : $flightTypeLine->getKmAllowance() ?>"
+                               placeholder="<?= $defaultKmAllowance ?>"/>
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" min="0" size="5"
+                               name="flight_type_mission_allowance[<?= $flightTypeLine->getId() ?>]"
+                               value="<?= $flightTypeLine->getMissionAllowance() === null ? '' : $flightTypeLine->getMissionAllowance() ?>"
+                               placeholder="<?= $defaultMissionAllowance ?>"/>
                     </td>
                     <td>
                         <input type="checkbox" value="1"
@@ -428,7 +459,7 @@ if (!empty($setupMessages)) {
 
         <table class="noborder " width="100%">
             <tr class="liste_titre">
-                <th colspan="10"><?= $langs->trans("Ajouter un type de vol") ?></th>
+                <th colspan="12"><?= $langs->trans("Ajouter un type de vol") ?></th>
             </tr>
             <tr class="liste_titre">
                 <th><?= $langs->trans("Numéro") ?></th>
@@ -436,6 +467,8 @@ if (!empty($setupMessages)) {
                 <th><?= $langs->trans("Service / produit") ?></th>
                 <th><?= $langs->trans("Points") ?></th>
                 <th><?= $langs->trans("Mission") ?></th>
+                <th><?= $langs->trans("€/km") ?></th>
+                <th><?= $langs->trans("Forfait €") ?></th>
                 <th><?= $langs->trans("Pax") ?></th>
                 <th><?= $langs->trans("A facturer") ?></th>
                 <th><?= $langs->trans("Instruction") ?></th>
@@ -451,6 +484,10 @@ if (!empty($setupMessages)) {
                 </td>
                 <td><input type="number" name="new_flight_type_points" value="" placeholder="prix du service"/></td>
                 <td><input type="checkbox" value="1" name="new_flight_type_mission"/></td>
+                <td><input type="number" step="0.0001" min="0" size="5" name="new_flight_type_km_allowance" value=""
+                           placeholder="<?= $defaultKmAllowance ?>"/></td>
+                <td><input type="number" step="0.01" min="0" size="5" name="new_flight_type_mission_allowance" value=""
+                           placeholder="<?= $defaultMissionAllowance ?>"/></td>
                 <td><input type="checkbox" value="1" name="new_flight_type_pax"/></td>
                 <td><input type="checkbox" value="1" name="new_flight_type_billing"/></td>
                 <td><input type="checkbox" value="1" name="new_flight_type_instruction"/></td>
