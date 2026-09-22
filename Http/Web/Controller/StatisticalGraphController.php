@@ -123,7 +123,14 @@ final class StatisticalGraphController extends WebController
         return $series;
     }
 
-    public function graphByType(GraphicalData $data)
+    /**
+     * @param GraphicalData $data  one serie per flight type
+     * @param string        $title title of the graph
+     * @param string        $tag   identifier of the graph, unique within the page
+     *
+     * @return Response
+     */
+    public function graphByType(GraphicalData $data, $title = "Par type et par année", $tag = 'per_type')
     {
         $graphByTypeAndYear = new DolGraph();
 
@@ -147,9 +154,9 @@ final class StatisticalGraphController extends WebController
         $graphByTypeAndYear->SetShading(3);
         $graphByTypeAndYear->SetHorizTickIncrement(1);
 
-        $graphByTypeAndYear->SetTitle("Par type et par année");
+        $graphByTypeAndYear->SetTitle($title);
 
-        $graphByTypeAndYear->draw('per_type_' . (new \DateTime())->getTimestamp());
+        $graphByTypeAndYear->draw($tag . '_' . (new \DateTime())->getTimestamp());
 
         return $this->render('statistical_graph/billable_flights_per_month.phtml', [
             'graph' => $graphByTypeAndYear

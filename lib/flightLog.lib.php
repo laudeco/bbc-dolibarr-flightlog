@@ -675,14 +675,17 @@ function fetchGraphByTypeAndYearData(GraphicalData $graphData)
 }
 
 /**
- * Data of the "by type and by year" graph. Every flight type of the configuration is
- * a serie of the graph, the retired ones included as long as they carry flights.
+ * Data of a "by type and by year" graph : one serie per given flight type.
+ *
+ * @param BbctypesLine[]|null $flightTypes the types to draw, all of them by default
  *
  * @return GraphicalData
  */
-function getGraphByTypeAndYearData()
+function getGraphByTypeAndYearData($flightTypes = null)
 {
-    $flightTypes = filterBbcFlightTypesWithHistory(fetchAllBbcFlightTypes());
+    if (null === $flightTypes) {
+        $flightTypes = filterBbcFlightTypesWithHistory(fetchAllBbcFlightTypes());
+    }
 
     $flightYears = getFlightYears();
     sort($flightYears);
@@ -700,4 +703,29 @@ function getGraphByTypeAndYearData()
     }
 
     return fetchGraphByTypeAndYearData($graphData);
+}
+
+/**
+ * Data of the graph of the missions of the club, one serie per mission type. The
+ * retired types are kept as long as they carry flights.
+ *
+ * @return GraphicalData
+ */
+function getGraphMissionsByTypeAndYearData()
+{
+    return getGraphByTypeAndYearData(
+        filterBbcMissionFlightTypes(filterBbcFlightTypesWithHistory(fetchAllBbcFlightTypes()))
+    );
+}
+
+/**
+ * Data of the graph of all the types that are not a mission for the club.
+ *
+ * @return GraphicalData
+ */
+function getGraphOtherFlightsByTypeAndYearData()
+{
+    return getGraphByTypeAndYearData(
+        filterBbcNonMissionFlightTypes(filterBbcFlightTypesWithHistory(fetchAllBbcFlightTypes()))
+    );
 }
