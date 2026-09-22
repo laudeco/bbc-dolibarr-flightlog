@@ -194,7 +194,7 @@ final class StatisticalGraphController extends WebController
     {
         $graphByTypeAndYear = new DolGraph();
 
-        $WIDTH = DolGraph::getDefaultGraphSizeForStats('width', 768);
+        $WIDTH = DolGraph::getDefaultGraphSizeForStats('width', 2000);
         $HEIGHT = DolGraph::getDefaultGraphSizeForStats('height');
 
         $graphByTypeAndYear->SetData($data->export());
